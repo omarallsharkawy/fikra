@@ -1,0 +1,11 @@
+.DS_Store
+*.log
+.idea/
+.vscode/
+# Flutter (added later)
+.dart_tool/
+build/
+# signing keys never in repo
+*.jks
+*.keystore
+key.properties
