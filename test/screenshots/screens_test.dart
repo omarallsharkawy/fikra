@@ -61,7 +61,7 @@ void main() {
       await pumpUntil(tester, find.text('محاضرة الشبكات'));
 
       await tester.tap(Tabs.finder(Tabs.add));
-      await pumpUntil(tester, find.text('تسجيل صوت'));
+      await pumpUntil(tester, find.byKey(const ValueKey('add-mic')));
       await capture('08_add_empty');
       await tester.enterText(
         find.byType(TextField).last,

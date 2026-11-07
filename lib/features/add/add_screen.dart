@@ -11,6 +11,7 @@ import 'package:record/record.dart';
 
 import '../../app/providers.dart';
 import '../../core/format.dart';
+import '../../core/motion/motion.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -19,7 +20,7 @@ import '../../data/ai/ai_service.dart';
 import '../../data/files/attachment_store.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
-import 'recorder_panel.dart';
+import 'inline_recorder.dart';
 
 enum _Mic { unknown, denied, blocked }
 
@@ -37,7 +38,11 @@ class _AddScreenState extends ConsumerState<AddScreen> {
 
   final _title = TextEditingController();
   final _text = TextEditingController();
-  final _recorder = AudioRecorder();
+  final _titleFocus = FocusNode();
+  final _textFocus = FocusNode();
+  // Created on first use: no recorder (or plugin channel) until the user records.
+  AudioRecorder? _recorderInstance;
+  AudioRecorder get _recorder => _recorderInstance ??= AudioRecorder();
 
   // Voice. Every transition is claimed synchronously before the first await so
   // double taps can't start two recordings or stop one twice.
@@ -78,20 +83,33 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     _ampSub?.cancel();
     _ticker?.cancel();
     _uploadSub?.cancel();
-    _recorder.dispose(); // also stops an active recording
+    _recorderInstance?.dispose(); // also stops an active recording
     _title.dispose();
     _text.dispose();
+    _titleFocus.dispose();
+    _textFocus.dispose();
     super.dispose();
   }
+
+  @override
+  void initState() {
+    super.initState();
+    // The composer border follows focus.
+    _titleFocus.addListener(_onFocus);
+    _textFocus.addListener(_onFocus);
+  }
+
+  void _onFocus() => _set(() {});
 
   // ---------------------------------------------------------------- voice
 
   Future<void> _startRecording() async {
-    if (_rec != _Rec.idle || _saving) return;
+    if (_rec != _Rec.idle || _saving || _hasAttachment) return;
     _set(() => _rec = _Rec.starting);
     FocusScope.of(context).unfocus();
     try {
       final status = await Permission.microphone.request();
+      if (!mounted) return;
       if (!status.isGranted) {
         _set(() {
           _rec = _Rec.idle;
@@ -100,6 +118,8 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         return;
       }
       final path = await ref.read(attachmentStoreProvider).newRecordingPath();
+      // Disposed meanwhile: never create a recorder that nothing will dispose.
+      if (!mounted) return;
       await _recorder.start(
         const RecordConfig(encoder: AudioEncoder.aacLc, numChannels: 1, bitRate: 64000),
         path: path,
@@ -124,7 +144,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     } catch (_) {
       await _teardown();
       try {
-        await _recorder.cancel();
+        await _recorderInstance?.cancel();
       } catch (_) {}
       _set(() => _rec = _Rec.idle);
       if (mounted) showToast(context, 'التسجيل مش شغال دلوقتي، جرّب تاني');
@@ -178,7 +198,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   // ---------------------------------------------------------------- pdf
 
   Future<void> _pickPdf() async {
-    if (_picking || _saving) return;
+    if (_picking || _saving || _rec != _Rec.idle || _hasAttachment) return;
     _picking = true;
     FocusScope.of(context).unfocus();
     try {
@@ -301,6 +321,32 @@ class _AddScreenState extends ConsumerState<AddScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final focused = _titleFocus.hasFocus || _textFocus.hasFocus;
+    final Widget attachment;
+    if (_voicePath != null && !_recording) {
+      attachment = Padding(
+        key: const ValueKey('voice'),
+        padding: const EdgeInsets.only(top: 4, bottom: 6),
+        child: VoicePlayer(path: _voicePath!, durationMs: _voiceMs ?? 0, onDelete: _discardVoice, embedded: true),
+      );
+    } else if (_pdf != null) {
+      attachment = Padding(
+        key: const ValueKey('pdf'),
+        padding: const EdgeInsets.only(top: 4, bottom: 6),
+        child: _PdfChip(
+          name: _pdf!.name,
+          bytes: _pdfBytes,
+          progress: _progress,
+          error: _uploadError,
+          onRetry: _upload,
+          onRemove: _removePdf,
+        ),
+      );
+    } else {
+      attachment = const SizedBox(key: ValueKey('none'), width: double.infinity);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -310,74 +356,97 @@ class _AddScreenState extends ConsumerState<AddScreen> {
             padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 24),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
-              FikraField(controller: _title, hint: 'عنوان (اختياري)', icon: Icons.title_rounded, maxLength: 80),
-              const SizedBox(height: 12),
-              Glass(
-                radius: FikraRadius.lg,
-                padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
-                child: TextField(
-                  controller: _text,
-                  minLines: 6,
-                  maxLines: 14,
-                  maxLength: 5000,
-                  onChanged: (_) => setState(() {}),
-                  style: context.text.bodyLarge,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    counterText: '',
-                    hintText: _hasAttachment ? 'ضيف ملاحظة على الملف (اختياري)' : 'اكتب فكرتك هنا…',
-                    hintStyle: context.text.bodyLarge.copyWith(color: context.colors.textPlaceholder),
+              FikraSwitcher(
+                animateSize: true,
+                child: _mic == _Mic.unknown
+                    ? const SizedBox(key: ValueKey('mic-ok'), width: double.infinity)
+                    : Padding(
+                        key: const ValueKey('mic-card'),
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _MicPermissionCard(
+                          blocked: _mic == _Mic.blocked,
+                          onRetry: _startRecording,
+                          onClose: () => setState(() => _mic = _Mic.unknown),
+                        ),
+                      ),
+              ),
+              AnimatedContainer(
+                duration: FikraMotion.reduced(context) ? Duration.zero : FikraMotion.enter,
+                curve: FikraMotion.enterCurve,
+                padding: const EdgeInsets.fromLTRB(16, 4, 10, 10),
+                decoration: BoxDecoration(
+                  gradient: c.glassGradient,
+                  borderRadius: BorderRadius.circular(FikraRadius.xl),
+                  border: Border.all(
+                    color: _recording
+                        ? c.danger.withValues(alpha: 0.55)
+                        : focused
+                        ? c.borderFocus.withValues(alpha: 0.6)
+                        : c.border,
+                    width: _recording || focused ? 1 : FikraSpace.hairline,
                   ),
                 ),
-              ),
-              const SizedBox(height: 14),
-              if (_mic != _Mic.unknown) ...[
-                _MicPermissionCard(
-                  blocked: _mic == _Mic.blocked,
-                  onRetry: _startRecording,
-                  onClose: () => setState(() => _mic = _Mic.unknown),
-                ),
-                const SizedBox(height: 14),
-              ],
-              if (_recording)
-                RecorderPanel(
-                  levels: _levels,
-                  elapsed: _elapsed,
-                  max: maxRecording,
-                  onStop: _stopRecording,
-                  onCancel: _cancelRecording,
-                )
-              else if (_voicePath != null)
-                VoicePlayer(path: _voicePath!, durationMs: _voiceMs ?? 0, onDelete: _discardVoice)
-              else if (_pdf != null)
-                _PdfChip(
-                  name: _pdf!.name,
-                  bytes: _pdfBytes,
-                  progress: _progress,
-                  error: _uploadError,
-                  onRetry: _upload,
-                  onRemove: _removePdf,
-                )
-              else
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: _SourceTile(icon: Icons.mic_none_rounded, label: 'تسجيل صوت', onTap: _startRecording),
+                    TextField(
+                      controller: _title,
+                      focusNode: _titleFocus,
+                      maxLength: 80,
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => _textFocus.requestFocus(),
+                      style: context.text.cardTitleSmall,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        counterText: '',
+                        hintText: 'عنوان (اختياري)',
+                        hintStyle: context.text.cardTitleSmall.copyWith(color: c.textPlaceholder),
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _SourceTile(icon: Icons.upload_file_rounded, label: 'رفع ملف PDF', onTap: _pickPdf),
+                    Container(height: FikraSpace.hairline, color: c.border),
+                    FikraSwitcher(
+                      animateSize: true,
+                      child: _recording
+                          ? InlineRecorder(
+                              key: const ValueKey('recording'),
+                              levels: _levels,
+                              elapsed: _elapsed,
+                              max: maxRecording,
+                            )
+                          : TextField(
+                              key: const ValueKey('text'),
+                              controller: _text,
+                              focusNode: _textFocus,
+                              minLines: 5,
+                              maxLines: 14,
+                              maxLength: 5000,
+                              onChanged: (_) => setState(() {}),
+                              style: context.text.bodyLarge,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                counterText: '',
+                                hintText: _hasAttachment ? 'ضيف ملاحظة على الملف (اختياري)' : 'اكتب فكرتك هنا…',
+                                hintStyle: context.text.bodyLarge.copyWith(color: c.textPlaceholder),
+                              ),
+                            ),
+                    ),
+                    FikraSwitcher(animateSize: true, child: attachment),
+                    _Toolbar(
+                      recording: _recording,
+                      attachmentsEnabled: !_hasAttachment && !_saving && _rec == _Rec.idle,
+                      canSave: _canSave,
+                      saving: _saving,
+                      onMic: _startRecording,
+                      onPdf: _pickPdf,
+                      onStop: _rec == _Rec.recording ? _stopRecording : null,
+                      onCancel: _rec == _Rec.recording ? _cancelRecording : null,
+                      onSave: _save,
                     ),
                   ],
                 ),
-              const SizedBox(height: 22),
-              FikraButton(
-                label: 'حفظ',
-                icon: Icons.check_rounded,
-                loading: _saving,
-                onPressed: _canSave ? _save : null,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Text(
                 'النوت بتتحفظ الأول، وبعدين فِكرة بتحللها وتربطها.',
                 textAlign: TextAlign.center,
@@ -391,31 +460,161 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   }
 }
 
-class _SourceTile extends StatelessWidget {
-  const _SourceTile({required this.icon, required this.label, required this.onTap});
+/// Bottom row of the composer. Idle: mic + PDF on the start side, save on the
+/// end. Recording: cancel + stop.
+class _Toolbar extends StatelessWidget {
+  const _Toolbar({
+    required this.recording,
+    required this.attachmentsEnabled,
+    required this.canSave,
+    required this.saving,
+    required this.onMic,
+    required this.onPdf,
+    required this.onStop,
+    required this.onCancel,
+    required this.onSave,
+  });
+  final bool recording;
+  final bool attachmentsEnabled;
+  final bool canSave;
+  final bool saving;
+  final VoidCallback onMic;
+  final VoidCallback onPdf;
+  final VoidCallback? onStop;
+  final VoidCallback? onCancel;
+  final VoidCallback onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return SizedBox(
+      height: 48,
+      child: FikraSwitcher(
+        alignment: Alignment.center,
+        child: recording
+            ? Row(
+                key: const ValueKey('rec-tools'),
+                children: [
+                  _ToolButton(
+                    key: const ValueKey('add-cancel-rec'),
+                    icon: Icons.close_rounded,
+                    label: 'إلغاء التسجيل',
+                    onTap: onCancel,
+                  ),
+                  const Spacer(),
+                  _RoundAction(
+                    key: const ValueKey('add-stop'),
+                    icon: Icons.stop_rounded,
+                    label: 'إيقاف التسجيل',
+                    color: c.danger,
+                    foreground: c.textOnSelected,
+                    onTap: onStop,
+                  ),
+                ],
+              )
+            : Row(
+                key: const ValueKey('idle-tools'),
+                children: [
+                  _ToolButton(
+                    key: const ValueKey('add-mic'),
+                    icon: Icons.mic_none_rounded,
+                    label: 'تسجيل صوت',
+                    onTap: attachmentsEnabled ? onMic : null,
+                  ),
+                  const SizedBox(width: 6),
+                  _ToolButton(
+                    key: const ValueKey('add-pdf'),
+                    icon: Icons.attach_file_rounded,
+                    label: 'رفع ملف PDF',
+                    onTap: attachmentsEnabled ? onPdf : null,
+                  ),
+                  const Spacer(),
+                  _RoundAction(
+                    key: const ValueKey('add-save'),
+                    icon: Icons.check_rounded,
+                    label: 'حفظ',
+                    gradient: c.sendGradient,
+                    foreground: c.textOnSend,
+                    loading: saving,
+                    onTap: canSave ? onSave : null,
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+/// Small round tool (mic, attach, cancel): subtle fill, 48 dp hit area.
+class _ToolButton extends StatelessWidget {
+  const _ToolButton({super.key, required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Pressable(
       onTap: onTap,
       semanticLabel: label,
-      child: Glass(
-        radius: FikraRadius.lg,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(gradient: context.colors.selectedGradient, shape: BoxShape.circle),
-              child: Icon(icon, size: 24, color: context.colors.textOnSelected),
-            ),
-            const SizedBox(height: 10),
-            Text(label, style: context.text.chip.copyWith(fontSize: 14)),
-          ],
+      minTarget: true,
+      child: AnimatedOpacity(
+        opacity: onTap == null ? 0.35 : 1,
+        duration: FikraMotion.reduced(context) ? Duration.zero : FikraMotion.exit,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: context.colors.pressed,
+            shape: BoxShape.circle,
+            border: Border.all(color: context.colors.border, width: FikraSpace.hairline),
+          ),
+          child: Icon(icon, size: 21, color: context.colors.textPrimary),
+        ),
+      ),
+    );
+  }
+}
+
+/// The composer's main action (save, stop): filled circle at the end side.
+class _RoundAction extends StatelessWidget {
+  const _RoundAction({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.foreground,
+    required this.onTap,
+    this.gradient,
+    this.color,
+    this.loading = false,
+  });
+  final IconData icon;
+  final String label;
+  final Color foreground;
+  final VoidCallback? onTap;
+  final Gradient? gradient;
+  final Color? color;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: loading ? null : onTap,
+      semanticLabel: label,
+      minTarget: true,
+      child: AnimatedOpacity(
+        opacity: onTap == null && !loading ? 0.35 : 1,
+        duration: FikraMotion.reduced(context) ? Duration.zero : FikraMotion.exit,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(gradient: gradient, color: color, shape: BoxShape.circle),
+          child: loading
+              ? Padding(
+                  padding: const EdgeInsets.all(13),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
+                )
+              : Icon(icon, size: 24, color: foreground),
         ),
       ),
     );
@@ -442,9 +641,10 @@ class _PdfChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final done = progress == 1 && error == null;
     return Glass(
-      radius: FikraRadius.lg,
-      borderColor: error != null ? context.colors.danger : context.colors.border,
-      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+      radius: FikraRadius.md,
+      color: context.colors.pressed,
+      borderColor: error != null ? context.colors.danger : Colors.transparent,
+      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -485,7 +685,7 @@ class _PdfChip extends StatelessWidget {
             ],
           ),
           if (!done && error == null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: ClipRRect(

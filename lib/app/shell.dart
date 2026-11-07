@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/motion/motion.dart';
 import '../core/motion/pressable.dart';
 import '../core/theme/tokens.dart';
 
@@ -148,6 +149,66 @@ class _FikraNavBarState extends State<FikraNavBar> with SingleTickerProviderStat
           );
         },
       ),
+    );
+  }
+}
+
+/// All navigator elements stay in their original slots. Only the selected
+/// branch paints, receives input/focus/semantics, or runs descendant tickers.
+class FikraBranchContainer extends StatefulWidget {
+  const FikraBranchContainer({super.key, required this.index, required this.children});
+  final int index;
+  final List<Widget> children;
+
+  @override
+  State<FikraBranchContainer> createState() => _FikraBranchContainerState();
+}
+
+class _FikraBranchContainerState extends State<FikraBranchContainer> with SingleTickerProviderStateMixin {
+  late final AnimationController _enter = AnimationController(vsync: this, value: 1);
+
+  @override
+  void didUpdateWidget(covariant FikraBranchContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index) {
+      _enter.duration = FikraMotion.reduced(context) ? FikraMotion.reducedFade : FikraMotion.enter;
+      _enter.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _enter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduced = FikraMotion.reduced(context);
+    final progress = _enter.drive(CurveTween(curve: reduced ? Curves.linear : FikraMotion.enterCurve));
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        for (var i = 0; i < widget.children.length; i++)
+          Offstage(
+            offstage: i != widget.index,
+            child: TickerMode(
+              enabled: i == widget.index,
+              child: ExcludeFocus(
+                excluding: i != widget.index,
+                child: FadeTransition(
+                  opacity: progress,
+                  child: ScaleTransition(
+                    scale: reduced
+                        ? const AlwaysStoppedAnimation(1.0)
+                        : progress.drive(Tween(begin: FikraMotion.enterScale, end: 1.0)),
+                    child: widget.children[i],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../motion/page_transitions.dart';
 import 'tokens.dart';
 
 ThemeData buildFikraTheme(Brightness brightness) {
@@ -62,8 +63,6 @@ ThemeData buildFikraTheme(Brightness brightness) {
       elevation: 0,
     ),
     iconTheme: IconThemeData(color: colors.textPrimary, size: 22),
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {TargetPlatform.android: FadeForwardsPageTransitionsBuilder()},
-    ),
+    pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: FikraPageTransitionsBuilder()}),
   );
 }

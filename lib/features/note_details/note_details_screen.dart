@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
+import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/widgets/voice_player.dart';
@@ -142,17 +143,26 @@ class _Body extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 18),
-        if (note.status == ProcessingStatus.processing) ...[const _ProcessingCard(), const SizedBox(height: 16)],
-        if (note.status == ProcessingStatus.failed) ...[
-          const StatusBanner(kind: BannerKind.error, message: 'التحليل فشل، بس النوت محفوظة زي ما هي.'),
-          const SizedBox(height: 10),
-          FikraButton.secondary(
-            label: 'جرّب التحليل تاني',
-            icon: Icons.refresh_rounded,
-            onPressed: () => ref.read(noteProcessorProvider).retry(note.id),
+        FikraSwitcher(
+          animateSize: true,
+          child: Column(
+            key: ValueKey(note.status),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (note.status == ProcessingStatus.processing) ...[const _ProcessingCard(), const SizedBox(height: 16)],
+              if (note.status == ProcessingStatus.failed) ...[
+                const StatusBanner(kind: BannerKind.error, message: 'التحليل فشل، بس النوت محفوظة زي ما هي.'),
+                const SizedBox(height: 10),
+                FikraButton.secondary(
+                  label: 'جرّب التحليل تاني',
+                  icon: Icons.refresh_rounded,
+                  onPressed: () => ref.read(noteProcessorProvider).retry(note.id),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ],
           ),
-          const SizedBox(height: 16),
-        ],
+        ),
         if (note.rewrite == RewriteStatus.pending && note.proposedText != null) ...[
           _ProposalCard(note: note, onAccepted: () => onView(_improvedView)),
           const SizedBox(height: 16),

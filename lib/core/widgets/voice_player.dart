@@ -11,11 +11,21 @@ import 'fikra_widgets.dart';
 /// Plays a local audio file: play / pause, progress, optional delete.
 /// Used for the recording preview (Add) and voice notes (Details).
 class VoicePlayer extends StatefulWidget {
-  const VoicePlayer({super.key, required this.path, required this.durationMs, this.onDelete, this.title});
+  const VoicePlayer({
+    super.key,
+    required this.path,
+    required this.durationMs,
+    this.onDelete,
+    this.title,
+    this.embedded = false,
+  });
   final String path;
   final int durationMs;
   final VoidCallback? onDelete;
   final String? title;
+
+  /// Flat fill instead of a glass card, for use inside another surface.
+  final bool embedded;
 
   @override
   State<VoicePlayer> createState() => _VoicePlayerState();
@@ -53,8 +63,10 @@ class _VoicePlayerState extends State<VoicePlayer> {
   @override
   Widget build(BuildContext context) {
     return Glass(
-      radius: FikraRadius.lg,
-      padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+      radius: widget.embedded ? FikraRadius.md : FikraRadius.lg,
+      color: widget.embedded ? context.colors.pressed : null,
+      borderColor: widget.embedded ? Colors.transparent : null,
+      padding: widget.embedded ? const EdgeInsets.fromLTRB(8, 8, 4, 8) : const EdgeInsets.fromLTRB(12, 12, 8, 12),
       child: Row(
         children: [
           Pressable(

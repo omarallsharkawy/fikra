@@ -42,7 +42,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
       GoRoute(path: '/storage-error', builder: (_, _) => const StorageErrorScreen()),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
+        navigatorContainerBuilder: (context, shell, children) =>
+            FikraBranchContainer(index: shell.currentIndex, children: children),
         builder: (context, state, shell) => AppShell(shell: shell),
         branches: [
           StatefulShellBranch(

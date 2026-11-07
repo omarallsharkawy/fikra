@@ -46,3 +46,20 @@ Change a value in `tokens.dart`, never inline in a screen. Two sizes intentional
 5. **Never lose input:** upload/processing errors keep the typed text and the attachment; "saved" and "AI finished" are separate states.
 6. **Demo mode** shows the `بيانات تجريبية` badge on Ask and anywhere AI output is simulated.
 7. **Motion (Plasma):** press scale 0.964 with the smooth spring, sheets slide up ~310 ms ease-in-out over a 60% scrim, enter = fade + scale 0.96→1. Respect Reduce Motion.
+
+## Motion
+
+`lib/core/motion/motion.dart` is the source of truth for transition tokens.
+
+| Motion | Tokens / widget |
+|---|---|
+| Press feedback, tab / segment pill | `Pressable`, `FikraSprings.smooth`; press scale 0.964 (cards 0.98) |
+| Content state swap | `FikraSwitcher`, distinct state keys; exit 120 ms in-cubic, then enter 250 ms out-cubic + scale 0.96→1 |
+| Height changes | `FikraSwitcher(animateSize: true)`; expand 280 ms out-cubic |
+| Tab branch change | `FikraBranchContainer`; enter tokens, hidden branches stay alive offstage |
+| New chat message | Enter fade + 8 dp upward offset; existing messages stay still |
+| Screen push / pop | `FikraPageTransitionsBuilder`; 400 ms `Cubic(0.23, 1, 0.32, 1)`, 30 dp from the logical end (left in RTL), 100 ms fade; predictive back scrubs the route |
+| Sheets | `showFikraSheet`; 310 ms `Cubic(0.42, 0, 0.58, 1)` in both directions |
+| Destructive dialog | `confirmDestructive`; enter tokens, then fast exit fade |
+
+Respect `MediaQuery.disableAnimations`: `FikraMotion.reduced(context)` selects plain 180 ms fades or instant transitions, with no slide, scale, or size animation. Key state changes, never stream ticks; the initial content does not animate.

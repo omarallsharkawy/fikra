@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/format.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/widgets/fikra_widgets.dart';
 
 /// How many level samples the waveform shows. The Add screen keeps at most
 /// this many; the painter pads with silence when it has fewer.
@@ -15,35 +14,25 @@ const kWaveformFloorDb = -50.0;
 /// Maps a dBFS reading to a 0..1 bar height.
 double levelFromDb(double db) => ((db - kWaveformFloorDb) / -kWaveformFloorDb).clamp(0.06, 1.0);
 
-/// Live recording: level bars, timer, stop / cancel.
-class RecorderPanel extends StatelessWidget {
-  const RecorderPanel({
-    super.key,
-    required this.levels,
-    required this.elapsed,
-    required this.max,
-    required this.onStop,
-    required this.onCancel,
-  });
+/// Live recording inside the composer: status, timer and level bars.
+/// Stop / cancel live in the composer's toolbar.
+class InlineRecorder extends StatelessWidget {
+  const InlineRecorder({super.key, required this.levels, required this.elapsed, required this.max});
   final List<double> levels;
   final Duration elapsed;
   final Duration max;
-  final VoidCallback onStop;
-  final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
-      radius: FikraRadius.lg,
-      borderColor: context.colors.danger.withValues(alpha: 0.5),
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 14, 2, 6),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 10,
-                height: 10,
+                width: 8,
+                height: 8,
                 decoration: BoxDecoration(color: context.colors.danger, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
@@ -55,23 +44,12 @@ class RecorderPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           SizedBox(
-            height: 56,
+            height: 72,
             child: CustomPaint(painter: _LevelsPainter(levels, context.colors.accentLight), size: Size.infinite),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: FikraButton(label: 'إيقاف', icon: Icons.stop_rounded, onPressed: onStop),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: FikraButton.secondary(label: 'إلغاء', onPressed: onCancel),
-              ),
-            ],
-          ),
+          const SizedBox(height: 18),
         ],
       ),
     );

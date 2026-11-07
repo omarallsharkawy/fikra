@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/format.dart';
+import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -63,49 +64,68 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             ),
           ),
         Expanded(
-          child: notesAsync.hasError && !notesAsync.hasValue
-              ? LoadErrorView(onRetry: () => ref.invalidate(selectedNotesProvider))
-              : !notesAsync.hasValue
-              ? const SizedBox.shrink()
-              : all.isEmpty
-              ? FillScroll(
-                  child: EmptyState(
-                    icon: Icons.sticky_note_2_outlined,
-                    title: 'لسه مفيش نوتس',
-                    description: 'اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها.',
-                    action: FikraButton(
-                      label: 'ضيف أول نوت',
-                      icon: Icons.add_rounded,
-                      expand: false,
-                      onPressed: () => context.go('/add'),
-                    ),
-                  ),
-                )
-              : notes.isEmpty
-              ? FillScroll(
-                  child: EmptyState(
-                    icon: Icons.search_off_rounded,
-                    title: 'مفيش نتايج',
-                    description: 'مفيش نوت فيها «$_query». جرّب كلمة تانية.',
-                  ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  children: [
-                    for (final e in groups.entries) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 10),
-                        child: Text(e.key, style: context.text.section.copyWith(color: context.colors.textSecondary)),
-                      ),
-                      for (final n in e.value)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: NoteCard(note: n, onTap: () => context.push('/note/${n.id}')),
+          child: FikraSwitcher(
+            child: KeyedSubtree(
+              key: ValueKey(
+                notesAsync.hasError && !notesAsync.hasValue
+                    ? 'error'
+                    : !notesAsync.hasValue
+                    ? 'loading'
+                    : all.isEmpty
+                    ? 'empty'
+                    : notes.isEmpty
+                    ? 'no-results'
+                    : 'list',
+              ),
+              child: notesAsync.hasError && !notesAsync.hasValue
+                  ? LoadErrorView(onRetry: () => ref.invalidate(selectedNotesProvider))
+                  : !notesAsync.hasValue
+                  ? const SizedBox.shrink()
+                  : all.isEmpty
+                  ? FillScroll(
+                      child: EmptyState(
+                        icon: Icons.sticky_note_2_outlined,
+                        title: 'لسه مفيش نوتس',
+                        description: 'اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها.',
+                        action: FikraButton(
+                          label: 'ضيف أول نوت',
+                          icon: Icons.add_rounded,
+                          expand: false,
+                          onPressed: () => context.go('/add'),
                         ),
-                    ],
-                  ],
-                ),
+                      ),
+                    )
+                  : notes.isEmpty
+                  ? FillScroll(
+                      child: EmptyState(
+                        icon: Icons.search_off_rounded,
+                        title: 'مفيش نتايج',
+                        description: 'مفيش نوت فيها «$_query». جرّب كلمة تانية.',
+                      ),
+                    )
+                  : ListView(
+                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      children: [
+                        for (final e in groups.entries) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: Text(
+                              e.key,
+                              style: context.text.section.copyWith(color: context.colors.textSecondary),
+                            ),
+                          ),
+                          for (final n in e.value)
+                            Padding(
+                              key: ValueKey(n.id),
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: NoteCard(note: n, onTap: () => context.push('/note/${n.id}')),
+                            ),
+                        ],
+                      ],
+                    ),
+            ),
+          ),
         ),
       ],
     );

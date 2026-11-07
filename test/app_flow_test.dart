@@ -48,6 +48,32 @@ void main() {
     expect(Theme.of(tester.element(find.text('ابدأ مشروع جديد'))).brightness, Brightness.light);
   });
 
+  fikraTest('add: one composer box holds title, text, tools and save', (tester, db) async {
+    await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
+    await tester.tap(find.text('جرّب مشروع تجريبي'));
+    await pumpUntil(tester, find.text('محاضرة الشبكات'));
+
+    await tester.tap(Tabs.finder(Tabs.add));
+    final save = find.byKey(const ValueKey('add-save'));
+    await pumpUntil(tester, save);
+    expect(find.byKey(const ValueKey('add-mic')), findsOneWidget);
+    expect(find.byKey(const ValueKey('add-pdf')), findsOneWidget);
+
+    // Empty draft: save does nothing.
+    await tester.tap(save);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(save, findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, 'فكرة الكومبوزر');
+    await tester.enterText(find.byType(TextField).last, 'البوكس فيه كل حاجة زي الشات.');
+    await tester.pump();
+    await tester.tap(save);
+    await pumpUntil(tester, find.text('فكرة الكومبوزر'));
+    await tester.pump(const Duration(seconds: 5)); // let the demo analysis finish
+    final notes = await pumpFuture(tester, () => db.select(db.notes).get());
+    expect(notes.where((n) => n.title == 'فكرة الكومبوزر'), hasLength(1));
+  });
+
   fikraTest('deleting the last project returns to welcome', (tester, db) async {
     await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
 

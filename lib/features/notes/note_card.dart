@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
+import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -48,21 +49,27 @@ class NoteCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 10),
-            switch (note.status) {
-              ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing),
-              ProcessingStatus.failed => const FikraBadge(kind: BadgeKind.failed, label: 'التحليل فشل'),
-              ProcessingStatus.ready => Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  if (note.rewrite == RewriteStatus.pending)
-                    const FikraBadge(kind: BadgeKind.processing, label: 'في اقتراح صياغة'),
-                  for (final c in concepts.take(3)) _ConceptTag(c),
-                  if (concepts.isEmpty && note.rewrite != RewriteStatus.pending)
-                    const FikraBadge(kind: BadgeKind.saved, label: 'محفوظة'),
-                ],
+            FikraSwitcher(
+              alignment: AlignmentDirectional.topStart,
+              child: KeyedSubtree(
+                key: ValueKey(note.status),
+                child: switch (note.status) {
+                  ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing),
+                  ProcessingStatus.failed => const FikraBadge(kind: BadgeKind.failed, label: 'التحليل فشل'),
+                  ProcessingStatus.ready => Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (note.rewrite == RewriteStatus.pending)
+                        const FikraBadge(kind: BadgeKind.processing, label: 'في اقتراح صياغة'),
+                      for (final c in concepts.take(3)) _ConceptTag(c),
+                      if (concepts.isEmpty && note.rewrite != RewriteStatus.pending)
+                        const FikraBadge(kind: BadgeKind.saved, label: 'محفوظة'),
+                    ],
+                  ),
+                },
               ),
-            },
+            ),
           ],
         ),
       ),

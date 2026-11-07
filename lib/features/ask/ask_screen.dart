@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../core/motion/motion.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -21,6 +22,11 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   bool _thinking = false;
+
+  // Messages already on screen. Only ids that arrive later animate in, so the
+  // first load and a project switch show the history as-is.
+  String? _chatProject;
+  Set<String>? _seen;
 
   @override
   void dispose() {
@@ -59,14 +65,13 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   void _toBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scroll.hasClients) return;
+      // During an empty ↔ chat swap the outgoing list can still be attached;
+      // the newest position is the visible one.
+      final position = _scroll.positions.last;
       if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
-        _scroll.jumpTo(_scroll.position.maxScrollExtent);
+        position.jumpTo(position.maxScrollExtent);
       } else {
-        _scroll.animateTo(
-          _scroll.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 280),
-          curve: Curves.easeOutCubic,
-        );
+        position.animateTo(position.maxScrollExtent, duration: FikraMotion.expand, curve: FikraMotion.expandCurve);
       }
     });
   }
@@ -87,6 +92,19 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   Widget build(BuildContext context) {
     final chatAsync = ref.watch(selectedChatProvider);
     final entries = chatAsync.value ?? const <ChatEntry>[];
+    final projectId = ref.watch(selectedProjectProvider)?.id;
+    if (projectId != _chatProject) {
+      _chatProject = projectId;
+      _seen = null;
+    }
+    final seen = _seen;
+    final newMessages = seen == null
+        ? const <String>{}
+        : {
+            for (final e in entries)
+              if (!seen.contains(e.id)) e.id,
+          };
+    if (chatAsync.hasValue) _seen = {...?seen, for (final e in entries) e.id};
     final notes = ref.watch(selectedNotesProvider).value ?? const <Note>[];
     final notesById = {for (final n in notes) n.id: n};
     // Suggestions come from the user's own notes, so they always have an answer.
@@ -120,56 +138,78 @@ class _AskScreenState extends ConsumerState<AskScreen> {
             ),
           ),
         Expanded(
-          child: chatAsync.hasError && !chatAsync.hasValue
-              ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
-              : entries.isEmpty && !_thinking
-              ? ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-                  children: [
-                    EmptyState(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      icon: Icons.chat_bubble_outline_rounded,
-                      title: 'اسأل نوتسك',
-                      description: notes.isEmpty
-                          ? 'ضيف نوتس الأول، وبعدها اسأل عنها هنا. الإجابة بتيجي من نوتسك بس، ومعاها المصدر.'
-                          : 'الإجابة بتيجي من النوتس اللي في المشروع ده بس، ومعاها المصدر.',
-                    ),
-                    if (suggestions.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
-                      ),
-                    ],
-                  ],
-                )
-              : ListView(
-                  controller: _scroll,
-                  padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  children: [
-                    for (final e in entries)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: e.isUser ? _UserBubble(e.body) : _AnswerBubble(entry: e, notesById: notesById),
-                      ),
-                    if (_thinking)
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Glass(
-                          radius: FikraRadius.lg,
-                          padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                          child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accentLight),
-                          ),
+          child: FikraSwitcher(
+            child: KeyedSubtree(
+              key: ValueKey(
+                chatAsync.hasError && !chatAsync.hasValue
+                    ? 'error'
+                    : entries.isEmpty && !_thinking
+                    ? 'empty'
+                    : 'chat',
+              ),
+              child: chatAsync.hasError && !chatAsync.hasValue
+                  ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
+                  : entries.isEmpty && !_thinking
+                  ? ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+                      children: [
+                        EmptyState(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          icon: Icons.chat_bubble_outline_rounded,
+                          title: 'اسأل نوتسك',
+                          description: notes.isEmpty
+                              ? 'ضيف نوتس الأول، وبعدها اسأل عنها هنا. الإجابة بتيجي من نوتسك بس، ومعاها المصدر.'
+                              : 'الإجابة بتيجي من النوتس اللي في المشروع ده بس، ومعاها المصدر.',
                         ),
-                      ),
-                  ],
-                ),
+                        if (suggestions.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
+                          ),
+                        ],
+                      ],
+                    )
+                  : ListView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      children: [
+                        for (final e in entries)
+                          Padding(
+                            key: ValueKey(e.id),
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _MessageEnter(
+                              animate: newMessages.contains(e.id),
+                              child: e.isUser ? _UserBubble(e.body) : _AnswerBubble(entry: e, notesById: notesById),
+                            ),
+                          ),
+                        FikraSwitcher(
+                          child: _thinking
+                              ? Align(
+                                  key: const ValueKey('thinking'),
+                                  alignment: AlignmentDirectional.centerEnd,
+                                  child: Glass(
+                                    radius: FikraRadius.lg,
+                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: context.colors.accentLight,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(key: ValueKey('idle')),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 8),
@@ -319,6 +359,55 @@ class _SourceRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A message animates once when appended, never when a stream updates it or
+/// when an existing conversation is first loaded / another project is opened.
+class _MessageEnter extends StatefulWidget {
+  const _MessageEnter({required this.animate, required this.child});
+  final bool animate;
+  final Widget child;
+
+  @override
+  State<_MessageEnter> createState() => _MessageEnterState();
+}
+
+class _MessageEnterState extends State<_MessageEnter> with SingleTickerProviderStateMixin {
+  late final AnimationController _enter = AnimationController(vsync: this, value: 1);
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+    if (widget.animate) {
+      _enter.duration = FikraMotion.reduced(context) ? FikraMotion.reducedFade : FikraMotion.enter;
+      _enter.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _enter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduced = FikraMotion.reduced(context);
+    return AnimatedBuilder(
+      animation: _enter,
+      child: widget.child,
+      builder: (context, child) {
+        final progress = reduced ? _enter.value : FikraMotion.enterCurve.transform(_enter.value);
+        return Transform.translate(
+          offset: Offset(0, reduced ? 0 : FikraMotion.messageOffset * (1 - progress)),
+          child: Opacity(opacity: progress, child: child),
+        );
+      },
     );
   }
 }
