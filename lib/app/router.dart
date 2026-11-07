@@ -16,6 +16,21 @@ import 'providers.dart';
 import 'shell.dart';
 import 'storage_error_screen.dart';
 
+/// A screen pushed on top of another one, with the app's push transition
+/// (FikraPageTransitionsBuilder) and predictive back.
+///
+/// Built explicitly because go_router 18 only recognises `MaterialApp` from
+/// `package:material_ui`. With Flutter's own `MaterialApp` it falls back to
+/// `NoTransitionPage` for `builder:` routes, and every push jumps in one frame.
+/// Routes that replace each other (splash, welcome, the shell) keep that.
+Page<void> _pushed(GoRouterState state, Widget child) => MaterialPage<void>(
+  key: state.pageKey,
+  name: state.name ?? state.path,
+  arguments: <String, String>{...state.pathParameters, ...state.uri.queryParameters},
+  restorationId: state.pageKey.value,
+  child: child,
+);
+
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run redirects whenever the project list changes (first project created,
   // last project deleted).
@@ -62,22 +77,25 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
+      GoRoute(path: '/settings', pageBuilder: (_, s) => _pushed(s, const SettingsScreen())),
       GoRoute(
         path: '/note/:id',
         // `extra` is the note the caller already has, so the screen draws it on
         // the first frame instead of waiting for the query. Deep links omit it.
-        builder: (_, s) => NoteDetailsScreen(
-          noteId: s.pathParameters['id']!,
-          initial: switch (s.extra) {
-            final Note n when n.id == s.pathParameters['id'] => n,
-            _ => null,
-          },
+        pageBuilder: (_, s) => _pushed(
+          s,
+          NoteDetailsScreen(
+            noteId: s.pathParameters['id']!,
+            initial: switch (s.extra) {
+              final Note n when n.id == s.pathParameters['id'] => n,
+              _ => null,
+            },
+          ),
         ),
         routes: [
           GoRoute(
             path: 'edit',
-            builder: (_, s) => EditNoteScreen(noteId: s.pathParameters['id']!),
+            pageBuilder: (_, s) => _pushed(s, EditNoteScreen(noteId: s.pathParameters['id']!)),
           ),
         ],
       ),

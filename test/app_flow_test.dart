@@ -1,3 +1,8 @@
+import 'package:fikra/features/settings/settings_screen.dart';
+import 'package:fikra/features/note_details/edit_note_screen.dart';
+import 'package:fikra/features/note_details/note_details_screen.dart';
+import 'package:fikra/core/motion/motion.dart';
+import 'package:fikra/app/shell.dart';
 import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
@@ -143,17 +148,81 @@ void main() {
     });
     await pumpUntil(tester, find.text('مشروع'));
 
+    // The list card under the sliding page shows the same text, so look only
+    // inside the details screen.
+    // The first frame of a pushed page is built offstage (the hero controller
+    // measures it), so the finders include offstage widgets.
+    final details = find.byType(NoteDetailsScreen, skipOffstage: false);
+    final content = find.descendant(of: details, matching: find.text('محتوى', skipOffstage: false));
+
+    // go_router parses the location asynchronously: pump to the route's first frame.
+    Future<void> firstFrameOfDetails() async {
+      for (var i = 0; i < 5 && details.evaluate().isEmpty; i++) {
+        await tester.pump();
+      }
+      expect(details, findsOneWidget);
+    }
+
     // Deep link (no note handed over): nothing until the query answers.
     tester.element(find.text('مشروع')).push('/note/${note.id}');
-    await tester.pump(); // the route's first frame
-    expect(find.text('محتوى'), findsNothing);
-    await pumpUntil(tester, find.text('محتوى'));
-    tester.element(find.text('محتوى')).pop();
+    await firstFrameOfDetails();
+    expect(content, findsNothing);
+    await pumpUntil(tester, content);
+    tester.element(details).pop();
     await tester.pumpAndSettle();
 
     // From the app (note handed over): drawn with the page itself.
     tester.element(find.text('مشروع')).push('/note/${note.id}', extra: note);
-    await tester.pump();
-    expect(find.text('محتوى'), findsOneWidget);
+    await firstFrameOfDetails();
+    expect(content, findsOneWidget);
+  });
+
+  // go_router 18 falls back to NoTransitionPage for Flutter's own MaterialApp,
+  // so pushed screens must stay explicit pages with the app's transition.
+  fikraTest('note, edit and settings slide in with the push transition through the real router', (tester, db) async {
+    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    late Note note;
+    await pumpFuture(tester, () async {
+      final p = await LocalProjectsRepository(db).create('مشروع');
+      note = await LocalNotesRepository(db)
+          .create(projectId: p.id, title: 'نوت', text: 'محتوى', source: NoteSource.text);
+    });
+    await pumpUntil(tester, find.text('مشروع'));
+
+    Future<void> expectSlideIn(String location, Type screen) async {
+      tester
+          .element(find.byType(AppShell, skipOffstage: false))
+          .push(location, extra: location == '/note/${note.id}' ? note : null);
+      // go_router parses the location asynchronously; the page appears within a frame or two.
+      for (var i = 0; i < 5 && find.byType(screen).evaluate().isEmpty; i++) {
+        await tester.pump();
+      }
+      final route = ModalRoute.of(tester.element(find.byType(screen)))!;
+      expect(route, isA<PageRoute<void>>());
+      expect((route as PageRoute<void>).transitionDuration, FikraMotion.push, reason: location);
+      await tester.pump(FikraMotion.push ~/ 2);
+      expect(route.animation!.value, inExclusiveRange(0.0, 1.0), reason: '$location animates');
+      await tester.pump(FikraMotion.push); // edit has a blinking cursor, so it never "settles"
+      expect(route.animation!.value, 1);
+    }
+
+    await expectSlideIn('/note/${note.id}', NoteDetailsScreen);
+    await expectSlideIn('/note/${note.id}/edit', EditNoteScreen);
+    // System back (not a direct pop) goes through PopScope and the router.
+    // Edit leaves through its PopScope and pops a frame later, so allow a
+    // couple of frames on top of the 400 ms slide.
+    Future<void> systemBack(Type screen) async {
+      await tester.binding.handlePopRoute();
+      final gone = find.byType(screen, skipOffstage: false);
+      for (var ms = 0; ms <= FikraMotion.push.inMilliseconds + 100 && gone.evaluate().isNotEmpty; ms += 50) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(gone, findsNothing, reason: '$screen closes on system back');
+    }
+
+    await systemBack(EditNoteScreen); // the form is unchanged, so it leaves without asking
+    expect(find.byType(NoteDetailsScreen), findsOneWidget);
+    await systemBack(NoteDetailsScreen);
+    await expectSlideIn('/settings', SettingsScreen);
   });
 }
