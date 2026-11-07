@@ -126,16 +126,16 @@ class _Body extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
       children: [
-        Text(noteTitle(note), style: FikraText.title.copyWith(fontWeight: FontWeight.w700)),
+        Text(noteTitle(note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         Row(
           children: [
-            Icon(sourceIcon(note.source), size: 16, color: FikraColors.textMeta),
+            Icon(sourceIcon(note.source), size: 16, color: context.colors.textMeta),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 [Fmt.dayHeader(note.createdAt), Fmt.time(note.createdAt), ?note.cluster].join(' · '),
-                style: FikraText.meta.copyWith(fontSize: 12),
+                style: context.text.meta.copyWith(fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -162,20 +162,20 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: 14),
         ],
         if (note.rewrite == RewriteStatus.pending && note.proposedText != null && text.isNotEmpty) ...[
-          Text('النص الأصلي', style: FikraText.meta.copyWith(fontSize: 12, color: FikraColors.textSecondary)),
+          Text('النص الأصلي', style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary)),
           const SizedBox(height: 6),
         ],
-        if (text.isNotEmpty) SelectableText(text, style: FikraText.bodyLarge.copyWith(height: 1.7)),
+        if (text.isNotEmpty) SelectableText(text, style: context.text.bodyLarge.copyWith(height: 1.7)),
         if (note.attachmentPath != null) ...[const SizedBox(height: 16), _Attachment(note: note)],
         if (note.conceptList.isNotEmpty) ...[
           const SizedBox(height: 24),
-          Text('المفاهيم', style: FikraText.section.copyWith(fontWeight: FontWeight.w600)),
+          Text('المفاهيم', style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [for (final c in note.conceptList) FikraChip(label: c)]),
         ],
         if (note.status == ProcessingStatus.ready) ...[
           const SizedBox(height: 24),
-          Text('نوتس مرتبطة', style: FikraText.section.copyWith(fontWeight: FontWeight.w600)),
+          Text('نوتس مرتبطة', style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 10),
           _RelatedNotes(note: note),
         ],
@@ -194,16 +194,16 @@ class _ProcessingCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const SizedBox(
+          SizedBox(
             width: 20,
             height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2, color: FikraColors.accentLight),
+            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accentLight),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               'فِكرة بتحلل النوت: بتطلّع المفاهيم وبتدوّر على نوتس مرتبطة. النوت نفسها محفوظة.',
-              style: FikraText.caption,
+              style: context.text.caption,
             ),
           ),
         ],
@@ -239,21 +239,21 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
   Widget build(BuildContext context) {
     return Glass(
       radius: FikraRadius.lg,
-      borderColor: FikraColors.accentLight.withValues(alpha: 0.5),
+      borderColor: context.colors.accentLight.withValues(alpha: 0.5),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome_outlined, size: 18, color: FikraColors.accentLight),
+              Icon(Icons.auto_awesome_outlined, size: 18, color: context.colors.accentLight),
               const SizedBox(width: 8),
-              Expanded(child: Text('اقتراح إعادة صياغة', style: FikraText.cardTitleSmall)),
+              Expanded(child: Text('اقتراح إعادة صياغة', style: context.text.cardTitleSmall)),
               if (isDemo) const FikraBadge(kind: BadgeKind.demo, label: 'تجريبي'),
             ],
           ),
           const SizedBox(height: 10),
-          Text(widget.note.proposedText!, style: FikraText.body),
+          Text(widget.note.proposedText!, style: context.text.body),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -294,17 +294,17 @@ class _Attachment extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       child: Row(
         children: [
-          const Icon(Icons.picture_as_pdf_outlined, color: FikraColors.danger),
+          Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               note.attachmentName ?? 'ملف PDF',
-              style: FikraText.body,
+              style: context.text.body,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: FikraText.meta),
+          if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: context.text.meta),
         ],
       ),
     );
@@ -321,7 +321,7 @@ class _RelatedNotes extends ConsumerWidget {
     final linksAsync = ref.watch(linksOfProjectProvider(note.projectId));
     final notesAsync = ref.watch(notesOfProjectProvider(note.projectId));
     if ((linksAsync.hasError && !linksAsync.hasValue) || (notesAsync.hasError && !notesAsync.hasValue)) {
-      return Text('مقدرناش نجيب النوتس المرتبطة دلوقتي.', style: FikraText.caption);
+      return Text('مقدرناش نجيب النوتس المرتبطة دلوقتي.', style: context.text.caption);
     }
     if (!linksAsync.hasValue || !notesAsync.hasValue) return const SizedBox(height: 48);
     final links = linksAsync.value!;
@@ -336,7 +336,7 @@ class _RelatedNotes extends ConsumerWidget {
       if (other != null) related.putIfAbsent(otherId, () => (other, l));
     }
 
-    if (related.isEmpty) return Text('لسه مفيش نوتس شبهها في المشروع ده.', style: FikraText.caption);
+    if (related.isEmpty) return Text('لسه مفيش نوتس شبهها في المشروع ده.', style: context.text.caption);
     return Column(
       children: [
         for (final (other, link) in related.values)
@@ -355,12 +355,12 @@ class _RelatedNotes extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(noteTitle(other), style: FikraText.body.copyWith(fontWeight: FontWeight.w600)),
-                          Text(link.label, style: FikraText.meta.copyWith(color: FikraColors.textLink)),
+                          Text(noteTitle(other), style: context.text.body.copyWith(fontWeight: FontWeight.w600)),
+                          Text(link.label, style: context.text.meta.copyWith(color: context.colors.textLink)),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded, color: FikraColors.textMeta),
+                    Icon(Icons.chevron_right_rounded, color: context.colors.textMeta),
                   ],
                 ),
               ),

@@ -8,6 +8,7 @@
 - كل حاجة offline على الموبايل: داتابيز SQLite (drift)، والملفات في مساحة التطبيق الخاصة.
 - الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه: [docs/backend-integration.md](docs/backend-integration.md).
 - الباك أب مقفول (`allowBackup=false` + data extraction rules)، عشان البيانات متخرجش من الموبايل.
+- فاتح وغامق: الألوان في `FikraPalette` (`lib/core/theme/tokens.dart`) وبتتقري بـ`context.colors` و`context.text`، مفيش ألوان ثابتة في الشاشات. الاختيار من شاشة الإعدادات (الترس في الهيدر) وبيتحفظ في جدول Settings.
 
 ## المتطلبات (المجرّبة)
 - Flutter 3.47.5 (stable)، Dart 3.13.
@@ -66,7 +67,7 @@ Add screen
 - `test/app_flow_test.dart`: التطبيق كامل على داتابيز in-memory، بـ`fikraTest` و`pumpUntil` و`pumpFuture` من `test/support/app_harness.dart`.
 - لقطات شاشة لمراجعة التصميم (مش بتشتغل مع `flutter test` العادي):
   ```bash
-  flutter test test/screenshots --run-skipped -t screenshots    # → build/screenshots/*.png
+  flutter test test/screenshots --run-skipped -t screenshots    # → build/screenshots/{dark,light}/*.png
   ```
 - الـoverrides: `databaseProvider` (داتابيز in-memory) و`aiServiceProvider` (fakes).
 

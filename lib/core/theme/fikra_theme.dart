@@ -2,49 +2,66 @@ import 'package:flutter/material.dart';
 
 import 'tokens.dart';
 
-ThemeData buildFikraTheme() {
-  const scheme = ColorScheme.dark(
-    primary: FikraColors.accent,
-    onPrimary: FikraColors.textPrimary,
-    secondary: FikraColors.accentLight,
-    surface: FikraColors.screen,
-    onSurface: FikraColors.textPrimary,
-    error: FikraColors.danger,
-  );
+ThemeData buildFikraTheme(Brightness brightness) {
+  final dark = brightness == Brightness.dark;
+  final colors = dark ? FikraPalette.dark : FikraPalette.light;
+  final text = FikraText(colors);
+  final scheme = dark
+      ? ColorScheme.dark(
+          primary: colors.accent,
+          onPrimary: colors.textPrimary,
+          secondary: colors.accentLight,
+          surface: colors.screen,
+          onSurface: colors.textPrimary,
+          error: colors.danger,
+        )
+      : ColorScheme.light(
+          primary: colors.accent,
+          onPrimary: colors.textOnSelected,
+          secondary: colors.accentLight,
+          onSecondary: colors.textOnSelected,
+          surface: colors.screen,
+          onSurface: colors.textPrimary,
+          error: colors.danger,
+          onError: colors.textOnSelected,
+          outline: colors.border,
+          scrim: colors.scrim,
+        );
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: brightness,
     colorScheme: scheme,
+    extensions: [colors],
     fontFamily: FikraText.family,
     fontFamilyFallback: const ['Roboto'],
-    scaffoldBackgroundColor: FikraColors.screen,
-    canvasColor: FikraColors.screen,
+    scaffoldBackgroundColor: colors.screen,
+    canvasColor: colors.screen,
     // Plasma: no ripples, press feedback is a spring scale instead.
     splashFactory: NoSplash.splashFactory,
     splashColor: Colors.transparent,
     highlightColor: Colors.transparent,
     hoverColor: Colors.transparent,
-    textSelectionTheme: const TextSelectionThemeData(
-      cursorColor: FikraColors.accentLight,
-      selectionColor: Color(0x5549AAFF),
-      selectionHandleColor: FikraColors.accentLight,
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: colors.accentLight,
+      selectionColor: colors.selection,
+      selectionHandleColor: colors.accentLight,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: FikraColors.glassHighlight,
-      contentTextStyle: FikraText.body,
+      backgroundColor: colors.glassHighlight,
+      contentTextStyle: text.body,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(FikraRadius.md),
-        side: const BorderSide(color: FikraColors.border, width: FikraSpace.hairline),
+        side: BorderSide(color: colors.border, width: FikraSpace.hairline),
       ),
     ),
     dialogTheme: const DialogThemeData(backgroundColor: Colors.transparent, elevation: 0),
-    bottomSheetTheme: const BottomSheetThemeData(
+    bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: Colors.transparent,
-      modalBarrierColor: FikraColors.scrim,
+      modalBarrierColor: colors.scrim,
       elevation: 0,
     ),
-    iconTheme: const IconThemeData(color: FikraColors.textPrimary, size: 22),
+    iconTheme: IconThemeData(color: colors.textPrimary, size: 22),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {TargetPlatform.android: FadeForwardsPageTransitionsBuilder()},
     ),

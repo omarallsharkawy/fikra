@@ -136,7 +136,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                           Flexible(
                             child: Text(
                               '${Fmt.notes(notes.length)} · ${Fmt.links(visibleLinks.length)}',
-                              style: FikraText.meta.copyWith(fontSize: 12, color: FikraColors.textSecondary),
+                              style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -191,6 +191,8 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                                 links: visibleLinks,
                                                 pos: pos,
                                                 selected: _selected,
+                                                edgeColor: context.colors.graphEdge,
+                                                light: Theme.of(context).brightness == Brightness.light,
                                               ),
                                             ),
                                           ),
@@ -200,7 +202,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                               right: _pad,
                                               child: Text(
                                                 ordered[r].key,
-                                                style: FikraText.chip.copyWith(color: FikraColors.textSecondary),
+                                                style: context.text.chip.copyWith(color: context.colors.textSecondary),
                                               ),
                                             ),
                                           for (final n in notes)
@@ -259,17 +261,17 @@ class _NodePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Glass(
       radius: FikraRadius.xl,
-      color: FikraColors.glass,
+      color: context.colors.glass,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(noteTitle(note), style: FikraText.cardTitleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(noteTitle(note), style: context.text.cardTitleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
           Text(
             '${note.cluster ?? 'أفكار عامة'} · ${Fmt.links(reasons.length)}',
-            style: FikraText.meta.copyWith(fontSize: 12, color: FikraColors.textSecondary),
+            style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
           ),
           if (reasons.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -278,12 +280,12 @@ class _NodePreview extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Row(
                   children: [
-                    const Icon(Icons.link_rounded, size: 14, color: FikraColors.textLink),
+                    Icon(Icons.link_rounded, size: 14, color: context.colors.textLink),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         r,
-                        style: FikraText.caption.copyWith(color: FikraColors.textLink),
+                        style: context.text.caption.copyWith(color: context.colors.textLink),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -320,22 +322,37 @@ class _Node extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         alignment: AlignmentDirectional.centerStart,
         decoration: BoxDecoration(
-          gradient: selected ? FikraColors.selectedGradient : FikraColors.glassGradient,
-          color: selected ? null : FikraColors.glass,
+          gradient: selected ? context.colors.selectedGradient : context.colors.glassGradient,
+          color: selected ? null : context.colors.glass,
           borderRadius: BorderRadius.circular(FikraRadius.sm),
           border: Border.all(
-            color: selected ? FikraColors.accentLight : FikraColors.borderGraph,
+            color: selected ? context.colors.accentLight : context.colors.borderGraph,
             width: selected ? 1.2 : FikraSpace.hairline,
           ),
         ),
-        child: Text(note.title, style: FikraText.chip, maxLines: 2, overflow: TextOverflow.ellipsis),
+        child: Text(
+          note.title,
+          style: context.text.chip.copyWith(
+            color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }
 }
 
 class _EdgesPainter extends CustomPainter {
-  _EdgesPainter({required this.links, required this.pos, required this.selected});
+  _EdgesPainter({
+    required this.links,
+    required this.pos,
+    required this.selected,
+    required this.edgeColor,
+    required this.light,
+  });
+  final Color edgeColor;
+  final bool light;
   final List<NoteLink> links;
   final Map<String, Rect> pos;
   final String? selected;
@@ -347,11 +364,17 @@ class _EdgesPainter extends CustomPainter {
       final b = pos[l.targetId]!.center;
       final active = selected != null && (l.sourceId == selected || l.targetId == selected);
       final dim = selected != null && !active;
+      var opacity = 1.0;
+      if (dim) {
+        opacity = light ? 0.35 : 0.12;
+      } else if (!active) {
+        opacity = light ? 0.8 + l.strength * 0.2 : 0.35 + l.strength * 0.4;
+      }
       final paint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeWidth = active ? 2.2 : 1 + l.strength * 1.5
-        ..color = FikraColors.graphEdge.withValues(alpha: dim ? 0.12 : (active ? 1 : 0.35 + l.strength * 0.4));
+        ..color = edgeColor.withValues(alpha: opacity);
       final mid = Offset((a.dx + b.dx) / 2, (a.dy + b.dy) / 2);
       final bend = a.dy == b.dy ? -40.0 : 0.0; // same-row links arc upward
       final ctrl = Offset(mid.dx, mid.dy + bend);
@@ -363,5 +386,10 @@ class _EdgesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_EdgesPainter old) => old.links != links || old.selected != selected || old.pos != pos;
+  bool shouldRepaint(_EdgesPainter old) =>
+      old.links != links ||
+      old.selected != selected ||
+      old.pos != pos ||
+      old.edgeColor != edgeColor ||
+      old.light != light;
 }

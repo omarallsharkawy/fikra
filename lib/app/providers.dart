@@ -9,9 +9,11 @@ import '../data/files/attachment_store.dart';
 import '../data/local/database.dart';
 import '../data/processing/note_processor.dart';
 import '../data/repositories.dart';
+import '../data/settings_repository.dart';
 import 'app_config.dart';
 
 export 'app_config.dart' show isDemo;
+export '../data/settings_repository.dart' show AppTheme, WipeFilesException;
 
 // ---------------------------------------------------------------- services
 
@@ -26,6 +28,12 @@ final projectsRepoProvider = Provider<ProjectsRepository>(
 );
 final notesRepoProvider = Provider<NotesRepository>((ref) => LocalNotesRepository(ref.watch(databaseProvider)));
 final chatRepoProvider = Provider<ChatRepository>((ref) => LocalChatRepository(ref.watch(databaseProvider)));
+final settingsRepoProvider = Provider<SettingsRepository>(
+  (ref) => LocalSettingsRepository(ref.watch(databaseProvider), ref.watch(attachmentStoreProvider)),
+);
+
+/// Saved appearance; `system` until the user picks one (and while loading).
+final appThemeProvider = StreamProvider<AppTheme>((ref) => ref.watch(settingsRepoProvider).watchTheme());
 final attachmentStoreProvider = Provider<AttachmentStore>((ref) => AttachmentStore());
 
 /// Backend seam #1: note analysis and question answering.

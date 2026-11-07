@@ -35,7 +35,7 @@ class RecorderPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Glass(
       radius: FikraRadius.lg,
-      borderColor: FikraColors.danger.withValues(alpha: 0.5),
+      borderColor: context.colors.danger.withValues(alpha: 0.5),
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       child: Column(
         children: [
@@ -44,21 +44,21 @@ class RecorderPanel extends StatelessWidget {
               Container(
                 width: 10,
                 height: 10,
-                decoration: const BoxDecoration(color: FikraColors.danger, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: context.colors.danger, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
-              Text('بيسجّل', style: FikraText.chip),
+              Text('بيسجّل', style: context.text.chip),
               const Spacer(),
               Text(
                 '${Fmt.duration(elapsed.inMilliseconds)} / ${Fmt.duration(max.inMilliseconds)}',
-                style: FikraText.meta.copyWith(color: FikraColors.textSecondary, fontSize: 12),
+                style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 12),
               ),
             ],
           ),
           const SizedBox(height: 14),
           SizedBox(
             height: 56,
-            child: CustomPaint(painter: _LevelsPainter(levels), size: Size.infinite),
+            child: CustomPaint(painter: _LevelsPainter(levels, context.colors.accentLight), size: Size.infinite),
           ),
           const SizedBox(height: 16),
           Row(
@@ -79,13 +79,14 @@ class RecorderPanel extends StatelessWidget {
 }
 
 class _LevelsPainter extends CustomPainter {
-  _LevelsPainter(this.levels);
+  _LevelsPainter(this.levels, this.color);
+  final Color color;
   final List<double> levels;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = FikraColors.accentLight
+      ..color = color
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 3;
     const bars = kWaveformSamples;

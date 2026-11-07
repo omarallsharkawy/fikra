@@ -26,24 +26,24 @@ class NoteCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(sourceIcon(note.source), size: 18, color: FikraColors.accentLight),
+                Icon(sourceIcon(note.source), size: 18, color: context.colors.accentLight),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     noteTitle(note),
-                    style: FikraText.cardTitleSmall,
+                    style: context.text.cardTitleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(Fmt.time(note.createdAt), style: FikraText.meta),
+                Text(Fmt.time(note.createdAt), style: context.text.meta),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               note.displayText.isEmpty ? (note.attachmentName ?? '') : note.displayText,
-              style: FikraText.caption,
+              style: context.text.caption,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -79,11 +79,11 @@ class _ConceptTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: FikraColors.pressed,
+        color: context.colors.pressed,
         borderRadius: BorderRadius.circular(FikraRadius.full),
-        border: Border.all(color: FikraColors.border, width: FikraSpace.hairline),
+        border: Border.all(color: context.colors.border, width: FikraSpace.hairline),
       ),
-      child: Text(label, style: FikraText.meta.copyWith(color: FikraColors.textSecondary, fontSize: 11.5)),
+      child: Text(label, style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 11.5)),
     );
   }
 }

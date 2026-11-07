@@ -96,7 +96,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                     for (final e in groups.entries) ...[
                       Padding(
                         padding: const EdgeInsets.only(top: 10, bottom: 10),
-                        child: Text(e.key, style: FikraText.section.copyWith(color: FikraColors.textSecondary)),
+                        child: Text(e.key, style: context.text.section.copyWith(color: context.colors.textSecondary)),
                       ),
                       for (final n in e.value)
                         Padding(

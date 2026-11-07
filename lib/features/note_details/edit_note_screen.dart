@@ -115,7 +115,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
             : ListView(
                 padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 24),
                 children: [
-                  Text('تعديل النوت', style: FikraText.title.copyWith(fontWeight: FontWeight.w700)),
+                  Text('تعديل النوت', style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 16),
                   FikraField(controller: _title, hint: 'العنوان', icon: Icons.title_rounded, maxLength: 80),
                   const SizedBox(height: 12),
@@ -129,7 +129,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
                         minLines: 8,
                         maxLines: 20,
                         maxLength: 5000,
-                        style: FikraText.bodyLarge,
+                        style: context.text.bodyLarge,
                         decoration: const InputDecoration(border: InputBorder.none, counterText: ''),
                       ),
                     ),
@@ -139,7 +139,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
                     note.source == NoteSource.text
                         ? 'النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات النوت.'
                         : 'التفريغ الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات النوت.',
-                    style: FikraText.meta.copyWith(fontSize: 12),
+                    style: context.text.meta.copyWith(fontSize: 12),
                   ),
                   const SizedBox(height: 22),
                   FikraButton(label: 'حفظ التعديل', icon: Icons.check_rounded, loading: _saving, onPressed: _save),

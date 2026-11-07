@@ -321,12 +321,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                   maxLines: 14,
                   maxLength: 5000,
                   onChanged: (_) => setState(() {}),
-                  style: FikraText.bodyLarge,
+                  style: context.text.bodyLarge,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     counterText: '',
                     hintText: _hasAttachment ? 'ضيف ملاحظة على الملف (اختياري)' : 'اكتب فكرتك هنا…',
-                    hintStyle: FikraText.bodyLarge.copyWith(color: FikraColors.textPlaceholder),
+                    hintStyle: context.text.bodyLarge.copyWith(color: context.colors.textPlaceholder),
                   ),
                 ),
               ),
@@ -381,7 +381,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               Text(
                 'النوت بتتحفظ الأول، وبعدين فِكرة بتحللها وتربطها.',
                 textAlign: TextAlign.center,
-                style: FikraText.meta.copyWith(fontSize: 12),
+                style: context.text.meta.copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -410,11 +410,11 @@ class _SourceTile extends StatelessWidget {
             Container(
               width: 46,
               height: 46,
-              decoration: const BoxDecoration(gradient: FikraColors.selectedGradient, shape: BoxShape.circle),
-              child: Icon(icon, size: 24),
+              decoration: BoxDecoration(gradient: context.colors.selectedGradient, shape: BoxShape.circle),
+              child: Icon(icon, size: 24, color: context.colors.textOnSelected),
             ),
             const SizedBox(height: 10),
-            Text(label, style: FikraText.chip.copyWith(fontSize: 14)),
+            Text(label, style: context.text.chip.copyWith(fontSize: 14)),
           ],
         ),
       ),
@@ -443,27 +443,27 @@ class _PdfChip extends StatelessWidget {
     final done = progress == 1 && error == null;
     return Glass(
       radius: FikraRadius.lg,
-      borderColor: error != null ? FikraColors.danger : FikraColors.border,
+      borderColor: error != null ? context.colors.danger : context.colors.border,
       padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              const Icon(Icons.picture_as_pdf_outlined, color: FikraColors.danger),
+              Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: FikraText.body, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
                     Text(
                       error ??
                           (done
                               ? '${Fmt.bytes(bytes)} · اترفع'
                               : '${Fmt.bytes(bytes)} · بيترفع ${((progress ?? 0) * 100).round()}%'),
-                      style: FikraText.meta.copyWith(
-                        color: error != null ? FikraColors.danger : FikraColors.textSecondary,
+                      style: context.text.meta.copyWith(
+                        color: error != null ? context.colors.danger : context.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -493,8 +493,8 @@ class _PdfChip extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 4,
-                  backgroundColor: FikraColors.pressed,
-                  color: FikraColors.accentLight,
+                  backgroundColor: context.colors.pressed,
+                  color: context.colors.accentLight,
                 ),
               ),
             ),
@@ -521,9 +521,9 @@ class _MicPermissionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.mic_off_outlined, color: FikraColors.warning),
+              Icon(Icons.mic_off_outlined, color: context.colors.warning),
               const SizedBox(width: 10),
-              Expanded(child: Text('محتاجين إذن المايك', style: FikraText.cardTitleSmall)),
+              Expanded(child: Text('محتاجين إذن المايك', style: context.text.cardTitleSmall)),
               Pressable(
                 onTap: onClose,
                 minTarget: true,
@@ -537,7 +537,7 @@ class _MicPermissionCard extends StatelessWidget {
             blocked
                 ? 'الإذن مقفول من الإعدادات. افتح إعدادات التطبيق وفعّل المايك.'
                 : 'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.',
-            style: FikraText.caption,
+            style: context.text.caption,
           ),
           const SizedBox(height: 14),
           FikraButton.secondary(

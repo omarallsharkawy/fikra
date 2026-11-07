@@ -66,8 +66,11 @@ class _VoicePlayerState extends State<VoicePlayer> {
               child: Container(
                 width: 44,
                 height: 44,
-                decoration: const BoxDecoration(gradient: FikraColors.selectedGradient, shape: BoxShape.circle),
-                child: Icon(_playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                decoration: BoxDecoration(gradient: context.colors.selectedGradient, shape: BoxShape.circle),
+                child: Icon(
+                  _playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  color: context.colors.textOnSelected,
+                ),
               ),
             ),
           ),
@@ -76,7 +79,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.title ?? 'تسجيل صوتي', style: FikraText.body),
+                Text(widget.title ?? 'تسجيل صوتي', style: context.text.body),
                 const SizedBox(height: 6),
                 StreamBuilder<Duration>(
                   stream: _player.positionStream,
@@ -91,15 +94,15 @@ class _VoicePlayerState extends State<VoicePlayer> {
                             child: LinearProgressIndicator(
                               value: (pos.inMilliseconds / total).clamp(0.0, 1.0),
                               minHeight: 4,
-                              backgroundColor: FikraColors.pressed,
-                              color: FikraColors.accentLight,
+                              backgroundColor: context.colors.pressed,
+                              color: context.colors.accentLight,
                             ),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Text(
                           _error ? 'الملف مش متاح' : Fmt.duration(widget.durationMs),
-                          style: FikraText.meta.copyWith(color: FikraColors.textSecondary),
+                          style: context.text.meta.copyWith(color: context.colors.textSecondary),
                         ),
                       ],
                     );
@@ -113,9 +116,9 @@ class _VoicePlayerState extends State<VoicePlayer> {
               onTap: widget.onDelete,
               minTarget: true,
               semanticLabel: 'احذف التسجيل',
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.all(12),
-                child: Icon(Icons.delete_outline_rounded, color: FikraColors.danger),
+                child: Icon(Icons.delete_outline_rounded, color: context.colors.danger),
               ),
             ),
         ],

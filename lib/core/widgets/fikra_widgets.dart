@@ -12,9 +12,9 @@ class Glass extends StatelessWidget {
     required this.child,
     this.radius = FikraRadius.lg,
     this.padding = const EdgeInsets.all(18),
-    this.borderColor = FikraColors.border,
+    this.borderColor,
     this.borderWidth = FikraSpace.hairline,
-    this.gradient = FikraColors.glassGradient,
+    this.gradient,
     this.color,
     this.width,
     this.height,
@@ -23,7 +23,7 @@ class Glass extends StatelessWidget {
   final Widget child;
   final double radius;
   final EdgeInsetsGeometry padding;
-  final Color borderColor;
+  final Color? borderColor;
   final double borderWidth;
   final Gradient? gradient;
   final Color? color;
@@ -37,10 +37,10 @@ class Glass extends StatelessWidget {
       height: height,
       padding: padding,
       decoration: BoxDecoration(
-        gradient: color == null ? gradient : null,
+        gradient: color == null ? (gradient ?? context.colors.glassGradient) : null,
         color: color,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: borderColor, width: borderWidth),
+        border: Border.all(color: borderColor ?? context.colors.border, width: borderWidth),
       ),
       child: child,
     );
@@ -89,9 +89,19 @@ class FikraButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !loading;
     final (Gradient? gradient, Color? color, Color fg, TextStyle text) = switch (style) {
-      FikraButtonStyle.primary => (FikraColors.primaryGradient, null, FikraColors.textOnLight, FikraText.button),
-      FikraButtonStyle.secondary => (FikraColors.glassGradient, null, FikraColors.textPrimary, FikraText.section),
-      FikraButtonStyle.danger => (null, FikraColors.dangerBg, FikraColors.danger, FikraText.section),
+      FikraButtonStyle.primary => (
+        context.colors.primaryGradient,
+        null,
+        context.colors.textOnLight,
+        context.text.button,
+      ),
+      FikraButtonStyle.secondary => (
+        context.colors.glassGradient,
+        null,
+        context.colors.textPrimary,
+        context.text.section,
+      ),
+      FikraButtonStyle.danger => (null, context.colors.dangerBg, context.colors.danger, context.text.section),
     };
     final content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -125,7 +135,7 @@ class FikraButton extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(FikraRadius.full),
             border: style == FikraButtonStyle.secondary
-                ? Border.all(color: FikraColors.border, width: FikraSpace.hairline)
+                ? Border.all(color: context.colors.border, width: FikraSpace.hairline)
                 : null,
           ),
           // `alignment` would make the container fill the available width,
@@ -188,16 +198,20 @@ class _FikraFieldState extends State<FikraField> {
 
   @override
   Widget build(BuildContext context) {
+    final light = Theme.of(context).brightness == Brightness.light;
     final border = widget.error
-        ? FikraColors.danger
+        ? context.colors.danger
         : _focus.hasFocus
-        ? FikraColors.borderFocus
-        : FikraColors.border;
+        ? context.colors.borderFocus
+        : light
+        ? context.colors.borderGraph
+        : context.colors.border;
     return Glass(
       radius: FikraRadius.full,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       borderColor: border,
-      borderWidth: widget.error || _focus.hasFocus ? 1 : FikraSpace.hairline,
+      // A hairline vanishes on light surfaces; inputs need a visible edge.
+      borderWidth: widget.error || _focus.hasFocus || light ? 1 : FikraSpace.hairline,
       height: FikraSpace.field,
       child: Row(
         children: [
@@ -212,19 +226,19 @@ class _FikraFieldState extends State<FikraField> {
               obscureText: widget.obscure,
               textInputAction: widget.textInputAction,
               maxLength: widget.maxLength,
-              style: FikraText.field,
+              style: context.text.field,
               decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
                 counterText: '',
                 hintText: widget.hint,
-                hintStyle: FikraText.field.copyWith(color: FikraColors.textPlaceholder),
+                hintStyle: context.text.field.copyWith(color: context.colors.textPlaceholder),
               ),
             ),
           ),
           if (widget.icon != null) ...[
             const SizedBox(width: 12),
-            Icon(widget.icon, color: FikraColors.textSecondary, size: 20),
+            Icon(widget.icon, color: context.colors.textSecondary, size: 20),
           ],
         ],
       ),
@@ -248,12 +262,20 @@ class FikraChip extends StatelessWidget {
         height: onTap == null ? 30 : 36,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          gradient: selected ? FikraColors.selectedGradient : null,
-          color: selected ? null : FikraColors.glassHighlight,
+          gradient: selected ? context.colors.selectedGradient : null,
+          color: selected ? null : context.colors.glassHighlight,
           borderRadius: BorderRadius.circular(FikraRadius.full),
-          border: selected ? null : Border.all(color: FikraColors.border, width: FikraSpace.hairline),
+          border: selected ? null : Border.all(color: context.colors.border, width: FikraSpace.hairline),
         ),
-        child: Center(widthFactor: 1, child: Text(label, style: FikraText.chip)),
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            label,
+            style: context.text.chip.copyWith(
+              color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -269,15 +291,15 @@ class FikraBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (String text, Color fg, Color bg) = switch (kind) {
-      BadgeKind.demo => ('بيانات تجريبية', FikraColors.accentLight, FikraColors.glassHighlight),
-      BadgeKind.saved => ('تم الحفظ', FikraColors.success, FikraColors.successBg),
-      BadgeKind.processing => ('جاري التحليل…', FikraColors.accentLight, FikraColors.glassHighlight),
-      BadgeKind.failed => ('فشل', FikraColors.danger, FikraColors.dangerBg),
+      BadgeKind.demo => ('بيانات تجريبية', context.colors.accentLight, context.colors.glassHighlight),
+      BadgeKind.saved => ('تم الحفظ', context.colors.success, context.colors.successBg),
+      BadgeKind.processing => ('جاري التحليل…', context.colors.accentLight, context.colors.glassHighlight),
+      BadgeKind.failed => ('فشل', context.colors.danger, context.colors.dangerBg),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(FikraRadius.full)),
-      child: Text(label ?? text, style: FikraText.meta.copyWith(color: fg)),
+      child: Text(label ?? text, style: context.text.meta.copyWith(color: fg)),
     );
   }
 }
@@ -292,9 +314,9 @@ class StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (IconData icon, Color fg, Color bg) = switch (kind) {
-      BannerKind.offline => (Icons.wifi_off_rounded, FikraColors.warning, FikraColors.glassHighlight),
-      BannerKind.error => (Icons.error_outline_rounded, FikraColors.danger, FikraColors.dangerBg),
-      BannerKind.info => (Icons.auto_awesome_outlined, FikraColors.accentLight, FikraColors.glassHighlight),
+      BannerKind.offline => (Icons.wifi_off_rounded, context.colors.warning, context.colors.glassHighlight),
+      BannerKind.error => (Icons.error_outline_rounded, context.colors.danger, context.colors.dangerBg),
+      BannerKind.info => (Icons.auto_awesome_outlined, context.colors.accentLight, context.colors.glassHighlight),
     };
     return Glass(
       radius: FikraRadius.md,
@@ -304,7 +326,7 @@ class StatusBanner extends StatelessWidget {
         children: [
           Icon(icon, color: fg, size: 18),
           const SizedBox(width: 10),
-          Expanded(child: Text(message, style: FikraText.chip)),
+          Expanded(child: Text(message, style: context.text.chip)),
         ],
       ),
     );
@@ -340,14 +362,14 @@ class EmptyState extends StatelessWidget {
             width: 72,
             height: 72,
             padding: EdgeInsets.zero,
-            child: Icon(icon, color: FikraColors.textSecondary, size: 30),
+            child: Icon(icon, color: context.colors.textSecondary, size: 30),
           ),
           const SizedBox(height: 12),
-          Text(title, style: FikraText.cardTitle, textAlign: TextAlign.center),
+          Text(title, style: context.text.cardTitle, textAlign: TextAlign.center),
           const SizedBox(height: 6),
           Text(
             description,
-            style: FikraText.body.copyWith(color: FikraColors.textSecondary),
+            style: context.text.body.copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,
           ),
           if (action != null) ...[const SizedBox(height: 20), action!],
@@ -395,7 +417,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
     return Glass(
       radius: FikraRadius.full,
       padding: const EdgeInsets.all(4),
-      height: Pressable.minTargetSize + 8,
+      height: Pressable.minTargetSize + 10,
       child: LayoutBuilder(
         builder: (context, c) {
           final w = c.maxWidth / widget.options.length;
@@ -410,36 +432,44 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                   top: 0,
                   bottom: 0,
                   width: w,
-                  child: const DecoratedBox(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: FikraColors.selectedGradient,
+                      gradient: context.colors.selectedGradient,
                       borderRadius: BorderRadius.all(Radius.circular(FikraRadius.full)),
                     ),
                   ),
                 ),
               ),
-              Row(
-                children: [
-                  for (var i = 0; i < widget.options.length; i++)
-                    Expanded(
-                      child: Semantics(
-                        button: true,
-                        selected: i == widget.selected,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => widget.onChanged(i),
-                          child: Center(
-                            child: Text(
-                              widget.options[i],
-                              style: FikraText.chip.copyWith(
-                                color: i == widget.selected ? FikraColors.textPrimary : FikraColors.textSecondary,
+              AnimatedBuilder(
+                animation: _c,
+                builder: (context, _) => Row(
+                  children: [
+                    for (var i = 0; i < widget.options.length; i++)
+                      Expanded(
+                        child: Semantics(
+                          button: true,
+                          selected: i == widget.selected,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => widget.onChanged(i),
+                            child: Center(
+                              child: Text(
+                                widget.options[i],
+                                // Follows the pill, so a label is never light-on-light mid-slide.
+                                style: context.text.chip.copyWith(
+                                  color: Color.lerp(
+                                    context.colors.textSecondary,
+                                    context.colors.textOnSelected,
+                                    (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ],
           );
@@ -458,11 +488,11 @@ Future<T?> showFikraSheet<T>(BuildContext context, {required String title, requi
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: FikraColors.screenGradient,
+        decoration: BoxDecoration(
+          gradient: context.colors.screenGradient,
           borderRadius: BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
           border: Border(
-            top: BorderSide(color: FikraColors.border, width: FikraSpace.hairline),
+            top: BorderSide(color: context.colors.border, width: FikraSpace.hairline),
           ),
         ),
         padding: const EdgeInsets.fromLTRB(22, 12, 22, 28),
@@ -475,11 +505,11 @@ Future<T?> showFikraSheet<T>(BuildContext context, {required String title, requi
                 child: Container(
                   width: 40,
                   height: 4,
-                  decoration: BoxDecoration(color: FikraColors.borderGraph, borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(color: context.colors.borderGraph, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(title, style: FikraText.cardTitle),
+              Text(title, style: context.text.cardTitle),
               const SizedBox(height: 16),
               builder(context),
             ],
@@ -500,7 +530,7 @@ class SheetOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = danger ? FikraColors.danger : FikraColors.textPrimary;
+    final fg = danger ? context.colors.danger : context.colors.textPrimary;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Pressable(
@@ -513,7 +543,7 @@ class SheetOption extends StatelessWidget {
             children: [
               Icon(icon, color: fg, size: 20),
               const SizedBox(width: 12),
-              Text(label, style: FikraText.section.copyWith(color: fg)),
+              Text(label, style: context.text.section.copyWith(color: fg)),
             ],
           ),
         ),
@@ -531,7 +561,7 @@ Future<bool> confirmDestructive(
 }) async {
   final ok = await showDialog<bool>(
     context: context,
-    barrierColor: FikraColors.scrim,
+    barrierColor: context.colors.scrim,
     builder: (context) => Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 35),
       child: Glass(
@@ -541,18 +571,14 @@ Future<bool> confirmDestructive(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: FikraText.cardTitle),
+            Semantics(namesRoute: true, header: true, child: Text(title, style: context.text.cardTitle)),
             const SizedBox(height: 8),
-            Text(message, style: FikraText.body.copyWith(color: FikraColors.textSecondary)),
+            Text(message, style: context.text.body.copyWith(color: context.colors.textSecondary)),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
-                  child: FikraButton.danger(
-                    label: confirmLabel,
-                    icon: Icons.delete_outline_rounded,
-                    onPressed: () => Navigator.pop(context, true),
-                  ),
+                  child: FikraButton.danger(label: confirmLabel, onPressed: () => Navigator.pop(context, true)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -584,7 +610,7 @@ class FikraScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(gradient: FikraColors.screenGradient),
+      decoration: BoxDecoration(gradient: context.colors.screenGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(bottom: safeBottom, child: child),
@@ -623,7 +649,7 @@ class FikraIconButton extends StatelessWidget {
         width: size,
         height: size,
         padding: EdgeInsets.zero,
-        color: solid ? FikraColors.glass : null,
+        color: solid ? context.colors.glass : null,
         child: Icon(icon, size: size * 0.48),
       ),
     );

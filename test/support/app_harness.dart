@@ -5,6 +5,7 @@ import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
+import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -24,15 +25,28 @@ abstract final class Tabs {
 /// Cleanup runs inside the test body on purpose: drift schedules a zero-length
 /// timer when Riverpod cancels its stream queries, and flutter_test checks for
 /// pending timers before any tearDown would run.
-void fikraTest(String description, Future<void> Function(WidgetTester tester, FikraDatabase db) body, {Object? tags}) {
+void fikraTest(
+  String description,
+  Future<void> Function(WidgetTester tester, FikraDatabase db) body, {
+  Object? tags,
+  Brightness brightness = Brightness.dark,
+}) {
   testWidgets(description, (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = brightness;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     await initializeDateFormatting('ar');
     final db = FikraDatabase(NativeDatabase.memory());
     await tester.pumpWidget(
       RepaintBoundary(
         key: appBoundaryKey,
-        child: ProviderScope(overrides: [databaseProvider.overrideWithValue(db)], child: const FikraApp()),
+        child: ProviderScope(
+          overrides: [
+            databaseProvider.overrideWithValue(db),
+            attachmentStoreProvider.overrideWithValue(_NoFilesStore()),
+          ],
+          child: const FikraApp(),
+        ),
       ),
     );
     try {
@@ -43,6 +57,16 @@ void fikraTest(String description, Future<void> Function(WidgetTester tester, Fi
       await tester.runAsync(db.close);
     }
   }, tags: tags);
+}
+
+/// Widget tests don't touch the disk (real file I/O stalls in the fake-async
+/// zone); file handling is covered by test/settings_test.dart.
+class _NoFilesStore extends AttachmentStore {
+  @override
+  Future<void> sweepOrphans(Set<String> referenced) async {}
+
+  @override
+  Future<void> purgeAll() async {}
 }
 
 /// Wraps the whole app; [saveScreenshot] captures it.

@@ -11,6 +11,14 @@ import '../ids.dart';
 /// survive cache clears and aren't readable by other apps. The database stores
 /// the absolute path in `Notes.attachmentPath`.
 class AttachmentStore {
+  /// The directory getters are injectable so tests can use temp folders.
+  AttachmentStore({Future<Directory> Function()? documentsDir, Future<Directory> Function()? tempDir})
+    : _documents = documentsDir ?? getApplicationDocumentsDirectory,
+      _temp = tempDir ?? getTemporaryDirectory;
+
+  final Future<Directory> Function() _documents;
+  final Future<Directory> Function() _temp;
+
   /// Prefix for in-progress recordings in the temp dir.
   static const recordingPrefix = 'rec_';
 
@@ -18,14 +26,14 @@ class AttachmentStore {
   static const sweepGrace = Duration(hours: 1);
 
   Future<Directory> _dir() async {
-    final dir = Directory(p.join((await getApplicationDocumentsDirectory()).path, 'attachments'));
+    final dir = Directory(p.join((await _documents()).path, 'attachments'));
     await dir.create(recursive: true);
     return dir;
   }
 
   /// Temp path for a new recording.
   Future<String> newRecordingPath() async =>
-      p.join((await getTemporaryDirectory()).path, '$recordingPrefix${DateTime.now().millisecondsSinceEpoch}.m4a');
+      p.join((await _temp()).path, '$recordingPrefix${DateTime.now().millisecondsSinceEpoch}.m4a');
 
   /// Copies [source] into private storage and returns the new path. A partial
   /// copy is removed if the copy fails.
@@ -49,12 +57,22 @@ class AttachmentStore {
       await for (final f in (await _dir()).list()) {
         if (f is File && !referenced.contains(f.path) && await stale(f)) await deleteQuietly([f.path]);
       }
-      await for (final f in (await getTemporaryDirectory()).list()) {
+      await for (final f in (await _temp()).list()) {
         if (f is File && p.basename(f.path).startsWith(recordingPrefix) && await stale(f)) {
           await deleteQuietly([f.path]);
         }
       }
     } catch (_) {}
+  }
+
+  /// Deletes every attachment and temp recording, referenced or not.
+  /// Unlike [sweepOrphans] it throws if something couldn't be deleted.
+  Future<void> purgeAll() async {
+    final dir = await _dir();
+    await dir.delete(recursive: true);
+    await for (final f in (await _temp()).list()) {
+      if (f is File && p.basename(f.path).startsWith(recordingPrefix)) await f.delete();
+    }
   }
 
   static Future<void> deleteQuietly(Iterable<String> paths) async {

@@ -19,7 +19,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(gradient: FikraColors.screenGradient),
+      decoration: BoxDecoration(gradient: context.colors.screenGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: true,
@@ -79,13 +79,19 @@ class _FikraNavBarState extends State<FikraNavBar> with SingleTickerProviderStat
       height: FikraSpace.nav,
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        gradient: FikraColors.glassGradient,
+        gradient: context.colors.glassGradient,
         borderRadius: BorderRadius.circular(FikraRadius.full),
-        border: Border.all(color: FikraColors.border, width: FikraSpace.hairline),
+        border: Border.all(color: context.colors.border, width: FikraSpace.hairline),
       ),
       child: LayoutBuilder(
         builder: (context, box) {
           final w = box.maxWidth / widget.items.length;
+          // Label colors follow the sliding pill, never light-on-light mid-slide.
+          Color fg(int i) => Color.lerp(
+            context.colors.textSecondary,
+            context.colors.textOnSelected,
+            (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
+          )!;
           return Stack(
             children: [
               AnimatedBuilder(
@@ -100,44 +106,43 @@ class _FikraNavBarState extends State<FikraNavBar> with SingleTickerProviderStat
                     right: rtl ? x : null,
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: FikraColors.selectedGradient,
+                        gradient: context.colors.selectedGradient,
                         borderRadius: BorderRadius.circular(FikraRadius.full),
                       ),
                     ),
                   );
                 },
               ),
-              Row(
-                children: [
-                  for (var i = 0; i < widget.items.length; i++)
-                    Expanded(
-                      child: Pressable(
-                        key: ValueKey('nav-$i'),
-                        selected: i == widget.index,
-                        onTap: () => widget.onTap(i),
-                        semanticLabel: widget.items[i].$1,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              widget.items[i].$2,
-                              size: 22,
-                              color: i == widget.index ? FikraColors.textPrimary : FikraColors.textSecondary,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              widget.items[i].$1,
-                              style: FikraText.nav.copyWith(
-                                height: 1.2,
-                                color: i == widget.index ? FikraColors.textPrimary : FikraColors.textSecondary,
-                                fontWeight: i == widget.index ? FontWeight.w600 : FontWeight.w400,
+              AnimatedBuilder(
+                animation: _c,
+                builder: (context, _) => Row(
+                  children: [
+                    for (var i = 0; i < widget.items.length; i++)
+                      Expanded(
+                        child: Pressable(
+                          key: ValueKey('nav-$i'),
+                          selected: i == widget.index,
+                          onTap: () => widget.onTap(i),
+                          semanticLabel: widget.items[i].$1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(widget.items[i].$2, size: 22, color: fg(i)),
+                              const SizedBox(height: 2),
+                              Text(
+                                widget.items[i].$1,
+                                style: context.text.nav.copyWith(
+                                  height: 1.2,
+                                  color: fg(i),
+                                  fontWeight: i == widget.index ? FontWeight.w600 : FontWeight.w400,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ],
           );

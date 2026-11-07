@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/format.dart';
@@ -22,7 +23,7 @@ class ProjectHeader extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(title, style: FikraText.title.copyWith(fontWeight: FontWeight.w700)),
+            child: Text(title, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
           ),
           ?trailing,
           if (trailing != null) const SizedBox(width: 8),
@@ -36,17 +37,24 @@ class ProjectHeader extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.folder_outlined, size: 18, color: FikraColors.accentLight),
+                  Icon(Icons.folder_outlined, size: 18, color: context.colors.accentLight),
                   const SizedBox(width: 6),
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 130),
-                    child: Text(project?.name ?? '—', style: FikraText.chip, overflow: TextOverflow.ellipsis),
+                    constraints: const BoxConstraints(maxWidth: 110),
+                    child: Text(project?.name ?? '—', style: context.text.chip, overflow: TextOverflow.ellipsis),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: FikraColors.textSecondary),
+                  Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: context.colors.textSecondary),
                 ],
               ),
             ),
+          ),
+          const SizedBox(width: 4),
+          FikraIconButton(
+            icon: Icons.settings_outlined,
+            label: 'الإعدادات',
+            size: 40,
+            onTap: () => context.push('/settings'),
           ),
         ],
       ),
@@ -119,22 +127,32 @@ class _ProjectRow extends StatelessWidget {
       selected: selected,
       child: Glass(
         radius: FikraRadius.md,
-        gradient: selected ? FikraColors.selectedGradient : FikraColors.glassGradient,
-        borderColor: selected ? Colors.transparent : FikraColors.border,
+        gradient: selected ? context.colors.selectedGradient : context.colors.glassGradient,
+        borderColor: selected ? Colors.transparent : context.colors.border,
         padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
         child: Row(
           children: [
-            Icon(selected ? Icons.check_circle_rounded : Icons.folder_outlined, size: 20),
+            Icon(
+              selected ? Icons.check_circle_rounded : Icons.folder_outlined,
+              size: 20,
+              color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(project.name, style: FikraText.section.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    project.name,
+                    style: context.text.section.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+                    ),
+                  ),
                   Text(
                     Fmt.notes(count),
-                    style: FikraText.meta.copyWith(
-                      color: selected ? FikraColors.textPrimary : FikraColors.textSecondary,
+                    style: context.text.meta.copyWith(
+                      color: selected ? context.colors.textOnSelected : context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -144,7 +162,13 @@ class _ProjectRow extends StatelessWidget {
               onTap: onMore,
               minTarget: true,
               semanticLabel: 'خيارات ${project.name}',
-              child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.more_horiz_rounded)),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.more_horiz_rounded,
+                  color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+                ),
+              ),
             ),
           ],
         ),

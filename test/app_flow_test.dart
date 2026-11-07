@@ -22,6 +22,32 @@ void main() {
     await pumpUntil(tester, find.text('الذكاء الاصطناعي'));
   });
 
+  fikraTest('settings: theme choice applies and wipe returns to welcome', (tester, db) async {
+    await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
+    await tester.tap(find.text('جرّب مشروع تجريبي'));
+    await pumpUntil(tester, find.text('محاضرة الشبكات'));
+
+    await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
+    await pumpUntil(tester, find.text('المظهر'));
+    expect(Theme.of(tester.element(find.text('المظهر'))).brightness, Brightness.dark);
+
+    await tester.tap(find.text('فاتح'));
+    await pumpUntil(tester, find.text('المظهر'));
+    for (var i = 0; i < 20 && Theme.of(tester.element(find.text('المظهر'))).brightness != Brightness.light; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(Theme.of(tester.element(find.text('المظهر'))).brightness, Brightness.light);
+
+    await tester.tap(find.text('مسح كل البيانات'));
+    await pumpUntil(tester, find.text('امسح كله'));
+    await tester.tap(find.text('امسح كله'));
+    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    await pumpUntil(tester, find.text('كل حاجة اتمسحت'));
+    expect(await pumpFuture(tester, () => db.select(db.notes).get()), isEmpty);
+    // The theme choice survives the wipe.
+    expect(Theme.of(tester.element(find.text('ابدأ مشروع جديد'))).brightness, Brightness.light);
+  });
+
   fikraTest('deleting the last project returns to welcome', (tester, db) async {
     await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
 

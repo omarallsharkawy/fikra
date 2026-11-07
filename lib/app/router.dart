@@ -10,6 +10,7 @@ import '../features/note_details/edit_note_screen.dart';
 import '../features/note_details/note_details_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/projects/welcome_screen.dart';
+import '../features/settings/settings_screen.dart';
 import 'providers.dart';
 import 'shell.dart';
 import 'storage_error_screen.dart';
@@ -37,7 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (_, _) => const ColoredBox(color: FikraColors.screen),
+        builder: (context, _) => ColoredBox(color: context.colors.screen),
       ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
       GoRoute(path: '/storage-error', builder: (_, _) => const StorageErrorScreen()),
@@ -58,6 +59,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(
         path: '/note/:id',
         builder: (_, s) => NoteDetailsScreen(noteId: s.pathParameters['id']!),
