@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/theme/tokens.dart';
+import '../data/local/database.dart';
 import '../features/add/add_screen.dart';
 import '../features/ask/ask_screen.dart';
 import '../features/links/links_screen.dart';
@@ -64,7 +65,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(
         path: '/note/:id',
-        builder: (_, s) => NoteDetailsScreen(noteId: s.pathParameters['id']!),
+        // `extra` is the note the caller already has, so the screen draws it on
+        // the first frame instead of waiting for the query. Deep links omit it.
+        builder: (_, s) => NoteDetailsScreen(
+          noteId: s.pathParameters['id']!,
+          initial: switch (s.extra) {
+            final Note n when n.id == s.pathParameters['id'] => n,
+            _ => null,
+          },
+        ),
         routes: [
           GoRoute(
             path: 'edit',

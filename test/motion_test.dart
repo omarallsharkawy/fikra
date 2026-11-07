@@ -5,7 +5,7 @@ import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/theme/fikra_theme.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show SemanticsAction;
+import 'package:flutter/rendering.dart' show RenderRepaintBoundary, SemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -61,6 +61,7 @@ void main() {
     ];
     await tester.pumpWidget(
       MaterialApp(
+        theme: buildFikraTheme(Brightness.dark),
         home: ValueListenableBuilder(
           valueListenable: index,
           builder: (context, value, _) => FikraBranchContainer(index: value, children: branches),
@@ -95,36 +96,106 @@ void main() {
     expect(tester.binding.transientCallbackCount, 0);
   });
 
-  testWidgets('reduced tab changes only fade and settle in 180 ms', (tester) async {
-    final index = ValueNotifier(0);
-    addTearDown(index.dispose);
+  // The tab fade is a background veil over the new tab, not an opacity layer
+  // or a scale on the tab itself (both were too slow on GLES devices).
+  double? veilOpacity(WidgetTester tester) {
+    final veil = find.descendant(of: find.byType(FikraBranchContainer), matching: find.byType(TabVeil));
+    return veil.evaluate().isEmpty ? null : tester.widget<TabVeil>(veil).opacity;
+  }
+
+  testWidgets('the veil lines up with the shell background, even under a shared transform', (tester) async {
+    tester.view.physicalSize = const Size(200, 400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const gradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0xFF000000), Color(0xFFFFFFFF)],
+    );
+    final capture = GlobalKey();
+    final background = GlobalKey();
     await tester.pumpWidget(
-      MaterialApp(
-        home: MediaQuery(
-          data: const MediaQueryData(disableAnimations: true),
-          child: ValueListenableBuilder(
-            valueListenable: index,
-            builder: (context, value, _) =>
-                FikraBranchContainer(index: value, children: const [Text('first'), Text('second')]),
+      Directionality(
+        textDirection: TextDirection.rtl,
+        child: RepaintBoundary(
+          key: capture,
+          // Something (a route transition, say) moves and scales the whole shell.
+          child: Transform(
+            transform: Matrix4.translationValues(0, 30, 0)..scaleByDouble(0.9, 0.9, 1, 1),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    key: background,
+                    decoration: const BoxDecoration(gradient: gradient),
+                  ),
+                ),
+                // A tab body below a status bar, with red content under the veil.
+                Positioned(
+                  top: 100,
+                  left: 0,
+                  right: 0,
+                  height: 100,
+                  child: ColoredBox(
+                    color: const Color(0xFFFF0000),
+                    child: TabVeil(opacity: 1, gradient: gradient, anchor: background, screen: const Size(200, 400)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-    index.value = 1;
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 90));
-    final scale = tester.widget<ScaleTransition>(
-      find.descendant(of: find.byType(FikraBranchContainer), matching: find.byType(ScaleTransition)),
-    );
-    expect(scale.scale.value, 1);
-    final fade = tester.widget<FadeTransition>(
-      find.descendant(of: find.byType(FikraBranchContainer), matching: find.byType(FadeTransition)),
-    );
-    expect(fade.opacity.value, closeTo(0.5, 0.01));
-    await tester.pump(const Duration(milliseconds: 90));
-    await tester.pump(const Duration(milliseconds: 16)); // one frame for the ticker to stop
-    expect(tester.binding.transientCallbackCount, 0);
+    final bytes = (await tester.runAsync(() async {
+      final image = await (capture.currentContext!.findRenderObject()! as RenderRepaintBoundary).toImage();
+      return image.toByteData();
+    }))!;
+    int pixel(int x, int y) => bytes.getUint8((y * 200 + x) * 4); // red channel
+    // Local y = 150 is drawn at 30 + 0.9 * 150 = 165. There the background is
+    // 37.5 % white. A veil stretched over its own box would be 50 %; one
+    // anchored to the view origin would be ~46 %.
+    expect(pixel(90, 165), closeTo(0.375 * 255, 4));
+    // No seam at the veil's top (drawn at y = 120) or bottom (y = 210).
+    expect(pixel(90, 122), closeTo(pixel(90, 118), 4));
+    expect(pixel(90, 208), closeTo(pixel(90, 212), 4));
   });
+
+  for (final reduced in [false, true]) {
+    testWidgets('tab change fades through a veil with no scale or opacity layer (reduced: $reduced)', (tester) async {
+      final index = ValueNotifier(0);
+      addTearDown(index.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildFikraTheme(Brightness.dark),
+          home: MediaQuery(
+            data: MediaQueryData(disableAnimations: reduced),
+            child: ValueListenableBuilder(
+              valueListenable: index,
+              builder: (context, value, _) =>
+                  FikraBranchContainer(index: value, children: const [Text('first'), Text('second')]),
+            ),
+          ),
+        ),
+      );
+      expect(veilOpacity(tester), isNull);
+      index.value = 1;
+      await tester.pump();
+      expect(veilOpacity(tester), closeTo(1, 0.01)); // starts as the background
+      final total = reduced ? FikraMotion.reducedFade : FikraMotion.enter;
+      await tester.pump(total ~/ 2);
+      final mid = veilOpacity(tester)!;
+      expect(mid, inExclusiveRange(0.0, 1.0));
+      if (reduced) expect(mid, closeTo(0.5, 0.01)); // linear
+      for (final type in [ScaleTransition, FadeTransition, Opacity]) {
+        expect(find.descendant(of: find.byType(FikraBranchContainer), matching: find.byType(type)), findsNothing);
+      }
+      await tester.pump(total ~/ 2);
+      await tester.pump(const Duration(milliseconds: 16)); // one frame for the ticker to stop
+      expect(veilOpacity(tester), isNull);
+      expect(tester.binding.transientCallbackCount, 0);
+    });
+  }
 
   for (final direction in TextDirection.values) {
     testWidgets('push enters from logical end in $direction', (tester) async {

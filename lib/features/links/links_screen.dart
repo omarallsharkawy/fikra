@@ -123,6 +123,19 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
     }
   }
 
+  /// Opens a note, handing over the full row when the graph still has it so
+  /// the details screen draws it on its first frame.
+  void _openNote(String id) {
+    Note? full;
+    for (final n in _notesSource ?? const <Note>[]) {
+      if (n.id == id) {
+        full = n;
+        break;
+      }
+    }
+    context.push('/note/$id', extra: full);
+  }
+
   Future<void> _showCluster(GraphRow row) => showFikraSheet<void>(
     context,
     title: row.cluster,
@@ -137,7 +150,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
             title: Text(_graphTitle(note), style: context.text.body, maxLines: 2, overflow: TextOverflow.ellipsis),
             onTap: () {
               Navigator.pop(sheetContext);
-              this.context.push('/note/${note.id}');
+              _openNote(note.id);
             },
           );
         },
@@ -317,67 +330,71 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                       minScale: 0.5,
                                       maxScale: 2.5,
                                       boundaryMargin: const EdgeInsets.all(200),
-                                      child: GestureDetector(
-                                        onTap: () => setState(() => _selected = null),
-                                        child: SizedBox(
-                                          width: width,
-                                          height: height,
-                                          child: Stack(
-                                            children: [
-                                              Positioned.fill(
-                                                child: CustomPaint(
-                                                  painter: _EdgesPainter(
-                                                    links: layout.links,
-                                                    pos: layout.positions,
-                                                    selected: _selected,
-                                                    edgeColor: context.colors.graphEdge,
-                                                    light: Theme.of(context).brightness == Brightness.light,
-                                                  ),
-                                                ),
-                                              ),
-                                              for (final row in layout.rows)
-                                                Positioned(
-                                                  top: GraphLayout.padding + row.index * GraphLayout.rowHeight,
-                                                  right: GraphLayout.padding,
-                                                  child: Text(
-                                                    row.cluster,
-                                                    style: context.text.chip.copyWith(
-                                                      color: context.colors.textSecondary,
+                                      // Panning/zooming only moves this layer: the nodes and
+                                      // edges are painted once, not on every frame.
+                                      child: RepaintBoundary(
+                                        child: GestureDetector(
+                                          onTap: () => setState(() => _selected = null),
+                                          child: SizedBox(
+                                            width: width,
+                                            height: height,
+                                            child: Stack(
+                                              children: [
+                                                Positioned.fill(
+                                                  child: CustomPaint(
+                                                    painter: _EdgesPainter(
+                                                      links: layout.links,
+                                                      pos: layout.positions,
+                                                      selected: _selected,
+                                                      edgeColor: context.colors.graphEdge,
+                                                      light: Theme.of(context).brightness == Brightness.light,
                                                     ),
                                                   ),
                                                 ),
-                                              for (final n in layout.nodes.values)
-                                                Positioned.fromRect(
-                                                  rect: _rect(layout.positions[n.id]!),
-                                                  child: _Node(
-                                                    key: ValueKey(n.id),
-                                                    note: n,
-                                                    selected: n.id == _selected,
-                                                    onTap: () =>
-                                                        setState(() => _selected = n.id == _selected ? null : n.id),
+                                                for (final row in layout.rows)
+                                                  Positioned(
+                                                    top: GraphLayout.padding + row.index * GraphLayout.rowHeight,
+                                                    right: GraphLayout.padding,
+                                                    child: Text(
+                                                      row.cluster,
+                                                      style: context.text.chip.copyWith(
+                                                        color: context.colors.textSecondary,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              for (final row in layout.rows)
-                                                if (row.hiddenCount > 0)
+                                                for (final n in layout.nodes.values)
                                                   Positioned.fromRect(
-                                                    rect: _rect(layout.positionInRow(row.index, row.visible.length)),
-                                                    child: _OverflowNode(
-                                                      label: '+${row.hiddenCount}',
-                                                      semanticLabel:
-                                                          'عرض ${Fmt.notes(row.notes.length)} في ${row.cluster}',
-                                                      numbersOnly: true,
-                                                      onTap: () => _showCluster(row),
+                                                    rect: _rect(layout.positions[n.id]!),
+                                                    child: _Node(
+                                                      key: ValueKey(n.id),
+                                                      note: n,
+                                                      selected: n.id == _selected,
+                                                      onTap: () =>
+                                                          setState(() => _selected = n.id == _selected ? null : n.id),
                                                     ),
                                                   ),
-                                              if (layout.hiddenRows.isNotEmpty)
-                                                Positioned.fromRect(
-                                                  rect: _rect(layout.positionInRow(layout.rows.length, 0)),
-                                                  child: _OverflowNode(
-                                                    label: 'مجموعات أكتر (${layout.hiddenRows.length})',
-                                                    onTap: () => _showMoreClusters(layout),
+                                                for (final row in layout.rows)
+                                                  if (row.hiddenCount > 0)
+                                                    Positioned.fromRect(
+                                                      rect: _rect(layout.positionInRow(row.index, row.visible.length)),
+                                                      child: _OverflowNode(
+                                                        label: '+${row.hiddenCount}',
+                                                        semanticLabel:
+                                                            'عرض ${Fmt.notes(row.notes.length)} في ${row.cluster}',
+                                                        numbersOnly: true,
+                                                        onTap: () => _showCluster(row),
+                                                      ),
+                                                    ),
+                                                if (layout.hiddenRows.isNotEmpty)
+                                                  Positioned.fromRect(
+                                                    rect: _rect(layout.positionInRow(layout.rows.length, 0)),
+                                                    child: _OverflowNode(
+                                                      label: 'مجموعات أكتر (${layout.hiddenRows.length})',
+                                                      onTap: () => _showMoreClusters(layout),
+                                                    ),
                                                   ),
-                                                ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -406,7 +423,11 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                       ? const SizedBox.shrink(key: ValueKey('no-preview'))
                                       : KeyedSubtree(
                                           key: ValueKey(selected.id),
-                                          child: _NodePreview(note: selected, reasons: reasons.values.toList()),
+                                          child: _NodePreview(
+                                            note: selected,
+                                            reasons: reasons.values.toList(),
+                                            onOpen: () => _openNote(selected.id),
+                                          ),
                                         ),
                                 ),
                               ),
@@ -456,9 +477,10 @@ class _OverflowNode extends StatelessWidget {
 
 /// Bottom card for the selected node: what it is and why it's connected.
 class _NodePreview extends StatelessWidget {
-  const _NodePreview({required this.note, required this.reasons});
+  const _NodePreview({required this.note, required this.reasons, required this.onOpen});
   final GraphNote note;
   final List<String> reasons;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -498,11 +520,7 @@ class _NodePreview extends StatelessWidget {
               ),
           ],
           const SizedBox(height: 12),
-          FikraButton(
-            label: 'فتح النوت',
-            icon: Icons.open_in_new_rounded,
-            onPressed: () => context.push('/note/${note.id}'),
-          ),
+          FikraButton(label: 'فتح النوت', icon: Icons.open_in_new_rounded, onPressed: onOpen),
         ],
       ),
     );

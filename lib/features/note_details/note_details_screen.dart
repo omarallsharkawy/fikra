@@ -16,8 +16,12 @@ import '../shared/note_presentation.dart';
 /// concepts and related notes. Data is scoped to the note's own project, so
 /// it works even when that isn't the selected project.
 class NoteDetailsScreen extends ConsumerStatefulWidget {
-  const NoteDetailsScreen({super.key, required this.noteId});
+  const NoteDetailsScreen({super.key, required this.noteId, this.initial});
   final String noteId;
+
+  /// The note as the caller last saw it. Shown until the live query's first
+  /// result, which replaces it without a transition.
+  final Note? initial;
 
   @override
   ConsumerState<NoteDetailsScreen> createState() => _NoteDetailsScreenState();
@@ -76,7 +80,10 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final noteAsync = ref.watch(noteProvider(widget.noteId));
+    final live = ref.watch(noteProvider(widget.noteId));
+    final noteAsync = live.hasValue || live.hasError || widget.initial == null
+        ? live
+        : AsyncData<Note?>(widget.initial);
     final note = noteAsync.value;
 
     return FikraScaffold(
@@ -362,7 +369,7 @@ class _RelatedNotes extends ConsumerWidget {
             child: Pressable(
               pressedScale: 0.98,
               semanticLabel: '${noteTitle(other)}، ${link.label}',
-              onTap: () => context.push('/note/${other.id}'),
+              onTap: () => context.push('/note/${other.id}', extra: other),
               child: Glass(
                 radius: FikraRadius.md,
                 padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),

@@ -6,9 +6,18 @@ import '../core/motion/motion.dart';
 import '../core/motion/pressable.dart';
 import '../core/theme/tokens.dart';
 
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.shell});
   final StatefulNavigationShell shell;
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  /// The box that paints the screen gradient behind every tab. The tab veil
+  /// aligns its own gradient to it.
+  final _background = GlobalKey(debugLabel: 'shell background');
 
   static const _tabs = <(String, IconData)>[
     ('إضافة', Icons.add_circle_outline_rounded),
@@ -19,26 +28,43 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(gradient: context.colors.screenGradient),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: true,
-        body: SafeArea(bottom: false, child: shell),
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
-            child: FikraNavBar(
-              items: _tabs,
-              index: shell.currentIndex,
-              onTap: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+    final shell = widget.shell;
+    return ShellBackground(
+      anchor: _background,
+      child: DecoratedBox(
+        key: _background,
+        decoration: BoxDecoration(gradient: context.colors.screenGradient),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          resizeToAvoidBottomInset: true,
+          body: SafeArea(bottom: false, child: shell),
+          bottomNavigationBar: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+              child: FikraNavBar(
+                items: _tabs,
+                index: shell.currentIndex,
+                onTap: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+/// Points descendants at the render box that paints the screen background.
+class ShellBackground extends InheritedWidget {
+  const ShellBackground({super.key, required this.anchor, required super.child});
+  final GlobalKey anchor;
+
+  static GlobalKey? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ShellBackground>()?.anchor;
+
+  @override
+  bool updateShouldNotify(ShellBackground old) => old.anchor != anchor;
 }
 
 /// Glass pill nav. The selected pill slides with the smooth spring.
@@ -196,19 +222,120 @@ class _FikraBranchContainerState extends State<FikraBranchContainer> with Single
               enabled: i == widget.index,
               child: ExcludeFocus(
                 excluding: i != widget.index,
-                child: FadeTransition(
-                  opacity: progress,
-                  child: ScaleTransition(
-                    scale: reduced
-                        ? const AlwaysStoppedAnimation(1.0)
-                        : progress.drive(Tween(begin: FikraMotion.enterScale, end: 1.0)),
-                    child: widget.children[i],
-                  ),
-                ),
+                // Each tab paints into its own layer, so the veil above never
+                // repaints the tab underneath it.
+                child: RepaintBoundary(child: widget.children[i]),
               ),
             ),
           ),
+        // The fade-in is a background-coloured veil that clears over the new
+        // tab. On screen it is the same as fading the tab in, but it costs one
+        // gradient fill per frame instead of an offscreen copy of the screen.
+        // No scale: on GLES (e.g. Adreno 650) rescaling the tab re-rasterised
+        // its text every frame and missed the 144 Hz budget on ~20% of frames.
+        IgnorePointer(child: _Veil(progress: progress)),
       ],
     );
+  }
+}
+
+class _Veil extends AnimatedWidget {
+  const _Veil({required Animation<double> progress}) : super(listenable: progress);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = (listenable as Animation<double>).value;
+    if (t >= 1) return const SizedBox.shrink();
+    return TabVeil(
+      opacity: 1 - t,
+      gradient: context.colors.screenGradient,
+      // The tabs are transparent over AppShell's background, so the veil
+      // paints the gradient in that box's rectangle, not its own.
+      anchor: ShellBackground.maybeOf(context),
+      screen: MediaQuery.sizeOf(context),
+    );
+  }
+}
+
+/// Paints [gradient] at [opacity] in the rectangle of [anchor]'s render box
+/// (mapped through any transform between the two), clipped to this box, so
+/// it lines up exactly with the background [anchor] paints. Without an
+/// anchor it assumes a [screen]-sized background at the view origin.
+@visibleForTesting
+class TabVeil extends LeafRenderObjectWidget {
+  const TabVeil({super.key, required this.opacity, required this.gradient, this.anchor, required this.screen});
+  final double opacity;
+  final Gradient gradient;
+  final GlobalKey? anchor;
+  final Size screen;
+
+  @override
+  RenderTabVeil createRenderObject(BuildContext context) => RenderTabVeil(opacity, gradient, anchor, screen);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderTabVeil renderObject) => renderObject
+    ..opacity = opacity
+    ..gradient = gradient
+    ..anchor = anchor
+    ..screen = screen;
+}
+
+class RenderTabVeil extends RenderBox {
+  RenderTabVeil(this._opacity, this._gradient, this._anchor, this._screen);
+
+  double _opacity;
+  set opacity(double v) {
+    if (v == _opacity) return;
+    _opacity = v;
+    markNeedsPaint();
+  }
+
+  Gradient _gradient;
+  set gradient(Gradient v) {
+    if (v == _gradient) return;
+    _gradient = v;
+    markNeedsPaint();
+  }
+
+  GlobalKey? _anchor;
+  set anchor(GlobalKey? v) {
+    if (v == _anchor) return;
+    _anchor = v;
+    markNeedsPaint();
+  }
+
+  Size _screen;
+  set screen(Size v) {
+    if (v == _screen) return;
+    _screen = v;
+    markNeedsPaint();
+  }
+
+  @override
+  bool get sizedByParent => true;
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) => constraints.biggest;
+
+  @override
+  bool hitTestSelf(Offset position) => false;
+
+  /// The background's rectangle in this box's local coordinates.
+  Rect _backgroundRect() {
+    final anchor = _anchor?.currentContext?.findRenderObject();
+    if (anchor is RenderBox && anchor.attached && anchor.hasSize) {
+      final toLocal = Matrix4.tryInvert(getTransformTo(anchor));
+      if (toLocal != null) return MatrixUtils.transformRect(toLocal, Offset.zero & anchor.size);
+    }
+    return globalToLocal(Offset.zero) & _screen;
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (_opacity <= 0) return;
+    final paint = Paint()
+      ..shader = _gradient.createShader(_backgroundRect().shift(offset))
+      ..color = Color.fromRGBO(0, 0, 0, _opacity.clamp(0.0, 1.0));
+    context.canvas.drawRect(offset & size, paint);
   }
 }

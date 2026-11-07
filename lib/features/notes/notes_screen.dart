@@ -188,7 +188,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                         return Padding(
                           key: ValueKey(n.id),
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: NoteCard(note: n, onTap: () => context.push('/note/${n.id}')),
+                          child: NoteCard(
+                            note: n,
+                            onTap: () => context.push('/note/${n.id}', extra: n),
+                          ),
                         );
                       },
                     ),

@@ -14,15 +14,15 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
+import 'package:fikra/core/motion/motion.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/notes/note_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-
-import 'dart:ui' show FramePhase;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,6 +31,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:path_provider/path_provider.dart';
 
 const _n = int.fromEnvironment('FIKRA_STRESS_N', defaultValue: 1000);
+
+/// --dart-define=FIKRA_TRACE=true records a timeline per FPS step (with
+/// per-widget build events) into the response file, to find slow frames.
+const _trace = bool.fromEnvironment('FIKRA_TRACE');
 
 class _NoFiles extends AttachmentStore {
   @override
@@ -68,28 +72,48 @@ Map<String, Object> _frames(List<FrameTiming> t) {
   };
 }
 
-/// Real-time frame rate over an animation: average FPS, 1% / 0.1% lows (from
-/// the slowest frame intervals) and frames that missed a vsync.
-Map<String, Object> _fps(List<FrameTiming> t, double refreshHz) {
+/// Frame rate over animations. [windows] holds, per gesture or animation,
+/// the vsync time (µs) of every frame drawn while it was running, so every
+/// gap inside a window counts, stalls included, and the pauses between
+/// windows never do. A frame is janky when its build or raster phase takes
+/// longer than one refresh. `latency_*` is FrameTiming.totalSpan: vsync to
+/// raster finish (before the frame is presented).
+Map<String, Object> _fps(List<FrameTiming> t, List<List<int>> windows, double refreshHz) {
   if (t.length < 10) return {'frames': t.length};
-  final ends = [for (final f in t) f.timestampInMicroseconds(FramePhase.rasterFinish)]..sort();
-  // Gaps over 250 ms are pauses between gestures, not frames of the animation.
-  final gaps = [for (var i = 1; i < ends.length; i++) (ends[i] - ends[i - 1]) / 1000].where((g) => g < 250).toList();
-  if (gaps.isEmpty) return {'frames': t.length};
-  final sorted = [...gaps]..sort();
-  double pct(double q) => sorted[(q * (sorted.length - 1)).round()];
   final budget = 1000 / refreshHz;
-  final avg = gaps.reduce((a, b) => a + b) / gaps.length;
+  double ms(Duration d) => d.inMicroseconds / 1000;
+  final build = [for (final f in t) ms(f.buildDuration)]..sort();
+  final raster = [for (final f in t) ms(f.rasterDuration)]..sort();
+  final latency = [for (final f in t) ms(f.totalSpan)]..sort();
+  final janky = t.where((f) => ms(f.buildDuration) > budget || ms(f.rasterDuration) > budget).length;
+  final gaps = <double>[
+    for (final w in windows)
+      for (var i = 1; i < w.length; i++) (w[i] - w[i - 1]) / 1000,
+  ]..sort();
   double r(double x) => (x * 10).round() / 10;
-  final total = [for (final f in t) f.totalSpan.inMicroseconds / 1000];
+  double p(List<double> a, double q) => a[(q * (a.length - 1)).round()];
   return {
     'frames': t.length,
-    'avg_fps': r(1000 / avg),
-    'low_1pct_fps': r(1000 / pct(.99)),
-    'low_01pct_fps': r(1000 / pct(.999)),
-    'missed_vsync': gaps.where((g) => g > budget * 1.5).length,
-    'missed_pct': r(100 * gaps.where((g) => g > budget * 1.5).length / gaps.length),
-    'worst_frame_ms': r(total.reduce(max)),
+    if (gaps.isNotEmpty) ...{
+      'avg_fps': r(1000 / (gaps.reduce((a, b) => a + b) / gaps.length)),
+      'low_1pct_fps': r(1000 / p(gaps, .99)),
+      'low_01pct_fps': r(1000 / p(gaps, .999)),
+    },
+    'jank_pct': r(100 * janky / t.length),
+    // Measured build or raster phases over 6.94 ms. The run is at the panel's
+    // idle rate, so this is how close each frame is to a 144 Hz budget, not a
+    // prediction of on-screen 144 Hz behaviour.
+    'over_144hz_pct': r(
+      100 * t.where((f) => ms(f.buildDuration) > 1000 / 144 || ms(f.rasterDuration) > 1000 / 144).length / t.length,
+    ),
+    'build_p90': r(p(build, .9)),
+    'build_p99': r(p(build, .99)),
+    'build_max': r(build.last),
+    'raster_p90': r(p(raster, .9)),
+    'raster_p99': r(p(raster, .99)),
+    'raster_max': r(raster.last),
+    'latency_p99': r(p(latency, .99)),
+    'latency_max': r(latency.last),
   };
 }
 
@@ -275,12 +299,48 @@ void main() {
     final hz = tester.view.display.refreshRate;
     report['display_hz'] = hz;
     binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
-    Future<Map<String, Object>> live(Future<void> Function() f) async {
+    // Vsync times of the frames drawn inside each moving(...) window.
+    final windows = <List<int>>[];
+    var moving = false;
+    SchedulerBinding.instance.addPersistentFrameCallback((_) {
+      if (moving) windows.last.add(SchedulerBinding.instance.currentSystemFrameTimeStamp.inMicroseconds);
+    });
+    // Runs [f] as one window, then keeps it open until every animation it
+    // started has drawn its last frame (transition tails, springs, scroll and
+    // pan inertia), so the end of a motion is never cut off. [f] itself must
+    // not idle: once nothing animates, the window closes.
+    Future<void> during(Future<void> Function() f) async {
+      windows.add([]);
+      moving = true;
+      try {
+        await f();
+        final scheduler = SchedulerBinding.instance;
+        final deadline = DateTime.now().add(const Duration(seconds: 3));
+        do {
+          await scheduler.endOfFrame; // the recorder runs inside this frame
+        } while (scheduler.transientCallbackCount > 0 && DateTime.now().isBefore(deadline));
+      } finally {
+        moving = false;
+      }
+    }
+
+    Future<Map<String, Object>> live(String key, Future<void> Function() f) async {
       await Future<void>.delayed(const Duration(milliseconds: 400));
       timings.clear();
-      await f();
+      windows.clear();
+      if (_trace) {
+        debugProfileBuildsEnabled = true;
+        debugProfileLayoutsEnabled = true;
+        debugProfilePaintsEnabled = true;
+        await binding.traceAction(f, reportKey: 'trace_$key');
+        debugProfileBuildsEnabled = false;
+        debugProfileLayoutsEnabled = false;
+        debugProfilePaintsEnabled = false;
+      } else {
+        await f();
+      }
       await Future<void>.delayed(const Duration(milliseconds: 300));
-      return _fps(List.of(timings), hz);
+      return _fps(List.of(timings), List.of(windows), hz);
     }
 
     Future<void> wait(int ms) => Future<void>.delayed(Duration(milliseconds: ms));
@@ -288,50 +348,68 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('nav-1')));
     await wait(800);
     final notesScroll = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
-    report['fps_notes_scroll'] = await live(() async {
-      for (var i = 0; i < 2; i++) {
-        await notesScroll.animateTo(6000, duration: const Duration(milliseconds: 2500), curve: Curves.linear);
-        await notesScroll.animateTo(0, duration: const Duration(milliseconds: 2500), curve: Curves.linear);
-      }
+    report['fps_notes_scroll'] = await live('notes_scroll', () async {
+      await during(() async {
+        for (var i = 0; i < 2; i++) {
+          await notesScroll.animateTo(6000, duration: const Duration(milliseconds: 2500), curve: Curves.linear);
+          await notesScroll.animateTo(0, duration: const Duration(milliseconds: 2500), curve: Curves.linear);
+        }
+      });
     });
-    report['fps_notes_fling'] = await live(() async {
+    report['fps_notes_fling'] = await live('notes_fling', () async {
       for (var i = 0; i < 3; i++) {
-        await tester.fling(find.byType(Scrollable).last, const Offset(0, -1400), 4000);
-        await wait(1400);
+        await during(() async {
+          await tester.fling(find.byType(Scrollable).last, const Offset(0, -1400), 4000);
+          while (notesScroll.isScrollingNotifier.value) {
+            await wait(5);
+          }
+        });
+        await wait(400);
       }
     });
-    report['fps_tabs'] = await live(() async {
+    report['fps_tabs'] = await live('tabs', () async {
       for (final tab in [2, 3, 0, 1, 2, 1]) {
-        await tester.tap(find.byKey(ValueKey('nav-$tab')));
-        await wait(700);
+        await during(() async {
+          await tester.tap(find.byKey(ValueKey('nav-$tab')));
+          await wait(FikraMotion.enter.inMilliseconds);
+        });
+        await wait(450);
       }
     });
     await tester.tap(find.byKey(const ValueKey('nav-2')));
     await wait(1200);
-    report['fps_graph_pan'] = await live(() async {
+    report['fps_graph_pan'] = await live('graph_pan', () async {
       for (var i = 0; i < 3; i++) {
-        await tester.timedDrag(
-          find.byType(InteractiveViewer),
-          const Offset(-260, -320),
-          const Duration(milliseconds: 900),
+        await during(
+          () => tester.timedDrag(
+            find.byType(InteractiveViewer),
+            const Offset(-260, -320),
+            const Duration(milliseconds: 900),
+          ),
         );
         await wait(500);
       }
     });
     await tester.tap(find.byKey(const ValueKey('nav-1')));
     await wait(800);
-    report['fps_open_note'] = await live(() async {
+    report['fps_open_note'] = await live('open_note', () async {
       for (var i = 0; i < 3; i++) {
-        await tester.tap(find.byType(NoteCard).first);
-        await wait(900);
-        await tester.binding.handlePopRoute();
-        await wait(900);
+        await during(() async {
+          await tester.tap(find.byType(NoteCard).first);
+          await wait(FikraMotion.push.inMilliseconds);
+        });
+        await wait(500);
+        await during(() async {
+          await tester.binding.handlePopRoute();
+          await wait(FikraMotion.push.inMilliseconds);
+        });
+        await wait(500);
       }
     });
 
     report['rss_end_mb'] = ProcessInfo.currentRss ~/ (1024 * 1024);
     SchedulerBinding.instance.removeTimingsCallback(collect);
-    binding.reportData = report;
+    binding.reportData = {...?binding.reportData, ...report};
     // ignore: avoid_print
     print('FIKRA_STRESS $report');
 

@@ -132,4 +132,28 @@ void main() {
     tester.element(find.text('التاني')).push('/note/${a.id}');
     await pumpUntil(tester, find.text('نوت ب'));
   });
+
+  fikraTest('an opened note shows its content on the first frame, before the query returns', (tester, db) async {
+    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    late Note note;
+    await pumpFuture(tester, () async {
+      final p = await LocalProjectsRepository(db).create('مشروع');
+      note = await LocalNotesRepository(db)
+          .create(projectId: p.id, title: 'نوت سريعة', text: 'محتوى', source: NoteSource.text);
+    });
+    await pumpUntil(tester, find.text('مشروع'));
+
+    // Deep link (no note handed over): nothing until the query answers.
+    tester.element(find.text('مشروع')).push('/note/${note.id}');
+    await tester.pump(); // the route's first frame
+    expect(find.text('محتوى'), findsNothing);
+    await pumpUntil(tester, find.text('محتوى'));
+    tester.element(find.text('محتوى')).pop();
+    await tester.pumpAndSettle();
+
+    // From the app (note handed over): drawn with the page itself.
+    tester.element(find.text('مشروع')).push('/note/${note.id}', extra: note);
+    await tester.pump();
+    expect(find.text('محتوى'), findsOneWidget);
+  });
 }
