@@ -22,6 +22,26 @@ void main() {
     await pumpUntil(tester, find.text('الذكاء الاصطناعي'));
   });
 
+  fikraTest('notes search filters after a short pause and clears instantly', (tester, db) async {
+    await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
+    await tester.tap(find.text('جرّب مشروع تجريبي'));
+    await pumpUntil(tester, find.text('محاضرة الشبكات'));
+    expect(find.text('البحث الدلالي'), findsWidgets);
+
+    await tester.enterText(find.byType(TextField).first, 'TCP');
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('البحث الدلالي'), findsWidgets); // debounced: not filtered yet
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('محاضرة الشبكات'), findsOneWidget);
+    expect(find.text('البحث الدلالي'), findsNothing);
+
+    await tester.enterText(find.byType(TextField).first, '');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('البحث الدلالي'), findsWidgets);
+  });
+
   fikraTest('settings: theme choice applies and wipe returns to welcome', (tester, db) async {
     await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
     await tester.tap(find.text('جرّب مشروع تجريبي'));

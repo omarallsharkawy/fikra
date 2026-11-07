@@ -5,7 +5,8 @@
 //     --driver=test_driver/integration_test.dart --target=integration_test/stress_test.dart
 //
 // Results: build/integration_response_data.json. Uses its own database file and
-// never touches the app's real data or attachment files.
+// never touches the app's real data or attachment files. Profile builds install
+// as com.fikra.app.stress (android/app/build.gradle.kts), a separate app.
 import 'dart:io';
 import 'dart:math';
 
@@ -20,6 +21,9 @@ import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/notes/note_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
+import 'dart:ui' show FramePhase;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -61,6 +65,31 @@ Map<String, Object> _frames(List<FrameTiming> t) {
     'raster_p90': r(p(raster, .9)),
     'over_16ms': total.where((x) => x > 16.7).length,
     'worst_ms': r(total.reduce(max)),
+  };
+}
+
+/// Real-time frame rate over an animation: average FPS, 1% / 0.1% lows (from
+/// the slowest frame intervals) and frames that missed a vsync.
+Map<String, Object> _fps(List<FrameTiming> t, double refreshHz) {
+  if (t.length < 10) return {'frames': t.length};
+  final ends = [for (final f in t) f.timestampInMicroseconds(FramePhase.rasterFinish)]..sort();
+  // Gaps over 250 ms are pauses between gestures, not frames of the animation.
+  final gaps = [for (var i = 1; i < ends.length; i++) (ends[i] - ends[i - 1]) / 1000].where((g) => g < 250).toList();
+  if (gaps.isEmpty) return {'frames': t.length};
+  final sorted = [...gaps]..sort();
+  double pct(double q) => sorted[(q * (sorted.length - 1)).round()];
+  final budget = 1000 / refreshHz;
+  final avg = gaps.reduce((a, b) => a + b) / gaps.length;
+  double r(double x) => (x * 10).round() / 10;
+  final total = [for (final f in t) f.totalSpan.inMicroseconds / 1000];
+  return {
+    'frames': t.length,
+    'avg_fps': r(1000 / avg),
+    'low_1pct_fps': r(1000 / pct(.99)),
+    'low_01pct_fps': r(1000 / pct(.999)),
+    'missed_vsync': gaps.where((g) => g > budget * 1.5).length,
+    'missed_pct': r(100 * gaps.where((g) => g > budget * 1.5).length / gaps.length),
+    'worst_frame_ms': r(total.reduce(max)),
   };
 }
 
@@ -240,6 +269,64 @@ void main() {
       await notesRepo.create(projectId: 'p', title: 'جديدة', text: 'نوت جديدة', source: NoteSource.text);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 16));
+    });
+
+    // ---- real-time frame rate: frames run at the display's own vsync here.
+    final hz = tester.view.display.refreshRate;
+    report['display_hz'] = hz;
+    binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+    Future<Map<String, Object>> live(Future<void> Function() f) async {
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      timings.clear();
+      await f();
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      return _fps(List.of(timings), hz);
+    }
+
+    Future<void> wait(int ms) => Future<void>.delayed(Duration(milliseconds: ms));
+
+    await tester.tap(find.byKey(const ValueKey('nav-1')));
+    await wait(800);
+    final notesScroll = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
+    report['fps_notes_scroll'] = await live(() async {
+      for (var i = 0; i < 2; i++) {
+        await notesScroll.animateTo(6000, duration: const Duration(milliseconds: 2500), curve: Curves.linear);
+        await notesScroll.animateTo(0, duration: const Duration(milliseconds: 2500), curve: Curves.linear);
+      }
+    });
+    report['fps_notes_fling'] = await live(() async {
+      for (var i = 0; i < 3; i++) {
+        await tester.fling(find.byType(Scrollable).last, const Offset(0, -1400), 4000);
+        await wait(1400);
+      }
+    });
+    report['fps_tabs'] = await live(() async {
+      for (final tab in [2, 3, 0, 1, 2, 1]) {
+        await tester.tap(find.byKey(ValueKey('nav-$tab')));
+        await wait(700);
+      }
+    });
+    await tester.tap(find.byKey(const ValueKey('nav-2')));
+    await wait(1200);
+    report['fps_graph_pan'] = await live(() async {
+      for (var i = 0; i < 3; i++) {
+        await tester.timedDrag(
+          find.byType(InteractiveViewer),
+          const Offset(-260, -320),
+          const Duration(milliseconds: 900),
+        );
+        await wait(500);
+      }
+    });
+    await tester.tap(find.byKey(const ValueKey('nav-1')));
+    await wait(800);
+    report['fps_open_note'] = await live(() async {
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.byType(NoteCard).first);
+        await wait(900);
+        await tester.binding.handlePopRoute();
+        await wait(900);
+      }
     });
 
     report['rss_end_mb'] = ProcessInfo.currentRss ~/ (1024 * 1024);

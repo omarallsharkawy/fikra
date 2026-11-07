@@ -13,9 +13,9 @@ void main() {
   late SchemaVerifier verifier;
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 → v2 produces exactly the current schema', () async {
+  test('v1 → v3 produces exactly the current schema', () async {
     final db = FikraDatabase(await verifier.startAt(1));
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
     await db.close();
   });
 
@@ -34,7 +34,7 @@ void main() {
     note('text', 'text');
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
     final byId = {for (final n in await db.select(db.notes).get()) n.id: n};
 
     final voice = byId['voice']!;
@@ -71,11 +71,38 @@ void main() {
     expect(raw.userVersion, 1);
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
     final n = await db.select(db.notes).getSingle();
     expect(n.voicePath, '/files/rec.m4a');
     expect(n.attachmentPath, isNull);
     expect(n.durationMs, 5000);
+    await db.close();
+  });
+
+  test('v2 → v3 adds the indexes, and a re-run after an interruption still opens', () async {
+    final schema = await verifier.schemaAt(2);
+    // An interrupted v3 upgrade: one index already exists, user_version still 2.
+    schema.rawDatabase.execute('CREATE INDEX notes_status ON notes (status)');
+    final db = FikraDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 3);
+    final names = (await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get())
+        .map((r) => r.read<String>('name'))
+        .toSet();
+    expect(
+      names,
+      containsAll([
+        'notes_project_created',
+        'notes_status',
+        'note_links_project',
+        'note_links_source',
+        'note_links_target',
+        'chat_entries_project_created',
+      ]),
+    );
+    final plan = await db
+        .customSelect("EXPLAIN QUERY PLAN SELECT * FROM notes WHERE project_id = 'p' ORDER BY created_at DESC")
+        .get();
+    expect(plan.map((r) => r.read<String>('detail')).join(' '), contains('notes_project_created'));
     await db.close();
   });
 }

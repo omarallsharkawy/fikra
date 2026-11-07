@@ -83,6 +83,10 @@ class _PressableState extends State<Pressable> with SingleTickerProviderStateMix
       selected: widget.selected,
       label: widget.semanticLabel,
       excludeSemantics: widget.semanticLabel != null,
+      // Excluding the child's semantics also drops the GestureDetector's tap
+      // action, so a labelled pressable exposes its own (TalkBack double tap).
+      onTap: widget.semanticLabel != null ? widget.onTap : null,
+      onLongPress: widget.semanticLabel != null ? widget.onLongPress : null,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: _enabled ? (_) => _to(widget.pressedScale) : null,

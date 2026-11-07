@@ -35,6 +35,10 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
+        // Profile builds (performance tests, `flutter drive --profile`) install as
+        // a separate app, so they can never replace or uninstall the real one
+        // and its notes.
+        maybeCreate("profile").applicationIdSuffix = ".stress"
     }
 }
 

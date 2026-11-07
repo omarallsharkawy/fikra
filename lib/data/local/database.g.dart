@@ -2043,10 +2043,43 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
   late final $NoteLinksTable noteLinks = $NoteLinksTable(this);
   late final $ChatEntriesTable chatEntries = $ChatEntriesTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
+  late final Index notesProjectCreated = Index(
+    'notes_project_created',
+    'CREATE INDEX notes_project_created ON notes (project_id, created_at)',
+  );
+  late final Index notesStatus = Index('notes_status', 'CREATE INDEX notes_status ON notes (status)');
+  late final Index noteLinksProject = Index(
+    'note_links_project',
+    'CREATE INDEX note_links_project ON note_links (project_id)',
+  );
+  late final Index noteLinksSource = Index(
+    'note_links_source',
+    'CREATE INDEX note_links_source ON note_links (source_id)',
+  );
+  late final Index noteLinksTarget = Index(
+    'note_links_target',
+    'CREATE INDEX note_links_target ON note_links (target_id)',
+  );
+  late final Index chatEntriesProjectCreated = Index(
+    'chat_entries_project_created',
+    'CREATE INDEX chat_entries_project_created ON chat_entries (project_id, created_at)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [projects, notes, noteLinks, chatEntries, settings];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    projects,
+    notes,
+    noteLinks,
+    chatEntries,
+    settings,
+    notesProjectCreated,
+    notesStatus,
+    noteLinksProject,
+    noteLinksSource,
+    noteLinksTarget,
+    chatEntriesProjectCreated,
+  ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(

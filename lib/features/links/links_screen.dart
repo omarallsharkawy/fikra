@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +14,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
-import '../shared/note_presentation.dart';
+import 'graph_layout.dart';
 
 /// Knowledge graph: one row per cluster, notes as nodes, links as curves.
 class LinksScreen extends ConsumerStatefulWidget {
@@ -32,11 +34,139 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
   /// RTL canvas: start the view at its right edge, where each row begins.
   Matrix4 _home() => Matrix4.translationValues(math.min(0, _viewportW - _canvasW), 0, 0);
 
-  static const _nodeW = 148.0;
-  static const _nodeH = 54.0;
-  static const _gapX = 22.0;
-  static const _rowH = 132.0;
-  static const _pad = 24.0;
+  List<Note>? _notesSource;
+  List<NoteLink>? _linksSource;
+  String? _projectId;
+  GraphInput? _input;
+  GraphInput? _pending;
+  GraphLayout? _layout;
+  bool _workerRunning = false;
+  bool _layoutError = false;
+
+  void _setProject(String? projectId) {
+    if (_projectId != projectId) {
+      _projectId = projectId;
+      _notesSource = null;
+      _linksSource = null;
+      _input = null;
+      _pending = null;
+      _layout = null;
+      _layoutError = false;
+      _selected = null;
+      _fittedFor = null;
+    }
+  }
+
+  // Project only after a stream emission, not on selection/zoom/theme rebuilds.
+  // Content-only writes produce the same projection and retain the layout.
+  void _updateGraph(List<Note> notes, List<NoteLink> links) {
+    final notesChanged = !identical(notes, _notesSource);
+    final linksChanged = !identical(links, _linksSource);
+    if (!notesChanged && !linksChanged) return;
+    _notesSource = notes;
+    _linksSource = links;
+    final input = GraphInput(
+      notesChanged
+          ? [
+              for (final n in notes)
+                (
+                  id: n.id,
+                  title: n.title,
+                  cluster: n.cluster,
+                  createdAt: n.createdAt.microsecondsSinceEpoch,
+                  status: n.status.index,
+                ),
+            ]
+          : _input!.notes,
+      linksChanged
+          ? [for (final l in links) (sourceId: l.sourceId, targetId: l.targetId, label: l.label, strength: l.strength)]
+          : _input!.links,
+    );
+    if (_input?.sameData(input) ?? false) return;
+    _input = input;
+    _layoutError = false;
+    if (input.notes.length > 300 || (input.notes.length > GraphLayout.smallProjectLimit && input.links.length > 600)) {
+      // An empty layout is not a useful placeholder for the first large graph.
+      if ((_layout?.readyCount ?? 0) < 2) _layout = null;
+      // One worker at a time; replace queued work with the latest emission.
+      _pending = input;
+      if (!_workerRunning) unawaited(_computePending());
+    } else {
+      _pending = null;
+      _acceptLayout(GraphLayout.fromInput(input));
+    }
+  }
+
+  void _acceptLayout(GraphLayout layout) {
+    _layout = layout;
+    if (!layout.nodes.containsKey(_selected)) _selected = null;
+  }
+
+  Future<void> _computePending() async {
+    _workerRunning = true;
+    try {
+      while (_pending != null) {
+        final input = _pending!;
+        _pending = null;
+        try {
+          final layout = await compute(GraphLayout.fromInput, input, debugLabel: 'links-layout');
+          if (!mounted) return;
+          // Never install an obsolete layout, including after a project switch.
+          if (identical(input, _input)) setState(() => _acceptLayout(layout));
+        } catch (_) {
+          if (!mounted) return;
+          if (identical(input, _input)) setState(() => _layoutError = true);
+        }
+      }
+    } finally {
+      _workerRunning = false;
+    }
+  }
+
+  Future<void> _showCluster(GraphRow row) => showFikraSheet<void>(
+    context,
+    title: row.cluster,
+    builder: (sheetContext) => SizedBox(
+      height: MediaQuery.sizeOf(sheetContext).height * 0.55,
+      child: ListView.builder(
+        itemExtent: 64,
+        itemCount: row.notes.length,
+        itemBuilder: (context, index) {
+          final note = row.notes[index];
+          return ListTile(
+            title: Text(_graphTitle(note), style: context.text.body, maxLines: 2, overflow: TextOverflow.ellipsis),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              this.context.push('/note/${note.id}');
+            },
+          );
+        },
+      ),
+    ),
+  );
+
+  Future<void> _showMoreClusters(GraphLayout layout) async {
+    final row = await showFikraSheet<GraphRow>(
+      context,
+      title: 'مجموعات أكتر',
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * 0.55,
+        child: ListView.builder(
+          itemExtent: 72,
+          itemCount: layout.hiddenRows.length,
+          itemBuilder: (context, index) {
+            final row = layout.hiddenRows[index];
+            return ListTile(
+              title: Text(row.cluster, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
+              subtitle: Text(Fmt.notes(row.notes.length), style: context.text.meta),
+              onTap: () => Navigator.pop(sheetContext, row),
+            );
+          },
+        ),
+      ),
+    );
+    if (mounted && row != null) await _showCluster(row);
+  }
 
   @override
   void dispose() {
@@ -59,45 +189,30 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
   @override
   Widget build(BuildContext context) {
     final notesAsync = ref.watch(selectedNotesProvider);
-    final notes = (notesAsync.value ?? const <Note>[]).where((n) => n.status == ProcessingStatus.ready).toList()
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
     final linksAsync = ref.watch(selectedLinksProvider);
+    final notes = notesAsync.value ?? const <Note>[];
     final links = linksAsync.value ?? const <NoteLink>[];
-
-    final clusters = <String, List<Note>>{};
-    for (final n in notes) {
-      clusters.putIfAbsent(n.cluster ?? 'أفكار عامة', () => []).add(n);
-    }
-    final ordered = clusters.entries.toList()..sort((a, b) => b.value.length.compareTo(a.value.length));
-    final maxCols = ordered.fold<int>(1, (m, e) => math.max(m, e.value.length));
-    final width = math.max(360.0, _pad * 2 + maxCols * _nodeW + (maxCols - 1) * _gapX);
-    final height = _pad * 2 + ordered.length * _rowH;
-
-    // RTL: first note of each row sits on the right.
-    final pos = <String, Rect>{};
-    for (var r = 0; r < ordered.length; r++) {
-      final row = ordered[r].value;
-      final y = _pad + r * _rowH + 34;
-      for (var i = 0; i < row.length; i++) {
-        final x = width - _pad - (i + 1) * _nodeW - i * _gapX;
-        pos[row[i].id] = Rect.fromLTWH(x, y, _nodeW, _nodeH);
-      }
-    }
-    final visibleLinks = links.where((l) => pos.containsKey(l.sourceId) && pos.containsKey(l.targetId)).toList();
-    final selected = notes.where((n) => n.id == _selected).firstOrNull;
+    final projectId = ref.watch(selectedProjectProvider)?.id;
+    _setProject(projectId);
+    if (notesAsync.hasValue && linksAsync.hasValue) _updateGraph(notes, links);
+    final layout = _layout;
+    final width = layout?.width ?? 360.0;
+    final height = layout?.height ?? 0.0;
+    final selected = layout?.nodes[_selected];
     // Why the selected note is connected: "<other title> · <label>".
-    final byId = {for (final n in notes) n.id: n};
     final reasons = <String, String>{};
-    if (selected != null) {
-      for (final l in visibleLinks) {
+    if (selected != null && layout != null) {
+      for (final l in layout.links) {
         if (l.sourceId != selected.id && l.targetId != selected.id) continue;
-        final other = byId[l.sourceId == selected.id ? l.targetId : l.sourceId];
-        if (other != null) reasons.putIfAbsent(other.id, () => '${noteTitle(other)} · ${l.label}');
+        final other = layout.nodes[l.sourceId == selected.id ? l.targetId : l.sourceId];
+        if (other != null) reasons.putIfAbsent(other.id, () => '${_graphTitle(other)} · ${l.label}');
       }
     }
 
-    final loadError = (notesAsync.hasError && !notesAsync.hasValue) || (linksAsync.hasError && !linksAsync.hasValue);
-    final loading = !notesAsync.hasValue || !linksAsync.hasValue;
+    final loadError =
+        _layoutError || (notesAsync.hasError && !notesAsync.hasValue) || (linksAsync.hasError && !linksAsync.hasValue);
+    final loading = !notesAsync.hasValue || !linksAsync.hasValue || layout == null;
+    final empty = (layout?.readyCount ?? 0) < 2;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -111,19 +226,26 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                     ? 'error'
                     : loading
                     ? 'loading'
-                    : notes.length < 2
+                    : empty
                     ? 'empty'
                     : 'graph',
               ),
               child: loadError
                   ? LoadErrorView(
-                      onRetry: () => ref
-                        ..invalidate(selectedNotesProvider)
-                        ..invalidate(selectedLinksProvider),
+                      onRetry: () {
+                        setState(() {
+                          _input = null;
+                          _notesSource = null;
+                          _linksSource = null;
+                          _layoutError = false;
+                        });
+                        ref.invalidate(selectedNotesProvider);
+                        ref.invalidate(selectedLinksProvider);
+                      },
                     )
                   : loading
                   ? const SizedBox.shrink()
-                  : notes.length < 2
+                  : empty
                   ? FillScroll(
                       child: EmptyState(
                         icon: Icons.hub_outlined,
@@ -147,7 +269,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                             children: [
                               Flexible(
                                 child: Text(
-                                  '${Fmt.notes(notes.length)} · ${Fmt.links(visibleLinks.length)}',
+                                  '${Fmt.notes(notes.length)} · ${Fmt.links(links.length)}',
                                   style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -205,33 +327,54 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                               Positioned.fill(
                                                 child: CustomPaint(
                                                   painter: _EdgesPainter(
-                                                    links: visibleLinks,
-                                                    pos: pos,
+                                                    links: layout.links,
+                                                    pos: layout.positions,
                                                     selected: _selected,
                                                     edgeColor: context.colors.graphEdge,
                                                     light: Theme.of(context).brightness == Brightness.light,
                                                   ),
                                                 ),
                                               ),
-                                              for (var r = 0; r < ordered.length; r++)
+                                              for (final row in layout.rows)
                                                 Positioned(
-                                                  top: _pad + r * _rowH,
-                                                  right: _pad,
+                                                  top: GraphLayout.padding + row.index * GraphLayout.rowHeight,
+                                                  right: GraphLayout.padding,
                                                   child: Text(
-                                                    ordered[r].key,
+                                                    row.cluster,
                                                     style: context.text.chip.copyWith(
                                                       color: context.colors.textSecondary,
                                                     ),
                                                   ),
                                                 ),
-                                              for (final n in notes)
+                                              for (final n in layout.nodes.values)
                                                 Positioned.fromRect(
-                                                  rect: pos[n.id]!,
+                                                  rect: _rect(layout.positions[n.id]!),
                                                   child: _Node(
+                                                    key: ValueKey(n.id),
                                                     note: n,
                                                     selected: n.id == _selected,
                                                     onTap: () =>
                                                         setState(() => _selected = n.id == _selected ? null : n.id),
+                                                  ),
+                                                ),
+                                              for (final row in layout.rows)
+                                                if (row.hiddenCount > 0)
+                                                  Positioned.fromRect(
+                                                    rect: _rect(layout.positionInRow(row.index, row.visible.length)),
+                                                    child: _OverflowNode(
+                                                      label: '+${row.hiddenCount}',
+                                                      semanticLabel:
+                                                          'عرض ${Fmt.notes(row.notes.length)} في ${row.cluster}',
+                                                      numbersOnly: true,
+                                                      onTap: () => _showCluster(row),
+                                                    ),
+                                                  ),
+                                              if (layout.hiddenRows.isNotEmpty)
+                                                Positioned.fromRect(
+                                                  rect: _rect(layout.positionInRow(layout.rows.length, 0)),
+                                                  child: _OverflowNode(
+                                                    label: 'مجموعات أكتر (${layout.hiddenRows.length})',
+                                                    onTap: () => _showMoreClusters(layout),
                                                   ),
                                                 ),
                                             ],
@@ -242,7 +385,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                   },
                                 ),
                               ),
-                              if (visibleLinks.isEmpty && selected == null)
+                              if (links.isEmpty && selected == null)
                                 const Positioned(
                                   left: FikraSpace.screen,
                                   right: FikraSpace.screen,
@@ -280,10 +423,41 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
   }
 }
 
+Rect _rect(GraphPosition position) => Rect.fromLTWH(position.left, position.top, position.width, position.height);
+
+String _graphTitle(GraphNote note) => note.title.trim().isEmpty ? 'نوت جديدة' : note.title;
+
+class _OverflowNode extends StatelessWidget {
+  const _OverflowNode({required this.label, required this.onTap, this.semanticLabel, this.numbersOnly = false});
+
+  final String label;
+  final String? semanticLabel;
+  final bool numbersOnly;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Pressable(
+    onTap: onTap,
+    semanticLabel: semanticLabel ?? label,
+    child: Glass(
+      radius: FikraRadius.sm,
+      child: Center(
+        child: Text(
+          label,
+          textDirection: numbersOnly ? TextDirection.ltr : TextDirection.rtl,
+          style: context.text.chip,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    ),
+  );
+}
+
 /// Bottom card for the selected node: what it is and why it's connected.
 class _NodePreview extends StatelessWidget {
   const _NodePreview({required this.note, required this.reasons});
-  final Note note;
+  final GraphNote note;
   final List<String> reasons;
 
   @override
@@ -296,7 +470,7 @@ class _NodePreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(noteTitle(note), style: context.text.cardTitleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(_graphTitle(note), style: context.text.cardTitleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
           Text(
             '${note.cluster ?? 'أفكار عامة'} · ${Fmt.links(reasons.length)}',
@@ -336,8 +510,8 @@ class _NodePreview extends StatelessWidget {
 }
 
 class _Node extends StatelessWidget {
-  const _Node({required this.note, required this.selected, required this.onTap});
-  final Note note;
+  const _Node({super.key, required this.note, required this.selected, required this.onTap});
+  final GraphNote note;
   final bool selected;
   final VoidCallback onTap;
 
@@ -346,7 +520,7 @@ class _Node extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       selected: selected,
-      semanticLabel: noteTitle(note),
+      semanticLabel: _graphTitle(note),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14),
         alignment: AlignmentDirectional.centerStart,
@@ -382,15 +556,15 @@ class _EdgesPainter extends CustomPainter {
   });
   final Color edgeColor;
   final bool light;
-  final List<NoteLink> links;
-  final Map<String, Rect> pos;
+  final List<GraphLink> links;
+  final Map<String, GraphPosition> pos;
   final String? selected;
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final l in links) {
-      final a = pos[l.sourceId]!.center;
-      final b = pos[l.targetId]!.center;
+      final a = _rect(pos[l.sourceId]!).center;
+      final b = _rect(pos[l.targetId]!).center;
       final active = selected != null && (l.sourceId == selected || l.targetId == selected);
       final dim = selected != null && !active;
       var opacity = 1.0;

@@ -21,6 +21,8 @@ class Projects extends Table {
 }
 
 @DataClassName('Note')
+@TableIndex(name: 'notes_project_created', columns: {#projectId, #createdAt})
+@TableIndex(name: 'notes_status', columns: {#status})
 class Notes extends Table {
   TextColumn get id => text()();
   TextColumn get projectId => text().references(Projects, #id, onDelete: KeyAction.cascade)();
@@ -64,6 +66,9 @@ class Notes extends Table {
 }
 
 @DataClassName('NoteLink')
+@TableIndex(name: 'note_links_project', columns: {#projectId})
+@TableIndex(name: 'note_links_source', columns: {#sourceId})
+@TableIndex(name: 'note_links_target', columns: {#targetId})
 class NoteLinks extends Table {
   TextColumn get id => text()();
   TextColumn get projectId => text().references(Projects, #id, onDelete: KeyAction.cascade)();
@@ -79,6 +84,7 @@ class NoteLinks extends Table {
 }
 
 @DataClassName('ChatEntry')
+@TableIndex(name: 'chat_entries_project_created', columns: {#projectId, #createdAt})
 class ChatEntries extends Table {
   TextColumn get id => text()();
   TextColumn get projectId => text().references(Projects, #id, onDelete: KeyAction.cascade)();
@@ -108,7 +114,7 @@ class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -129,6 +135,27 @@ class FikraDatabase extends _$FikraDatabase {
             "attachment_name = NULL, attachment_bytes = NULL "
             "WHERE source = 'voice' AND attachment_path IS NOT NULL",
           );
+        });
+      }
+      if (from < 3) {
+        // v3: indexes for per-project lists, link lookups (and FK cascades),
+        // chat history and the startup "stuck in processing" scan.
+        await transaction(() async {
+          for (final index in [
+            notesProjectCreated,
+            notesStatus,
+            noteLinksProject,
+            noteLinksSource,
+            noteLinksTarget,
+            chatEntriesProjectCreated,
+          ]) {
+            await customStatement(
+              index.createStatementsByDialect[SqlDialect.sqlite]!.replaceFirst(
+                'CREATE INDEX ',
+                'CREATE INDEX IF NOT EXISTS ',
+              ),
+            );
+          }
         });
       }
     },

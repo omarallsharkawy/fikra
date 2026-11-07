@@ -1,13 +1,32 @@
 import 'package:fikra/app/shell.dart';
 import 'package:fikra/core/motion/motion.dart';
 import 'package:fikra/core/motion/page_transitions.dart';
+import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/theme/fikra_theme.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show SemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('a labelled Pressable exposes a tap action to TalkBack', (tester) async {
+    final semantics = tester.ensureSemantics();
+    var taps = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: Pressable(onTap: () => taps++, semanticLabel: 'حفظ', child: const SizedBox(width: 48, height: 48)),
+        ),
+      ),
+    );
+    final node = tester.getSemantics(find.bySemanticsLabel('حفظ'));
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    tester.semantics.tap(find.semantics.byLabel('حفظ'));
+    expect(taps, 1);
+    semantics.dispose();
+  });
+
   testWidgets('switcher: the outgoing child takes no taps during its exit', (tester) async {
     var taps = 0;
     final showButton = ValueNotifier(true);
