@@ -32,6 +32,7 @@ abstract interface class NotesRepository {
     String? attachmentPath,
     String? attachmentName,
     int? attachmentBytes,
+    String? voicePath,
     int? durationMs,
     DateTime? createdAt,
   });
@@ -96,12 +97,7 @@ class LocalProjectsRepository implements ProjectsRepository {
   @override
   Future<void> delete(String id) async {
     final files = await db.transaction(() async {
-      final paths =
-          await (db.selectOnly(db.notes)
-                ..addColumns([db.notes.attachmentPath])
-                ..where(db.notes.projectId.equals(id) & db.notes.attachmentPath.isNotNull()))
-              .map((r) => r.read(db.notes.attachmentPath)!)
-              .get();
+      final paths = await _filePaths(db, db.notes.projectId.equals(id));
       await (db.delete(db.projects)..where((p) => p.id.equals(id))).go();
       final current = await _readCurrent();
       if (current == id) {
@@ -166,6 +162,7 @@ class LocalNotesRepository implements NotesRepository {
     String? attachmentPath,
     String? attachmentName,
     int? attachmentBytes,
+    String? voicePath,
     int? durationMs,
     DateTime? createdAt,
   }) async {
@@ -181,6 +178,7 @@ class LocalNotesRepository implements NotesRepository {
       attachmentPath: attachmentPath,
       attachmentName: attachmentName,
       attachmentBytes: attachmentBytes,
+      voicePath: voicePath,
       durationMs: durationMs,
       concepts: '',
       createdAt: now,
@@ -259,13 +257,7 @@ class LocalNotesRepository implements NotesRepository {
   }
 
   @override
-  Future<Set<String>> attachmentPaths() async =>
-      (await (db.selectOnly(db.notes)
-                ..addColumns([db.notes.attachmentPath])
-                ..where(db.notes.attachmentPath.isNotNull()))
-              .map((r) => r.read(db.notes.attachmentPath)!)
-              .get())
-          .toSet();
+  Future<Set<String>> attachmentPaths() async => (await _filePaths(db, null)).toSet();
 
   @override
   Future<void> acceptRewrite(String id) async {
@@ -308,7 +300,7 @@ class LocalNotesRepository implements NotesRepository {
   Future<void> delete(String id) async {
     final n = await (db.select(db.notes)..where((n) => n.id.equals(id))).getSingleOrNull();
     await (db.delete(db.notes)..where((n) => n.id.equals(id))).go();
-    if (n?.attachmentPath != null) await AttachmentStore.deleteQuietly([n!.attachmentPath!]);
+    if (n != null) await AttachmentStore.deleteQuietly(n.filePaths);
   }
 
   @override
@@ -350,4 +342,14 @@ class LocalChatRepository implements ChatRepository {
 
   @override
   Future<void> clear(String projectId) => (db.delete(db.chatEntries)..where((c) => c.projectId.equals(projectId))).go();
+}
+
+/// Every attachment file (PDF and voice) of the notes matching [where].
+Future<List<String>> _filePaths(FikraDatabase db, Expression<bool>? where) async {
+  final q = db.selectOnly(db.notes)..addColumns([db.notes.attachmentPath, db.notes.voicePath]);
+  if (where != null) q.where(where);
+  final rows = await q.get();
+  return [
+    for (final r in rows) ...[?r.read(db.notes.attachmentPath), ?r.read(db.notes.voicePath)],
+  ];
 }

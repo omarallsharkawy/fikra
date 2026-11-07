@@ -69,7 +69,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   bool get _pdfReady => _pdf != null && _progress == 1 && _uploadError == null;
   bool get _hasAttachment => _voicePath != null || _pdf != null;
   bool get _canSave {
-    if (_saving || _recording) return false;
+    if (_saving || _recording || _picking) return false;
     if (_pdf != null) return _pdfReady;
     return _voicePath != null || _text.text.trim().isNotEmpty;
   }
@@ -104,7 +104,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   // ---------------------------------------------------------------- voice
 
   Future<void> _startRecording() async {
-    if (_rec != _Rec.idle || _saving || _hasAttachment) return;
+    if (_rec != _Rec.idle || _saving || _picking || _voicePath != null) return;
     _set(() => _rec = _Rec.starting);
     FocusScope.of(context).unfocus();
     try {
@@ -187,6 +187,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   }
 
   Future<void> _discardVoice() async {
+    if (_saving) return; // the save is copying this file right now
     final path = _voicePath;
     _set(() {
       _voicePath = null;
@@ -198,8 +199,8 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   // ---------------------------------------------------------------- pdf
 
   Future<void> _pickPdf() async {
-    if (_picking || _saving || _rec != _Rec.idle || _hasAttachment) return;
-    _picking = true;
+    if (_picking || _saving || _rec != _Rec.idle || _pdf != null) return;
+    _set(() => _picking = true);
     FocusScope.of(context).unfocus();
     try {
       final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['pdf']);
@@ -217,7 +218,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     } catch (_) {
       if (mounted) showToast(context, 'معرفناش نفتح الملف');
     } finally {
-      _picking = false;
+      _set(() => _picking = false);
     }
   }
 
@@ -265,24 +266,24 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     final voiceMs = _voiceMs;
     _set(() => _saving = true);
 
-    String? stored;
+    // A PDF and a recording can share one note; both are copied in first.
+    final stored = <String>[];
     try {
-      final NoteSource source;
-      String? name;
-      int? bytes;
+      String? pdfPath;
+      String? voiceStored;
       if (pdf != null) {
-        source = NoteSource.pdf;
-        stored = await store.persist(pdf.path!, extension: 'pdf');
-        name = pdf.name;
-        bytes = pdfBytes;
-      } else if (voicePath != null) {
-        source = NoteSource.voice;
-        stored = await store.persist(voicePath, extension: 'm4a');
-        name = 'تسجيل صوتي';
-        bytes = await File(stored).length();
-      } else {
-        source = NoteSource.text;
+        pdfPath = await store.persist(pdf.path!, extension: 'pdf');
+        stored.add(pdfPath);
       }
+      if (voicePath != null) {
+        voiceStored = await store.persist(voicePath, extension: 'm4a');
+        stored.add(voiceStored);
+      }
+      final source = pdf != null
+          ? NoteSource.pdf
+          : voicePath != null
+          ? NoteSource.voice
+          : NoteSource.text;
       final note = await ref
           .read(notesRepoProvider)
           .create(
@@ -290,10 +291,11 @@ class _AddScreenState extends ConsumerState<AddScreen> {
             title: title,
             text: text,
             source: source,
-            attachmentPath: stored,
-            attachmentName: name,
-            attachmentBytes: bytes,
-            durationMs: source == NoteSource.voice ? voiceMs : null,
+            attachmentPath: pdfPath,
+            attachmentName: pdf?.name,
+            attachmentBytes: pdf != null ? pdfBytes : null,
+            voicePath: voiceStored,
+            durationMs: voiceStored != null ? voiceMs : null,
           );
       // Saved: only now is it safe to drop the temporary recording.
       if (voicePath != null) await AttachmentStore.deleteQuietly([voicePath]);
@@ -310,7 +312,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       showToast(context, 'اتحفظت. فِكرة بتحللها دلوقتي');
       context.go('/notes');
     } catch (_) {
-      if (stored != null) await AttachmentStore.deleteQuietly([stored]);
+      await AttachmentStore.deleteQuietly(stored);
       if (mounted) showToast(context, 'معرفناش نحفظ النوت، جرّب تاني');
     } finally {
       _set(() => _saving = false);
@@ -323,29 +325,44 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final focused = _titleFocus.hasFocus || _textFocus.hasFocus;
-    final Widget attachment;
-    if (_voicePath != null && !_recording) {
-      attachment = Padding(
-        key: const ValueKey('voice'),
-        padding: const EdgeInsets.only(top: 4, bottom: 6),
-        child: VoicePlayer(path: _voicePath!, durationMs: _voiceMs ?? 0, onDelete: _discardVoice, embedded: true),
-      );
-    } else if (_pdf != null) {
-      attachment = Padding(
-        key: const ValueKey('pdf'),
-        padding: const EdgeInsets.only(top: 4, bottom: 6),
-        child: _PdfChip(
-          name: _pdf!.name,
-          bytes: _pdfBytes,
-          progress: _progress,
-          error: _uploadError,
-          onRetry: _upload,
-          onRemove: _removePdf,
+    // PDF and recording can both be attached; each chip enters on its own.
+    final attachments = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FikraSwitcher(
+          animateSize: true,
+          child: _pdf == null
+              ? const SizedBox(key: ValueKey('no-pdf'), width: double.infinity)
+              : Padding(
+                  key: const ValueKey('pdf'),
+                  padding: const EdgeInsets.only(top: 4, bottom: 6),
+                  child: _PdfChip(
+                    name: _pdf!.name,
+                    bytes: _pdfBytes,
+                    progress: _progress,
+                    error: _uploadError,
+                    onRetry: _upload,
+                    onRemove: _removePdf,
+                  ),
+                ),
         ),
-      );
-    } else {
-      attachment = const SizedBox(key: ValueKey('none'), width: double.infinity);
-    }
+        FikraSwitcher(
+          animateSize: true,
+          child: _voicePath == null
+              ? const SizedBox(key: ValueKey('no-voice'), width: double.infinity)
+              : Padding(
+                  key: ValueKey(_voicePath),
+                  padding: const EdgeInsets.only(top: 4, bottom: 6),
+                  child: VoicePlayer(
+                    path: _voicePath!,
+                    durationMs: _voiceMs ?? 0,
+                    onDelete: _saving ? null : _discardVoice,
+                    embedded: true,
+                  ),
+                ),
+        ),
+      ],
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -431,10 +448,11 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                               ),
                             ),
                     ),
-                    FikraSwitcher(animateSize: true, child: attachment),
+                    attachments,
                     _Toolbar(
                       recording: _recording,
-                      attachmentsEnabled: !_hasAttachment && !_saving && _rec == _Rec.idle,
+                      micEnabled: _voicePath == null && !_saving && !_picking && _rec == _Rec.idle,
+                      pdfEnabled: _pdf == null && !_saving && !_picking && _rec == _Rec.idle,
                       canSave: _canSave,
                       saving: _saving,
                       onMic: _startRecording,
@@ -465,7 +483,8 @@ class _AddScreenState extends ConsumerState<AddScreen> {
 class _Toolbar extends StatelessWidget {
   const _Toolbar({
     required this.recording,
-    required this.attachmentsEnabled,
+    required this.micEnabled,
+    required this.pdfEnabled,
     required this.canSave,
     required this.saving,
     required this.onMic,
@@ -475,7 +494,8 @@ class _Toolbar extends StatelessWidget {
     required this.onSave,
   });
   final bool recording;
-  final bool attachmentsEnabled;
+  final bool micEnabled;
+  final bool pdfEnabled;
   final bool canSave;
   final bool saving;
   final VoidCallback onMic;
@@ -519,14 +539,14 @@ class _Toolbar extends StatelessWidget {
                     key: const ValueKey('add-mic'),
                     icon: Icons.mic_none_rounded,
                     label: 'تسجيل صوت',
-                    onTap: attachmentsEnabled ? onMic : null,
+                    onTap: micEnabled ? onMic : null,
                   ),
                   const SizedBox(width: 6),
                   _ToolButton(
                     key: const ValueKey('add-pdf'),
                     icon: Icons.attach_file_rounded,
                     label: 'رفع ملف PDF',
-                    onTap: attachmentsEnabled ? onPdf : null,
+                    onTap: pdfEnabled ? onPdf : null,
                   ),
                   const Spacer(),
                   _RoundAction(

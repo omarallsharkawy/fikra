@@ -38,6 +38,7 @@
 - `NoteProcessor` (`lib/data/processing/note_processor.dart`) بيشغّل التحليل واحد ورا التاني، وبحد أقصى 90 ثانية.
 - لو حصل exception أو timeout، النوت بتبقى `failed` والمستخدم يقدر يعمل retry. النوت نفسها عمرها ما بتضيع.
 - لو التطبيق اتقفل وسط التحليل، بيكمّل لوحده أول ما يفتح.
+- النوت الواحدة ممكن يبقى فيها **PDF وتسجيل صوتي مع بعض**، وجنبهم نص مكتوب. التطبيق بيحفظ الـPDF في `attachmentPath` والتسجيل في `voicePath` (schema v2). المطلوب من السيرفر يحلل الاتنين ويرجّع نص واحد (`extractedText`): المستخرج من الـPDF وبعده تفريغ الصوت.
 - لسه ناقص قبل الربط (`docs/before-backend-and-release.md`): attempt id، retry/backoff، رفع الملف كـjob بيرجّع `attachmentId`، وتخزين الـtokens في Keystore.
 
 ## أمثلة نتفق عليها
@@ -45,4 +46,5 @@
 - request/response للنوت النصية
 - request/response للنوت الصوتية (ازاي التسجيل يوصل)
 - request/response للـPDF
+- request/response لنوت فيها PDF وتسجيل مع بعض (ملفين في نفس الـrequest، ولا كل ملف يترفع لوحده ويرجّع id؟)
 - `ask`، وفيها شكل "ملقيناش إجابة"

@@ -9,5 +9,12 @@ IconData sourceIcon(NoteSource s) => switch (s) {
   NoteSource.pdf => Icons.picture_as_pdf_outlined,
 };
 
+/// Every source of a note: a PDF with a voice memo shows both icons.
+List<IconData> sourceIcons(Note n) => [
+  if (n.hasPdf) Icons.picture_as_pdf_outlined,
+  if (n.hasVoice) Icons.mic_none_rounded,
+  if (!n.hasPdf && !n.hasVoice) sourceIcon(n.source),
+];
+
 /// Title shown when a note has none yet (the AI suggests one after analysis).
 String noteTitle(Note n) => n.title.trim().isEmpty ? 'نوت جديدة' : n.title;

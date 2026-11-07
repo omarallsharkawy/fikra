@@ -125,19 +125,50 @@ void main() {
     expect(links.any((l) => l.sourceId == n2.id && l.targetId == n1.id), isTrue);
   });
 
-  test('deleting a note removes its attachment file', () async {
+  test('a note with a PDF and a recording owns both files', () async {
     final p = await projects.create('p');
     final dir = await Directory.systemTemp.createTemp('fikra');
-    final f = await File('${dir.path}/a.m4a').writeAsString('x');
+    final pdf = await File('${dir.path}/a.pdf').writeAsString('x');
+    final voice = await File('${dir.path}/a.m4a').writeAsString('x');
     final n = await notes.create(
       projectId: p.id,
       title: 't',
       text: '',
-      source: NoteSource.voice,
-      attachmentPath: f.path,
+      source: NoteSource.pdf,
+      attachmentPath: pdf.path,
+      attachmentName: 'a.pdf',
+      voicePath: voice.path,
+      durationMs: 3000,
     );
+    expect(n.hasPdf && n.hasVoice, isTrue);
+    expect(await notes.attachmentPaths(), {pdf.path, voice.path});
+
+    // The demo analysis reads both: PDF extraction and voice transcript.
+    final insights = await DemoAiService(latency: Duration.zero).analyze(n, const []);
+    expect(insights.extractedText, allOf(contains('a.pdf'), contains('0:03')));
+
     await notes.delete(n.id);
-    expect(await f.exists(), isFalse);
+    expect(await pdf.exists(), isFalse);
+    expect(await voice.exists(), isFalse);
+    await dir.delete(recursive: true);
+  });
+
+  test('deleting a project removes the PDF and voice files of its notes', () async {
+    final p = await projects.create('p');
+    final dir = await Directory.systemTemp.createTemp('fikra');
+    final pdf = await File('${dir.path}/b.pdf').writeAsString('x');
+    final voice = await File('${dir.path}/b.m4a').writeAsString('x');
+    await notes.create(
+      projectId: p.id,
+      title: 't',
+      text: '',
+      source: NoteSource.pdf,
+      attachmentPath: pdf.path,
+      voicePath: voice.path,
+    );
+    await projects.delete(p.id);
+    expect(await pdf.exists(), isFalse);
+    expect(await voice.exists(), isFalse);
     await dir.delete(recursive: true);
   });
 

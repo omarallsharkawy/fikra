@@ -47,7 +47,7 @@ void main() {
 
     await settings.setTheme(AppTheme.dark);
     final p = await projects.create('p');
-    await notes.create(projectId: p.id, title: 't', text: 'x', source: NoteSource.voice, attachmentPath: file.path);
+    await notes.create(projectId: p.id, title: 't', text: 'x', source: NoteSource.voice, voicePath: file.path);
     await chat.add(projectId: p.id, role: 'user', body: 'q');
 
     await settings.wipeAllData();

@@ -21,10 +21,10 @@
 - **Edge ownership**: كل نوت بقت تملك الروابط اللي خارجة منها بس. نتفق مع علاء: الروابط هتيجي من السيرفر directed ولا undirected؟
 
 ## الداتابيز
-- **Migrations**: `schemaVersion = 1` ومفيش `onUpgrade`. قبل أول تغيير في الـschema:
-  - نعمل export لـschema v1 (`drift_dev schema dump`).
-  - نكتب migrations خطوة بخطوة.
-  - نختبر على داتابيز v1 حقيقية فيها نوتس وملفات وروابط وشات.
+- **Migrations**: احنا على `schemaVersion = 2` (v2 ضافت `voicePath`: نوت فيها PDF وتسجيل مع بعض). لأي تغيير جاي:
+  - نسخ الـschema محفوظة في `drift_schemas/`. بعد أي تعديل في الجداول: `dart run drift_dev schema dump lib/data/local/database.dart drift_schemas/` وبعده `dart run drift_dev schema generate drift_schemas/ test/generated_migrations/`.
+  - كل خطوة migration تبقى جوّه transaction، وتنفع تتعاد لو اتقطعت في النص. Drift مش بيعمل transaction لوحده، ورقم الـversion مش بيتغيّر غير لما الخطوة تخلص.
+  - التيست في `test/migration_test.dart`: بيفتح داتابيز قديمة فيها نوتس حقيقية، وبيجرّب كمان migration اتقطعت في النص.
 
 ## تحسينات صغيرة مؤجلة
 - الـfile picker بيعمل نسخة في الكاش قبل ما نعرف حجم الملف. لو احتجنا حد صارم للحجم، محتاجين import محدود من الـURI.

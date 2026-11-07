@@ -310,7 +310,7 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: Constant(RewriteStatus.none.name),
+    defaultValue: const Constant('none'),
   ).withConverter<RewriteStatus>($NotesTable.$converterrewrite);
   static const VerificationMeta _attachmentPathMeta = const VerificationMeta('attachmentPath');
   @override
@@ -337,6 +337,15 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     aliasedName,
     true,
     type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _voicePathMeta = const VerificationMeta('voicePath');
+  @override
+  late final GeneratedColumn<String> voicePath = GeneratedColumn<String>(
+    'voice_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _durationMsMeta = const VerificationMeta('durationMs');
@@ -400,6 +409,7 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     attachmentPath,
     attachmentName,
     attachmentBytes,
+    voicePath,
     durationMs,
     concepts,
     cluster,
@@ -465,6 +475,9 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
         attachmentBytes.isAcceptableOrUnknown(data['attachment_bytes']!, _attachmentBytesMeta),
       );
     }
+    if (data.containsKey('voice_path')) {
+      context.handle(_voicePathMeta, voicePath.isAcceptableOrUnknown(data['voice_path']!, _voicePathMeta));
+    }
     if (data.containsKey('duration_ms')) {
       context.handle(_durationMsMeta, durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta));
     }
@@ -512,6 +525,7 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
       attachmentPath: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}attachment_path']),
       attachmentName: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}attachment_name']),
       attachmentBytes: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}attachment_bytes']),
+      voicePath: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}voice_path']),
       durationMs: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
       concepts: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}concepts'])!,
       cluster: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}cluster']),
@@ -551,12 +565,20 @@ class Note extends DataClass implements Insertable<Note> {
 
   /// AI rewrite waiting for accept / reject.
   final String? proposedText;
+
+  /// The main content: `pdf` when a PDF is attached (a voice memo may sit
+  /// beside it), `voice` for a recording alone, otherwise `text`.
   final NoteSource source;
   final ProcessingStatus status;
   final RewriteStatus rewrite;
+
+  /// The PDF (since schema v2; v1 also kept recordings here).
   final String? attachmentPath;
   final String? attachmentName;
   final int? attachmentBytes;
+
+  /// The voice recording and its length, alone or beside a PDF (schema v2).
+  final String? voicePath;
   final int? durationMs;
 
   /// Concepts separated by '|'.
@@ -578,6 +600,7 @@ class Note extends DataClass implements Insertable<Note> {
     this.attachmentPath,
     this.attachmentName,
     this.attachmentBytes,
+    this.voicePath,
     this.durationMs,
     required this.concepts,
     this.cluster,
@@ -618,6 +641,9 @@ class Note extends DataClass implements Insertable<Note> {
     if (!nullToAbsent || attachmentBytes != null) {
       map['attachment_bytes'] = Variable<int>(attachmentBytes);
     }
+    if (!nullToAbsent || voicePath != null) {
+      map['voice_path'] = Variable<String>(voicePath);
+    }
     if (!nullToAbsent || durationMs != null) {
       map['duration_ms'] = Variable<int>(durationMs);
     }
@@ -645,6 +671,7 @@ class Note extends DataClass implements Insertable<Note> {
       attachmentPath: attachmentPath == null && nullToAbsent ? const Value.absent() : Value(attachmentPath),
       attachmentName: attachmentName == null && nullToAbsent ? const Value.absent() : Value(attachmentName),
       attachmentBytes: attachmentBytes == null && nullToAbsent ? const Value.absent() : Value(attachmentBytes),
+      voicePath: voicePath == null && nullToAbsent ? const Value.absent() : Value(voicePath),
       durationMs: durationMs == null && nullToAbsent ? const Value.absent() : Value(durationMs),
       concepts: Value(concepts),
       cluster: cluster == null && nullToAbsent ? const Value.absent() : Value(cluster),
@@ -669,6 +696,7 @@ class Note extends DataClass implements Insertable<Note> {
       attachmentPath: serializer.fromJson<String?>(json['attachmentPath']),
       attachmentName: serializer.fromJson<String?>(json['attachmentName']),
       attachmentBytes: serializer.fromJson<int?>(json['attachmentBytes']),
+      voicePath: serializer.fromJson<String?>(json['voicePath']),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       concepts: serializer.fromJson<String>(json['concepts']),
       cluster: serializer.fromJson<String?>(json['cluster']),
@@ -693,6 +721,7 @@ class Note extends DataClass implements Insertable<Note> {
       'attachmentPath': serializer.toJson<String?>(attachmentPath),
       'attachmentName': serializer.toJson<String?>(attachmentName),
       'attachmentBytes': serializer.toJson<int?>(attachmentBytes),
+      'voicePath': serializer.toJson<String?>(voicePath),
       'durationMs': serializer.toJson<int?>(durationMs),
       'concepts': serializer.toJson<String>(concepts),
       'cluster': serializer.toJson<String?>(cluster),
@@ -715,6 +744,7 @@ class Note extends DataClass implements Insertable<Note> {
     Value<String?> attachmentPath = const Value.absent(),
     Value<String?> attachmentName = const Value.absent(),
     Value<int?> attachmentBytes = const Value.absent(),
+    Value<String?> voicePath = const Value.absent(),
     Value<int?> durationMs = const Value.absent(),
     String? concepts,
     Value<String?> cluster = const Value.absent(),
@@ -734,6 +764,7 @@ class Note extends DataClass implements Insertable<Note> {
     attachmentPath: attachmentPath.present ? attachmentPath.value : this.attachmentPath,
     attachmentName: attachmentName.present ? attachmentName.value : this.attachmentName,
     attachmentBytes: attachmentBytes.present ? attachmentBytes.value : this.attachmentBytes,
+    voicePath: voicePath.present ? voicePath.value : this.voicePath,
     durationMs: durationMs.present ? durationMs.value : this.durationMs,
     concepts: concepts ?? this.concepts,
     cluster: cluster.present ? cluster.value : this.cluster,
@@ -755,6 +786,7 @@ class Note extends DataClass implements Insertable<Note> {
       attachmentPath: data.attachmentPath.present ? data.attachmentPath.value : this.attachmentPath,
       attachmentName: data.attachmentName.present ? data.attachmentName.value : this.attachmentName,
       attachmentBytes: data.attachmentBytes.present ? data.attachmentBytes.value : this.attachmentBytes,
+      voicePath: data.voicePath.present ? data.voicePath.value : this.voicePath,
       durationMs: data.durationMs.present ? data.durationMs.value : this.durationMs,
       concepts: data.concepts.present ? data.concepts.value : this.concepts,
       cluster: data.cluster.present ? data.cluster.value : this.cluster,
@@ -779,6 +811,7 @@ class Note extends DataClass implements Insertable<Note> {
           ..write('attachmentPath: $attachmentPath, ')
           ..write('attachmentName: $attachmentName, ')
           ..write('attachmentBytes: $attachmentBytes, ')
+          ..write('voicePath: $voicePath, ')
           ..write('durationMs: $durationMs, ')
           ..write('concepts: $concepts, ')
           ..write('cluster: $cluster, ')
@@ -803,6 +836,7 @@ class Note extends DataClass implements Insertable<Note> {
     attachmentPath,
     attachmentName,
     attachmentBytes,
+    voicePath,
     durationMs,
     concepts,
     cluster,
@@ -826,6 +860,7 @@ class Note extends DataClass implements Insertable<Note> {
           other.attachmentPath == this.attachmentPath &&
           other.attachmentName == this.attachmentName &&
           other.attachmentBytes == this.attachmentBytes &&
+          other.voicePath == this.voicePath &&
           other.durationMs == this.durationMs &&
           other.concepts == this.concepts &&
           other.cluster == this.cluster &&
@@ -847,6 +882,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
   final Value<String?> attachmentPath;
   final Value<String?> attachmentName;
   final Value<int?> attachmentBytes;
+  final Value<String?> voicePath;
   final Value<int?> durationMs;
   final Value<String> concepts;
   final Value<String?> cluster;
@@ -867,6 +903,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     this.attachmentPath = const Value.absent(),
     this.attachmentName = const Value.absent(),
     this.attachmentBytes = const Value.absent(),
+    this.voicePath = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.concepts = const Value.absent(),
     this.cluster = const Value.absent(),
@@ -888,6 +925,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     this.attachmentPath = const Value.absent(),
     this.attachmentName = const Value.absent(),
     this.attachmentBytes = const Value.absent(),
+    this.voicePath = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.concepts = const Value.absent(),
     this.cluster = const Value.absent(),
@@ -916,6 +954,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     Expression<String>? attachmentPath,
     Expression<String>? attachmentName,
     Expression<int>? attachmentBytes,
+    Expression<String>? voicePath,
     Expression<int>? durationMs,
     Expression<String>? concepts,
     Expression<String>? cluster,
@@ -937,6 +976,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
       if (attachmentPath != null) 'attachment_path': attachmentPath,
       if (attachmentName != null) 'attachment_name': attachmentName,
       if (attachmentBytes != null) 'attachment_bytes': attachmentBytes,
+      if (voicePath != null) 'voice_path': voicePath,
       if (durationMs != null) 'duration_ms': durationMs,
       if (concepts != null) 'concepts': concepts,
       if (cluster != null) 'cluster': cluster,
@@ -960,6 +1000,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     Value<String?>? attachmentPath,
     Value<String?>? attachmentName,
     Value<int?>? attachmentBytes,
+    Value<String?>? voicePath,
     Value<int?>? durationMs,
     Value<String>? concepts,
     Value<String?>? cluster,
@@ -981,6 +1022,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
       attachmentPath: attachmentPath ?? this.attachmentPath,
       attachmentName: attachmentName ?? this.attachmentName,
       attachmentBytes: attachmentBytes ?? this.attachmentBytes,
+      voicePath: voicePath ?? this.voicePath,
       durationMs: durationMs ?? this.durationMs,
       concepts: concepts ?? this.concepts,
       cluster: cluster ?? this.cluster,
@@ -1032,6 +1074,9 @@ class NotesCompanion extends UpdateCompanion<Note> {
     if (attachmentBytes.present) {
       map['attachment_bytes'] = Variable<int>(attachmentBytes.value);
     }
+    if (voicePath.present) {
+      map['voice_path'] = Variable<String>(voicePath.value);
+    }
     if (durationMs.present) {
       map['duration_ms'] = Variable<int>(durationMs.value);
     }
@@ -1069,6 +1114,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
           ..write('attachmentPath: $attachmentPath, ')
           ..write('attachmentName: $attachmentName, ')
           ..write('attachmentBytes: $attachmentBytes, ')
+          ..write('voicePath: $voicePath, ')
           ..write('durationMs: $durationMs, ')
           ..write('concepts: $concepts, ')
           ..write('cluster: $cluster, ')
@@ -2350,6 +2396,7 @@ typedef $$NotesTableCreateCompanionBuilder = NotesCompanion Function({
   Value<String?> attachmentPath,
   Value<String?> attachmentName,
   Value<int?> attachmentBytes,
+  Value<String?> voicePath,
   Value<int?> durationMs,
   Value<String> concepts,
   Value<String?> cluster,
@@ -2371,6 +2418,7 @@ typedef $$NotesTableUpdateCompanionBuilder = NotesCompanion Function({
   Value<String?> attachmentPath,
   Value<String?> attachmentName,
   Value<int?> attachmentBytes,
+  Value<String?> voicePath,
   Value<int?> durationMs,
   Value<String> concepts,
   Value<String?> cluster,
@@ -2463,6 +2511,9 @@ class $$NotesTableFilterComposer extends Composer<_$FikraDatabase, $NotesTable> 
 
   ColumnFilters<int> get attachmentBytes =>
       $composableBuilder(column: $table.attachmentBytes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get voicePath =>
+      $composableBuilder(column: $table.voicePath, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get durationMs =>
       $composableBuilder(column: $table.durationMs, builder: (column) => ColumnFilters(column));
@@ -2577,6 +2628,9 @@ class $$NotesTableOrderingComposer extends Composer<_$FikraDatabase, $NotesTable
   ColumnOrderings<int> get attachmentBytes =>
       $composableBuilder(column: $table.attachmentBytes, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get voicePath =>
+      $composableBuilder(column: $table.voicePath, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get durationMs =>
       $composableBuilder(column: $table.durationMs, builder: (column) => ColumnOrderings(column));
 
@@ -2651,6 +2705,8 @@ class $$NotesTableAnnotationComposer extends Composer<_$FikraDatabase, $NotesTab
 
   GeneratedColumn<int> get attachmentBytes =>
       $composableBuilder(column: $table.attachmentBytes, builder: (column) => column);
+
+  GeneratedColumn<String> get voicePath => $composableBuilder(column: $table.voicePath, builder: (column) => column);
 
   GeneratedColumn<int> get durationMs => $composableBuilder(column: $table.durationMs, builder: (column) => column);
 
@@ -2755,6 +2811,7 @@ class $$NotesTableTableManager
                 Value<String?> attachmentPath = const Value.absent(),
                 Value<String?> attachmentName = const Value.absent(),
                 Value<int?> attachmentBytes = const Value.absent(),
+                Value<String?> voicePath = const Value.absent(),
                 Value<int?> durationMs = const Value.absent(),
                 Value<String> concepts = const Value.absent(),
                 Value<String?> cluster = const Value.absent(),
@@ -2775,6 +2832,7 @@ class $$NotesTableTableManager
                 attachmentPath: attachmentPath,
                 attachmentName: attachmentName,
                 attachmentBytes: attachmentBytes,
+                voicePath: voicePath,
                 durationMs: durationMs,
                 concepts: concepts,
                 cluster: cluster,
@@ -2797,6 +2855,7 @@ class $$NotesTableTableManager
                 Value<String?> attachmentPath = const Value.absent(),
                 Value<String?> attachmentName = const Value.absent(),
                 Value<int?> attachmentBytes = const Value.absent(),
+                Value<String?> voicePath = const Value.absent(),
                 Value<int?> durationMs = const Value.absent(),
                 Value<String> concepts = const Value.absent(),
                 Value<String?> cluster = const Value.absent(),
@@ -2817,6 +2876,7 @@ class $$NotesTableTableManager
                 attachmentPath: attachmentPath,
                 attachmentName: attachmentName,
                 attachmentBytes: attachmentBytes,
+                voicePath: voicePath,
                 durationMs: durationMs,
                 concepts: concepts,
                 cluster: cluster,

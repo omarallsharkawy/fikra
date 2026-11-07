@@ -27,8 +27,11 @@ class NoteCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(sourceIcon(note.source), size: 18, color: context.colors.accentLight),
-                const SizedBox(width: 8),
+                for (final icon in sourceIcons(note)) ...[
+                  Icon(icon, size: 18, color: context.colors.accentLight),
+                  const SizedBox(width: 6),
+                ],
+                const SizedBox(width: 2),
                 Expanded(
                   child: Text(
                     noteTitle(note),

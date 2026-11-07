@@ -38,12 +38,19 @@ class Notes extends Table {
   /// AI rewrite waiting for accept / reject.
   TextColumn get proposedText => text().nullable()();
 
+  /// The main content: `pdf` when a PDF is attached (a voice memo may sit
+  /// beside it), `voice` for a recording alone, otherwise `text`.
   TextColumn get source => textEnum<NoteSource>()();
   TextColumn get status => textEnum<ProcessingStatus>()();
-  TextColumn get rewrite => textEnum<RewriteStatus>().withDefault(Constant(RewriteStatus.none.name))();
+  TextColumn get rewrite => textEnum<RewriteStatus>().withDefault(const Constant('none'))();
+
+  /// The PDF (since schema v2; v1 also kept recordings here).
   TextColumn get attachmentPath => text().nullable()();
   TextColumn get attachmentName => text().nullable()();
   IntColumn get attachmentBytes => integer().nullable()();
+
+  /// The voice recording and its length, alone or beside a PDF (schema v2).
+  TextColumn get voicePath => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
 
   /// Concepts separated by '|'.
@@ -101,11 +108,32 @@ class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
-  MigrationStrategy get migration =>
-      MigrationStrategy(beforeOpen: (details) async => customStatement('PRAGMA foreign_keys = ON'));
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      // Drift doesn't wrap onUpgrade in a transaction, and user_version only
+      // moves after it returns. So each step is atomic and safe to re-run: an
+      // interrupted upgrade must never leave the app unable to open.
+      if (from < 2) {
+        await transaction(() async {
+          // v2: a note can hold a PDF and a recording. Recordings move from the
+          // attachment columns to voicePath; durationMs stays the voice length.
+          final columns = await customSelect('PRAGMA table_info(notes)').get();
+          if (!columns.any((c) => c.read<String>('name') == 'voice_path')) {
+            await m.addColumn(notes, notes.voicePath);
+          }
+          await customStatement(
+            "UPDATE notes SET voice_path = COALESCE(voice_path, attachment_path), attachment_path = NULL, "
+            "attachment_name = NULL, attachment_bytes = NULL "
+            "WHERE source = 'voice' AND attachment_path IS NOT NULL",
+          );
+        });
+      }
+    },
+    beforeOpen: (details) async => customStatement('PRAGMA foreign_keys = ON'),
+  );
 }
 
 extension NoteX on Note {
@@ -119,6 +147,12 @@ extension NoteX on Note {
 
   /// What the user sees by default.
   String get displayText => editedText ?? originalContent;
+
+  bool get hasPdf => attachmentPath != null;
+  bool get hasVoice => voicePath != null;
+
+  /// Every file this note owns on disk.
+  List<String> get filePaths => [?attachmentPath, ?voicePath];
 
   bool get hasImprovedVersion => editedText != null && editedText != originalContent;
 }

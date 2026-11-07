@@ -131,8 +131,10 @@ class _Body extends ConsumerWidget {
         const SizedBox(height: 6),
         Row(
           children: [
-            Icon(sourceIcon(note.source), size: 16, color: context.colors.textMeta),
-            const SizedBox(width: 6),
+            for (final icon in sourceIcons(note)) ...[
+              Icon(icon, size: 16, color: context.colors.textMeta),
+              const SizedBox(width: 6),
+            ],
             Flexible(
               child: Text(
                 [Fmt.dayHeader(note.createdAt), Fmt.time(note.createdAt), ?note.cluster].join(' · '),
@@ -176,7 +178,7 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: 6),
         ],
         if (text.isNotEmpty) SelectableText(text, style: context.text.bodyLarge.copyWith(height: 1.7)),
-        if (note.attachmentPath != null) ...[const SizedBox(height: 16), _Attachment(note: note)],
+        if (note.filePaths.isNotEmpty) ...[const SizedBox(height: 16), _Attachment(note: note)],
         if (note.conceptList.isNotEmpty) ...[
           const SizedBox(height: 24),
           Text('المفاهيم', style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
@@ -296,27 +298,32 @@ class _Attachment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (note.source == NoteSource.voice) {
-      return VoicePlayer(path: note.attachmentPath!, durationMs: note.durationMs ?? 0);
-    }
-    return Glass(
-      radius: FikraRadius.lg,
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: [
-          Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              note.attachmentName ?? 'ملف PDF',
-              style: context.text.body,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (note.hasPdf)
+          Glass(
+            radius: FikraRadius.lg,
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    note.attachmentName ?? 'ملف PDF',
+                    style: context.text.body,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: context.text.meta),
+              ],
             ),
           ),
-          if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: context.text.meta),
-        ],
-      ),
+        if (note.hasPdf && note.hasVoice) const SizedBox(height: 10),
+        if (note.hasVoice) VoicePlayer(path: note.voicePath!, durationMs: note.durationMs ?? 0),
+      ],
     );
   }
 }

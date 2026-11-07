@@ -95,12 +95,10 @@ class DemoAiService implements AiService {
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes) async {
     await Future<void>.delayed(latency);
 
-    final extracted = switch (note.source) {
-      NoteSource.voice => _fakeTranscript(note),
-      NoteSource.pdf => _fakeExtraction(note),
-      NoteSource.text => null,
-    };
-    final content = [note.originalText.trim(), (extracted ?? '').trim()].where((s) => s.isNotEmpty).join('\n\n');
+    // A PDF and a voice memo can share one note: both get processed.
+    final extracted = [if (note.hasPdf) _fakeExtraction(note), if (note.hasVoice) _fakeTranscript(note)].join('\n\n');
+    final extractedOrNull = extracted.isEmpty ? null : extracted;
+    final content = [note.originalText.trim(), extracted.trim()].where((s) => s.isNotEmpty).join('\n\n');
     final concepts = detectConcepts(content);
     final cluster = _clusterFor(content);
     // Only typed notes get a rewrite: for voice / PDF the typed text is just an
@@ -120,7 +118,7 @@ class DemoAiService implements AiService {
 
     return NoteInsights(
       title: note.title.trim().isNotEmpty ? note.title : suggestTitle(content),
-      extractedText: extracted,
+      extractedText: extractedOrNull,
       proposedText: improved != note.originalText.trim() && improved.isNotEmpty ? improved : null,
       concepts: concepts,
       cluster: cluster,
