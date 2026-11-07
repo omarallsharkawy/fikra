@@ -94,6 +94,9 @@ abstract final class FikraText {
   static const family = 'NotoSansArabic';
   static const _base = TextStyle(
     fontFamily: family,
+    // NotoSansArabic has no Latin glyphs; Latin words (TCP, FastAPI…) use
+    // Roboto, which Android would pick anyway. Explicit so tests match.
+    fontFamilyFallback: ['Roboto'],
     height: 1.5,
     color: FikraColors.textPrimary,
     fontWeight: FontWeight.w400,

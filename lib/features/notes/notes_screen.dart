@@ -37,7 +37,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final notesAsync = ref.watch(notesProvider);
+    final notesAsync = ref.watch(selectedNotesProvider);
     final all = notesAsync.value ?? const <Note>[];
     final notes = all.where(_matches).toList();
 
@@ -63,25 +63,31 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             ),
           ),
         Expanded(
-          child: notesAsync.isLoading && all.isEmpty
+          child: notesAsync.hasError && !notesAsync.hasValue
+              ? LoadErrorView(onRetry: () => ref.invalidate(selectedNotesProvider))
+              : !notesAsync.hasValue
               ? const SizedBox.shrink()
               : all.isEmpty
-              ? EmptyState(
-                  icon: Icons.sticky_note_2_outlined,
-                  title: 'لسه مفيش نوتس',
-                  description: 'اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها.',
-                  action: FikraButton(
-                    label: 'ضيف أول نوت',
-                    icon: Icons.add_rounded,
-                    expand: false,
-                    onPressed: () => context.go('/add'),
+              ? FillScroll(
+                  child: EmptyState(
+                    icon: Icons.sticky_note_2_outlined,
+                    title: 'لسه مفيش نوتس',
+                    description: 'اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها.',
+                    action: FikraButton(
+                      label: 'ضيف أول نوت',
+                      icon: Icons.add_rounded,
+                      expand: false,
+                      onPressed: () => context.go('/add'),
+                    ),
                   ),
                 )
               : notes.isEmpty
-              ? EmptyState(
-                  icon: Icons.search_off_rounded,
-                  title: 'مفيش نتايج',
-                  description: 'مفيش نوت فيها «$_query». جرّب كلمة تانية.',
+              ? FillScroll(
+                  child: EmptyState(
+                    icon: Icons.search_off_rounded,
+                    title: 'مفيش نتايج',
+                    description: 'مفيش نوت فيها «$_query». جرّب كلمة تانية.',
+                  ),
                 )
               : ListView(
                   padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),

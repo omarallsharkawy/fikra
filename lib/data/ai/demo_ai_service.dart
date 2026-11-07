@@ -156,7 +156,7 @@ class DemoAiService implements AiService {
     for (var i = 0; i < top.length; i++) {
       b.writeln('• ${_firstSentence(top[i].displayText)} [${i + 1}]');
     }
-    b.write('\n(إجابة تجريبية: مبنية على البحث في نوتسك، والإجابة الحقيقية هتيجي من الباك إند)');
+    b.write('\n(إجابة تجريبية من نوتسك)');
     return ChatAnswer(text: b.toString(), sourceIds: top.map((n) => n.id).toList(), found: true);
   }
 
@@ -184,8 +184,10 @@ class DemoAiService implements AiService {
   static String clusterFor(String text) => _clusterFor(text);
 
   static bool _containsWord(String lower, String key) {
+    // Latin keys match whole words ("api" not in "rapid" / "apiary"). Arabic
+    // keys match anywhere, so prefixed forms like "بالتضمينات" still count.
     if (RegExp(r'^[a-z]+$').hasMatch(key)) {
-      return RegExp('(^|[^a-z])$key').hasMatch(lower);
+      return RegExp('(^|[^a-z])${RegExp.escape(key)}(?![a-z])').hasMatch(lower);
     }
     return lower.contains(key);
   }
@@ -228,11 +230,10 @@ class DemoAiService implements AiService {
 
   static String _fakeTranscript(Note note) {
     final secs = ((note.durationMs ?? 0) / 1000).round();
-    return 'تفريغ تجريبي لتسجيل صوتي مدته ${_mmss(secs)}. التفريغ الحقيقي هييجي من الباك إند.';
+    return 'تفريغ تجريبي لتسجيل صوتي مدته ${_mmss(secs)}.';
   }
 
-  static String _fakeExtraction(Note note) =>
-      'نص تجريبي مستخرج من الملف «${note.attachmentName ?? 'PDF'}». الاستخراج الحقيقي هييجي من الباك إند.';
+  static String _fakeExtraction(Note note) => 'نص تجريبي مستخرج من الملف «${note.attachmentName ?? 'PDF'}».';
 
   static String _mmss(int s) => '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
 }
@@ -248,7 +249,7 @@ class DemoUploader implements AttachmentUploader {
     for (var i = 1; i <= 16; i++) {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       if (i == 10 && name.toLowerCase().contains('fail')) {
-        throw const UploadException('الرفع فشل، اتأكد من النت وجرّب تاني');
+        throw const UploadException('تعذّر تجهيز الملف. جرّب تاني أو اختار ملف تاني.');
       }
       yield i / 16;
     }

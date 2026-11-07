@@ -1,47 +1,63 @@
-import 'package:drift/drift.dart' show driftRuntimeOptions;
-import 'package:drift/native.dart';
-import 'package:fikra/app/app.dart';
-import 'package:fikra/app/providers.dart';
+import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/local/database.dart';
+import 'package:fikra/data/repositories.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import 'package:go_router/go_router.dart';
+
+import 'support/app_harness.dart';
 
 void main() {
-  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  fikraTest('welcome -> demo project -> notes list -> links tab', (tester, db) async {
+    final tryDemo = find.text('جرّب مشروع تجريبي');
+    await pumpUntil(tester, tryDemo);
+    expect(Directionality.of(tester.element(tryDemo)), TextDirection.rtl);
 
-  testWidgets('welcome -> demo project -> notes list', (tester) async {
-    await initializeDateFormatting('ar');
-    final db = FikraDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(overrides: [databaseProvider.overrideWithValue(db)], child: const FikraApp()),
-    );
-    Future<void> settle() async {
-      for (var i = 0; i < 20; i++) {
-        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-    }
-
-    await settle();
-    expect(find.text('جرّب مشروع تجريبي'), findsOneWidget);
-    expect(Directionality.of(tester.element(find.text('فِكرة'))), TextDirection.rtl);
-
-    await tester.tap(find.text('جرّب مشروع تجريبي'));
-    await settle();
-    await settle();
+    await tester.tap(tryDemo);
+    // Newest seeded note: top of the list once seeding finished.
+    await pumpUntil(tester, find.text('محاضرة الشبكات'));
     expect(find.text('مشروع التخرج'), findsOneWidget);
-    expect(find.text('محاضرة الشبكات'), findsOneWidget);
 
-    // Switch to the links tab.
-    await tester.tap(find.text('الروابط').last);
-    await settle();
-    expect(find.text('الذكاء الاصطناعي'), findsWidgets);
+    await tester.tap(Tabs.finder(Tabs.links));
+    await pumpUntil(tester, find.text('الذكاء الاصطناعي'));
+  });
 
-    await tester.pumpWidget(const SizedBox());
-    await settle();
+  fikraTest('deleting the last project returns to welcome', (tester, db) async {
+    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+
+    final projects = LocalProjectsRepository(db);
+    final p = await pumpFuture(tester, () => projects.create('مؤقت'));
+    await pumpUntil(tester, find.text('مؤقت'));
+
+    await pumpFuture(tester, () => projects.delete(p.id));
+    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    expect(await pumpFuture(tester, () => db.select(db.projects).get()), isEmpty);
+  });
+
+  fikraTest('a note from another project still shows its related notes', (tester, db) async {
+    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    final projects = LocalProjectsRepository(db);
+    final notes = LocalNotesRepository(db);
+
+    late Note a;
+    await pumpFuture(tester, () async {
+      final p1 = await projects.create('الأول');
+      a = await notes.create(projectId: p1.id, title: 'نوت أ', text: 'x', source: NoteSource.text);
+      final b = await notes.create(projectId: p1.id, title: 'نوت ب', text: 'y', source: NoteSource.text);
+      await notes.applyInsights(
+        a.id,
+        NoteInsights(
+          title: 'نوت أ',
+          concepts: const [],
+          cluster: 'k',
+          links: [ProposedLink(targetId: b.id, label: 'مرتبطة', strength: 1)],
+        ),
+      );
+      await projects.create('التاني'); // becomes the selected project
+    });
+    await pumpUntil(tester, find.text('التاني'));
+
+    tester.element(find.text('التاني')).push('/note/${a.id}');
+    await pumpUntil(tester, find.text('نوت ب'));
   });
 }

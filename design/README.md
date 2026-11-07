@@ -18,10 +18,24 @@ https://www.figma.com/design/1lXJpY7TEcB9KQfeJUw1RR
 ## Tokens (Figma variables → Flutter theme)
 
 - **FIKRA Primitives** (hidden): neutral, white alpha ramp, blue, red, green, amber, black/a60.
-- **FIKRA Color** (mode `Dark`): `bg/*`, `surface/*`, `text/*`, `border/*`, `accent/*`, `graph/edge`, `action/*`, `status/*`. These become a Flutter `ThemeExtension` with the same names.
+- **FIKRA Color** (mode `Dark`): `bg/*`, `surface/*`, `text/*`, `border/*`, `accent/*`, `graph/edge`, `action/*`, `status/*`.
 - **FIKRA Layout**: `radius/sm 18 · md 20 · lg 24 · xl 28 · 2xl 38 · full`, `space/4…32`, `space/screen 22`, `size/button 56`, `size/nav 70`, `size/field 48`, `stroke/hairline 0.6`.
 - **Paint styles** (gradients): Screen background, Glass surface, Selected, Primary action, Send.
 - **Text styles**: Noto Sans Arabic, line height 150%. Title/Screen 26 · Title/Card 18 Bold · Body/Answer 17.5 · Body/Default 16 · Body/Field 15 · Caption/Preview 12.5 · Label/Nav 13 · Label/Button 19 Bold · Meta/Small 11.
+
+### Where they live in code
+
+The app is dark-only, so tokens are plain static classes (no `ThemeExtension`):
+
+| Figma | Flutter (`lib/core/theme/tokens.dart`) |
+|---|---|
+| FIKRA Color + paint styles | `FikraColors` (gradients too: `screenGradient`, `glassGradient`, …) |
+| radius / space / size | `FikraRadius`, `FikraSpace` |
+| text styles | `FikraText` |
+| Material wiring (no ripple, sheets, snackbars) | `buildFikraTheme()` in `fikra_theme.dart` |
+| springs, press scale | `FikraSprings`, `Pressable` in `lib/core/motion/pressable.dart` |
+
+Change a value in `tokens.dart`, never inline in a screen. Two sizes intentionally differ from Figma: Body/Answer is 17 (Figma 17.5) and Label/Button is 18 (Figma 19); both read better on device at 3x.
 
 ## Rules learned while building
 

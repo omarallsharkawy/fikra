@@ -6,30 +6,72 @@
 
 ## النسخة الحالية: تجريبية
 - كل حاجة offline على الموبايل: داتابيز SQLite (drift)، والملفات في مساحة التطبيق الخاصة.
-- الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه على نفس الـinterface (`AiService`, `AttachmentUploader`).
+- الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه: [docs/backend-integration.md](docs/backend-integration.md).
 - الباك أب مقفول (`allowBackup=false` + data extraction rules)، عشان البيانات متخرجش من الموبايل.
+
+## المتطلبات (المجرّبة)
+- Flutter 3.47.5 (stable)، Dart 3.13.
+- Android SDK فيه **platform 37** (`compileSdk = 37`، عشان `permission_handler` 13 محتاجه). الـtargetSdk هو الافتراضي بتاع Flutter.
+- Java 17.
 
 ## التشغيل
 ```bash
 flutter pub get
-flutter run                          # demo
-flutter build apk --debug
-flutter test
+flutter run                     # demo
+flutter analyze                 # لازم يطلع "No issues found!"
+flutter test                    # كل التيستات
 ```
+APK للتجربة (ملف لكل معالج، حوالي 20 ميجا لكل واحد):
+```bash
+flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/debug-info
+```
+الناتج في `build/app/outputs/flutter-apk/`. معظم الموبايلات: `app-arm64-v8a-release.apk`.
+
 لو غيّرت `lib/data/local/database.dart`:
 ```bash
 dart run build_runner build -d
 ```
-وضع الربط بالباك إند (لسه مش جاهز): `--dart-define=FIKRA_MODE=connected`.
 
 ## الهيكل
-- `lib/app/`: الـproviders، الراوتر، الـshell (الـtabs).
-- `lib/core/`: الثيم والـtokens، الحركة (springs)، الـwidgets المشتركة.
-- `lib/data/`: الداتابيز، الـrepositories، الـAI (demo)، المشروع التجريبي.
-- `lib/features/`: الشاشات: إضافة، النوتس، تفاصيل النوت، الروابط، اسأل، المشاريع.
+```
+lib/
+  main.dart                  تهيئة + ProviderScope
+  app/                       الـwiring: providers, router, shell (التابات), app_config (demo/connected)
+  core/                      مشترك ومش مربوط بشاشة: theme/tokens, motion (springs), widgets, format
+  data/
+    local/database.dart      الجداول (drift) + extensions على Note
+    repositories.dart        كل القراءة والكتابة في الداتابيز
+    ai/                      AiService + AttachmentUploader (interfaces) + النسخة التجريبية
+    processing/              NoteProcessor: طابور التحليل بعد الحفظ
+    files/                   AttachmentStore: ملفات الصوت والـPDF على الموبايل
+    demo/                    المشروع التجريبي
+  features/<screen>/         شاشة في كل فولدر؛ features/shared فيه helpers للعرض
+```
+
+## النوت بتمشي إزاي
+```
+Add screen
+  → AttachmentStore.persist (لو فيه ملف)
+  → NotesRepository.create          الحالة: processing (النوت اتحفظت خلاص)
+  → NoteProcessor.process           طابور، واحدة ورا التانية، timeout 90 ثانية
+      → AiService.analyze
+      → NotesRepository.applyInsights   الحالة: ready، أو failed لو حصل خطأ
+  → drift streams → providers → الشاشات بتتحدث لوحدها
+```
+- النص الأصلي عمره ما بيتمسح. التعديل أو الصياغة المعتمدة بيتحفظوا في `editedText`.
+- الشاشات بتقرا بيانات المشروع المختار من `selectedNotesProvider` وأخواتها. شاشة تفاصيل النوت بتقرا بـ`note.projectId` (`notesOfProjectProvider(id)`).
+
+## التيستات
+- `test/repositories_test.dart`: الداتابيز والطابور. بيستخدم fake `AiService` اسمه `_ScriptedAi`.
+- `test/app_flow_test.dart`: التطبيق كامل على داتابيز in-memory، بـ`fikraTest` و`pumpUntil` و`pumpFuture` من `test/support/app_harness.dart`.
+- لقطات شاشة لمراجعة التصميم (مش بتشتغل مع `flutter test` العادي):
+  ```bash
+  flutter test test/screenshots --run-skipped -t screenshots    # → build/screenshots/*.png
+  ```
+- الـoverrides: `databaseProvider` (داتابيز in-memory) و`aiServiceProvider` (fakes).
 
 ## التصميم
-لوحات Figma والـtokens وقواعد الـRTL موجودين في [design/README.md](design/README.md).
+لوحات Figma والـtokens وقواعد الـRTL في [design/README.md](design/README.md).
 
 ## قبل الربط والـrelease
 [docs/before-backend-and-release.md](docs/before-backend-and-release.md)

@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
+import '../shared/note_presentation.dart';
 
 /// Knowledge graph: one row per cluster, notes as nodes, links as curves.
 class LinksScreen extends ConsumerStatefulWidget {
@@ -55,10 +57,11 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final notes =
-        (ref.watch(notesProvider).value ?? const <Note>[]).where((n) => n.status == ProcessingStatus.ready).toList()
-          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    final links = ref.watch(linksProvider).value ?? const <NoteLink>[];
+    final notesAsync = ref.watch(selectedNotesProvider);
+    final notes = (notesAsync.value ?? const <Note>[]).where((n) => n.status == ProcessingStatus.ready).toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final linksAsync = ref.watch(selectedLinksProvider);
+    final links = linksAsync.value ?? const <NoteLink>[];
 
     final clusters = <String, List<Note>>{};
     for (final n in notes) {
@@ -81,157 +84,222 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
     }
     final visibleLinks = links.where((l) => pos.containsKey(l.sourceId) && pos.containsKey(l.targetId)).toList();
     final selected = notes.where((n) => n.id == _selected).firstOrNull;
-    final selectedLinks = selected == null
-        ? 0
-        : visibleLinks.where((l) => l.sourceId == selected.id || l.targetId == selected.id).length;
+    // Why the selected note is connected: "<other title> · <label>".
+    final byId = {for (final n in notes) n.id: n};
+    final reasons = <String, String>{};
+    if (selected != null) {
+      for (final l in visibleLinks) {
+        if (l.sourceId != selected.id && l.targetId != selected.id) continue;
+        final other = byId[l.sourceId == selected.id ? l.targetId : l.sourceId];
+        if (other != null) reasons.putIfAbsent(other.id, () => '${noteTitle(other)} · ${l.label}');
+      }
+    }
+
+    final loadError = (notesAsync.hasError && !notesAsync.hasValue) || (linksAsync.hasError && !linksAsync.hasValue);
+    final loading = !notesAsync.hasValue || !linksAsync.hasValue;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const ProjectHeader(title: 'الروابط'),
         Expanded(
-          child: notes.length < 2
-              ? EmptyState(
-                  icon: Icons.hub_outlined,
-                  title: 'الروابط بتظهر هنا',
-                  description: 'ضيف نوتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.',
-                  action: FikraButton(
-                    label: 'ضيف نوت',
-                    icon: Icons.add_rounded,
-                    expand: false,
-                    onPressed: () => context.go('/add'),
+          child: loadError
+              ? LoadErrorView(
+                  onRetry: () => ref
+                    ..invalidate(selectedNotesProvider)
+                    ..invalidate(selectedLinksProvider),
+                )
+              : loading
+              ? const SizedBox.shrink()
+              : notes.length < 2
+              ? FillScroll(
+                  child: EmptyState(
+                    icon: Icons.hub_outlined,
+                    title: 'الروابط بتظهر هنا',
+                    description: 'ضيف نوتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.',
+                    action: FikraButton(
+                      label: 'ضيف نوت',
+                      icon: Icons.add_rounded,
+                      expand: false,
+                      onPressed: () => context.go('/add'),
+                    ),
                   ),
                 )
-              : Stack(
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Positioned.fill(
-                      child: LayoutBuilder(
-                        builder: (context, box) {
-                          final key = '${ref.read(currentProjectProvider)?.id}|$width|${box.maxWidth}';
-                          if (key != _fittedFor) {
-                            _fittedFor = key;
-                            _viewportW = box.maxWidth;
-                            _canvasW = width;
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (mounted) _tc.value = _home();
-                            });
-                          }
-                          return InteractiveViewer(
-                            transformationController: _tc,
-                            constrained: false,
-                            minScale: 0.5,
-                            maxScale: 2.5,
-                            boundaryMargin: const EdgeInsets.all(200),
-                            child: GestureDetector(
-                              onTap: () => setState(() => _selected = null),
-                              child: SizedBox(
-                                width: width,
-                                height: height,
-                                child: Stack(
-                                  children: [
-                                    Positioned.fill(
-                                      child: CustomPaint(
-                                        painter: _EdgesPainter(links: visibleLinks, pos: pos, selected: _selected),
-                                      ),
-                                    ),
-                                    for (var r = 0; r < ordered.length; r++)
-                                      Positioned(
-                                        top: _pad + r * _rowH,
-                                        right: _pad,
-                                        child: Text(
-                                          ordered[r].key,
-                                          style: FikraText.chip.copyWith(color: FikraColors.textSecondary),
-                                        ),
-                                      ),
-                                    for (final n in notes)
-                                      Positioned.fromRect(
-                                        rect: pos[n.id]!,
-                                        child: _Node(
-                                          note: n,
-                                          selected: n.id == _selected,
-                                          onTap: () => setState(() => _selected = n.id == _selected ? null : n.id),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    PositionedDirectional(
-                      start: FikraSpace.screen,
-                      top: 4,
-                      child: Column(
+                    // Viewport tools live above the graph, never on top of it.
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+                      child: Row(
                         children: [
-                          _ZoomBtn(icon: Icons.add_rounded, label: 'تكبير', onTap: () => _zoom(1.25)),
-                          const SizedBox(height: 8),
-                          _ZoomBtn(icon: Icons.remove_rounded, label: 'تصغير', onTap: () => _zoom(0.8)),
-                          const SizedBox(height: 8),
-                          _ZoomBtn(
+                          Flexible(
+                            child: Text(
+                              '${Fmt.notes(notes.length)} · ${Fmt.links(visibleLinks.length)}',
+                              style: FikraText.meta.copyWith(fontSize: 12, color: FikraColors.textSecondary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Spacer(),
+                          FikraIconButton(icon: Icons.add_rounded, label: 'تكبير', size: 40, onTap: () => _zoom(1.25)),
+                          FikraIconButton(
+                            icon: Icons.remove_rounded,
+                            label: 'تصغير',
+                            size: 40,
+                            onTap: () => _zoom(0.8),
+                          ),
+                          FikraIconButton(
                             icon: Icons.center_focus_strong_outlined,
                             label: 'رجّع العرض',
+                            size: 40,
                             onTap: () => _tc.value = _home(),
                           ),
                         ],
                       ),
                     ),
-                    if (visibleLinks.isEmpty && selected == null)
-                      const Positioned(
-                        left: FikraSpace.screen,
-                        right: FikraSpace.screen,
-                        bottom: 16,
-                        child: StatusBanner(
-                          kind: BannerKind.info,
-                          message: 'لسه مفيش روابط. النوتس اللي فيها مفاهيم مشتركة هتترابط.',
-                        ),
-                      ),
-                    if (selected != null)
-                      Positioned(
-                        left: FikraSpace.screen,
-                        right: FikraSpace.screen,
-                        bottom: 12,
-                        child: Glass(
-                          radius: FikraRadius.xl,
-                          color: FikraColors.glass,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                selected.title,
-                                style: FikraText.cardTitleSmall,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${selected.cluster ?? 'أفكار عامة'} · $selectedLinks روابط',
-                                style: FikraText.meta.copyWith(fontSize: 12),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                selected.displayText,
-                                style: FikraText.caption,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 12),
-                              FikraButton(
-                                label: 'فتح النوت',
-                                icon: Icons.open_in_new_rounded,
-                                onPressed: () => context.push('/note/${selected.id}'),
-                              ),
-                            ],
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: LayoutBuilder(
+                              builder: (context, box) {
+                                final key = '${ref.read(selectedProjectProvider)?.id}|$width|${box.maxWidth}';
+                                if (key != _fittedFor) {
+                                  _fittedFor = key;
+                                  _viewportW = box.maxWidth;
+                                  _canvasW = width;
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted) _tc.value = _home();
+                                  });
+                                }
+                                return InteractiveViewer(
+                                  transformationController: _tc,
+                                  constrained: false,
+                                  minScale: 0.5,
+                                  maxScale: 2.5,
+                                  boundaryMargin: const EdgeInsets.all(200),
+                                  child: GestureDetector(
+                                    onTap: () => setState(() => _selected = null),
+                                    child: SizedBox(
+                                      width: width,
+                                      height: height,
+                                      child: Stack(
+                                        children: [
+                                          Positioned.fill(
+                                            child: CustomPaint(
+                                              painter: _EdgesPainter(
+                                                links: visibleLinks,
+                                                pos: pos,
+                                                selected: _selected,
+                                              ),
+                                            ),
+                                          ),
+                                          for (var r = 0; r < ordered.length; r++)
+                                            Positioned(
+                                              top: _pad + r * _rowH,
+                                              right: _pad,
+                                              child: Text(
+                                                ordered[r].key,
+                                                style: FikraText.chip.copyWith(color: FikraColors.textSecondary),
+                                              ),
+                                            ),
+                                          for (final n in notes)
+                                            Positioned.fromRect(
+                                              rect: pos[n.id]!,
+                                              child: _Node(
+                                                note: n,
+                                                selected: n.id == _selected,
+                                                onTap: () =>
+                                                    setState(() => _selected = n.id == _selected ? null : n.id),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
+                          if (visibleLinks.isEmpty && selected == null)
+                            const Positioned(
+                              left: FikraSpace.screen,
+                              right: FikraSpace.screen,
+                              bottom: 16,
+                              child: StatusBanner(
+                                kind: BannerKind.info,
+                                message: 'لسه مفيش روابط. النوتس اللي فيها مفاهيم مشتركة هتترابط.',
+                              ),
+                            ),
+                          if (selected != null)
+                            Positioned(
+                              left: FikraSpace.screen,
+                              right: FikraSpace.screen,
+                              bottom: 12,
+                              child: _NodePreview(note: selected, reasons: reasons.values.toList()),
+                            ),
+                        ],
                       ),
+                    ),
                   ],
                 ),
         ),
       ],
+    );
+  }
+}
+
+/// Bottom card for the selected node: what it is and why it's connected.
+class _NodePreview extends StatelessWidget {
+  const _NodePreview({required this.note, required this.reasons});
+  final Note note;
+  final List<String> reasons;
+
+  @override
+  Widget build(BuildContext context) {
+    return Glass(
+      radius: FikraRadius.xl,
+      color: FikraColors.glass,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(noteTitle(note), style: FikraText.cardTitleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 4),
+          Text(
+            '${note.cluster ?? 'أفكار عامة'} · ${Fmt.links(reasons.length)}',
+            style: FikraText.meta.copyWith(fontSize: 12, color: FikraColors.textSecondary),
+          ),
+          if (reasons.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            for (final r in reasons.take(3))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Row(
+                  children: [
+                    const Icon(Icons.link_rounded, size: 14, color: FikraColors.textLink),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        r,
+                        style: FikraText.caption.copyWith(color: FikraColors.textLink),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+          const SizedBox(height: 12),
+          FikraButton(
+            label: 'فتح النوت',
+            icon: Icons.open_in_new_rounded,
+            onPressed: () => context.push('/note/${note.id}'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -246,7 +314,8 @@ class _Node extends StatelessWidget {
   Widget build(BuildContext context) {
     return Pressable(
       onTap: onTap,
-      semanticLabel: note.title,
+      selected: selected,
+      semanticLabel: noteTitle(note),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14),
         alignment: AlignmentDirectional.centerStart,
@@ -295,27 +364,4 @@ class _EdgesPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_EdgesPainter old) => old.links != links || old.selected != selected || old.pos != pos;
-}
-
-class _ZoomBtn extends StatelessWidget {
-  const _ZoomBtn({required this.icon, required this.label, required this.onTap});
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Pressable(
-      onTap: onTap,
-      semanticLabel: label,
-      child: Glass(
-        radius: FikraRadius.full,
-        width: 42,
-        height: 42,
-        padding: EdgeInsets.zero,
-        color: FikraColors.glass,
-        child: Icon(icon, size: 20),
-      ),
-    );
-  }
 }

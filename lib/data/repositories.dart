@@ -1,13 +1,9 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 
 import 'ai/ai_service.dart';
+import 'files/attachment_store.dart';
+import 'ids.dart';
 import 'local/database.dart';
-
-const _uuid = Uuid();
-String newId() => _uuid.v4();
 
 typedef ProjectSummary = ({Project project, int noteCount});
 
@@ -118,8 +114,8 @@ class LocalProjectsRepository implements ProjectsRepository {
       }
       return paths;
     });
-    // Anything missed here (crash, I/O error) is swept by [sweepOrphanAttachments].
-    await deleteFilesQuietly(files);
+    // Anything missed here (crash, I/O error) is swept by AttachmentStore.sweepOrphans.
+    await AttachmentStore.deleteQuietly(files);
   }
 
   Future<String?> _readCurrent() async =>
@@ -312,7 +308,7 @@ class LocalNotesRepository implements NotesRepository {
   Future<void> delete(String id) async {
     final n = await (db.select(db.notes)..where((n) => n.id.equals(id))).getSingleOrNull();
     await (db.delete(db.notes)..where((n) => n.id.equals(id))).go();
-    if (n?.attachmentPath != null) await deleteFilesQuietly([n!.attachmentPath!]);
+    if (n?.attachmentPath != null) await AttachmentStore.deleteQuietly([n!.attachmentPath!]);
   }
 
   @override
@@ -354,15 +350,4 @@ class LocalChatRepository implements ChatRepository {
 
   @override
   Future<void> clear(String projectId) => (db.delete(db.chatEntries)..where((c) => c.projectId.equals(projectId))).go();
-}
-
-Future<void> deleteFilesQuietly(Iterable<String> paths) async {
-  for (final path in paths) {
-    try {
-      final f = File(path);
-      if (await f.exists()) await f.delete();
-    } on FileSystemException {
-      // Left for the next orphan sweep.
-    }
-  }
 }

@@ -26,6 +26,22 @@ abstract final class Fmt {
     return dayHeader(d);
   }
 
+  /// Egyptian-Arabic counts: 1 → singular, 2 → dual, 3–10 → plural,
+  /// 11+ → singular form after the number ("15 رابط").
+  static String count(int n, {required String one, required String two, required String few, required String many}) =>
+      switch (n) {
+        1 => one,
+        2 => two,
+        >= 3 && <= 10 => '$n $few',
+        _ => '$n $many',
+      };
+
+  static String notes(int n) =>
+      n == 0 ? 'مفيش نوتس' : count(n, one: 'نوت واحدة', two: 'نوتين', few: 'نوتس', many: 'نوت');
+
+  static String links(int n) =>
+      n == 0 ? 'مفيش روابط' : count(n, one: 'رابط واحد', two: 'رابطين', few: 'روابط', many: 'رابط');
+
   static String duration(int ms) {
     final s = (ms / 1000).round();
     return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';

@@ -16,6 +16,7 @@ ThemeData buildFikraTheme() {
     brightness: Brightness.dark,
     colorScheme: scheme,
     fontFamily: FikraText.family,
+    fontFamilyFallback: const ['Roboto'],
     scaffoldBackgroundColor: FikraColors.screen,
     canvasColor: FikraColors.screen,
     // Plasma: no ripples, press feedback is a spring scale instead.

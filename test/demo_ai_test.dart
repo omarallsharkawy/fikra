@@ -10,8 +10,11 @@ void main() {
   });
 
   test('english keys match whole words only', () {
-    expect(DemoAiService.detectConcepts('rapid'), isNot(contains('APIs')));
+    expect(DemoAiService.detectConcepts('rapid'), isNot(contains('APIs'))); // left boundary
+    expect(DemoAiService.detectConcepts('apiary'), isNot(contains('APIs'))); // right boundary
+    expect(DemoAiService.detectConcepts('ragtime'), isNot(contains('RAG')));
     expect(DemoAiService.detectConcepts('build'), isNot(contains('تصميم الواجهات')));
+    expect(DemoAiService.detectConcepts('the API is up'), contains('APIs'));
   });
 
   test('improve expands terms and ends with punctuation', () {

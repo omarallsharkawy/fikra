@@ -5,12 +5,7 @@ import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
-
-IconData sourceIcon(NoteSource s) => switch (s) {
-  NoteSource.text => Icons.notes_rounded,
-  NoteSource.voice => Icons.mic_none_rounded,
-  NoteSource.pdf => Icons.picture_as_pdf_outlined,
-};
+import '../shared/note_presentation.dart';
 
 class NoteCard extends StatelessWidget {
   const NoteCard({super.key, required this.note, required this.onTap});
@@ -23,7 +18,6 @@ class NoteCard extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       pressedScale: 0.98,
-      semanticLabel: note.title,
       child: Glass(
         radius: FikraRadius.lg,
         padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
@@ -36,7 +30,7 @@ class NoteCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    note.title.isEmpty ? 'نوت جديدة' : note.title,
+                    noteTitle(note),
                     style: FikraText.cardTitleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -55,7 +49,7 @@ class NoteCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             switch (note.status) {
-              ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing, label: 'بيتحلّل…'),
+              ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing),
               ProcessingStatus.failed => const FikraBadge(kind: BadgeKind.failed, label: 'التحليل فشل'),
               ProcessingStatus.ready => Wrap(
                 spacing: 6,

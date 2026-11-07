@@ -112,6 +112,8 @@ class _FikraNavBarState extends State<FikraNavBar> with SingleTickerProviderStat
                   for (var i = 0; i < widget.items.length; i++)
                     Expanded(
                       child: Pressable(
+                        key: ValueKey('nav-$i'),
+                        selected: i == widget.index,
                         onTap: () => widget.onTap(i),
                         semanticLabel: widget.items[i].$1,
                         child: Column(

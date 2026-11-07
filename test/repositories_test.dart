@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
-import 'package:fikra/app/providers.dart';
+import 'package:fikra/data/processing/note_processor.dart';
 import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/demo/demo_seed.dart';
@@ -31,24 +32,30 @@ void main() {
 
   test('original text survives rewrite accept, edit and restore', () async {
     final p = await projects.create('p');
-    final n = await notes.create(projectId: p.id, title: '', text: 'الـrag مهم', source: NoteSource.text);
-    final insights = await DemoAiService(latency: Duration.zero).analyze(n, [n]);
-    await notes.applyInsights(n.id, insights);
+    final n = await notes.create(projectId: p.id, title: '', text: 'نص أصلي', source: NoteSource.text);
+    await notes.applyInsights(n.id, _insights(title: 'عنوان مقترح', proposed: 'نص محسّن.'));
 
     var cur = (await notes.watchNote(n.id).first)!;
     expect(cur.status, ProcessingStatus.ready);
     expect(cur.rewrite, RewriteStatus.pending);
-    expect(cur.title, isNotEmpty);
+    expect(cur.title, 'عنوان مقترح'); // empty title takes the suggestion
 
     await notes.acceptRewrite(n.id);
     cur = (await notes.watchNote(n.id).first)!;
-    expect(cur.originalText, 'الـrag مهم');
-    expect(cur.displayText, contains('Retrieval-Augmented'));
+    expect(cur.originalText, 'نص أصلي');
+    expect(cur.displayText, 'نص محسّن.');
     expect(cur.hasImprovedVersion, isTrue);
+
+    await notes.edit(n.id, title: '', text: 'كتبتها بإيدي');
+    cur = (await notes.watchNote(n.id).first)!;
+    expect(cur.title, 'عنوان مقترح'); // blank title in the editor keeps the old one
+    expect(cur.displayText, 'كتبتها بإيدي');
+    expect(cur.originalText, 'نص أصلي');
 
     await notes.restoreOriginal(n.id);
     cur = (await notes.watchNote(n.id).first)!;
-    expect(cur.displayText, 'الـrag مهم');
+    expect(cur.displayText, 'نص أصلي');
+    expect(cur.hasImprovedVersion, isFalse);
   });
 
   test('deleting a project cascades and moves selection', () async {
@@ -71,7 +78,7 @@ void main() {
   test('late analysis does not overwrite a title or text the user edited', () async {
     final p = await projects.create('p');
     final n = await notes.create(projectId: p.id, title: '', text: 'الـrag مهم', source: NoteSource.text);
-    final insights = await DemoAiService(latency: Duration.zero).analyze(n, [n]);
+    final insights = _insights(title: 'عنوان الـAI', proposed: 'اقتراح قديم.');
     await notes.edit(n.id, title: 'عنواني', text: 'نص جديد');
     await notes.applyInsights(n.id, insights, basis: n);
     final cur = (await notes.watchNote(n.id).first)!;
@@ -89,13 +96,18 @@ void main() {
     final other = await notes.create(projectId: b.id, title: 'o', text: 'z', source: NoteSource.text);
     await notes.applyInsights(
       n1.id,
-      NoteInsights(title: '1', concepts: const [], cluster: 'c', links: [
-        ProposedLink(targetId: n2.id, label: 'ok', strength: 7),
-        ProposedLink(targetId: n2.id, label: 'dup', strength: 0.5),
-        ProposedLink(targetId: n1.id, label: 'self', strength: 0.5),
-        ProposedLink(targetId: other.id, label: 'cross', strength: 0.5),
-        const ProposedLink(targetId: 'missing', label: 'gone', strength: 0.5),
-      ]),
+      NoteInsights(
+        title: '1',
+        concepts: const [],
+        cluster: 'c',
+        links: [
+          ProposedLink(targetId: n2.id, label: 'ok', strength: 7),
+          ProposedLink(targetId: n2.id, label: 'dup', strength: 0.5),
+          ProposedLink(targetId: n1.id, label: 'self', strength: 0.5),
+          ProposedLink(targetId: other.id, label: 'cross', strength: 0.5),
+          const ProposedLink(targetId: 'missing', label: 'gone', strength: 0.5),
+        ],
+      ),
     );
     final links = await notes.watchLinks(a.id).first;
     expect(links, hasLength(1));
@@ -118,9 +130,79 @@ void main() {
     final dir = await Directory.systemTemp.createTemp('fikra');
     final f = await File('${dir.path}/a.m4a').writeAsString('x');
     final n = await notes.create(
-        projectId: p.id, title: 't', text: '', source: NoteSource.voice, attachmentPath: f.path);
+      projectId: p.id,
+      title: 't',
+      text: '',
+      source: NoteSource.voice,
+      attachmentPath: f.path,
+    );
     await notes.delete(n.id);
     expect(await f.exists(), isFalse);
     await dir.delete(recursive: true);
   });
+
+  group('NoteProcessor', () {
+    late Project p;
+    setUp(() async => p = await projects.create('p'));
+
+    test('AI failure marks the note failed and the queue keeps going', () async {
+      final ai = _ScriptedAi([() => throw Exception('boom'), () async => _insights(title: 'ok')]);
+      final processor = NoteProcessor(notes, ai);
+      final a = await notes.create(projectId: p.id, title: '', text: 'a', source: NoteSource.text);
+      final b = await notes.create(projectId: p.id, title: '', text: 'b', source: NoteSource.text);
+      await Future.wait([processor.process(a), processor.process(b)]);
+      expect((await notes.watchNote(a.id).first)!.status, ProcessingStatus.failed);
+      expect((await notes.watchNote(b.id).first)!.status, ProcessingStatus.ready);
+    });
+
+    test('a hung request times out instead of blocking the queue', () async {
+      final ai = _ScriptedAi([() => Completer<NoteInsights>().future, () async => _insights(title: 'ok')]);
+      final processor = NoteProcessor(notes, ai, timeout: const Duration(milliseconds: 50));
+      final a = await notes.create(projectId: p.id, title: '', text: 'a', source: NoteSource.text);
+      final b = await notes.create(projectId: p.id, title: '', text: 'b', source: NoteSource.text);
+      await Future.wait([processor.process(a), processor.process(b)]);
+      expect((await notes.watchNote(a.id).first)!.status, ProcessingStatus.failed);
+      expect((await notes.watchNote(b.id).first)!.status, ProcessingStatus.ready);
+    });
+
+    test('retry after failure succeeds', () async {
+      final ai = _ScriptedAi([() => throw Exception('boom'), () async => _insights(title: 'تاني')]);
+      final processor = NoteProcessor(notes, ai);
+      final a = await notes.create(projectId: p.id, title: '', text: 'a', source: NoteSource.text);
+      await processor.process(a);
+      await processor.retry(a.id);
+      final cur = (await notes.watchNote(a.id).first)!;
+      expect(cur.status, ProcessingStatus.ready);
+      expect(cur.title, 'تاني');
+    });
+
+    test('resumeInterrupted re-runs notes stuck in processing', () async {
+      final processor = NoteProcessor(notes, _ScriptedAi([() async => _insights(title: 'رجعت')]));
+      final a = await notes.create(projectId: p.id, title: '', text: 'a', source: NoteSource.text);
+      await processor.resumeInterrupted();
+      await processor.process(a); // queued behind the resumed job; waits for it
+      expect((await notes.watchNote(a.id).first)!.status, ProcessingStatus.ready);
+    });
+  });
+}
+
+NoteInsights _insights({String title = 't', String? proposed, List<ProposedLink> links = const []}) =>
+    NoteInsights(title: title, proposedText: proposed, concepts: const ['c'], cluster: 'k', links: links);
+
+/// AiService whose analyze() answers come from a script, one per call
+/// (the last entry repeats).
+class _ScriptedAi implements AiService {
+  _ScriptedAi(this.script);
+  final List<Future<NoteInsights> Function()> script;
+  var _calls = 0;
+
+  @override
+  Future<NoteInsights> analyze(Note note, List<Note> projectNotes) {
+    final step = script[_calls < script.length ? _calls : script.length - 1];
+    _calls++;
+    return step();
+  }
+
+  @override
+  Future<ChatAnswer> ask(String question, List<Note> projectNotes) => throw UnimplementedError();
 }

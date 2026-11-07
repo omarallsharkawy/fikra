@@ -19,13 +19,23 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   Future<void> _create() async {
     final name = await askProjectName(context, title: 'أول مشروع', action: 'إنشاء');
-    if (name != null) await ref.read(projectsRepoProvider).create(name);
+    if (name == null || !mounted) return;
+    await runAction(
+      context,
+      () => ref.read(projectsRepoProvider).create(name),
+      failure: 'مقدرناش نعمل المشروع، جرّب تاني',
+    );
   }
 
   Future<void> _seed() async {
+    if (_seeding) return;
     setState(() => _seeding = true);
     try {
-      await seedDemoProject(ref.read(projectsRepoProvider), ref.read(notesRepoProvider));
+      await runAction(
+        context,
+        () => seedDemoProject(ref.read(projectsRepoProvider), ref.read(notesRepoProvider)),
+        failure: 'مقدرناش نجهّز المشروع التجريبي، جرّب تاني',
+      );
     } finally {
       if (mounted) setState(() => _seeding = false);
     }
@@ -33,61 +43,63 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(gradient: FikraColors.screenGradient),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Spacer(flex: 3),
-                Center(
-                  child: Container(
-                    width: 84,
-                    height: 84,
-                    decoration: BoxDecoration(
-                      gradient: FikraColors.selectedGradient,
-                      borderRadius: BorderRadius.circular(FikraRadius.xl),
+    // Scrolls on short screens and large font scales; spacers keep it centered otherwise.
+    return FikraScaffold(
+      child: LayoutBuilder(
+        builder: (context, box) => SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: box.maxHeight),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Spacer(flex: 3),
+                  Center(
+                    child: Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        gradient: FikraColors.selectedGradient,
+                        borderRadius: BorderRadius.circular(FikraRadius.xl),
+                      ),
+                      child: const Icon(Icons.lightbulb_outline_rounded, size: 42),
                     ),
-                    child: const Icon(Icons.lightbulb_outline_rounded, size: 42),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'فِكرة',
-                  textAlign: TextAlign.center,
-                  style: FikraText.title.copyWith(fontSize: 34, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'اكتب. اربط. اسأل.',
-                  textAlign: TextAlign.center,
-                  style: FikraText.bodyLarge.copyWith(color: FikraColors.textSecondary),
-                ),
-                const SizedBox(height: 28),
-                const _Point(icon: Icons.edit_note_rounded, text: 'اكتب أو سجّل صوت أو ارفع PDF'),
-                const _Point(icon: Icons.hub_outlined, text: 'فِكرة بتربط النوتس اللي شبه بعض لوحدها'),
-                const _Point(icon: Icons.chat_bubble_outline_rounded, text: 'اسأل والإجابة تيجي من نوتسك مع المصدر'),
-                const Spacer(flex: 4),
-                if (isDemo) ...[
-                  const Center(
-                    child: FikraBadge(kind: BadgeKind.demo, label: 'نسخة تجريبية: البيانات على الموبايل بس'),
+                  const SizedBox(height: 24),
+                  Text(
+                    'فِكرة',
+                    textAlign: TextAlign.center,
+                    style: FikraText.title.copyWith(fontSize: 34, fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 8),
+                  Text(
+                    'اكتب. اربط. اسأل.',
+                    textAlign: TextAlign.center,
+                    style: FikraText.bodyLarge.copyWith(color: FikraColors.textSecondary),
+                  ),
+                  const SizedBox(height: 28),
+                  const _Point(icon: Icons.edit_note_rounded, text: 'اكتب أو سجّل صوت أو ارفع PDF'),
+                  const _Point(icon: Icons.hub_outlined, text: 'فِكرة بتربط النوتس اللي شبه بعض لوحدها'),
+                  const _Point(icon: Icons.chat_bubble_outline_rounded, text: 'اسأل والإجابة تيجي من نوتسك مع المصدر'),
+                  const Spacer(flex: 4),
+                  if (isDemo) ...[
+                    const Center(
+                      child: FikraBadge(kind: BadgeKind.demo, label: 'نسخة تجريبية: البيانات على الموبايل بس'),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  FikraButton(label: 'ابدأ مشروع جديد', icon: Icons.add_rounded, onPressed: _seeding ? null : _create),
+                  const SizedBox(height: 10),
+                  FikraButton.secondary(
+                    label: 'جرّب مشروع تجريبي',
+                    icon: Icons.auto_awesome_outlined,
+                    loading: _seeding,
+                    onPressed: _seed,
+                  ),
+                  const SizedBox(height: 16),
                 ],
-                FikraButton(label: 'ابدأ مشروع جديد', icon: Icons.add_rounded, onPressed: _seeding ? null : _create),
-                const SizedBox(height: 10),
-                FikraButton.secondary(
-                  label: 'جرّب مشروع تجريبي',
-                  icon: Icons.auto_awesome_outlined,
-                  loading: _seeding,
-                  onPressed: _seed,
-                ),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
           ),
         ),

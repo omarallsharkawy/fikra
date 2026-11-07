@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
@@ -126,7 +128,9 @@ class FikraButton extends StatelessWidget {
                 ? Border.all(color: FikraColors.border, width: FikraSpace.hairline)
                 : null,
           ),
-          alignment: Alignment.center,
+          // `alignment` would make the container fill the available width,
+          // so compact buttons hug their content instead.
+          alignment: expand ? Alignment.center : null,
           child: content,
         ),
       ),
@@ -238,17 +242,18 @@ class FikraChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Pressable(
       onTap: onTap,
+      selected: onTap == null ? null : selected,
+      minTarget: onTap != null,
       child: Container(
-        height: 32,
+        height: onTap == null ? 30 : 36,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           gradient: selected ? FikraColors.selectedGradient : null,
           color: selected ? null : FikraColors.glassHighlight,
           borderRadius: BorderRadius.circular(FikraRadius.full),
           border: selected ? null : Border.all(color: FikraColors.border, width: FikraSpace.hairline),
         ),
-        child: Text(label, style: FikraText.chip),
+        child: Center(widthFactor: 1, child: Text(label, style: FikraText.chip)),
       ),
     );
   }
@@ -266,7 +271,7 @@ class FikraBadge extends StatelessWidget {
     final (String text, Color fg, Color bg) = switch (kind) {
       BadgeKind.demo => ('بيانات تجريبية', FikraColors.accentLight, FikraColors.glassHighlight),
       BadgeKind.saved => ('تم الحفظ', FikraColors.success, FikraColors.successBg),
-      BadgeKind.processing => ('بيتحلل…', FikraColors.accentLight, FikraColors.glassHighlight),
+      BadgeKind.processing => ('جاري التحليل…', FikraColors.accentLight, FikraColors.glassHighlight),
       BadgeKind.failed => ('فشل', FikraColors.danger, FikraColors.dangerBg),
     };
     return Container(
@@ -306,17 +311,27 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
+/// Icon + title + description (+ action). Carries the screen gutter itself;
+/// pass [padding] when the parent already does.
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.icon, required this.title, required this.description, this.action});
+  const EmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.description,
+    this.action,
+    this.padding = const EdgeInsets.symmetric(horizontal: FikraSpace.screen, vertical: 24),
+  });
   final IconData icon;
   final String title;
   final String description;
   final Widget? action;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: padding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -342,52 +357,83 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-/// Two-option pill with a sliding selected gradient (smooth spring feel).
-class SegmentedPill extends StatelessWidget {
+/// Segmented control: the selected pill slides with the smooth spring
+/// (instantly under Remove animations). Each segment is a 48 dp target.
+class SegmentedPill extends StatefulWidget {
   const SegmentedPill({super.key, required this.options, required this.selected, required this.onChanged});
   final List<String> options;
   final int selected;
   final ValueChanged<int> onChanged;
 
   @override
+  State<SegmentedPill> createState() => _SegmentedPillState();
+}
+
+class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController.unbounded(vsync: this, value: widget.selected.toDouble());
+
+  @override
+  void didUpdateWidget(covariant SegmentedPill old) {
+    super.didUpdateWidget(old);
+    if (old.selected == widget.selected) return;
+    final target = widget.selected.toDouble();
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _c.value = target;
+    } else {
+      _c.animateWith(SpringSimulation(FikraSprings.smooth, _c.value, target, _c.velocity));
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Glass(
       radius: FikraRadius.full,
       padding: const EdgeInsets.all(4),
-      height: 44,
+      height: Pressable.minTargetSize + 8,
       child: LayoutBuilder(
         builder: (context, c) {
-          final w = c.maxWidth / options.length;
+          final w = c.maxWidth / widget.options.length;
           final rtl = Directionality.of(context) == TextDirection.rtl;
           return Stack(
             children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 340),
-                curve: Curves.easeOutBack,
-                left: rtl ? null : selected * w,
-                right: rtl ? selected * w : null,
-                top: 0,
-                bottom: 0,
-                width: w,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: FikraColors.selectedGradient,
-                    borderRadius: BorderRadius.circular(FikraRadius.full),
+              AnimatedBuilder(
+                animation: _c,
+                builder: (context, _) => Positioned(
+                  left: rtl ? null : _c.value * w,
+                  right: rtl ? _c.value * w : null,
+                  top: 0,
+                  bottom: 0,
+                  width: w,
+                  child: const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: FikraColors.selectedGradient,
+                      borderRadius: BorderRadius.all(Radius.circular(FikraRadius.full)),
+                    ),
                   ),
                 ),
               ),
               Row(
                 children: [
-                  for (var i = 0; i < options.length; i++)
+                  for (var i = 0; i < widget.options.length; i++)
                     Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => onChanged(i),
-                        child: Center(
-                          child: Text(
-                            options[i],
-                            style: FikraText.chip.copyWith(
-                              color: i == selected ? FikraColors.textPrimary : FikraColors.textSecondary,
+                      child: Semantics(
+                        button: true,
+                        selected: i == widget.selected,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => widget.onChanged(i),
+                          child: Center(
+                            child: Text(
+                              widget.options[i],
+                              style: FikraText.chip.copyWith(
+                                color: i == widget.selected ? FikraColors.textPrimary : FikraColors.textSecondary,
+                              ),
                             ),
                           ),
                         ),
@@ -526,4 +572,137 @@ void showToast(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 3)));
+}
+
+/// Full-screen page outside the tab shell: screen gradient + transparent
+/// Scaffold + SafeArea. Tab screens get the same chrome from AppShell.
+class FikraScaffold extends StatelessWidget {
+  const FikraScaffold({super.key, required this.child, this.safeBottom = true});
+  final Widget child;
+  final bool safeBottom;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(gradient: FikraColors.screenGradient),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(bottom: safeBottom, child: child),
+      ),
+    );
+  }
+}
+
+/// Round glass icon button (back, more, zoom…). [label] is read by screen
+/// readers; the hit area is at least 48 dp whatever the visual [size].
+class FikraIconButton extends StatelessWidget {
+  const FikraIconButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.size = 44,
+    this.solid = false,
+  });
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final double size;
+
+  /// Opaque background, for buttons floating over content.
+  final bool solid;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      minTarget: true,
+      child: Glass(
+        radius: FikraRadius.full,
+        width: size,
+        height: size,
+        padding: EdgeInsets.zero,
+        color: solid ? FikraColors.glass : null,
+        child: Icon(icon, size: size * 0.48),
+      ),
+    );
+  }
+}
+
+/// Renders an [AsyncValue]: a load failure gets an error state with retry
+/// instead of looking like an empty list.
+class AsyncBody<T> extends StatelessWidget {
+  const AsyncBody({super.key, required this.value, required this.data, this.onRetry});
+  final AsyncValue<T> value;
+  final Widget Function(T data) data;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (value.hasValue) return data(value.requireValue);
+    if (!value.hasError) return const SizedBox.shrink(); // first load: local db, near-instant
+    return LoadErrorView(onRetry: onRetry);
+  }
+}
+
+/// "Couldn't load" state. Use instead of an empty state when a query failed.
+class LoadErrorView extends StatelessWidget {
+  const LoadErrorView({super.key, this.onRetry});
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return FillScroll(
+      child: EmptyState(
+        icon: Icons.error_outline_rounded,
+        title: 'مش قادرين نحمّل البيانات',
+        description: 'حصلت مشكلة وإحنا بنقرا البيانات. جرّب تاني.',
+        action: onRetry == null
+            ? null
+            : FikraButton.secondary(label: 'جرّب تاني', icon: Icons.refresh_rounded, expand: false, onPressed: onRetry),
+      ),
+    );
+  }
+}
+
+/// Runs a user action, showing [success] only after it completes and a toast
+/// on failure. Returns whether it succeeded.
+Future<bool> runAction(
+  BuildContext context,
+  Future<void> Function() action, {
+  String? success,
+  String failure = 'حصلت مشكلة، جرّب تاني',
+}) async {
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  void toast(String m) => messenger
+    ?..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m), duration: const Duration(seconds: 3)));
+  try {
+    await action();
+    if (success != null) toast(success);
+    return true;
+  } catch (_) {
+    toast(failure);
+    return false;
+  }
+}
+
+/// Fills the available height and centers [child], scrolling instead of
+/// overflowing when the window is short (landscape, large text, keyboard).
+class FillScroll extends StatelessWidget {
+  const FillScroll({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: box.maxHeight),
+          child: Center(child: child),
+        ),
+      ),
+    );
+  }
 }

@@ -18,13 +18,25 @@ class Pressable extends StatefulWidget {
     this.onLongPress,
     this.pressedScale = 0.964,
     this.semanticLabel,
+    this.selected,
+    this.minTarget = false,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final double pressedScale;
+
+  /// When set, TalkBack reads this instead of the child's text (no double reading).
   final String? semanticLabel;
+
+  /// Exposed to TalkBack for tabs / segments / graph nodes.
+  final bool? selected;
+
+  /// Grow the hit area to Android's 48×48 dp minimum around a smaller visual.
+  final bool minTarget;
+
+  static const minTargetSize = 48.0;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -51,9 +63,26 @@ class _PressableState extends State<Pressable> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    Widget child = AnimatedBuilder(
+      animation: _c,
+      builder: (context, child) => Transform.scale(scale: _c.value, child: child),
+      child: widget.child,
+    );
+    if (widget.minTarget) {
+      child = ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: Pressable.minTargetSize, minHeight: Pressable.minTargetSize),
+        child: Align(widthFactor: 1, heightFactor: 1, child: child),
+      );
+    }
+    // Labelled pressables are controls even when disabled; unlabelled ones
+    // with no handler (e.g. a read-only chip) are plain content.
+    final isControl = _enabled || widget.semanticLabel != null;
     return Semantics(
-      button: _enabled,
+      button: isControl,
+      enabled: isControl ? _enabled : null,
+      selected: widget.selected,
       label: widget.semanticLabel,
+      excludeSemantics: widget.semanticLabel != null,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: _enabled ? (_) => _to(widget.pressedScale) : null,
@@ -61,11 +90,7 @@ class _PressableState extends State<Pressable> with SingleTickerProviderStateMix
         onTapCancel: _enabled ? () => _to(1) : null,
         onTap: widget.onTap,
         onLongPress: widget.onLongPress,
-        child: AnimatedBuilder(
-          animation: _c,
-          builder: (context, child) => Transform.scale(scale: _c.value, child: child),
-          child: widget.child,
-        ),
+        child: child,
       ),
     );
   }

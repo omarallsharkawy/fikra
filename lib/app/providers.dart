@@ -1,18 +1,19 @@
-import 'dart:async';
-import 'dart:io';
-
+// Dependency wiring. Implementations live in lib/data; this file only decides
+// which ones the app uses. Tests override [databaseProvider] (in-memory db) or
+// [aiServiceProvider] (fakes).
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import '../data/ai/ai_service.dart';
 import '../data/ai/demo_ai_service.dart';
+import '../data/files/attachment_store.dart';
 import '../data/local/database.dart';
+import '../data/processing/note_processor.dart';
 import '../data/repositories.dart';
+import 'app_config.dart';
 
-/// `--dart-define=FIKRA_MODE=connected` switches to the backend once it exists.
-const appMode = String.fromEnvironment('FIKRA_MODE', defaultValue: 'demo');
-bool get isDemo => appMode != 'connected';
+export 'app_config.dart' show isDemo;
+
+// ---------------------------------------------------------------- services
 
 final databaseProvider = Provider<FikraDatabase>((ref) {
   final db = FikraDatabase();
@@ -25,116 +26,82 @@ final projectsRepoProvider = Provider<ProjectsRepository>(
 );
 final notesRepoProvider = Provider<NotesRepository>((ref) => LocalNotesRepository(ref.watch(databaseProvider)));
 final chatRepoProvider = Provider<ChatRepository>((ref) => LocalChatRepository(ref.watch(databaseProvider)));
+final attachmentStoreProvider = Provider<AttachmentStore>((ref) => AttachmentStore());
 
-// The connected build will swap these two for API-backed implementations.
-final aiServiceProvider = Provider<AiService>((ref) => DemoAiService());
-final uploaderProvider = Provider<AttachmentUploader>((ref) => DemoUploader());
+/// Backend seam #1: note analysis and question answering.
+final aiServiceProvider = Provider<AiService>(
+  (ref) => switch (appMode) {
+    AppMode.demo => DemoAiService(),
+    // Wire ApiAiService here (docs/backend-integration.md).
+    AppMode.connected => throw UnimplementedError('FIKRA_MODE=connected has no AiService yet'),
+  },
+);
+
+/// Backend seam #2: attachment upload.
+final uploaderProvider = Provider<AttachmentUploader>(
+  (ref) => switch (appMode) {
+    AppMode.demo => DemoUploader(),
+    AppMode.connected => throw UnimplementedError('FIKRA_MODE=connected has no AttachmentUploader yet'),
+  },
+);
+
+final noteProcessorProvider = Provider<NoteProcessor>(
+  (ref) => NoteProcessor(ref.watch(notesRepoProvider), ref.watch(aiServiceProvider)),
+);
+
+/// Runs once at launch (watched by FikraApp).
+final startupMaintenanceProvider = FutureProvider<void>((ref) async {
+  await ref.read(noteProcessorProvider).resumeInterrupted();
+  final notes = ref.read(notesRepoProvider);
+  await ref.read(attachmentStoreProvider).sweepOrphans(await notes.attachmentPaths());
+});
+
+// ---------------------------------------------------------------- projects
 
 final projectsProvider = StreamProvider<List<ProjectSummary>>((ref) => ref.watch(projectsRepoProvider).watchProjects());
-final currentProjectIdProvider = StreamProvider<String?>((ref) => ref.watch(projectsRepoProvider).watchCurrentId());
+final _selectedProjectIdProvider = StreamProvider<String?>((ref) => ref.watch(projectsRepoProvider).watchCurrentId());
 
-/// The selected project, falling back to the first one.
-final currentProjectProvider = Provider<Project?>((ref) {
+/// The project picked in the header pill (falls back to the first one). Tab
+/// screens read data through the `selected*` providers below.
+final selectedProjectProvider = Provider<Project?>((ref) {
   final projects = ref.watch(projectsProvider).value ?? const [];
   if (projects.isEmpty) return null;
-  final id = ref.watch(currentProjectIdProvider).value;
+  final id = ref.watch(_selectedProjectIdProvider).value;
   for (final p in projects) {
     if (p.project.id == id) return p.project;
   }
   return projects.first.project;
 });
 
-final notesProvider = StreamProvider<List<Note>>((ref) {
-  final project = ref.watch(currentProjectProvider);
-  if (project == null) return Stream.value(const []);
-  return ref.watch(notesRepoProvider).watchNotes(project.id);
-});
+// ---------------------------------------------------------------- per project
+// Use these with an explicit project id (e.g. a note's own `projectId`).
 
+final notesOfProjectProvider = StreamProvider.autoDispose.family<List<Note>, String>(
+  (ref, projectId) => ref.watch(notesRepoProvider).watchNotes(projectId),
+);
+final linksOfProjectProvider = StreamProvider.autoDispose.family<List<NoteLink>, String>(
+  (ref, projectId) => ref.watch(notesRepoProvider).watchLinks(projectId),
+);
+final chatOfProjectProvider = StreamProvider.autoDispose.family<List<ChatEntry>, String>(
+  (ref, projectId) => ref.watch(chatRepoProvider).watch(projectId),
+);
 final noteProvider = StreamProvider.autoDispose.family<Note?, String>(
   (ref, id) => ref.watch(notesRepoProvider).watchNote(id),
 );
 
-final linksProvider = StreamProvider<List<NoteLink>>((ref) {
-  final project = ref.watch(currentProjectProvider);
-  if (project == null) return Stream.value(const []);
-  return ref.watch(notesRepoProvider).watchLinks(project.id);
-});
+// ---------------------------------------------------------------- selected project
 
-final chatProvider = StreamProvider<List<ChatEntry>>((ref) {
-  final project = ref.watch(currentProjectProvider);
-  if (project == null) return Stream.value(const []);
-  return ref.watch(chatRepoProvider).watch(project.id);
-});
-
-/// On launch: re-run notes whose processing was cut off (app killed), and
-/// remove attachment files no note points to any more.
-final startupMaintenanceProvider = FutureProvider<void>((ref) async {
-  final notes = ref.read(notesRepoProvider);
-  final processor = ref.read(noteProcessorProvider);
-  for (final n in await notes.notesWithStatus(ProcessingStatus.processing)) {
-    unawaited(processor.process(n));
-  }
-  await sweepOrphanAttachments(notes);
-});
-
-Future<void> sweepOrphanAttachments(NotesRepository notes) async {
-  final cutoff = DateTime.now().subtract(const Duration(hours: 1)); // never touch an in-flight save
-  try {
-    final referenced = await notes.attachmentPaths();
-    final dir = Directory(p.join((await getApplicationDocumentsDirectory()).path, 'attachments'));
-    if (await dir.exists()) {
-      await for (final f in dir.list()) {
-        if (f is File && !referenced.contains(f.path) && (await f.lastModified()).isBefore(cutoff)) {
-          await deleteFilesQuietly([f.path]);
-        }
-      }
-    }
-    final tmp = await getTemporaryDirectory();
-    await for (final f in tmp.list()) {
-      if (f is File && p.basename(f.path).startsWith('rec_') && (await f.lastModified()).isBefore(cutoff)) {
-        await deleteFilesQuietly([f.path]);
-      }
-    }
-  } catch (_) {
-    // Best effort; retried on next launch.
-  }
+AsyncValue<T> _forSelected<T>(Ref ref, T empty, AsyncValue<T> Function(String id) watch) {
+  final project = ref.watch(selectedProjectProvider);
+  return project == null ? AsyncData(empty) : watch(project.id);
 }
 
-final noteProcessorProvider = Provider<NoteProcessor>(
-  (ref) => NoteProcessor(ref.watch(notesRepoProvider), ref.watch(aiServiceProvider)),
+final selectedNotesProvider = Provider.autoDispose<AsyncValue<List<Note>>>(
+  (ref) => _forSelected(ref, const <Note>[], (id) => ref.watch(notesOfProjectProvider(id))),
 );
-
-/// Runs the AI pass after a note is saved. The note is already stored, so a
-/// failure here never loses what the user wrote. Jobs run one at a time so
-/// each analysis sees the concepts of the notes processed before it.
-class NoteProcessor {
-  NoteProcessor(this.notes, this.ai, {this.timeout = const Duration(seconds: 90)});
-  final NotesRepository notes;
-  final AiService ai;
-  final Duration timeout;
-  Future<void> _queue = Future.value();
-
-  Future<void> process(Note note) {
-    final job = _queue.then((_) => _run(note.id));
-    _queue = job.catchError((_) {});
-    return job;
-  }
-
-  Future<void> _run(String id) async {
-    final basis = await notes.watchNote(id).first;
-    if (basis == null) return;
-    try {
-      await notes.markProcessing(id);
-      final projectNotes = await notes.notesOf(basis.projectId);
-      final insights = await ai.analyze(basis, projectNotes).timeout(timeout);
-      await notes.applyInsights(id, insights, basis: basis);
-    } catch (_) {
-      await notes.markFailed(id);
-    }
-  }
-
-  Future<void> retry(String id) async {
-    final note = await notes.watchNote(id).first;
-    if (note != null) await process(note);
-  }
-}
+final selectedLinksProvider = Provider.autoDispose<AsyncValue<List<NoteLink>>>(
+  (ref) => _forSelected(ref, const <NoteLink>[], (id) => ref.watch(linksOfProjectProvider(id))),
+);
+final selectedChatProvider = Provider.autoDispose<AsyncValue<List<ChatEntry>>>(
+  (ref) => _forSelected(ref, const <ChatEntry>[], (id) => ref.watch(chatOfProjectProvider(id))),
+);

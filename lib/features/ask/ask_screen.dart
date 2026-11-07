@@ -8,6 +8,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
+import '../shared/note_presentation.dart';
 
 class AskScreen extends ConsumerStatefulWidget {
   const AskScreen({super.key});
@@ -21,8 +22,6 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   final _scroll = ScrollController();
   bool _thinking = false;
 
-  static const _suggestions = ['إيه فكرة المشروع؟', 'الـRAG بيشتغل إزاي؟', 'إيه اللي كتبته عن الباك إند؟'];
-
   @override
   void dispose() {
     _input.dispose();
@@ -32,7 +31,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
 
   Future<void> _send([String? preset]) async {
     final q = (preset ?? _input.text).trim();
-    final project = ref.read(currentProjectProvider);
+    final project = ref.read(selectedProjectProvider);
     if (q.isEmpty || project == null || _thinking) return;
     setState(() => _thinking = true);
     final chat = ref.read(chatRepoProvider);
@@ -41,7 +40,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
       if (preset == null) _input.clear(); // keep the draft until it's stored
       _toBottom();
       final notes = await ref.read(notesRepoProvider).notesOf(project.id);
-      final answer = await ref.read(aiServiceProvider).ask(q, notes);
+      final answer = await ref.read(aiServiceProvider).ask(q, notes).timeout(const Duration(seconds: 60));
       await chat.add(
         projectId: project.id,
         role: 'assistant',
@@ -59,7 +58,10 @@ class _AskScreenState extends ConsumerState<AskScreen> {
 
   void _toBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scroll.hasClients) {
+      if (!mounted || !_scroll.hasClients) return;
+      if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+        _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      } else {
         _scroll.animateTo(
           _scroll.position.maxScrollExtent,
           duration: const Duration(milliseconds: 280),
@@ -70,7 +72,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   }
 
   Future<void> _clear() async {
-    final project = ref.read(currentProjectProvider);
+    final project = ref.read(selectedProjectProvider);
     if (project == null || _thinking) return;
     final ok = await confirmDestructive(
       context,
@@ -78,13 +80,19 @@ class _AskScreenState extends ConsumerState<AskScreen> {
       message: 'الأسئلة والإجابات هتتمسح. النوتس نفسها مش هتتأثر.',
       confirmLabel: 'مسح',
     );
-    if (ok) await ref.read(chatRepoProvider).clear(project.id);
+    if (ok && mounted) await runAction(context, () => ref.read(chatRepoProvider).clear(project.id));
   }
 
   @override
   Widget build(BuildContext context) {
-    final entries = ref.watch(chatProvider).value ?? const <ChatEntry>[];
-    final notesById = {for (final n in ref.watch(notesProvider).value ?? const <Note>[]) n.id: n};
+    final chatAsync = ref.watch(selectedChatProvider);
+    final entries = chatAsync.value ?? const <ChatEntry>[];
+    final notes = ref.watch(selectedNotesProvider).value ?? const <Note>[];
+    final notesById = {for (final n in notes) n.id: n};
+    // Suggestions come from the user's own notes, so they always have an answer.
+    final suggestions = [
+      for (final n in notes.where((n) => n.title.trim().isNotEmpty).take(3)) 'إيه اللي كتبته عن ${n.title.trim()}؟',
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,9 +103,10 @@ class _AskScreenState extends ConsumerState<AskScreen> {
               ? null
               : Pressable(
                   onTap: _clear,
+                  minTarget: true,
                   semanticLabel: 'مسح المحادثة',
                   child: const Padding(
-                    padding: EdgeInsets.all(6),
+                    padding: EdgeInsets.all(12),
                     child: Icon(Icons.delete_sweep_outlined, color: FikraColors.textSecondary),
                   ),
                 ),
@@ -111,23 +120,29 @@ class _AskScreenState extends ConsumerState<AskScreen> {
             ),
           ),
         Expanded(
-          child: entries.isEmpty && !_thinking
+          child: chatAsync.hasError && !chatAsync.hasValue
+              ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
+              : entries.isEmpty && !_thinking
               ? ListView(
                   padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
                   children: [
-                    const SizedBox(height: 24),
-                    const EmptyState(
+                    EmptyState(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
                       icon: Icons.chat_bubble_outline_rounded,
                       title: 'اسأل نوتسك',
-                      description: 'الإجابة بتيجي من النوتس اللي في المشروع ده بس، ومعاها المصدر.',
+                      description: notes.isEmpty
+                          ? 'ضيف نوتس الأول، وبعدها اسأل عنها هنا. الإجابة بتيجي من نوتسك بس، ومعاها المصدر.'
+                          : 'الإجابة بتيجي من النوتس اللي في المشروع ده بس، ومعاها المصدر.',
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [for (final s in _suggestions) FikraChip(label: s, onTap: () => _send(s))],
-                    ),
+                    if (suggestions.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
+                      ),
+                    ],
                   ],
                 )
               : ListView(
@@ -274,7 +289,9 @@ class _SourceRow extends StatelessWidget {
     return Pressable(
       pressedScale: 0.98,
       onTap: n == null ? null : () => context.push('/note/${n.id}'),
+      semanticLabel: n == null ? 'مصدر $index: نوت اتحذفت' : 'مصدر $index: ${noteTitle(n)}',
       child: Container(
+        constraints: const BoxConstraints(minHeight: Pressable.minTargetSize),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(color: FikraColors.pressed, borderRadius: BorderRadius.circular(FikraRadius.sm)),
         child: Row(
@@ -283,13 +300,13 @@ class _SourceRow extends StatelessWidget {
               width: 22,
               height: 22,
               alignment: Alignment.center,
-              decoration: const BoxDecoration(color: FikraColors.accent, shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: FikraColors.selectedEnd, shape: BoxShape.circle),
               child: Text('$index', style: FikraText.meta.copyWith(color: FikraColors.textPrimary, height: 1.1)),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                n?.title ?? 'نوت اتحذفت',
+                n == null ? 'نوت اتحذفت' : noteTitle(n),
                 style: FikraText.chip.copyWith(color: n == null ? FikraColors.textMeta : FikraColors.textLink),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

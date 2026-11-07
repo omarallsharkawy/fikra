@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -15,7 +16,7 @@ class ProjectHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final project = ref.watch(currentProjectProvider);
+    final project = ref.watch(selectedProjectProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 12),
       child: Row(
@@ -27,7 +28,8 @@ class ProjectHeader extends ConsumerWidget {
           if (trailing != null) const SizedBox(width: 8),
           Pressable(
             onTap: () => showProjectSwitcher(context, ref),
-            semanticLabel: 'تغيير المشروع',
+            minTarget: true,
+            semanticLabel: 'المشروع: ${project?.name ?? 'مفيش'}. تغيير المشروع',
             child: Glass(
               radius: FikraRadius.full,
               padding: const EdgeInsets.fromLTRB(10, 8, 14, 8),
@@ -59,7 +61,7 @@ Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
     builder: (sheetContext) => Consumer(
       builder: (context, ref, _) {
         final projects = ref.watch(projectsProvider).value ?? const [];
-        final current = ref.watch(currentProjectProvider);
+        final current = ref.watch(selectedProjectProvider);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -70,9 +72,9 @@ Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
                   project: p.project,
                   count: p.noteCount,
                   selected: p.project.id == current?.id,
-                  onTap: () {
-                    ref.read(projectsRepoProvider).setCurrent(p.project.id);
+                  onTap: () async {
                     Navigator.pop(sheetContext);
+                    await runAction(context, () => ref.read(projectsRepoProvider).setCurrent(p.project.id));
                   },
                   onMore: () => _projectActions(sheetContext, ref, p.project),
                 ),
@@ -83,8 +85,9 @@ Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
               icon: Icons.add_rounded,
               onPressed: () async {
                 final name = await askProjectName(sheetContext, title: 'مشروع جديد', action: 'إنشاء');
-                if (name != null) await ref.read(projectsRepoProvider).create(name);
-                if (sheetContext.mounted) Navigator.pop(sheetContext);
+                if (name == null || !sheetContext.mounted) return;
+                Navigator.pop(sheetContext);
+                await runAction(context, () => ref.read(projectsRepoProvider).create(name));
               },
             ),
           ],
@@ -113,6 +116,7 @@ class _ProjectRow extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       pressedScale: 0.98,
+      selected: selected,
       child: Glass(
         radius: FikraRadius.md,
         gradient: selected ? FikraColors.selectedGradient : FikraColors.glassGradient,
@@ -127,14 +131,20 @@ class _ProjectRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(project.name, style: FikraText.section.copyWith(fontWeight: FontWeight.w600)),
-                  Text('$count نوت', style: FikraText.meta.copyWith(color: FikraColors.textSecondary)),
+                  Text(
+                    Fmt.notes(count),
+                    style: FikraText.meta.copyWith(
+                      color: selected ? FikraColors.textPrimary : FikraColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
             Pressable(
               onTap: onMore,
-              semanticLabel: 'خيارات المشروع',
-              child: const Padding(padding: EdgeInsets.all(8), child: Icon(Icons.more_horiz_rounded)),
+              minTarget: true,
+              semanticLabel: 'خيارات ${project.name}',
+              child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.more_horiz_rounded)),
             ),
           ],
         ),
@@ -154,8 +164,9 @@ Future<void> _projectActions(BuildContext context, WidgetRef ref, Project projec
           icon: Icons.edit_outlined,
           onTap: () async {
             final name = await askProjectName(sheet, title: 'إعادة تسمية', action: 'حفظ', initial: project.name);
-            if (name != null) await ref.read(projectsRepoProvider).rename(project.id, name);
-            if (sheet.mounted) Navigator.pop(sheet);
+            if (name == null || !sheet.mounted) return;
+            Navigator.pop(sheet);
+            await runAction(context, () => ref.read(projectsRepoProvider).rename(project.id, name));
           },
         ),
         SheetOption(
@@ -168,8 +179,9 @@ Future<void> _projectActions(BuildContext context, WidgetRef ref, Project projec
               title: 'تحذف «${project.name}»؟',
               message: 'كل النوتس والروابط والمحادثات اللي في المشروع هتتحذف، ومش هينفع ترجّعها.',
             );
-            if (ok) await ref.read(projectsRepoProvider).delete(project.id);
-            if (sheet.mounted) Navigator.pop(sheet);
+            if (!ok || !sheet.mounted) return;
+            Navigator.pop(sheet);
+            await runAction(context, () => ref.read(projectsRepoProvider).delete(project.id), success: 'المشروع اتحذف');
           },
         ),
       ],

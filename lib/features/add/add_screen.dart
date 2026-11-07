@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
@@ -15,11 +14,12 @@ import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../../core/widgets/voice_player.dart';
 import '../../data/ai/ai_service.dart';
+import '../../data/files/attachment_store.dart';
 import '../../data/local/database.dart';
-import '../../data/repositories.dart';
 import '../projects/project_header.dart';
-import 'voice_widgets.dart';
+import 'recorder_panel.dart';
 
 enum _Mic { unknown, denied, blocked }
 
@@ -99,8 +99,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         });
         return;
       }
-      final dir = await getTemporaryDirectory();
-      final path = p.join(dir.path, 'rec_${DateTime.now().millisecondsSinceEpoch}.m4a');
+      final path = await ref.read(attachmentStoreProvider).newRecordingPath();
       await _recorder.start(
         const RecordConfig(encoder: AudioEncoder.aacLc, numChannels: 1, bitRate: 64000),
         path: path,
@@ -108,10 +107,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       if (!mounted) return;
       _levels.clear();
       _ampSub = _recorder.onAmplitudeChanged(const Duration(milliseconds: 90)).listen((a) {
-        final v = ((a.current + 50) / 50).clamp(0.06, 1.0);
         _set(() {
-          _levels.add(v);
-          if (_levels.length > 48) _levels.removeAt(0);
+          _levels.add(levelFromDb(a.current));
+          if (_levels.length > kWaveformSamples) _levels.removeAt(0);
         });
       }, onError: (_) {});
       _elapsed = Duration.zero;
@@ -174,7 +172,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       _voicePath = null;
       _voiceMs = null;
     });
-    if (path != null) await deleteFilesQuietly([path]);
+    if (path != null) await AttachmentStore.deleteQuietly([path]);
   }
 
   // ---------------------------------------------------------------- pdf
@@ -216,7 +214,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         .upload(path: f.path!, name: f.name, bytes: _pdfBytes)
         .listen(
           (v) => _set(() => _progress = v),
-          onError: (Object e) => _set(() => _uploadError = e is UploadException ? e.message : 'حصلت مشكلة في الرفع'),
+          onError: (Object e) => _set(
+            () => _uploadError = e is UploadException ? e.message : 'تعذّر تجهيز الملف. جرّب تاني أو اختار ملف تاني.',
+          ),
         );
   }
 
@@ -232,25 +232,10 @@ class _AddScreenState extends ConsumerState<AddScreen> {
 
   // ---------------------------------------------------------------- save
 
-  /// Copies an attachment into app-private storage so it survives cache clears.
-  /// Removes a partial copy if the copy fails.
-  Future<String> _persist(String source, String ext) async {
-    final docs = await getApplicationDocumentsDirectory();
-    final dir = Directory(p.join(docs.path, 'attachments'));
-    await dir.create(recursive: true);
-    final dest = p.join(dir.path, '${newId()}.$ext');
-    try {
-      await File(source).copy(dest);
-    } catch (_) {
-      await deleteFilesQuietly([dest]);
-      rethrow;
-    }
-    return dest;
-  }
-
   Future<void> _save() async {
-    final project = ref.read(currentProjectProvider);
+    final project = ref.read(selectedProjectProvider);
     if (project == null || !_canSave) return;
+    final store = ref.read(attachmentStoreProvider);
     // Snapshot the draft: nothing below reads mutable state after an await.
     final title = _title.text;
     final text = _text.text;
@@ -267,12 +252,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       int? bytes;
       if (pdf != null) {
         source = NoteSource.pdf;
-        stored = await _persist(pdf.path!, 'pdf');
+        stored = await store.persist(pdf.path!, extension: 'pdf');
         name = pdf.name;
         bytes = pdfBytes;
       } else if (voicePath != null) {
         source = NoteSource.voice;
-        stored = await _persist(voicePath, 'm4a');
+        stored = await store.persist(voicePath, extension: 'm4a');
         name = 'تسجيل صوتي';
         bytes = await File(stored).length();
       } else {
@@ -291,7 +276,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
             durationMs: source == NoteSource.voice ? voiceMs : null,
           );
       // Saved: only now is it safe to drop the temporary recording.
-      if (voicePath != null) await deleteFilesQuietly([voicePath]);
+      if (voicePath != null) await AttachmentStore.deleteQuietly([voicePath]);
       unawaited(ref.read(noteProcessorProvider).process(note));
       if (!mounted) return;
       _title.clear();
@@ -305,7 +290,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       showToast(context, 'اتحفظت. فِكرة بتحللها دلوقتي');
       context.go('/notes');
     } catch (_) {
-      if (stored != null) await deleteFilesQuietly([stored]);
+      if (stored != null) await AttachmentStore.deleteQuietly([stored]);
       if (mounted) showToast(context, 'معرفناش نحفظ النوت، جرّب تاني');
     } finally {
       _set(() => _saving = false);
@@ -363,7 +348,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                   onCancel: _cancelRecording,
                 )
               else if (_voicePath != null)
-                VoiceReview(path: _voicePath!, durationMs: _voiceMs ?? 0, onDelete: _discardVoice)
+                VoicePlayer(path: _voicePath!, durationMs: _voiceMs ?? 0, onDelete: _discardVoice)
               else if (_pdf != null)
                 _PdfChip(
                   name: _pdf!.name,
@@ -487,13 +472,15 @@ class _PdfChip extends StatelessWidget {
               if (error != null)
                 Pressable(
                   onTap: onRetry,
+                  minTarget: true,
                   semanticLabel: 'إعادة المحاولة',
-                  child: const Padding(padding: EdgeInsets.all(8), child: Icon(Icons.refresh_rounded)),
+                  child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.refresh_rounded)),
                 ),
               Pressable(
                 onTap: onRemove,
+                minTarget: true,
                 semanticLabel: 'شيل الملف',
-                child: const Padding(padding: EdgeInsets.all(8), child: Icon(Icons.close_rounded)),
+                child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.close_rounded)),
               ),
             ],
           ),
@@ -537,7 +524,12 @@ class _MicPermissionCard extends StatelessWidget {
               const Icon(Icons.mic_off_outlined, color: FikraColors.warning),
               const SizedBox(width: 10),
               Expanded(child: Text('محتاجين إذن المايك', style: FikraText.cardTitleSmall)),
-              Pressable(onTap: onClose, semanticLabel: 'إغلاق', child: const Icon(Icons.close_rounded, size: 20)),
+              Pressable(
+                onTap: onClose,
+                minTarget: true,
+                semanticLabel: 'إغلاق',
+                child: const Icon(Icons.close_rounded, size: 20),
+              ),
             ],
           ),
           const SizedBox(height: 6),
