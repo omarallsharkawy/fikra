@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../ids.dart';
 
-/// Owns attachment files (voice recordings, PDFs) on disk.
+/// Owns attachment files (voice recordings, PDFs, photos) on disk.
 ///
 /// Files live in the app's private documents dir under `attachments/`, so they
 /// survive cache clears and aren't readable by other apps. The database stores
@@ -48,6 +49,20 @@ class AttachmentStore {
     return dest;
   }
 
+  /// The extension a photo is stored under. Anything unexpected becomes `jpg`,
+  /// because stored paths are joined with `|` and must never contain one.
+  static String imageExtension(String fileName) {
+    final raw = p.extension(fileName).replaceFirst('.', '').toLowerCase();
+    return RegExp(r'^[a-z0-9]{1,8}$').hasMatch(raw) ? raw : 'jpg';
+  }
+
+  /// Deletes the copies the file picker left in the cache. Best effort.
+  Future<void> clearPickerCopies() async {
+    try {
+      await FilePicker.clearTemporaryFiles();
+    } catch (_) {}
+  }
+
   /// Deletes attachment files no note references, plus stale temp recordings.
   /// Best effort: anything left is retried on the next launch.
   Future<void> sweepOrphans(Set<String> referenced) async {
@@ -63,6 +78,7 @@ class AttachmentStore {
         }
       }
     } catch (_) {}
+    await clearPickerCopies();
   }
 
   /// Deletes every attachment and temp recording, referenced or not.
@@ -73,6 +89,7 @@ class AttachmentStore {
     await for (final f in (await _temp()).list()) {
       if (f is File && p.basename(f.path).startsWith(recordingPrefix)) await f.delete();
     }
+    await clearPickerCopies();
   }
 
   static Future<void> deleteQuietly(Iterable<String> paths) async {

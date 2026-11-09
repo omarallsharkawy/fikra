@@ -157,6 +157,7 @@ void main() {
                 projectId: 'p',
                 title: '$topic ${i + 1}',
                 originalText: text,
+                imagePaths: '',
                 source: NoteSource.text,
                 status: ProcessingStatus.ready,
                 rewrite: RewriteStatus.none,

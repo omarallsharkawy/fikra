@@ -6,6 +6,9 @@ import '../repositories.dart';
 
 /// Runs the AI pass after a note is saved: processing → ready | failed.
 ///
+/// Only typed text is analyzed. Attachments are never parsed, so a note with
+/// nothing typed goes straight to ready.
+///
 /// The note is already stored before this runs, so a failure never loses what
 /// the user wrote. Jobs run one at a time so each analysis sees the concepts
 /// of the notes processed before it (two quick saves still get linked).
@@ -46,6 +49,10 @@ class NoteProcessor {
     final basis = await notes.watchNote(id).first;
     if (basis == null) return; // deleted while queued
     try {
+      if (basis.originalText.trim().isEmpty) {
+        await notes.markReady(id);
+        return;
+      }
       await notes.markProcessing(id);
       final projectNotes = await notes.notesOf(basis.projectId);
       final insights = await ai.analyze(basis, projectNotes).timeout(timeout);

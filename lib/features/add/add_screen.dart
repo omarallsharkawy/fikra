@@ -15,8 +15,8 @@ import '../../core/motion/motion.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../../core/widgets/photo_thumb.dart';
 import '../../core/widgets/voice_player.dart';
-import '../../data/ai/ai_service.dart';
 import '../../data/files/attachment_store.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
@@ -55,23 +55,19 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   int? _voiceMs;
   _Mic _mic = _Mic.unknown;
 
-  // PDF
+  // PDF and photos. They stay on the phone: nothing is uploaded or parsed.
   PlatformFile? _pdf;
   int _pdfBytes = 0;
-  double? _progress;
-  String? _uploadError;
-  StreamSubscription<double>? _uploadSub;
+  List<PlatformFile> _images = const [];
   bool _picking = false;
 
   bool _saving = false;
 
   bool get _recording => _rec != _Rec.idle;
-  bool get _pdfReady => _pdf != null && _progress == 1 && _uploadError == null;
-  bool get _hasAttachment => _voicePath != null || _pdf != null;
+  bool get _hasAttachment => _voicePath != null || _pdf != null || _images.isNotEmpty;
   bool get _canSave {
     if (_saving || _recording || _picking) return false;
-    if (_pdf != null) return _pdfReady;
-    return _voicePath != null || _text.text.trim().isNotEmpty;
+    return _hasAttachment || _text.text.trim().isNotEmpty;
   }
 
   void _set(VoidCallback fn) {
@@ -82,7 +78,6 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   void dispose() {
     _ampSub?.cancel();
     _ticker?.cancel();
-    _uploadSub?.cancel();
     _recorderInstance?.dispose(); // also stops an active recording
     _title.dispose();
     _text.dispose();
@@ -214,7 +209,6 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         _pdf = f;
         _pdfBytes = bytes;
       });
-      _upload();
     } catch (_) {
       if (mounted) showToast(context, 'معرفناش نفتح الملف');
     } finally {
@@ -222,33 +216,32 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     }
   }
 
-  void _upload() {
-    final f = _pdf;
-    if (f == null) return;
-    _uploadSub?.cancel();
-    _set(() {
-      _progress = 0;
-      _uploadError = null;
-    });
-    _uploadSub = ref
-        .read(uploaderProvider)
-        .upload(path: f.path!, name: f.name, bytes: _pdfBytes)
-        .listen(
-          (v) => _set(() => _progress = v),
-          onError: (Object e) => _set(
-            () => _uploadError = e is UploadException ? e.message : 'تعذّر تجهيز الملف. جرّب تاني أو اختار ملف تاني.',
-          ),
-        );
-  }
-
   void _removePdf() {
     if (_saving) return;
-    _uploadSub?.cancel();
-    _set(() {
-      _pdf = null;
-      _progress = null;
-      _uploadError = null;
-    });
+    _set(() => _pdf = null);
+  }
+
+  // ---------------------------------------------------------------- photos
+
+  Future<void> _pickImages() async {
+    if (_picking || _saving || _rec != _Rec.idle) return;
+    _set(() => _picking = true);
+    FocusScope.of(context).unfocus();
+    try {
+      final picked = await FilePicker.pickFiles(type: FileType.image);
+      if (!mounted) return;
+      final usable = picked.where((f) => f.path != null);
+      _set(() => _images = [..._images, ...usable]);
+    } catch (_) {
+      if (mounted) showToast(context, 'معرفناش نفتح الصور');
+    } finally {
+      _set(() => _picking = false);
+    }
+  }
+
+  void _removeImage(PlatformFile image) {
+    if (_saving) return;
+    _set(() => _images = [..._images]..remove(image));
   }
 
   // ---------------------------------------------------------------- save
@@ -264,9 +257,10 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     final pdfBytes = _pdfBytes;
     final voicePath = _voicePath;
     final voiceMs = _voiceMs;
+    final images = _images;
     _set(() => _saving = true);
 
-    // A PDF and a recording can share one note; both are copied in first.
+    // A PDF, a recording and photos can share one note; all are copied in first.
     final stored = <String>[];
     try {
       String? pdfPath;
@@ -279,6 +273,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         voiceStored = await store.persist(voicePath, extension: 'm4a');
         stored.add(voiceStored);
       }
+      final imagePaths = <String>[];
+      for (final image in images) {
+        final path = await store.persist(image.path!, extension: AttachmentStore.imageExtension(image.name));
+        stored.add(path);
+        imagePaths.add(path);
+      }
       final source = pdf != null
           ? NoteSource.pdf
           : voicePath != null
@@ -288,7 +288,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           .read(notesRepoProvider)
           .create(
             projectId: project.id,
-            title: title,
+            title: text.trim().isEmpty && title.trim().isEmpty ? _fileOnlyTitle(pdf, voiceStored) : title,
             text: text,
             source: source,
             attachmentPath: pdfPath,
@@ -296,9 +296,11 @@ class _AddScreenState extends ConsumerState<AddScreen> {
             attachmentBytes: pdf != null ? pdfBytes : null,
             voicePath: voiceStored,
             durationMs: voiceStored != null ? voiceMs : null,
+            imagePaths: imagePaths,
           );
       // Saved: only now is it safe to drop the temporary recording.
       if (voicePath != null) await AttachmentStore.deleteQuietly([voicePath]);
+      await store.clearPickerCopies();
       unawaited(ref.read(noteProcessorProvider).process(note));
       if (!mounted) return;
       _title.clear();
@@ -307,9 +309,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         _voicePath = null;
         _voiceMs = null;
         _pdf = null;
-        _progress = null;
+        _images = const [];
       });
-      showToast(context, 'اتحفظت. فِكرة بتحللها دلوقتي');
+      showToast(context, text.trim().isEmpty ? 'اتحفظت' : 'اتحفظت. فِكرة بتحللها دلوقتي');
       context.go('/notes');
     } catch (_) {
       await AttachmentStore.deleteQuietly(stored);
@@ -317,6 +319,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     } finally {
       _set(() => _saving = false);
     }
+  }
+
+  /// Nothing typed means no analysis, so no AI title will ever come.
+  String _fileOnlyTitle(PlatformFile? pdf, String? voice) {
+    if (pdf != null) return p.basenameWithoutExtension(pdf.name);
+    return voice != null ? 'تسجيل صوتي' : 'صور';
   }
 
   // ---------------------------------------------------------------- ui
@@ -336,14 +344,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               : Padding(
                   key: const ValueKey('pdf'),
                   padding: const EdgeInsets.only(top: 4, bottom: 6),
-                  child: _PdfChip(
-                    name: _pdf!.name,
-                    bytes: _pdfBytes,
-                    progress: _progress,
-                    error: _uploadError,
-                    onRetry: _upload,
-                    onRemove: _removePdf,
-                  ),
+                  child: _PdfChip(name: _pdf!.name, bytes: _pdfBytes, onRemove: _removePdf),
                 ),
         ),
         FikraSwitcher(
@@ -359,6 +360,16 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     onDelete: _saving ? null : _discardVoice,
                     embedded: true,
                   ),
+                ),
+        ),
+        FikraSwitcher(
+          animateSize: true,
+          child: _images.isEmpty
+              ? const SizedBox(key: ValueKey('no-images'), width: double.infinity)
+              : Padding(
+                  key: const ValueKey('images'),
+                  padding: const EdgeInsets.only(top: 4, bottom: 6),
+                  child: _ImageStrip(images: _images, onRemove: _removeImage),
                 ),
         ),
       ],
@@ -453,10 +464,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                       recording: _recording,
                       micEnabled: _voicePath == null && !_saving && !_picking && _rec == _Rec.idle,
                       pdfEnabled: _pdf == null && !_saving && !_picking && _rec == _Rec.idle,
+                      imagesEnabled: !_saving && !_picking && _rec == _Rec.idle,
                       canSave: _canSave,
                       saving: _saving,
                       onMic: _startRecording,
                       onPdf: _pickPdf,
+                      onImages: _pickImages,
                       onStop: _rec == _Rec.recording ? _stopRecording : null,
                       onCancel: _rec == _Rec.recording ? _cancelRecording : null,
                       onSave: _save,
@@ -466,7 +479,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'النوت بتتحفظ الأول، وبعدين فِكرة بتحللها وتربطها.',
+                'النوت بتتحفظ الأول، وبعدين فِكرة بتحلل النص وتربطه. الملفات بتفضل على موبايلك.',
                 textAlign: TextAlign.center,
                 style: context.text.meta.copyWith(fontSize: 12),
               ),
@@ -478,17 +491,19 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   }
 }
 
-/// Bottom row of the composer. Idle: mic + PDF on the start side, save on the
+/// Bottom row of the composer. Idle: mic, PDF and photos on the start side, save on the
 /// end. Recording: cancel + stop.
 class _Toolbar extends StatelessWidget {
   const _Toolbar({
     required this.recording,
     required this.micEnabled,
     required this.pdfEnabled,
+    required this.imagesEnabled,
     required this.canSave,
     required this.saving,
     required this.onMic,
     required this.onPdf,
+    required this.onImages,
     required this.onStop,
     required this.onCancel,
     required this.onSave,
@@ -496,10 +511,12 @@ class _Toolbar extends StatelessWidget {
   final bool recording;
   final bool micEnabled;
   final bool pdfEnabled;
+  final bool imagesEnabled;
   final bool canSave;
   final bool saving;
   final VoidCallback onMic;
   final VoidCallback onPdf;
+  final VoidCallback onImages;
   final VoidCallback? onStop;
   final VoidCallback? onCancel;
   final VoidCallback onSave;
@@ -545,8 +562,15 @@ class _Toolbar extends StatelessWidget {
                   _ToolButton(
                     key: const ValueKey('add-pdf'),
                     icon: Icons.attach_file_rounded,
-                    label: 'رفع ملف PDF',
+                    label: 'إرفاق ملف PDF',
                     onTap: pdfEnabled ? onPdf : null,
+                  ),
+                  const SizedBox(width: 6),
+                  _ToolButton(
+                    key: const ValueKey('add-image'),
+                    icon: Icons.image_outlined,
+                    label: 'إضافة صور',
+                    onTap: imagesEnabled ? onImages : null,
                   ),
                   const Spacer(),
                   _RoundAction(
@@ -642,84 +666,84 @@ class _RoundAction extends StatelessWidget {
 }
 
 class _PdfChip extends StatelessWidget {
-  const _PdfChip({
-    required this.name,
-    required this.bytes,
-    required this.progress,
-    required this.error,
-    required this.onRetry,
-    required this.onRemove,
-  });
+  const _PdfChip({required this.name, required this.bytes, required this.onRemove});
   final String name;
   final int bytes;
-  final double? progress;
-  final String? error;
-  final VoidCallback onRetry;
   final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
-    final done = progress == 1 && error == null;
     return Glass(
       radius: FikraRadius.md,
       color: context.colors.pressed,
-      borderColor: error != null ? context.colors.danger : Colors.transparent,
+      borderColor: Colors.transparent,
       padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text(
-                      error ??
-                          (done
-                              ? '${Fmt.bytes(bytes)} · اترفع'
-                              : '${Fmt.bytes(bytes)} · بيترفع ${((progress ?? 0) * 100).round()}%'),
-                      style: context.text.meta.copyWith(
-                        color: error != null ? context.colors.danger : context.colors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (error != null)
-                Pressable(
-                  onTap: onRetry,
-                  minTarget: true,
-                  semanticLabel: 'إعادة المحاولة',
-                  child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.refresh_rounded)),
-                ),
-              Pressable(
-                onTap: onRemove,
-                minTarget: true,
-                semanticLabel: 'شيل الملف',
-                child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.close_rounded)),
-              ),
-            ],
-          ),
-          if (!done && error == null) ...[
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 4,
-                  backgroundColor: context.colors.pressed,
-                  color: context.colors.accentLight,
-                ),
-              ),
+          Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(Fmt.bytes(bytes), style: context.text.meta.copyWith(color: context.colors.textSecondary)),
+              ],
             ),
-          ],
+          ),
+          Pressable(
+            onTap: onRemove,
+            minTarget: true,
+            semanticLabel: 'شيل الملف',
+            child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.close_rounded)),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _ImageStrip extends StatelessWidget {
+  const _ImageStrip({required this.images, required this.onRemove});
+  final List<PlatformFile> images;
+  final ValueChanged<PlatformFile> onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 84,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: images.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final image = images[i];
+          return SizedBox(
+            key: ObjectKey(image),
+            width: 84,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                PhotoThumb(path: image.path!),
+                PositionedDirectional(
+                  top: 0,
+                  end: 0,
+                  child: Pressable(
+                    onTap: () => onRemove(image),
+                    minTarget: true,
+                    semanticLabel: 'شيل الصورة ${i + 1}',
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(color: context.colors.scrim, shape: BoxShape.circle),
+                      child: Icon(Icons.close_rounded, size: 16, color: context.colors.textOnSelected),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

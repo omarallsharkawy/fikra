@@ -4,7 +4,7 @@ import '../local/database.dart';
 /// [DemoAiService]; the connected build will call Alaa's API behind the same
 /// interface so screens don't change.
 abstract interface class AiService {
-  /// Transcribe / extract, rewrite, tag and link a saved note.
+  /// Rewrite, tag and link a saved note from its typed text.
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes);
 
   /// Answer a question using only the notes of one project.
@@ -17,12 +17,10 @@ class NoteInsights {
     required this.concepts,
     required this.cluster,
     required this.links,
-    this.extractedText,
     this.proposedText,
   });
 
   final String title;
-  final String? extractedText;
   final String? proposedText;
   final List<String> concepts;
   final String cluster;
@@ -41,16 +39,4 @@ class ChatAnswer {
   final String text;
   final List<String> sourceIds;
   final bool found;
-}
-
-/// Uploads an attachment and reports progress 0..1. Throws [UploadException].
-abstract interface class AttachmentUploader {
-  Stream<double> upload({required String path, required String name, required int bytes});
-}
-
-class UploadException implements Exception {
-  const UploadException(this.message);
-  final String message;
-  @override
-  String toString() => message;
 }

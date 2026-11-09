@@ -1,17 +1,18 @@
 # ربط الباك إند (لعلاء ولأي حد هيوصّل الـAPI)
 
-التطبيق بيكلّم الذكاء الاصطناعي من خلال **interface-ين بس**. الشاشات مش بتعرف إذا الشغل demo ولا API حقيقي، فلما نوصّل الباك إند مش المفروض نلمس أي شاشة.
+الـAPI نفسه مكتوب في [backend-api.md](backend-api.md). الملف ده بيشرح الربط من ناحية التطبيق.
+
+التطبيق بيكلّم الذكاء الاصطناعي من خلال **`AiService` بس**. الصوت والـPDF والصور بيفضلوا على الموبايل، ومفيش رفع ولا parsing. الشاشات مش بتعرف إذا الشغل demo ولا API حقيقي، فلما نوصّل الباك إند مش المفروض نلمس أي شاشة.
 
 | الـinterface | الملف | بيعمل إيه | النسخة التجريبية |
 |---|---|---|---|
-| `AiService.analyze(note, projectNotes)` | `lib/data/ai/ai_service.dart` | بعد حفظ النوت: تفريغ صوت / استخراج PDF، عنوان، مفاهيم، cluster، روابط، اقتراح صياغة | `DemoAiService` |
+| `AiService.analyze(note, projectNotes)` | `lib/data/ai/ai_service.dart` | بعد حفظ نوت فيها نص: عنوان، مفاهيم، cluster، روابط، اقتراح صياغة | `DemoAiService` |
 | `AiService.ask(question, projectNotes)` | نفس الملف | إجابة من نوتس المشروع بس + IDs المصادر | `DemoAiService` |
-| `AttachmentUploader.upload(...)` | نفس الملف | رفع الملف مع progress من 0 لـ1 | `DemoUploader` |
 
 ## خطوات التوصيل
-1. اعمل `lib/data/api/api_ai_service.dart` فيه `class ApiAiService implements AiService`، و`api_uploader.dart` فيه `ApiUploader`.
+1. اعمل `lib/data/api/api_ai_service.dart` فيه `class ApiAiService implements AiService`.
 2. الـrequest/response DTOs تتحط جنب الـclient في `lib/data/api/dto/`. **متبعتش `Note` كامل:** هو صف من الداتابيز وفيه مسارات ملفات محلية والنص المقترح. ابعت اللي السيرفر محتاجه بس.
-3. في `lib/app/providers.dart`، حط الـimplementations الجديدة مكان الـ`throw UnimplementedError` في `aiServiceProvider` و`uploaderProvider` تحت `AppMode.connected`.
+3. في `lib/app/providers.dart`، حط الـimplementation الجديدة مكان الـ`throw UnimplementedError` في `aiServiceProvider` تحت `AppMode.connected`، وشيل الـ`throw UnsupportedError` من `lib/main.dart`.
 4. شغّل كده:
    ```bash
    flutter run --dart-define=FIKRA_MODE=connected
@@ -20,7 +21,6 @@
 
 ## معنى الـresponse (`NoteInsights`)
 - `title`: بيتحط **بس لو** المستخدم ساب العنوان فاضي. لو المستخدم كتب عنوان، عنوانه هو اللي بيفضل.
-- `extractedText`: التفريغ أو النص المستخرج. `null` معناها "مفيش"، مش "سيبه زي ما هو".
 - `proposedText`: اقتراح إعادة صياغة. بيتعرض للمستخدم بس لو هو ما عدّلش النوت وقت ما الـAI كان شغال. `null` معناها مفيش اقتراح.
 - `concepts`: أقصى 8 بيتحفظوا. `cluster`: اسم المجموعة اللي النوت بتظهر فيها في الجراف.
 - `links`: كل لينك `targetId` + `label` + `strength`.
@@ -38,13 +38,5 @@
 - `NoteProcessor` (`lib/data/processing/note_processor.dart`) بيشغّل التحليل واحد ورا التاني، وبحد أقصى 90 ثانية.
 - لو حصل exception أو timeout، النوت بتبقى `failed` والمستخدم يقدر يعمل retry. النوت نفسها عمرها ما بتضيع.
 - لو التطبيق اتقفل وسط التحليل، بيكمّل لوحده أول ما يفتح.
-- النوت الواحدة ممكن يبقى فيها **PDF وتسجيل صوتي مع بعض**، وجنبهم نص مكتوب. التطبيق بيحفظ الـPDF في `attachmentPath` والتسجيل في `voicePath` (schema v2). المطلوب من السيرفر يحلل الاتنين ويرجّع نص واحد (`extractedText`): المستخرج من الـPDF وبعده تفريغ الصوت.
-- لسه ناقص قبل الربط (`docs/before-backend-and-release.md`): attempt id، retry/backoff، رفع الملف كـjob بيرجّع `attachmentId`، وتخزين الـtokens في Keystore.
-
-## أمثلة نتفق عليها
-قبل الكود محتاجين نكتب مع بعض مثال JSON لكل واحدة:
-- request/response للنوت النصية
-- request/response للنوت الصوتية (ازاي التسجيل يوصل)
-- request/response للـPDF
-- request/response لنوت فيها PDF وتسجيل مع بعض (ملفين في نفس الـrequest، ولا كل ملف يترفع لوحده ويرجّع id؟)
-- `ask`، وفيها شكل "ملقيناش إجابة"
+- النوت الواحدة ممكن يبقى فيها PDF وتسجيل صوتي وصور، وجنبهم نص. الملفات مش بتتحلل. لو النوت من غير نص، `NoteProcessor` بيخليها `ready` من غير ما ينادي `AiService`.
+- لسه ناقص قبل الربط (`docs/before-backend-and-release.md`): attempt id، retry/backoff، وتخزين الـtokens في Keystore.

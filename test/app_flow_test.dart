@@ -83,6 +83,7 @@ void main() {
     await pumpUntil(tester, save);
     expect(find.byKey(const ValueKey('add-mic')), findsOneWidget);
     expect(find.byKey(const ValueKey('add-pdf')), findsOneWidget);
+    expect(find.byKey(const ValueKey('add-image')), findsOneWidget);
 
     // Empty draft: save does nothing.
     await tester.tap(save);
@@ -136,6 +137,73 @@ void main() {
 
     tester.element(find.text('التاني')).push('/note/${a.id}');
     await pumpUntil(tester, find.text('نوت ب'));
+  });
+
+  group('attachments open in another app', () {
+    final opened = <String>[];
+    var canOpen = true;
+    Future<bool> opener(String path) async {
+      opened.add(path);
+      return canOpen;
+    }
+
+    setUp(() {
+      opened.clear();
+      canOpen = true;
+    });
+
+    Future<Note> seed(WidgetTester tester, FikraDatabase db) async {
+      await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+      late Note note;
+      await pumpFuture(tester, () async {
+        final p = await LocalProjectsRepository(db).create('مشروع');
+        final notes = LocalNotesRepository(db);
+        note = await notes.create(
+          projectId: p.id,
+          title: 'ملزمة',
+          text: '',
+          source: NoteSource.pdf,
+          attachmentPath: '/files/a.pdf',
+          attachmentName: 'a.pdf',
+          imagePaths: const ['/files/1.jpg', '/files/2.jpg'],
+        );
+        await notes.markReady(note.id);
+      });
+      await pumpUntil(tester, find.text('ملزمة'));
+      return note;
+    }
+
+    Future<void> openNote(WidgetTester tester, Note note) async {
+      tester.element(find.text('ملزمة')).push('/note/${note.id}');
+      await pumpUntil(tester, find.byKey(const ValueKey('open-pdf')));
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    fikraTest('the PDF and each photo on the note page', (tester, db) async {
+      await openNote(tester, await seed(tester, db));
+      await tester.tap(find.byKey(const ValueKey('open-pdf')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('open-photo-1')));
+      await tester.pump();
+      expect(opened, ['/files/a.pdf', '/files/2.jpg']);
+    }, opener: opener);
+
+    fikraTest('the PDF icon on the card opens the file, not the note', (tester, db) async {
+      final note = await seed(tester, db);
+      await tester.tap(find.byKey(ValueKey('open-pdf-${note.id}')));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(opened, ['/files/a.pdf']);
+      expect(find.byType(NoteDetailsScreen), findsNothing);
+    }, opener: opener);
+
+    fikraTest('says so when nothing on the phone can open it', (tester, db) async {
+      canOpen = false;
+      await openNote(tester, await seed(tester, db));
+      await tester.tap(find.byKey(const ValueKey('open-pdf')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.textContaining('معرفناش نفتح الملف'), findsOneWidget);
+    }, opener: opener);
   });
 
   fikraTest('an opened note shows its content on the first frame, before the query returns', (tester, db) async {

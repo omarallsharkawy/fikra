@@ -13,9 +13,9 @@ void main() {
   late SchemaVerifier verifier;
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 → v3 produces exactly the current schema', () async {
+  test('v1 → v4 produces exactly the current schema', () async {
     final db = FikraDatabase(await verifier.startAt(1));
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, 4);
     await db.close();
   });
 
@@ -34,7 +34,7 @@ void main() {
     note('text', 'text');
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, 4);
     final byId = {for (final n in await db.select(db.notes).get()) n.id: n};
 
     final voice = byId['voice']!;
@@ -71,7 +71,7 @@ void main() {
     expect(raw.userVersion, 1);
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, 4);
     final n = await db.select(db.notes).getSingle();
     expect(n.voicePath, '/files/rec.m4a');
     expect(n.attachmentPath, isNull);
@@ -84,7 +84,7 @@ void main() {
     // An interrupted v3 upgrade: one index already exists, user_version still 2.
     schema.rawDatabase.execute('CREATE INDEX notes_status ON notes (status)');
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, 4);
     final names = (await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get())
         .map((r) => r.read<String>('name'))
         .toSet();
@@ -103,6 +103,29 @@ void main() {
         .customSelect("EXPLAIN QUERY PLAN SELECT * FROM notes WHERE project_id = 'p' ORDER BY created_at DESC")
         .get();
     expect(plan.map((r) => r.read<String>('detail')).join(' '), contains('notes_project_created'));
+    await db.close();
+  });
+
+  test('v3 → v4 adds photos without touching existing notes, and survives a re-run', () async {
+    final schema = await verifier.schemaAt(3);
+    final raw = schema.rawDatabase;
+    raw.execute("INSERT INTO projects (id, name, created_at) VALUES ('p', 'مشروع', 1700000000)");
+    raw.execute(
+      'INSERT INTO notes (id, project_id, title, original_text, extracted_text, source, status, rewrite, '
+      "attachment_path, attachment_name, concepts, created_at, updated_at) VALUES ('n', 'p', 't', 'نص', 'مستخرج', "
+      "'pdf', 'ready', 'none', '/files/doc.pdf', 'doc.pdf', 'RAG', 1700000000, 1700000000)",
+    );
+    // An interrupted upgrade: the column exists, user_version is still 3.
+    raw.execute("ALTER TABLE notes ADD COLUMN image_paths TEXT NOT NULL DEFAULT ''");
+
+    final db = FikraDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 4);
+    final n = await db.select(db.notes).getSingle();
+    expect(n.imageList, isEmpty);
+    expect(n.hasImages, isFalse);
+    expect(n.attachmentPath, '/files/doc.pdf');
+    expect(n.extractedText, 'مستخرج');
+    expect(n.displayText, 'نص\n\nمستخرج');
     await db.close();
   });
 }

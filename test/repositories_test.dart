@@ -7,6 +7,7 @@ import 'package:fikra/data/processing/note_processor.dart';
 import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/demo/demo_seed.dart';
+import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -125,11 +126,13 @@ void main() {
     expect(links.any((l) => l.sourceId == n2.id && l.targetId == n1.id), isTrue);
   });
 
-  test('a note with a PDF and a recording owns both files', () async {
+  test('a note with a PDF, a recording and photos owns all its files', () async {
     final p = await projects.create('p');
     final dir = await Directory.systemTemp.createTemp('fikra');
     final pdf = await File('${dir.path}/a.pdf').writeAsString('x');
     final voice = await File('${dir.path}/a.m4a').writeAsString('x');
+    final photo1 = await File('${dir.path}/1.jpg').writeAsString('x');
+    final photo2 = await File('${dir.path}/2.png').writeAsString('x');
     final n = await notes.create(
       projectId: p.id,
       title: 't',
@@ -139,25 +142,25 @@ void main() {
       attachmentName: 'a.pdf',
       voicePath: voice.path,
       durationMs: 3000,
+      imagePaths: [photo1.path, photo2.path],
     );
-    expect(n.hasPdf && n.hasVoice, isTrue);
-    expect(await notes.attachmentPaths(), {pdf.path, voice.path});
-
-    // The demo analysis reads both: PDF extraction and voice transcript.
-    final insights = await DemoAiService(latency: Duration.zero).analyze(n, const []);
-    expect(insights.extractedText, allOf(contains('a.pdf'), contains('0:03')));
+    expect(n.hasPdf && n.hasVoice && n.hasImages, isTrue);
+    expect(n.imageList, [photo1.path, photo2.path]);
+    expect(await notes.attachmentPaths(), {pdf.path, voice.path, photo1.path, photo2.path});
 
     await notes.delete(n.id);
-    expect(await pdf.exists(), isFalse);
-    expect(await voice.exists(), isFalse);
+    for (final f in [pdf, voice, photo1, photo2]) {
+      expect(await f.exists(), isFalse);
+    }
     await dir.delete(recursive: true);
   });
 
-  test('deleting a project removes the PDF and voice files of its notes', () async {
+  test('deleting a project removes the PDF, voice and photo files of its notes', () async {
     final p = await projects.create('p');
     final dir = await Directory.systemTemp.createTemp('fikra');
     final pdf = await File('${dir.path}/b.pdf').writeAsString('x');
     final voice = await File('${dir.path}/b.m4a').writeAsString('x');
+    final photo = await File('${dir.path}/b.jpg').writeAsString('x');
     await notes.create(
       projectId: p.id,
       title: 't',
@@ -165,14 +168,56 @@ void main() {
       source: NoteSource.pdf,
       attachmentPath: pdf.path,
       voicePath: voice.path,
+      imagePaths: [photo.path],
     );
     await projects.delete(p.id);
     expect(await pdf.exists(), isFalse);
     expect(await voice.exists(), isFalse);
+    expect(await photo.exists(), isFalse);
     await dir.delete(recursive: true);
   });
 
+  test('a photo is never stored under an extension that breaks the path list', () {
+    expect(AttachmentStore.imageExtension('a.JPEG'), 'jpeg');
+    expect(AttachmentStore.imageExtension('no-extension'), 'jpg');
+    expect(AttachmentStore.imageExtension('photo.jpg|backup'), 'jpg');
+  });
+
   group('NoteProcessor', () {
+    test('a note with nothing typed is ready without calling the AI', () async {
+      final p = await projects.create('p');
+      final n = await notes.create(
+        projectId: p.id,
+        title: 'lecture',
+        text: '   ',
+        source: NoteSource.pdf,
+        attachmentPath: '/f/a.pdf',
+      );
+      final ai = _ScriptedAi([]); // any analyze call would fail on the empty script
+      await NoteProcessor(notes, ai).process(n);
+      final done = await notes.watchNote(n.id).first;
+      expect(done!.status, ProcessingStatus.ready);
+      expect(ai.calls, 0);
+      expect(done.title, 'lecture');
+    });
+
+    test('an attachment does not stop typed text being analyzed', () async {
+      final p = await projects.create('p');
+      final n = await notes.create(
+        projectId: p.id,
+        title: '',
+        text: 'نص مكتوب',
+        source: NoteSource.pdf,
+        attachmentPath: '/f/a.pdf',
+      );
+      final ai = _ScriptedAi([() async => _insights(title: 'ok')]);
+      await NoteProcessor(notes, ai).process(n);
+      final done = await notes.watchNote(n.id).first;
+      expect(done!.status, ProcessingStatus.ready);
+      expect(ai.calls, 1);
+      expect(done.title, 'ok');
+    });
+
     late Project p;
     setUp(() async => p = await projects.create('p'));
 
@@ -226,6 +271,7 @@ class _ScriptedAi implements AiService {
   _ScriptedAi(this.script);
   final List<Future<NoteInsights> Function()> script;
   var _calls = 0;
+  int get calls => _calls;
 
   @override
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes) {

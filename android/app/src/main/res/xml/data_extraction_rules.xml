@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 12+: notes, recordings and PDFs never leave the phone through
+<!-- Android 12+: notes, recordings, PDFs and photos never leave the phone through
      cloud backup or device-to-device transfer. -->
 <data-extraction-rules>
     <cloud-backup>

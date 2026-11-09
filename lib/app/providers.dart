@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/ai/ai_service.dart';
 import '../data/ai/demo_ai_service.dart';
 import '../data/files/attachment_store.dart';
+import '../data/files/file_opener.dart';
 import '../data/local/database.dart';
 import '../data/processing/note_processor.dart';
 import '../data/repositories.dart';
@@ -36,7 +37,7 @@ final settingsRepoProvider = Provider<SettingsRepository>(
 final appThemeProvider = StreamProvider<AppTheme>((ref) => ref.watch(settingsRepoProvider).watchTheme());
 final attachmentStoreProvider = Provider<AttachmentStore>((ref) => AttachmentStore());
 
-/// Backend seam #1: note analysis and question answering.
+/// Backend seam: note analysis and question answering.
 final aiServiceProvider = Provider<AiService>(
   (ref) => switch (appMode) {
     AppMode.demo => DemoAiService(),
@@ -45,13 +46,8 @@ final aiServiceProvider = Provider<AiService>(
   },
 );
 
-/// Backend seam #2: attachment upload.
-final uploaderProvider = Provider<AttachmentUploader>(
-  (ref) => switch (appMode) {
-    AppMode.demo => DemoUploader(),
-    AppMode.connected => throw UnimplementedError('FIKRA_MODE=connected has no AttachmentUploader yet'),
-  },
-);
+/// Opens an attachment in another app on the phone.
+final fileOpenerProvider = Provider<FileOpener>((ref) => openWithSystem);
 
 final noteProcessorProvider = Provider<NoteProcessor>(
   (ref) => NoteProcessor(ref.watch(notesRepoProvider), ref.watch(aiServiceProvider)),

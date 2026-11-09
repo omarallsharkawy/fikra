@@ -8,10 +8,6 @@
 - **R8/obfuscation**: نفعّل `--obfuscate --split-debug-info` في الـrelease build.
 
 ## لما نربط باك إند علاء
-- **Upload contract**: `AttachmentUploader` حاليًا بيرجّع progress بس. المطلوب:
-  - نحفظ النوت والملف محليًا الأول.
-  - بعدها upload job بيفضل شغال حتى لو التطبيق اتقفل، ويرجّع `attachmentId` يتحفظ في النوت.
-  - idempotency بالـnote id + revision.
 - **DTOs**: `AiService` بياخد صفوف الداتابيز كاملة، وفيها مسارات ملفات محلية والنص المقترح. محتاجين request DTOs فيها بس اللي الباك إند محتاجه.
 - **Timeouts وidempotency**: في timeout دلوقتي 90 ثانية، والـjobs ماشية واحدة ورا التانية. ناقص:
   - attempt id يتحفظ في الداتابيز.
@@ -21,13 +17,13 @@
 - **Edge ownership**: كل نوت بقت تملك الروابط اللي خارجة منها بس. نتفق مع علاء: الروابط هتيجي من السيرفر directed ولا undirected؟
 
 ## الداتابيز
-- **Migrations**: احنا على `schemaVersion = 2` (v2 ضافت `voicePath`: نوت فيها PDF وتسجيل مع بعض). لأي تغيير جاي:
+- **نوت اتحفظت من غير نص وبعدين اتكتب فيها**: `PATCH` هيرجع `404`. الـclient لازم يبعت `analyze` بالنص الجديد. في الـdemo النوت دي مش بتتحلل بعد التعديل.
+- **Migrations**: احنا على `schemaVersion = 4` (v2 ضافت `voicePath`، وv3 الـindexes، وv4 `imagePaths` للصور). لأي تغيير جاي:
   - نسخ الـschema محفوظة في `drift_schemas/`. بعد أي تعديل في الجداول: `dart run drift_dev schema dump lib/data/local/database.dart drift_schemas/` وبعده `dart run drift_dev schema generate drift_schemas/ test/generated_migrations/`.
   - كل خطوة migration تبقى جوّه transaction، وتنفع تتعاد لو اتقطعت في النص. Drift مش بيعمل transaction لوحده، ورقم الـversion مش بيتغيّر غير لما الخطوة تخلص.
   - التيست في `test/migration_test.dart`: بيفتح داتابيز قديمة فيها نوتس حقيقية، وبيجرّب كمان migration اتقطعت في النص.
 
 ## تحسينات صغيرة مؤجلة
-- الـfile picker بيعمل نسخة في الكاش قبل ما نعرف حجم الملف. لو احتجنا حد صارم للحجم، محتاجين import محدود من الـURI.
 - مسح الشات وقت ما في إجابة جاية: الزرار بيختفي وقت الانتظار. لما الشات يبقى من السيرفر، نضيف conversation generation id.
 
 ## جودة الكود: refactors مؤجلة (من مراجعة Codex الأخيرة)

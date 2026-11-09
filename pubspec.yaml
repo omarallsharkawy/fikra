@@ -44,6 +44,7 @@ dependencies:
   record: ^7.1.2
   just_audio: ^0.10.6
   file_picker: ^13.3.2
+  open_filex: ^5.0.0
   permission_handler: ^13.0.2
   intl: ^0.20.3
   flutter_localizations:

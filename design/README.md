@@ -43,7 +43,7 @@ Change a value in `tokens.dart`, never inline in a screen. Two sizes intentional
 2. **Bidi:** a paragraph that *starts* with a Latin word ("RAG …") flips to LTR. Start Arabic text with an Arabic word (`الـRAG …`), and in Flutter always set `TextDirection.rtl` on Arabic text. Avoid labels like `الـAI` — use Arabic (`النسخة المحسّنة`, `اقتراح إعادة صياغة`).
 3. **No letter-spacing on Arabic** (the Plasma −4% tracking breaks letter joining). Latin-only strings (file names) may use Inter.
 4. **One primary (white) button per screen.** Destructive actions use the Danger button and always confirm.
-5. **Never lose input:** upload/processing errors keep the typed text and the attachment; "saved" and "AI finished" are separate states.
+5. **Never lose input:** processing errors keep the typed text and the attachment; "saved" and "AI finished" are separate states.
 6. **Demo mode** shows the `بيانات تجريبية` badge on Ask and anywhere AI output is simulated.
 7. **Motion (Plasma):** press scale 0.964 with the smooth spring, sheets slide up ~310 ms ease-in-out over a 60% scrim, enter = fade + scale 0.96→1. Respect Reduce Motion.
 

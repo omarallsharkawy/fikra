@@ -31,7 +31,8 @@ class Notes extends Table {
   /// Exactly what the user typed. Never overwritten.
   TextColumn get originalText => text()();
 
-  /// Transcript (voice) or extracted text (PDF), filled by processing.
+  /// Text the old demo filled in from a recording or PDF. Nothing writes it
+  /// now: attachments stay on the phone and are never parsed.
   TextColumn get extractedText => text().nullable()();
 
   /// The version shown when set: an accepted AI rewrite or a user edit.
@@ -54,6 +55,9 @@ class Notes extends Table {
   /// The voice recording and its length, alone or beside a PDF (schema v2).
   TextColumn get voicePath => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
+
+  /// Attached photos: file paths separated by '|' (schema v4).
+  TextColumn get imagePaths => text().withDefault(const Constant(''))();
 
   /// Concepts separated by '|'.
   TextColumn get concepts => text().withDefault(const Constant(''))();
@@ -114,7 +118,7 @@ class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -158,6 +162,15 @@ class FikraDatabase extends _$FikraDatabase {
           }
         });
       }
+      if (from < 4) {
+        // v4: a note can hold photos.
+        await transaction(() async {
+          final columns = await customSelect('PRAGMA table_info(notes)').get();
+          if (!columns.any((c) => c.read<String>('name') == 'image_paths')) {
+            await m.addColumn(notes, notes.imagePaths);
+          }
+        });
+      }
     },
     beforeOpen: (details) async => customStatement('PRAGMA foreign_keys = ON'),
   );
@@ -166,7 +179,7 @@ class FikraDatabase extends _$FikraDatabase {
 extension NoteX on Note {
   List<String> get conceptList => concepts.isEmpty ? const [] : concepts.split('|');
 
-  /// Original content: what was typed, or the transcript / extracted text.
+  /// Original content: what was typed, plus any text an old note carried.
   String get originalContent {
     final parts = [originalText.trim(), (extractedText ?? '').trim()].where((s) => s.isNotEmpty);
     return parts.join('\n\n');
@@ -177,9 +190,11 @@ extension NoteX on Note {
 
   bool get hasPdf => attachmentPath != null;
   bool get hasVoice => voicePath != null;
+  List<String> get imageList => imagePaths.isEmpty ? const [] : imagePaths.split('|');
+  bool get hasImages => imagePaths.isNotEmpty;
 
   /// Every file this note owns on disk.
-  List<String> get filePaths => [?attachmentPath, ?voicePath];
+  List<String> get filePaths => [?attachmentPath, ?voicePath, ...imageList];
 
   bool get hasImprovedVersion => editedText != null && editedText != originalContent;
 }

@@ -6,7 +6,8 @@
 
 ## النسخة الحالية: تجريبية
 - كل حاجة offline على الموبايل: داتابيز SQLite (drift)، والملفات في مساحة التطبيق الخاصة.
-- الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه: [docs/backend-integration.md](docs/backend-integration.md).
+- الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه: [docs/backend-api.md](docs/backend-api.md) و[docs/backend-integration.md](docs/backend-integration.md).
+- الصوت والـPDF والصور بيفضلوا على الموبايل، ومش بيتحللوا. النص المكتوب بس هو اللي بيتحلل. الـPDF والصور بيتفتحوا في تطبيق خارجي.
 - الباك أب مقفول (`allowBackup=false` + data extraction rules)، عشان البيانات متخرجش من الموبايل.
 - فاتح وغامق: الألوان في `FikraPalette` (`lib/core/theme/tokens.dart`) وبتتقري بـ`context.colors` و`context.text`، مفيش ألوان ثابتة في الشاشات. الاختيار من شاشة الإعدادات (الترس في الهيدر) وبيتحفظ في جدول Settings.
 
@@ -42,9 +43,9 @@ lib/
   data/
     local/database.dart      الجداول (drift) + extensions على Note
     repositories.dart        كل القراءة والكتابة في الداتابيز
-    ai/                      AiService + AttachmentUploader (interfaces) + النسخة التجريبية
+    ai/                      AiService (interface) + النسخة التجريبية
     processing/              NoteProcessor: طابور التحليل بعد الحفظ
-    files/                   AttachmentStore: ملفات الصوت والـPDF على الموبايل
+    files/                   AttachmentStore وفتح الملفات: الصوت والـPDF والصور على الموبايل
     demo/                    المشروع التجريبي
   features/<screen>/         شاشة في كل فولدر؛ features/shared فيه helpers للعرض
 ```
@@ -69,7 +70,7 @@ Add screen
   ```bash
   flutter test test/screenshots --run-skipped -t screenshots    # → build/screenshots/{dark,light}/*.png
   ```
-- الـoverrides: `databaseProvider` (داتابيز in-memory) و`aiServiceProvider` (fakes).
+- الـoverrides: `databaseProvider` (داتابيز in-memory) و`attachmentStoreProvider` و`fileOpenerProvider` (fakes).
 
 ## التصميم
 لوحات Figma والـtokens وقواعد الـRTL في [design/README.md](design/README.md).

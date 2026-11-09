@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/files/attachment_store.dart';
+import 'package:fikra/data/files/file_opener.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -30,6 +31,7 @@ void fikraTest(
   Future<void> Function(WidgetTester tester, FikraDatabase db) body, {
   Object? tags,
   Brightness brightness = Brightness.dark,
+  FileOpener? opener,
 }) {
   testWidgets(description, (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = brightness;
@@ -44,6 +46,7 @@ void fikraTest(
           overrides: [
             databaseProvider.overrideWithValue(db),
             attachmentStoreProvider.overrideWithValue(_NoFilesStore()),
+            if (opener != null) fileOpenerProvider.overrideWithValue(opener),
           ],
           child: const FikraApp(),
         ),

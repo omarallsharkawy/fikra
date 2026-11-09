@@ -8,9 +8,11 @@ import '../../core/motion/pressable.dart';
 import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../../core/widgets/photo_thumb.dart';
 import '../../core/widgets/voice_player.dart';
 import '../../data/local/database.dart';
 import '../shared/note_presentation.dart';
+import '../shared/open_attachment.dart';
 
 /// One note: content (improved / original), AI proposal, attachment,
 /// concepts and related notes. Data is scoped to the note's own project, so
@@ -299,37 +301,69 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
   }
 }
 
-class _Attachment extends StatelessWidget {
+class _Attachment extends ConsumerWidget {
   const _Attachment({required this.note});
   final Note note;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final name = note.attachmentName ?? 'ملف PDF';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
       children: [
         if (note.hasPdf)
-          Glass(
-            radius: FikraRadius.lg,
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    note.attachmentName ?? 'ملف PDF',
-                    style: context.text.body,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          Pressable(
+            key: const ValueKey('open-pdf'),
+            onTap: () => openAttachment(context, ref, note.attachmentPath!),
+            pressedScale: 0.98,
+            semanticLabel: 'افتح ملف $name',
+            child: Glass(
+              radius: FikraRadius.lg,
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
-                ),
-                if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: context.text.meta),
-              ],
+                  if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: context.text.meta),
+                  const SizedBox(width: 10),
+                  Icon(Icons.open_in_new_rounded, size: 18, color: context.colors.textMeta),
+                ],
+              ),
             ),
           ),
-        if (note.hasPdf && note.hasVoice) const SizedBox(height: 10),
         if (note.hasVoice) VoicePlayer(path: note.voicePath!, durationMs: note.durationMs ?? 0),
+        if (note.hasImages) _Photos(paths: note.imageList),
+      ],
+    );
+  }
+}
+
+class _Photos extends ConsumerWidget {
+  const _Photos({required this.paths});
+  final List<String> paths;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GridView.count(
+      crossAxisCount: 3,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        for (final (i, path) in paths.indexed)
+          Pressable(
+            key: ValueKey('open-photo-$i'),
+            onTap: () => openAttachment(context, ref, path),
+            pressedScale: 0.98,
+            semanticLabel: 'افتح الصورة ${i + 1}',
+            child: PhotoThumb(path: path),
+          ),
       ],
     );
   }

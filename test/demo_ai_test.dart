@@ -23,11 +23,4 @@ void main() {
     expect(out.endsWith('.'), isTrue);
     expect(DemoAiService.improve('تمام.'), 'تمام.');
   });
-
-  test('upload fails for large files', () async {
-    expect(
-      DemoUploader().upload(path: 'x', name: 'a.pdf', bytes: DemoUploader.maxBytes + 1).toList(),
-      throwsA(isA<Exception>()),
-    );
-  });
 }

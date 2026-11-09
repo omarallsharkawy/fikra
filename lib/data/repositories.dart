@@ -34,9 +34,11 @@ abstract interface class NotesRepository {
     int? attachmentBytes,
     String? voicePath,
     int? durationMs,
+    List<String> imagePaths,
     DateTime? createdAt,
   });
   Future<void> markProcessing(String id);
+  Future<void> markReady(String id);
   Future<void> markFailed(String id);
 
   /// Applies an AI result computed from [basis]. Fields the user changed while
@@ -164,6 +166,7 @@ class LocalNotesRepository implements NotesRepository {
     int? attachmentBytes,
     String? voicePath,
     int? durationMs,
+    List<String> imagePaths = const [],
     DateTime? createdAt,
   }) async {
     final now = createdAt ?? DateTime.now();
@@ -180,6 +183,7 @@ class LocalNotesRepository implements NotesRepository {
       attachmentBytes: attachmentBytes,
       voicePath: voicePath,
       durationMs: durationMs,
+      imagePaths: imagePaths.join('|'),
       concepts: '',
       createdAt: now,
       updatedAt: now,
@@ -194,6 +198,9 @@ class LocalNotesRepository implements NotesRepository {
   @override
   Future<void> markProcessing(String id) =>
       _write(id, const NotesCompanion(status: Value(ProcessingStatus.processing)));
+
+  @override
+  Future<void> markReady(String id) => _write(id, const NotesCompanion(status: Value(ProcessingStatus.ready)));
 
   @override
   Future<void> markFailed(String id) => _write(id, const NotesCompanion(status: Value(ProcessingStatus.failed)));
@@ -211,7 +218,6 @@ class LocalNotesRepository implements NotesRepository {
         id,
         NotesCompanion(
           title: keepTitle ? const Value.absent() : Value(i.title),
-          extractedText: Value(i.extractedText),
           proposedText: Value(proposal),
           rewrite: Value(
             proposal != null
@@ -344,12 +350,16 @@ class LocalChatRepository implements ChatRepository {
   Future<void> clear(String projectId) => (db.delete(db.chatEntries)..where((c) => c.projectId.equals(projectId))).go();
 }
 
-/// Every attachment file (PDF and voice) of the notes matching [where].
+/// Every attachment file (PDF, voice, photos) of the notes matching [where].
 Future<List<String>> _filePaths(FikraDatabase db, Expression<bool>? where) async {
-  final q = db.selectOnly(db.notes)..addColumns([db.notes.attachmentPath, db.notes.voicePath]);
+  final q = db.selectOnly(db.notes)..addColumns([db.notes.attachmentPath, db.notes.voicePath, db.notes.imagePaths]);
   if (where != null) q.where(where);
   final rows = await q.get();
   return [
-    for (final r in rows) ...[?r.read(db.notes.attachmentPath), ?r.read(db.notes.voicePath)],
+    for (final r in rows) ...[
+      ?r.read(db.notes.attachmentPath),
+      ?r.read(db.notes.voicePath),
+      ...?r.read(db.notes.imagePaths)?.split('|').where((p) => p.isNotEmpty),
+    ],
   ];
 }

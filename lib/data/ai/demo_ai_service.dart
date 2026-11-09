@@ -95,15 +95,10 @@ class DemoAiService implements AiService {
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes) async {
     await Future<void>.delayed(latency);
 
-    // A PDF and a voice memo can share one note: both get processed.
-    final extracted = [if (note.hasPdf) _fakeExtraction(note), if (note.hasVoice) _fakeTranscript(note)].join('\n\n');
-    final extractedOrNull = extracted.isEmpty ? null : extracted;
-    final content = [note.originalText.trim(), extracted.trim()].where((s) => s.isNotEmpty).join('\n\n');
+    final content = note.originalText.trim();
     final concepts = detectConcepts(content);
     final cluster = _clusterFor(content);
-    // Only typed notes get a rewrite: for voice / PDF the typed text is just an
-    // annotation, and accepting a rewrite of it would hide the extracted body.
-    final improved = note.source == NoteSource.text ? improve(note.originalText) : note.originalText.trim();
+    final improved = improve(note.originalText);
     final links = <ProposedLink>[];
     for (final other in projectNotes) {
       if (other.id == note.id) continue;
@@ -118,7 +113,6 @@ class DemoAiService implements AiService {
 
     return NoteInsights(
       title: note.title.trim().isNotEmpty ? note.title : suggestTitle(content),
-      extractedText: extractedOrNull,
       proposedText: improved != note.originalText.trim() && improved.isNotEmpty ? improved : null,
       concepts: concepts,
       cluster: cluster,
@@ -225,31 +219,4 @@ class DemoAiService implements AiService {
       .split(RegExp(r'\s+'))
       .where((w) => w.length > 2 && !_stopWords.contains(w))
       .toList();
-
-  static String _fakeTranscript(Note note) {
-    final secs = ((note.durationMs ?? 0) / 1000).round();
-    return 'تفريغ تجريبي لتسجيل صوتي مدته ${_mmss(secs)}.';
-  }
-
-  static String _fakeExtraction(Note note) => 'نص تجريبي مستخرج من الملف «${note.attachmentName ?? 'PDF'}».';
-
-  static String _mmss(int s) => '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
-}
-
-/// Simulated upload: progress over ~1.6s. Fails for files over 20 MB, or when
-/// the file name contains "fail" (handy to demo the error state).
-class DemoUploader implements AttachmentUploader {
-  static const maxBytes = 20 * 1024 * 1024;
-
-  @override
-  Stream<double> upload({required String path, required String name, required int bytes}) async* {
-    if (bytes > maxBytes) throw const UploadException('الملف أكبر من ٢٠ م.ب');
-    for (var i = 1; i <= 16; i++) {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      if (i == 10 && name.toLowerCase().contains('fail')) {
-        throw const UploadException('تعذّر تجهيز الملف. جرّب تاني أو اختار ملف تاني.');
-      }
-      yield i / 16;
-    }
-  }
 }

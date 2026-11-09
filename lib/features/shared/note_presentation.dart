@@ -13,7 +13,8 @@ IconData sourceIcon(NoteSource s) => switch (s) {
 List<IconData> sourceIcons(Note n) => [
   if (n.hasPdf) Icons.picture_as_pdf_outlined,
   if (n.hasVoice) Icons.mic_none_rounded,
-  if (!n.hasPdf && !n.hasVoice) sourceIcon(n.source),
+  if (n.hasImages) Icons.image_outlined,
+  if (!n.hasPdf && !n.hasVoice && !n.hasImages) sourceIcon(n.source),
 ];
 
 /// Title shown when a note has none yet (the AI suggests one after analysis).
