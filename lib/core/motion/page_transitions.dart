@@ -4,12 +4,16 @@ import 'package:flutter/services.dart';
 import 'motion.dart';
 
 /// A short logical-end slide, in dp rather than a fraction of screen width.
-/// The covered route stays still. Predictive back scrubs this same timeline.
+/// Button pops fade out without sliding. The covered route stays still.
+/// Predictive back scrubs the entrance timeline, including its slide.
 class FikraPageTransitionsBuilder extends PageTransitionsBuilder {
   const FikraPageTransitionsBuilder();
 
   @override
   Duration get transitionDuration => FikraMotion.push;
+
+  @override
+  Duration get reverseTransitionDuration => FikraMotion.pop;
 
   @override
   Widget buildTransitions<T>(
@@ -24,47 +28,27 @@ class FikraPageTransitionsBuilder extends PageTransitionsBuilder {
     return _PredictiveBack(
       route: route,
       animation: animation,
-      builder: (context, animation) =>
-          // The visual fade finishes in 180 ms on the 400 ms route timeline.
-          // Predictive back uses that same fade without any slide or scale.
-          reduced
-          ? DualTransitionBuilder(
-              animation: animation,
-              forwardBuilder: (context, animation, child) => FadeTransition(
-                opacity: animation.drive(
-                  CurveTween(
-                    curve: Interval(0, FikraMotion.reducedFade.inMilliseconds / FikraMotion.push.inMilliseconds),
-                  ),
-                ),
-                child: child,
-              ),
-              reverseBuilder: (context, animation, child) => FadeTransition(
-                opacity: ReverseAnimation(
-                  animation.drive(
-                    CurveTween(
-                      curve: Interval(0, FikraMotion.reducedFade.inMilliseconds / FikraMotion.push.inMilliseconds),
-                    ),
-                  ),
-                ),
-                child: child,
-              ),
-              child: child,
-            )
-          : AnimatedBuilder(
-              animation: animation,
-              child: child,
-              builder: (context, child) {
-                final progress = animation.value.clamp(0.0, 1.0);
-                final fade = Interval(0, FikraMotion.pushFade.inMilliseconds / FikraMotion.push.inMilliseconds);
-                return Transform.translate(
-                  offset: Offset(
-                    direction * FikraMotion.pushOffset * (1 - FikraMotion.pushCurve.transform(progress)),
-                    0,
-                  ),
-                  child: Opacity(opacity: fade.transform(progress), child: child),
-                );
-              },
-            ),
+      builder: (context, animation) => AnimatedBuilder(
+        animation: animation,
+        child: child,
+        builder: (context, child) {
+          final progress = animation.value.clamp(0.0, 1.0);
+          // Flutter keeps userGestureInProgress true through predictive commit
+          // and cancel settling, so neither switches to the button-pop visuals.
+          final buttonPop =
+              animation.status == AnimationStatus.reverse && !(route.navigator?.userGestureInProgress ?? false);
+          final fade = Interval(
+            0,
+            (reduced ? FikraMotion.reducedFade : FikraMotion.pushFade).inMilliseconds / FikraMotion.push.inMilliseconds,
+          );
+          return Transform.translate(
+            offset: reduced || buttonPop
+                ? Offset.zero
+                : Offset(direction * FikraMotion.pushOffset * (1 - FikraMotion.pushCurve.transform(progress)), 0),
+            child: Opacity(opacity: buttonPop ? progress : fade.transform(progress), child: child),
+          );
+        },
+      ),
     );
   }
 }
@@ -109,6 +93,8 @@ class _PredictiveBackState extends State<_PredictiveBack> with WidgetsBindingObs
   void handleCommitBackGesture() {
     // Flutter restarts the route's reverse controller at 1 on commit. Map that
     // remaining timeline onto the current gesture value to avoid a visual jump.
+    // This value remapping is duration-independent: the controller now runs
+    // 1 → 0 over FikraMotion.pop, while the visual runs gestureValue → 0.
     _visualAnimation.parent = widget.animation.drive(Tween(begin: 0.0, end: widget.animation.value));
     widget.route.handleCommitBackGesture();
   }

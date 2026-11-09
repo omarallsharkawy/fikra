@@ -20,11 +20,14 @@ abstract final class FikraMotion {
   static const expandCurve = Curves.easeOutCubic;
 
   /// Screen push (measured): ~100 ms cross-fade plus a ~30 dp slide from the
-  /// end side that decelerates over ~400 ms. Pop mirrors it.
+  /// end side that decelerates over ~400 ms.
   static const push = Duration(milliseconds: 400);
   static const pushFade = Duration(milliseconds: 100);
   static const pushOffset = 30.0;
   static const pushCurve = Cubic(0.23, 1, 0.32, 1);
+
+  /// Button / programmatic screen pop: a plain fade-out, with no slide.
+  static const pop = Duration(milliseconds: 120);
 
   /// Bottom sheet (measured): ease-in-out ~310 ms, ~30 % scrim.
   static const sheet = Duration(milliseconds: 310);

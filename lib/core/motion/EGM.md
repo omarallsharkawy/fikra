@@ -19,6 +19,7 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
     - Exit: `exit`, `exitCurve`.
     - Expansion: `expand`, `expandCurve`.
     - Screen push: `push`, `pushFade`, `pushOffset`, `pushCurve`.
+    - Screen pop: `pop` (plain fade-out).
     - Bottom sheet: `sheet`, `sheetCurve`.
     - Chat: `messageOffset` (dp).
     - Reduce Motion: `reducedFade`.
@@ -36,7 +37,8 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
 - `page_transitions.dart`
   - `FikraPageTransitionsBuilder` (`PageTransitionsBuilder`): a short slide from
     the logical end plus a fade, lasting `FikraMotion.push`, with predictive
-    back support.
+    back support. Button and programmatic pops use a plain fade-out lasting
+    `FikraMotion.pop` (120 ms), exposed by `reverseTransitionDuration`.
 
 ## Invariants
 
@@ -68,15 +70,23 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
 - `FikraPageTransitionsBuilder` leaves the covered route still
   (`secondaryAnimation` is unused) and flips its slide direction in RTL so the
   page always enters from the logical end.
-- Under Reduce Motion, page transitions are a fade finishing after
-  `FikraMotion.reducedFade` on the `FikraMotion.push` timeline, with no
-  translation or scale. Predictive back uses the same fade.
+- Pushes keep the 400 ms `FikraMotion.push` timeline, 100 ms
+  `FikraMotion.pushFade` fade and 30 dp `FikraMotion.pushOffset` slide.
+- Button and programmatic pops have no slide and fade linearly over the
+  120 ms `FikraMotion.pop` reverse timeline, also under Reduce Motion.
+- Under Reduce Motion, page entrances fade in over
+  `FikraMotion.reducedFade` (180 ms) on the `FikraMotion.push` timeline,
+  with no translation or scale. Predictive back scrubs this same fade.
 - Predictive back scrubs the route's own timeline. `_PredictiveBack` ignores
   button events, routes that are not current, and routes with
   `popGestureEnabled` false.
 - On predictive back commit, `_visualAnimation` is re-parented to map the
   restarted reverse controller onto the current gesture value. Removing this
-  causes a visual jump.
+  causes a visual jump. This value mapping is duration-independent: the
+  restarted controller runs from 1 to 0 over `FikraMotion.pop`, while the
+  visual runs from the gesture value to 0. Flutter keeps
+  `userGestureInProgress` true through commit and cancel settling; these keep
+  the gesture visuals instead of switching to the button-pop fade.
 - The builder only runs on routes that consult the theme's page transitions. See
   `_pushed` in `lib/app/router.dart`, which builds a `MaterialPage` explicitly
   because go_router falls back to `NoTransitionPage` for `builder:` routes.
@@ -95,5 +105,6 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
 
 - Run: `flutter analyze && flutter test`
 - `test/motion_test.dart` covers `Pressable` semantics, the `FikraSwitcher` exit
-  guard, push direction, reduced page fades, and predictive back cancel and
-  commit.
+  guard, push direction and duration, plain pop fades and route removal within
+  the pop budget (including Reduce Motion), and predictive back progress,
+  cancellation and continuous commit at multiple gesture positions.
