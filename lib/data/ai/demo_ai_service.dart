@@ -1,5 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import '../../l10n/app_localizations.dart';
 
 import '../local/database.dart';
 import 'ai_service.dart';
@@ -8,51 +14,70 @@ import 'ai_service.dart';
 /// as demo data in the UI. Real rewriting, embeddings and RAG live on the
 /// backend.
 class DemoAiService implements AiService {
-  DemoAiService({this.latency = const Duration(milliseconds: 2500)});
+  DemoAiService({
+    this.latency = const Duration(milliseconds: 2500),
+    Locale locale = const Locale('ar'),
+    Locale Function()? activeLocale,
+  }) : _activeLocale = activeLocale ?? (() => locale);
+
+  final Locale Function() _activeLocale;
+
+  static Map<String, dynamic>? _vocabulary;
+
+  static Future<Map<String, dynamic>> _labels(Locale locale) async {
+    final vocabulary = _vocabulary ??=
+        jsonDecode(await rootBundle.loadString('lib/l10n/demo_vocabulary.json', cache: false)) as Map<String, dynamic>;
+    return vocabulary[locale.languageCode] as Map<String, dynamic>;
+  }
 
   final Duration latency;
 
   /// keyword (lowercase) -> (concept, cluster)
   static const _dictionary = <String, (String, String)>{
-    'rag': ('RAG', 'الذكاء الاصطناعي'),
-    'retrieval': ('RAG', 'الذكاء الاصطناعي'),
-    'llm': ('LLM', 'الذكاء الاصطناعي'),
-    'نموذج لغوي': ('LLM', 'الذكاء الاصطناعي'),
-    'embedding': ('Embeddings', 'الذكاء الاصطناعي'),
-    'تضمين': ('Embeddings', 'الذكاء الاصطناعي'),
-    'التضمينات': ('Embeddings', 'الذكاء الاصطناعي'),
-    'دلالي': ('البحث الدلالي', 'الذكاء الاصطناعي'),
-    'semantic': ('البحث الدلالي', 'الذكاء الاصطناعي'),
-    'agent': ('AI Agents', 'الذكاء الاصطناعي'),
-    'ذكاء اصطناعي': ('الذكاء الاصطناعي', 'الذكاء الاصطناعي'),
-    'الذكاء الاصطناعي': ('الذكاء الاصطناعي', 'الذكاء الاصطناعي'),
-    'flutter': ('Flutter', 'تطوير التطبيقات'),
-    'dart': ('Flutter', 'تطوير التطبيقات'),
-    'حالة': ('إدارة الحالة', 'تطوير التطبيقات'),
-    'state': ('إدارة الحالة', 'تطوير التطبيقات'),
-    'riverpod': ('إدارة الحالة', 'تطوير التطبيقات'),
-    'واجهة': ('تصميم الواجهات', 'تطوير التطبيقات'),
-    'الواجهات': ('تصميم الواجهات', 'تطوير التطبيقات'),
-    'تصميم': ('تصميم الواجهات', 'تطوير التطبيقات'),
-    'ui': ('تصميم الواجهات', 'تطوير التطبيقات'),
-    'fastapi': ('FastAPI', 'الباك إند'),
-    'api': ('APIs', 'الباك إند'),
-    'postgres': ('قواعد البيانات', 'الباك إند'),
-    'database': ('قواعد البيانات', 'الباك إند'),
-    'قاعدة بيانات': ('قواعد البيانات', 'الباك إند'),
-    'pgvector': ('قواعد البيانات', 'الباك إند'),
-    'محاضرة': ('المحاضرات', 'المذاكرة'),
-    'امتحان': ('الامتحانات', 'المذاكرة'),
-    'مذاكرة': ('المذاكرة', 'المذاكرة'),
-    'شبكات': ('الشبكات', 'المذاكرة'),
-    'فيديو': ('صناعة المحتوى', 'المحتوى'),
-    'يوتيوب': ('صناعة المحتوى', 'المحتوى'),
-    'youtube': ('صناعة المحتوى', 'المحتوى'),
-  };
-
-  static const _expansions = <String, String>{
-    'rag': 'RAG (Retrieval-Augmented Generation)',
-    'llm': 'LLM (نموذج لغوي كبير)',
+    'rag': ('RAG', 'AI'),
+    'retrieval': ('RAG', 'AI'),
+    'llm': ('LLM', 'AI'),
+    'نموذج لغوي': ('LLM', 'AI'),
+    'embedding': ('Embeddings', 'AI'),
+    'تضمين': ('Embeddings', 'AI'),
+    'التضمينات': ('Embeddings', 'AI'),
+    'دلالي': ('Semantic_search', 'AI'),
+    'semantic': ('Semantic_search', 'AI'),
+    'agent': ('AI_agents', 'AI'),
+    'ذكاء اصطناعي': ('AI', 'AI'),
+    'الذكاء الاصطناعي': ('AI', 'AI'),
+    'flutter': ('Flutter', 'App_development'),
+    'dart': ('Flutter', 'App_development'),
+    'حالة': ('State_management', 'App_development'),
+    'state': ('State_management', 'App_development'),
+    'riverpod': ('State_management', 'App_development'),
+    'واجهة': ('UI_design', 'App_development'),
+    'الواجهات': ('UI_design', 'App_development'),
+    'تصميم': ('UI_design', 'App_development'),
+    'ui': ('UI_design', 'App_development'),
+    'fastapi': ('FastAPI', 'Backend'),
+    'api': ('APIs', 'Backend'),
+    'postgres': ('Databases', 'Backend'),
+    'database': ('Databases', 'Backend'),
+    'قاعدة بيانات': ('Databases', 'Backend'),
+    'pgvector': ('Databases', 'Backend'),
+    'محاضرة': ('Lectures', 'Studying'),
+    'امتحان': ('Exams', 'Studying'),
+    'مذاكرة': ('Studying', 'Studying'),
+    'شبكات': ('Networking', 'Studying'),
+    'فيديو': ('Content_creation', 'Content'),
+    'يوتيوب': ('Content_creation', 'Content'),
+    'youtube': ('Content_creation', 'Content'),
+    'lecture': ('Lectures', 'Studying'),
+    'exam': ('Exams', 'Studying'),
+    'study': ('Studying', 'Studying'),
+    'network': ('Networking', 'Studying'),
+    'networks': ('Networking', 'Studying'),
+    'video': ('Content_creation', 'Content'),
+    'design': ('UI_design', 'App_development'),
+    'interface': ('UI_design', 'App_development'),
+    'ai': ('AI', 'AI'),
+    'embeddings': ('Embeddings', 'AI'),
   };
 
   static const _stopWords = {
@@ -95,10 +120,12 @@ class DemoAiService implements AiService {
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes) async {
     await Future<void>.delayed(latency);
 
+    final locale = _activeLocale();
+    final l10n = lookupAppLocalizations(locale);
     final content = note.originalText.trim();
-    final concepts = detectConcepts(content);
-    final cluster = _clusterFor(content);
-    final improved = improve(note.originalText);
+    final concepts = await detectConcepts(content, locale: locale);
+    final cluster = await clusterFor(content, locale: locale);
+    final improved = improve(note.originalText, locale: locale);
     final links = <ProposedLink>[];
     for (final other in projectNotes) {
       if (other.id == note.id) continue;
@@ -106,13 +133,17 @@ class DemoAiService implements AiService {
       if (shared.isEmpty) continue;
       final union = other.conceptList.toSet().union(concepts.toSet()).length;
       links.add(
-        ProposedLink(targetId: other.id, label: 'مرتبطة بـ${shared.first}', strength: shared.length / max(1, union)),
+        ProposedLink(
+          targetId: other.id,
+          label: l10n.demoLinkReason(shared.first),
+          strength: shared.length / max(1, union),
+        ),
       );
     }
     links.sort((a, b) => b.strength.compareTo(a.strength));
 
     return NoteInsights(
-      title: note.title.trim().isNotEmpty ? note.title : suggestTitle(content),
+      title: note.title.trim().isNotEmpty ? note.title : suggestTitle(content, locale: locale),
       proposedText: improved != note.originalText.trim() && improved.isNotEmpty ? improved : null,
       concepts: concepts,
       cluster: cluster,
@@ -123,7 +154,9 @@ class DemoAiService implements AiService {
   @override
   Future<ChatAnswer> ask(String question, List<Note> projectNotes) async {
     await Future<void>.delayed(const Duration(milliseconds: 1200));
-    final qConcepts = detectConcepts(question).toSet();
+    final locale = _activeLocale();
+    final l10n = lookupAppLocalizations(locale);
+    final qConcepts = (await detectConcepts(question, locale: locale)).toSet();
     final tokens = _tokens(question);
     final scored = <(Note, double)>[];
     for (final n in projectNotes) {
@@ -138,42 +171,37 @@ class DemoAiService implements AiService {
     scored.sort((a, b) => b.$2.compareTo(a.$2));
     final top = scored.take(3).map((e) => e.$1).toList();
     if (top.isEmpty) {
-      return const ChatAnswer(
-        text: 'مفيش نوت في المشروع ده بتتكلم عن الموضوع. جرّب تسأل بطريقة تانية أو ضيف نوت عنه.',
-        sourceIds: [],
-        found: false,
-      );
+      return ChatAnswer(text: l10n.demoAnswerNotFound, sourceIds: [], found: false);
     }
-    final b = StringBuffer('من نوتسك في المشروع ده:\n');
+    final b = StringBuffer('${l10n.demoAnswerIntro}\n');
     for (var i = 0; i < top.length; i++) {
       b.writeln('• ${_firstSentence(top[i].displayText)} [${i + 1}]');
     }
-    b.write('\n(إجابة تجريبية من نوتسك)');
     return ChatAnswer(text: b.toString(), sourceIds: top.map((n) => n.id).toList(), found: true);
   }
 
   // ---- helpers (public for tests and seeding)
 
-  static List<String> detectConcepts(String text) {
+  static Future<List<String>> detectConcepts(String text, {Locale locale = const Locale('ar')}) async {
+    final labels = await _labels(locale);
     final lower = text.toLowerCase();
     final out = <String>[];
     for (final e in _dictionary.entries) {
-      if (_containsWord(lower, e.key) && !out.contains(e.value.$1)) out.add(e.value.$1);
+      if (_containsWord(lower, e.key) && !out.contains(labels[e.value.$1])) out.add(labels[e.value.$1] as String);
     }
     return out.take(5).toList();
   }
 
-  static String _clusterFor(String text) {
+  static Future<String> clusterFor(String text, {Locale locale = const Locale('ar')}) async {
+    final labels = await _labels(locale);
     final lower = text.toLowerCase();
     final counts = <String, int>{};
     for (final e in _dictionary.entries) {
       if (_containsWord(lower, e.key)) counts.update(e.value.$2, (v) => v + 1, ifAbsent: () => 1);
     }
-    if (counts.isEmpty) return 'أفكار عامة';
-    return (counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key;
+    if (counts.isEmpty) return lookupAppLocalizations(locale).clusterGeneral;
+    return labels[(counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key] as String;
   }
-
-  static String clusterFor(String text) => _clusterFor(text);
 
   static bool _containsWord(String lower, String key) {
     // Latin keys match whole words ("api" not in "rapid" / "apiary"). Arabic
@@ -186,10 +214,12 @@ class DemoAiService implements AiService {
 
   /// Simulated rewrite: tidy spacing, expand known terms, capitalize, end with
   /// punctuation. Labelled "اقتراح تجريبي" in the UI.
-  static String improve(String raw) {
+  static String improve(String raw, {Locale locale = const Locale('ar')}) {
+    final l10n = lookupAppLocalizations(locale);
+    final expansions = {'rag': l10n.expandRag, 'llm': l10n.expandLlm};
     var t = raw.trim().replaceAll(RegExp(r'[ \t]+'), ' ');
     if (t.isEmpty) return t;
-    for (final e in _expansions.entries) {
+    for (final e in expansions.entries) {
       final re = RegExp('(^|[^a-zA-Z])(${e.key})(?![a-zA-Z])', caseSensitive: false);
       final m = re.firstMatch(t);
       if (m != null && !t.contains(e.value)) {
@@ -201,9 +231,9 @@ class DemoAiService implements AiService {
     return t;
   }
 
-  static String suggestTitle(String content) {
+  static String suggestTitle(String content, {Locale locale = const Locale('ar')}) {
     final words = content.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-    if (words.isEmpty) return 'نوت بدون عنوان';
+    if (words.isEmpty) return lookupAppLocalizations(locale).untitledNoteFallback;
     final title = words.take(6).join(' ');
     return words.length > 6 ? '$title…' : title;
   }

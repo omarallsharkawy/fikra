@@ -2,7 +2,8 @@ part of 'links_screen.dart';
 
 Rect _rect(GraphPosition position) => Rect.fromLTWH(position.left, position.top, position.width, position.height);
 
-String _graphTitle(GraphNote note) => note.title.trim().isEmpty ? 'نوت جديدة' : note.title;
+String _graphTitle(BuildContext context, GraphNote note) =>
+    note.title.trim().isEmpty ? context.l10n.untitledNote : note.title;
 
 class _OverflowNode extends StatelessWidget {
   const _OverflowNode({required this.label, required this.onTap, this.semanticLabel, this.numbersOnly = false});
@@ -21,7 +22,7 @@ class _OverflowNode extends StatelessWidget {
       child: Center(
         child: Text(
           label,
-          textDirection: numbersOnly ? TextDirection.ltr : TextDirection.rtl,
+          textDirection: numbersOnly ? TextDirection.ltr : Directionality.of(context),
           style: context.text.chip,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -48,10 +49,15 @@ class _NodePreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_graphTitle(note), style: context.text.cardTitleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(
+            _graphTitle(context, note),
+            style: context.text.cardTitleSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 4),
           Text(
-            '${note.cluster ?? 'أفكار عامة'} · ${Fmt.links(reasons.length)}',
+            context.l10n.nodeMeta(note.cluster ?? context.l10n.clusterGeneral, Fmt.links(context.l10n, reasons.length)),
             style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
           ),
           if (reasons.isNotEmpty) ...[
@@ -76,7 +82,7 @@ class _NodePreview extends StatelessWidget {
               ),
           ],
           const SizedBox(height: 12),
-          FikraButton(label: 'فتح النوت', icon: Icons.open_in_new_rounded, onPressed: onOpen),
+          FikraButton(label: context.l10n.openNote, icon: Icons.open_in_new_rounded, onPressed: onOpen),
         ],
       ),
     );
@@ -94,7 +100,7 @@ class _Node extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       selected: selected,
-      semanticLabel: _graphTitle(note),
+      semanticLabel: _graphTitle(context, note),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14),
         alignment: AlignmentDirectional.centerStart,

@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
@@ -14,10 +15,10 @@ class FikraBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (String text, Color fg, Color bg) = switch (kind) {
-      BadgeKind.demo => ('بيانات تجريبية', context.colors.accentLight, context.colors.glassHighlight),
-      BadgeKind.saved => ('تم الحفظ', context.colors.success, context.colors.successBg),
-      BadgeKind.processing => ('جاري التحليل…', context.colors.accentLight, context.colors.glassHighlight),
-      BadgeKind.failed => ('فشل', context.colors.danger, context.colors.dangerBg),
+      BadgeKind.demo => (context.l10n.badgeSampleData, context.colors.accentLight, context.colors.glassHighlight),
+      BadgeKind.saved => (context.l10n.badgeSaved, context.colors.success, context.colors.successBg),
+      BadgeKind.processing => (context.l10n.badgeAnalyzing, context.colors.accentLight, context.colors.glassHighlight),
+      BadgeKind.failed => (context.l10n.badgeFailed, context.colors.danger, context.colors.dangerBg),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),

@@ -2,19 +2,20 @@ import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('detects concepts and cluster', () {
-    final c = DemoAiService.detectConcepts('الـrag بيستخدم embedding مع llm');
+  TestWidgetsFlutterBinding.ensureInitialized();
+  test('detects concepts and cluster', () async {
+    final c = await DemoAiService.detectConcepts('الـrag بيستخدم embedding مع llm');
     expect(c, containsAll(['RAG', 'Embeddings', 'LLM']));
-    expect(DemoAiService.clusterFor('flutter و riverpod'), 'تطوير التطبيقات');
-    expect(DemoAiService.clusterFor('كلام عام'), 'أفكار عامة');
+    expect(await DemoAiService.clusterFor('flutter و riverpod'), 'تطوير التطبيقات');
+    expect(await DemoAiService.clusterFor('كلام عام'), 'أفكار عامة');
   });
 
-  test('english keys match whole words only', () {
-    expect(DemoAiService.detectConcepts('rapid'), isNot(contains('APIs'))); // left boundary
-    expect(DemoAiService.detectConcepts('apiary'), isNot(contains('APIs'))); // right boundary
-    expect(DemoAiService.detectConcepts('ragtime'), isNot(contains('RAG')));
-    expect(DemoAiService.detectConcepts('build'), isNot(contains('تصميم الواجهات')));
-    expect(DemoAiService.detectConcepts('the API is up'), contains('APIs'));
+  test('english keys match whole words only', () async {
+    expect(await DemoAiService.detectConcepts('rapid'), isNot(contains('APIs'))); // left boundary
+    expect(await DemoAiService.detectConcepts('apiary'), isNot(contains('APIs'))); // right boundary
+    expect(await DemoAiService.detectConcepts('ragtime'), isNot(contains('RAG')));
+    expect(await DemoAiService.detectConcepts('build'), isNot(contains('تصميم الواجهات')));
+    expect(await DemoAiService.detectConcepts('the API is up'), contains('APIs'));
   });
 
   test('improve expands terms and ends with punctuation', () {

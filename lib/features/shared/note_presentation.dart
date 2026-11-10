@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/local/database.dart';
@@ -18,4 +19,4 @@ List<IconData> sourceIcons(Note n) => [
 ];
 
 /// Title shown when a note has none yet (the AI suggests one after analysis).
-String noteTitle(Note n) => n.title.trim().isEmpty ? 'نوت جديدة' : n.title;
+String noteTitle(BuildContext context, Note n) => n.title.trim().isEmpty ? context.l10n.untitledNote : n.title;

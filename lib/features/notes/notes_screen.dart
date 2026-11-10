@@ -1,3 +1,5 @@
+import 'package:fikra/l10n/localizations.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -34,6 +36,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   List<Note>? _lastAll;
   String? _lastQuery;
   DateTime? _lastDay;
+  String? _lastLocale;
   List<_Row> _rows = const [];
   Map<String, int> _rowOf = const {};
   int _matchCount = 0;
@@ -71,13 +74,19 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   void _rebuildRows(List<Note> all) {
-    // Day headers are relative ("النهارده"), so a new calendar day rebuilds too.
-    final now = DateTime.now();
+    // Rebuild date labels when the locale or calendar day changes.
+    final now = ref.read(appClockProvider)();
     final today = DateTime(now.year, now.month, now.day);
-    if (identical(all, _lastAll) && _query == _lastQuery && today == _lastDay) return;
+    if (identical(all, _lastAll) &&
+        _query == _lastQuery &&
+        today == _lastDay &&
+        _lastLocale == context.l10n.localeName) {
+      return;
+    }
     _lastAll = all;
     _lastQuery = _query;
     _lastDay = today;
+    _lastLocale = context.l10n.localeName;
     final q = _query.toLowerCase();
     final notes = q.isEmpty
         ? all
@@ -96,7 +105,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       final d = DateTime(n.createdAt.year, n.createdAt.month, n.createdAt.day);
       if (d != day) {
         day = d;
-        rows.add(_Row.header(Fmt.dayHeader(d)));
+        rows.add(_Row.header(Fmt.dayHeader(context.l10n, d, now: ref.read(appClockProvider)())));
       }
       rows.add(_Row.note(n));
     }
@@ -115,13 +124,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ProjectHeader(title: 'النوتس'),
+        ProjectHeader(title: context.l10n.notesTitle),
         if (all.isNotEmpty)
           Padding(
             padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
             child: FikraField(
               controller: _search,
-              hint: 'دوّر في النوتس',
+              hint: context.l10n.searchNotesHint,
               icon: Icons.search_rounded,
               textInputAction: TextInputAction.search,
               onChanged: _onSearch,
@@ -149,10 +158,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                   ? FillScroll(
                       child: EmptyState(
                         icon: Icons.sticky_note_2_outlined,
-                        title: 'لسه مفيش نوتس',
-                        description: 'اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها.',
+                        title: context.l10n.notesEmptyTitle,
+                        description: context.l10n.notesEmptyBody,
                         action: FikraButton(
-                          label: 'ضيف أول نوت',
+                          label: context.l10n.addFirstNote,
                           icon: Icons.add_rounded,
                           expand: false,
                           onPressed: () => context.go('/add'),
@@ -163,8 +172,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                   ? FillScroll(
                       child: EmptyState(
                         icon: Icons.search_off_rounded,
-                        title: 'مفيش نتايج',
-                        description: 'مفيش نوت فيها «$_query». جرّب كلمة تانية.',
+                        title: context.l10n.noResultsTitle,
+                        description: context.l10n.noResultsBody(_query),
                       ),
                     )
                   // Built lazily: only the visible rows exist, whatever the size.

@@ -16,6 +16,8 @@ class FikraButton extends StatelessWidget {
     this.style = FikraButtonStyle.primary,
     this.expand = true,
     this.loading = false,
+    this.horizontalPadding = 24,
+    this.maxLines,
   });
 
   const FikraButton.secondary({
@@ -25,6 +27,8 @@ class FikraButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.loading = false,
+    this.horizontalPadding = 24,
+    this.maxLines,
   }) : style = FikraButtonStyle.secondary;
 
   const FikraButton.danger({
@@ -34,6 +38,8 @@ class FikraButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.loading = false,
+    this.horizontalPadding = 24,
+    this.maxLines,
   }) : style = FikraButtonStyle.danger;
 
   final String label;
@@ -42,6 +48,8 @@ class FikraButton extends StatelessWidget {
   final FikraButtonStyle style;
   final bool expand;
   final bool loading;
+  final double horizontalPadding;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +83,8 @@ class FikraButton extends StatelessWidget {
             label,
             style: text.copyWith(color: fg),
             overflow: TextOverflow.ellipsis,
+            maxLines: maxLines,
+            textAlign: TextAlign.center,
           ),
         ),
       ],
@@ -87,7 +97,7 @@ class FikraButton extends StatelessWidget {
         child: Container(
           height: FikraSpace.button,
           width: expand ? double.infinity : null,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           decoration: BoxDecoration(
             gradient: gradient,
             color: color,

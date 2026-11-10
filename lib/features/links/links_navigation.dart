@@ -26,7 +26,12 @@ extension _LinksNavigation on _LinksScreenState {
         itemBuilder: (context, index) {
           final note = row.notes[index];
           return ListTile(
-            title: Text(_graphTitle(note), style: context.text.body, maxLines: 2, overflow: TextOverflow.ellipsis),
+            title: Text(
+              _graphTitle(context, note),
+              style: context.text.body,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             onTap: () {
               Navigator.pop(sheetContext);
               _openNote(note.id);
@@ -40,7 +45,7 @@ extension _LinksNavigation on _LinksScreenState {
   Future<void> _showMoreClusters(GraphLayout layout) async {
     final row = await showFikraSheet<GraphRow>(
       context,
-      title: 'مجموعات أكتر',
+      title: context.l10n.moreGroups,
       builder: (sheetContext) => SizedBox(
         height: MediaQuery.sizeOf(sheetContext).height * 0.55,
         child: ListView.builder(
@@ -50,7 +55,7 @@ extension _LinksNavigation on _LinksScreenState {
             final row = layout.hiddenRows[index];
             return ListTile(
               title: Text(row.cluster, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text(Fmt.notes(row.notes.length), style: context.text.meta),
+              subtitle: Text(Fmt.notes(context.l10n, row.notes.length), style: context.text.meta),
               onTap: () => Navigator.pop(sheetContext, row),
             );
           },

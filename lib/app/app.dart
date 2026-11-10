@@ -1,6 +1,6 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/fikra_theme.dart';
@@ -17,9 +17,12 @@ class FikraApp extends ConsumerWidget {
     // Wait for the saved theme (one quick DB read) so a restart never flashes
     // the wrong appearance. A read error falls back to the system setting.
     final savedTheme = ref.watch(appThemeProvider);
-    if (savedTheme.isLoading && !savedTheme.hasValue) return const SizedBox.shrink();
+    final savedLanguage = ref.watch(appLanguageProvider);
+    if ((savedTheme.isLoading && !savedTheme.hasValue) || (savedLanguage.isLoading && !savedLanguage.hasValue)) {
+      return const SizedBox.shrink();
+    }
     return MaterialApp.router(
-      title: 'فِكرة',
+      onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
       theme: buildFikraTheme(Brightness.light),
       darkTheme: buildFikraTheme(Brightness.dark),
@@ -41,9 +44,9 @@ class FikraApp extends ConsumerWidget {
           child: child!,
         );
       },
-      locale: const Locale('ar'),
-      supportedLocales: const [Locale('ar')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      locale: ref.watch(appLocaleProvider),
+      supportedLocales: const [Locale('ar'), Locale('en')],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: ref.watch(routerProvider),
     );
   }

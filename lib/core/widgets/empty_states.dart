@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,11 +65,16 @@ class LoadErrorView extends StatelessWidget {
     return FillScroll(
       child: EmptyState(
         icon: Icons.error_outline_rounded,
-        title: 'مش قادرين نحمّل البيانات',
-        description: 'حصلت مشكلة وإحنا بنقرا البيانات. جرّب تاني.',
+        title: context.l10n.loadErrorTitle,
+        description: context.l10n.loadErrorBody,
         action: onRetry == null
             ? null
-            : FikraButton.secondary(label: 'جرّب تاني', icon: Icons.refresh_rounded, expand: false, onPressed: onRetry),
+            : FikraButton.secondary(
+                label: context.l10n.retry,
+                icon: Icons.refresh_rounded,
+                expand: false,
+                onPressed: onRetry,
+              ),
       ),
     );
   }

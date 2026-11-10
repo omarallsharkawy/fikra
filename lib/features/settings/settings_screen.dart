@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,12 +14,15 @@ class SettingsScreen extends ConsumerWidget {
   // Order matches the segmented control.
   static const _themes = [AppTheme.system, AppTheme.light, AppTheme.dark];
 
+  static const _languages = [AppLanguage.system, AppLanguage.ar, AppLanguage.en];
+
   Future<void> _wipe(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final ok = await confirmDestructive(
       context,
-      title: 'تمسح كل البيانات؟',
-      message: 'كل المشاريع والنوتس والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هينفع ترجّعها.',
-      confirmLabel: 'امسح كله',
+      title: context.l10n.eraseAllTitle,
+      message: context.l10n.eraseAllBody,
+      confirmLabel: context.l10n.eraseAllConfirm,
     );
     if (!ok || !context.mounted) return;
     // With no projects left, the router sends the user to the welcome screen.
@@ -28,17 +32,18 @@ class SettingsScreen extends ConsumerWidget {
       ..showSnackBar(SnackBar(content: Text(m)));
     try {
       await ref.read(settingsRepoProvider).wipeAllData();
-      toast('كل حاجة اتمسحت');
+      toast(l10n.eraseAllDone);
     } on WipeFilesException {
-      toast('البيانات اتمسحت، بس شوية ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني.');
+      toast(l10n.eraseAllPartial);
     } catch (_) {
-      toast('مقدرناش نمسح البيانات، جرّب تاني');
+      toast(l10n.eraseAllFailed);
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(appThemeProvider).value ?? AppTheme.system;
+    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
     final c = context.colors;
     final t = context.text;
 
@@ -54,26 +59,31 @@ class SettingsScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
             child: Row(
-              children: [FikraIconButton(icon: Icons.arrow_back_rounded, label: 'رجوع', onTap: () => context.pop())],
+              children: [
+                FikraIconButton(icon: Icons.arrow_back_rounded, label: context.l10n.back, onTap: () => context.pop()),
+              ],
             ),
           ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
               children: [
-                Text('الإعدادات', style: t.title.copyWith(fontWeight: FontWeight.w700)),
-                section('المظهر'),
+                Text(context.l10n.settingsTitle, style: t.title.copyWith(fontWeight: FontWeight.w700)),
+                section(context.l10n.appearance),
                 SegmentedPill(
-                  options: const ['زي الموبايل', 'فاتح', 'غامق'],
+                  options: [context.l10n.themeSystem, context.l10n.themeLight, context.l10n.themeDark],
                   selected: _themes.indexOf(theme),
                   onChanged: (i) => runAction(context, () => ref.read(settingsRepoProvider).setTheme(_themes[i])),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'لو اخترت "زي الموبايل"، فِكرة هتمشي على وضع الموبايل الفاتح أو الغامق.',
-                  style: t.meta.copyWith(fontSize: 12),
+                Text(context.l10n.themeHint, style: t.meta.copyWith(fontSize: 12)),
+                section(context.l10n.languageSection),
+                SegmentedPill(
+                  options: [context.l10n.languageSystem, context.l10n.languageArabic, context.l10n.languageEnglish],
+                  selected: _languages.indexOf(language),
+                  onChanged: (i) => runAction(context, () => ref.read(settingsRepoProvider).setLanguage(_languages[i])),
                 ),
-                section('البيانات'),
+                section(context.l10n.dataSection),
                 Glass(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
@@ -81,20 +91,18 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Icon(Icons.phone_android_rounded, size: 20, color: c.accentLight),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: Text('نوتسك وملفاتك محفوظة على الموبايل ده بس، ومش بتتنقل لأي مكان.', style: t.caption),
-                      ),
+                      Expanded(child: Text(context.l10n.dataStaysLocal, style: t.caption)),
                     ],
                   ),
                 ),
                 const SizedBox(height: 10),
                 SheetOption(
-                  label: 'مسح كل البيانات',
+                  label: context.l10n.eraseAll,
                   icon: Icons.delete_forever_outlined,
                   danger: true,
                   onTap: () => _wipe(context, ref),
                 ),
-                section('عن التطبيق'),
+                section(context.l10n.aboutSection),
                 Glass(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
@@ -104,12 +112,12 @@ class SettingsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('فِكرة', style: t.cardTitleSmall),
-                            Text('اكتب. اربط. اسأل.', style: t.meta.copyWith(fontSize: 12)),
+                            Text(context.l10n.appTitle, style: t.cardTitleSmall),
+                            Text(context.l10n.tagline, style: t.meta.copyWith(fontSize: 12)),
                           ],
                         ),
                       ),
-                      if (isDemo) const FikraBadge(kind: BadgeKind.demo, label: 'نسخة تجريبية'),
+                      if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
                     ],
                   ),
                 ),

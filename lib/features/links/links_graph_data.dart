@@ -22,7 +22,9 @@ extension _LinksGraphData on _LinksScreenState {
   void _updateGraph(List<Note> notes, List<NoteLink> links) {
     final notesChanged = !identical(notes, _notesSource);
     final linksChanged = !identical(links, _linksSource);
-    if (!notesChanged && !linksChanged) return;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final generalLabel = context.l10n.clusterGeneral;
+    if (!notesChanged && !linksChanged && _input?.rtl == rtl && _input?.generalLabel == generalLabel) return;
     _notesSource = notes;
     _linksSource = links;
     final input = GraphInput(
@@ -41,6 +43,8 @@ extension _LinksGraphData on _LinksScreenState {
       linksChanged
           ? [for (final l in links) (sourceId: l.sourceId, targetId: l.targetId, label: l.label, strength: l.strength)]
           : _input!.links,
+      rtl: rtl,
+      generalLabel: generalLabel,
     );
     if (_input?.sameData(input) ?? false) return;
     _input = input;

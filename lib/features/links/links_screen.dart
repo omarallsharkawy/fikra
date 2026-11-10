@@ -1,3 +1,5 @@
+import 'package:fikra/l10n/localizations.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -75,7 +77,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
       for (final l in layout.links) {
         if (l.sourceId != selected.id && l.targetId != selected.id) continue;
         final other = layout.nodes[l.sourceId == selected.id ? l.targetId : l.sourceId];
-        if (other != null) reasons.putIfAbsent(other.id, () => '${_graphTitle(other)} · ${l.label}');
+        if (other != null) reasons.putIfAbsent(other.id, () => '${_graphTitle(context, other)} · ${l.label}');
       }
     }
 
@@ -87,7 +89,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ProjectHeader(title: 'الروابط'),
+        ProjectHeader(title: context.l10n.linksTitle),
         Expanded(
           child: FikraSwitcher(
             child: KeyedSubtree(
@@ -119,10 +121,10 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                   ? FillScroll(
                       child: EmptyState(
                         icon: Icons.hub_outlined,
-                        title: 'الروابط بتظهر هنا',
-                        description: 'ضيف نوتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.',
+                        title: context.l10n.linksEmptyTitle,
+                        description: context.l10n.linksEmptyBody,
                         action: FikraButton(
-                          label: 'ضيف نوت',
+                          label: context.l10n.addNote,
                           icon: Icons.add_rounded,
                           expand: false,
                           onPressed: () => context.go('/add'),
@@ -139,7 +141,10 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                             children: [
                               Flexible(
                                 child: Text(
-                                  '${Fmt.notes(notes.length)} · ${Fmt.links(links.length)}',
+                                  context.l10n.linksSummary(
+                                    Fmt.notes(context.l10n, notes.length),
+                                    Fmt.links(context.l10n, links.length),
+                                  ),
                                   style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -147,19 +152,19 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                               const Spacer(),
                               FikraIconButton(
                                 icon: Icons.add_rounded,
-                                label: 'تكبير',
+                                label: context.l10n.zoomIn,
                                 size: 40,
                                 onTap: () => _zoom(1.25),
                               ),
                               FikraIconButton(
                                 icon: Icons.remove_rounded,
-                                label: 'تصغير',
+                                label: context.l10n.zoomOut,
                                 size: 40,
                                 onTap: () => _zoom(0.8),
                               ),
                               FikraIconButton(
                                 icon: Icons.center_focus_strong_outlined,
-                                label: 'رجّع العرض',
+                                label: context.l10n.resetView,
                                 size: 40,
                                 onTap: () => _tc.value = _home(),
                               ),
@@ -171,14 +176,11 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                             children: [
                               Positioned.fill(child: _graphCanvas(layout, width, height)),
                               if (links.isEmpty && selected == null)
-                                const Positioned(
+                                Positioned(
                                   left: FikraSpace.screen,
                                   right: FikraSpace.screen,
                                   bottom: 16,
-                                  child: StatusBanner(
-                                    kind: BannerKind.info,
-                                    message: 'لسه مفيش روابط. النوتس اللي فيها مفاهيم مشتركة هتترابط.',
-                                  ),
+                                  child: StatusBanner(kind: BannerKind.info, message: context.l10n.noLinksYet),
                                 ),
                               Positioned(
                                 left: FikraSpace.screen,

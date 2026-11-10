@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,10 +38,10 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
     try {
       await ref.read(notesRepoProvider).edit(widget.noteId, title: _title!.text, text: _text!.text);
       if (!mounted) return;
-      showToast(context, 'التعديل اتحفظ');
+      showToast(context, context.l10n.changesSaved);
       _exit();
     } catch (_) {
-      if (mounted) showToast(context, 'معرفناش نحفظ التعديل، جرّب تاني');
+      if (mounted) showToast(context, context.l10n.changesSaveFailed);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -60,17 +61,25 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
     if (!_dirty) return _exit();
     final choice = await showFikraSheet<_Leave>(
       context,
-      title: 'عندك تعديلات مش محفوظة',
+      title: context.l10n.unsavedTitle,
       builder: (sheet) => Column(
         children: [
-          SheetOption(label: 'احفظ التعديل', icon: Icons.check_rounded, onTap: () => Navigator.pop(sheet, _Leave.save)),
           SheetOption(
-            label: 'اخرج من غير حفظ',
+            label: context.l10n.saveChanges,
+            icon: Icons.check_rounded,
+            onTap: () => Navigator.pop(sheet, _Leave.save),
+          ),
+          SheetOption(
+            label: context.l10n.discardChanges,
             icon: Icons.close_rounded,
             danger: true,
             onTap: () => Navigator.pop(sheet, _Leave.discard),
           ),
-          SheetOption(label: 'كمّل تعديل', icon: Icons.edit_outlined, onTap: () => Navigator.pop(sheet, _Leave.stay)),
+          SheetOption(
+            label: context.l10n.keepEditing,
+            icon: Icons.edit_outlined,
+            onTap: () => Navigator.pop(sheet, _Leave.stay),
+          ),
         ],
       ),
     );
@@ -106,24 +115,29 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
             ? LoadErrorView(onRetry: () => ref.invalidate(noteProvider(widget.noteId)))
             : note == null || _title == null
             ? (noteAsync.hasValue
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.search_off_rounded,
-                      title: 'النوت مش موجودة',
-                      description: 'يمكن تكون اتحذفت.',
+                      title: context.l10n.noteNotFoundTitle,
+                      description: context.l10n.noteNotFoundBody,
                     )
                   : const SizedBox.shrink())
             : ListView(
                 padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 24),
                 children: [
-                  Text('تعديل النوت', style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                  Text(context.l10n.editNoteTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 16),
-                  FikraField(controller: _title, hint: 'العنوان', icon: Icons.title_rounded, maxLength: 80),
+                  FikraField(
+                    controller: _title,
+                    hint: context.l10n.titleHint,
+                    icon: Icons.title_rounded,
+                    maxLength: 80,
+                  ),
                   const SizedBox(height: 12),
                   Glass(
                     radius: FikraRadius.lg,
                     padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
                     child: Semantics(
-                      label: 'نص النوت',
+                      label: context.l10n.noteTextA11y,
                       child: TextField(
                         controller: _text,
                         minLines: 8,
@@ -135,16 +149,16 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    note.source == NoteSource.text
-                        ? 'النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات النوت.'
-                        : 'التفريغ الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات النوت.',
-                    style: context.text.meta.copyWith(fontSize: 12),
-                  ),
+                  Text(context.l10n.originalKeptHint, style: context.text.meta.copyWith(fontSize: 12)),
                   const SizedBox(height: 22),
-                  FikraButton(label: 'حفظ التعديل', icon: Icons.check_rounded, loading: _saving, onPressed: _save),
+                  FikraButton(
+                    label: context.l10n.saveChanges,
+                    icon: Icons.check_rounded,
+                    loading: _saving,
+                    onPressed: _save,
+                  ),
                   const SizedBox(height: 10),
-                  FikraButton.secondary(label: 'إلغاء', onPressed: _saving ? null : _requestLeave),
+                  FikraButton.secondary(label: context.l10n.cancel, onPressed: _saving ? null : _requestLeave),
                 ],
               ),
       ),

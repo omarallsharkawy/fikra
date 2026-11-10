@@ -21,11 +21,11 @@ here as route targets. This directory has no subdirectories.
 
 - `class FikraApp extends ConsumerWidget`: builds `MaterialApp.router` with
   `routerProvider`, the light and dark themes from `buildFikraTheme`, and the
-  saved theme mode. Watches `startupMaintenanceProvider`.
+  saved theme mode and language. Watches `startupMaintenanceProvider`.
 
 ### `providers.dart`: dependency wiring
 
-Re-exports `isDemo` from `app_config.dart`, and `AppTheme` and
+Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 `WipeFilesException` from `lib/data/settings_repository.dart`.
 
 | Group | Provider | Type |
@@ -122,10 +122,9 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme` and
 
 ### Root widget
 
-- `FikraApp` renders `SizedBox.shrink` until the saved theme first resolves, so a
-  restart never flashes the wrong appearance. A theme read error falls back to
-  `AppTheme.system`.
-- The only supported locale is `ar`.
+- `FikraApp` renders `SizedBox.shrink` until the saved theme and language first resolve, so a
+  restart never flashes the wrong appearance. Preference read errors fall back to system settings.
+- Supported locales are `ar` and `en`, using `AppLocalizations.localizationsDelegates` and a localized application title.
 
 ### Routing
 
@@ -197,6 +196,15 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme` and
   `AnnotatedRegion<SystemUiOverlayStyle>`.
 - `app_config.dart`, `router.dart` redirects, and `shell.dart` perform no disk or
   network access.
+
+## Locale and clock providers
+
+- `appLanguageProvider` streams `SettingsRepository.watchLanguage`, exactly like appearance.
+- `deviceLocaleProvider` observes platform locale changes; `appLocaleProvider` resolves `AppLanguage.system/ar/en` to Arabic or English. Device languages other than English resolve to Arabic.
+- `aiServiceProvider` passes a callback reading the current resolved locale to `DemoAiService`. It does not recreate the AI or processing queue on language changes.
+- Startup maintenance waits for the saved language before resuming interrupted analysis.
+- `appClockProvider` defaults to `DateTime.now`; the welcome seed and date grouping use it. Tests override it for stable screenshots.
+- Nav labels resolve during build. The nav pill and segmented controls already compute their positions from `Directionality`; page-transition direction remains unchanged.
 
 ## Verification
 

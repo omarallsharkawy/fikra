@@ -33,6 +33,10 @@ The two pushed screens for one note: the read view at `/note/:id` and the editor
 - Plays voice attachments through `VoicePlayer`, and opens PDFs and photos through `openAttachment`.
 - Pushes `/note/<id>/edit` and `/note/<other id>` (the latter with `extra`), pops routes, and shows toasts.
 
+## Localization
+
+All detail/editor actions, states and accessibility labels use `context.l10n`, including topics and related notes. Original-text guidance is shared for every note source. Rewrite buttons retain their existing placement and height with smaller inner padding and up to two lines for the keep-original label to fit approved copy. Date headers use `appClockProvider`.
+
 ## Verification
 
 - Run: `flutter analyze && flutter test`

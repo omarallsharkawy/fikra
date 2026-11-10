@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:go_router/go_router.dart';
@@ -19,11 +20,11 @@ class _AppShellState extends State<AppShell> {
   /// aligns its own gradient to it.
   final _background = GlobalKey(debugLabel: 'shell background');
 
-  static const _tabs = <(String, IconData)>[
-    ('إضافة', Icons.add_circle_outline_rounded),
-    ('النوتس', Icons.sticky_note_2_outlined),
-    ('الروابط', Icons.hub_outlined),
-    ('اسأل', Icons.chat_bubble_outline_rounded),
+  List<(String, IconData)> _tabs(BuildContext context) => [
+    (context.l10n.navAdd, Icons.add_circle_outline_rounded),
+    (context.l10n.navNotes, Icons.sticky_note_2_outlined),
+    (context.l10n.navLinks, Icons.hub_outlined),
+    (context.l10n.navAsk, Icons.chat_bubble_outline_rounded),
   ];
 
   @override
@@ -43,7 +44,7 @@ class _AppShellState extends State<AppShell> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
               child: FikraNavBar(
-                items: _tabs,
+                items: _tabs(context),
                 index: shell.currentIndex,
                 onTap: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
               ),

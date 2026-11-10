@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,11 +39,11 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
     final repo = ref.read(notesRepoProvider);
     return showFikraSheet<void>(
       context,
-      title: 'خيارات النوت',
+      title: context.l10n.noteOptions,
       builder: (sheet) => Column(
         children: [
           SheetOption(
-            label: 'تعديل',
+            label: context.l10n.edit,
             icon: Icons.edit_outlined,
             onTap: () {
               Navigator.pop(sheet);
@@ -51,27 +52,27 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
           ),
           if (note.hasImprovedVersion)
             SheetOption(
-              label: 'رجّع النص الأصلي',
+              label: context.l10n.restoreOriginal,
               icon: Icons.restore_rounded,
               onTap: () async {
                 Navigator.pop(sheet);
-                await runAction(context, () => repo.restoreOriginal(note.id), success: 'رجعنا النص الأصلي');
+                await runAction(context, () => repo.restoreOriginal(note.id), success: context.l10n.originalRestored);
               },
             ),
           SheetOption(
-            label: 'حذف النوت',
+            label: context.l10n.deleteNote,
             icon: Icons.delete_outline_rounded,
             danger: true,
             onTap: () async {
               final ok = await confirmDestructive(
                 sheet,
-                title: 'تحذف النوت دي؟',
-                message: 'النوت وروابطها هيتحذفوا، ومش هينفع ترجّعها.',
+                title: context.l10n.deleteNoteTitle,
+                message: context.l10n.deleteNoteBody,
               );
               if (!ok || !sheet.mounted) return;
               Navigator.pop(sheet);
               if (!mounted) return;
-              final deleted = await runAction(context, () => repo.delete(note.id), success: 'النوت اتحذفت');
+              final deleted = await runAction(context, () => repo.delete(note.id), success: context.l10n.noteDeleted);
               if (deleted && mounted) context.pop();
             },
           ),
@@ -96,10 +97,14 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
             child: Row(
               children: [
-                FikraIconButton(icon: Icons.arrow_back_rounded, label: 'رجوع', onTap: () => context.pop()),
+                FikraIconButton(icon: Icons.arrow_back_rounded, label: context.l10n.back, onTap: () => context.pop()),
                 const Spacer(),
                 if (note != null)
-                  FikraIconButton(icon: Icons.more_horiz_rounded, label: 'خيارات', onTap: () => _showOptions(note)),
+                  FikraIconButton(
+                    icon: Icons.more_horiz_rounded,
+                    label: context.l10n.options,
+                    onTap: () => _showOptions(note),
+                  ),
               ],
             ),
           ),
@@ -108,10 +113,10 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
               value: noteAsync,
               onRetry: () => ref.invalidate(noteProvider(widget.noteId)),
               data: (note) => note == null
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.search_off_rounded,
-                      title: 'النوت مش موجودة',
-                      description: 'يمكن تكون اتحذفت.',
+                      title: context.l10n.noteNotFoundTitle,
+                      description: context.l10n.noteNotFoundBody,
                     )
                   : _Body(note: note, view: _view, onView: (v) => setState(() => _view = v)),
             ),
@@ -136,7 +141,7 @@ class _Body extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
       children: [
-        Text(noteTitle(note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+        Text(noteTitle(context, note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         Row(
           children: [
@@ -146,7 +151,11 @@ class _Body extends ConsumerWidget {
             ],
             Flexible(
               child: Text(
-                [Fmt.dayHeader(note.createdAt), Fmt.time(note.createdAt), ?note.cluster].join(' · '),
+                [
+                  Fmt.dayHeader(context.l10n, note.createdAt, now: ref.read(appClockProvider)()),
+                  Fmt.time(context.l10n, note.createdAt),
+                  ?note.cluster,
+                ].join(' · '),
                 style: context.text.meta.copyWith(fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -162,10 +171,10 @@ class _Body extends ConsumerWidget {
             children: [
               if (note.status == ProcessingStatus.processing) ...[const _ProcessingCard(), const SizedBox(height: 16)],
               if (note.status == ProcessingStatus.failed) ...[
-                const StatusBanner(kind: BannerKind.error, message: 'التحليل فشل، بس النوت محفوظة زي ما هي.'),
+                StatusBanner(kind: BannerKind.error, message: context.l10n.analysisFailedBanner),
                 const SizedBox(height: 10),
                 FikraButton.secondary(
-                  label: 'جرّب التحليل تاني',
+                  label: context.l10n.analyzeAgain,
                   icon: Icons.refresh_rounded,
                   onPressed: () => ref.read(noteProcessorProvider).retry(note.id),
                 ),
@@ -179,24 +188,31 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: 16),
         ],
         if (improved) ...[
-          SegmentedPill(options: const ['النسخة المحسّنة', 'الأصل'], selected: view, onChanged: onView),
+          SegmentedPill(
+            options: [context.l10n.viewEdited, context.l10n.viewOriginal],
+            selected: view,
+            onChanged: onView,
+          ),
           const SizedBox(height: 14),
         ],
         if (note.rewrite == RewriteStatus.pending && note.proposedText != null && text.isNotEmpty) ...[
-          Text('النص الأصلي', style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary)),
+          Text(
+            context.l10n.originalTextLabel,
+            style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
+          ),
           const SizedBox(height: 6),
         ],
         if (text.isNotEmpty) SelectableText(text, style: context.text.bodyLarge.copyWith(height: 1.7)),
         if (note.filePaths.isNotEmpty) ...[const SizedBox(height: 16), _Attachment(note: note)],
         if (note.conceptList.isNotEmpty) ...[
           const SizedBox(height: 24),
-          Text('المفاهيم', style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+          Text(context.l10n.topicsHeader, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [for (final c in note.conceptList) FikraChip(label: c)]),
         ],
         if (note.status == ProcessingStatus.ready) ...[
           const SizedBox(height: 24),
-          Text('نوتس مرتبطة', style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+          Text(context.l10n.relatedNotesHeader, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 10),
           _RelatedNotes(note: note),
         ],
@@ -221,12 +237,7 @@ class _ProcessingCard extends StatelessWidget {
             child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accentLight),
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'فِكرة بتحلل النوت: بتطلّع المفاهيم وبتدوّر على نوتس مرتبطة. النوت نفسها محفوظة.',
-              style: context.text.caption,
-            ),
-          ),
+          Expanded(child: Text(context.l10n.analyzingBody, style: context.text.caption)),
         ],
       ),
     );
@@ -269,8 +280,8 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
             children: [
               Icon(Icons.auto_awesome_outlined, size: 18, color: context.colors.accentLight),
               const SizedBox(width: 8),
-              Expanded(child: Text('اقتراح إعادة صياغة', style: context.text.cardTitleSmall)),
-              if (isDemo) const FikraBadge(kind: BadgeKind.demo, label: 'تجريبي'),
+              Expanded(child: Text(context.l10n.suggestedRewrite, style: context.text.cardTitleSmall)),
+              if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoBadge),
             ],
           ),
           const SizedBox(height: 10),
@@ -280,7 +291,8 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
             children: [
               Expanded(
                 child: FikraButton(
-                  label: 'اعتمد',
+                  label: context.l10n.useRewrite,
+                  horizontalPadding: 8,
                   icon: Icons.check_rounded,
                   loading: _busy,
                   onPressed: () => _decide(accept: true),
@@ -289,7 +301,9 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
               const SizedBox(width: 10),
               Expanded(
                 child: FikraButton.secondary(
-                  label: 'خلي الأصل',
+                  label: context.l10n.keepOriginal,
+                  horizontalPadding: 8,
+                  maxLines: 2,
                   onPressed: _busy ? null : () => _decide(accept: false),
                 ),
               ),
@@ -307,7 +321,7 @@ class _Attachment extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final name = note.attachmentName ?? 'ملف PDF';
+    final name = note.attachmentName ?? context.l10n.pdfFile;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 10,
@@ -317,7 +331,7 @@ class _Attachment extends ConsumerWidget {
             key: const ValueKey('open-pdf'),
             onTap: () => openAttachment(context, ref, note.attachmentPath!),
             pressedScale: 0.98,
-            semanticLabel: 'افتح ملف $name',
+            semanticLabel: context.l10n.openFileA11y(name),
             child: Glass(
               radius: FikraRadius.lg,
               padding: const EdgeInsets.all(14),
@@ -328,7 +342,8 @@ class _Attachment extends ConsumerWidget {
                   Expanded(
                     child: Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
-                  if (note.attachmentBytes != null) Text(Fmt.bytes(note.attachmentBytes!), style: context.text.meta),
+                  if (note.attachmentBytes != null)
+                    Text(Fmt.bytes(context.l10n, note.attachmentBytes!), style: context.text.meta),
                   const SizedBox(width: 10),
                   Icon(Icons.open_in_new_rounded, size: 18, color: context.colors.textMeta),
                 ],
@@ -361,7 +376,7 @@ class _Photos extends ConsumerWidget {
             key: ValueKey('open-photo-$i'),
             onTap: () => openAttachment(context, ref, path),
             pressedScale: 0.98,
-            semanticLabel: 'افتح الصورة ${i + 1}',
+            semanticLabel: context.l10n.openPhotoA11y(i + 1),
             child: PhotoThumb(path: path),
           ),
       ],
@@ -379,7 +394,7 @@ class _RelatedNotes extends ConsumerWidget {
     final linksAsync = ref.watch(linksOfProjectProvider(note.projectId));
     final notesAsync = ref.watch(notesOfProjectProvider(note.projectId));
     if ((linksAsync.hasError && !linksAsync.hasValue) || (notesAsync.hasError && !notesAsync.hasValue)) {
-      return Text('مقدرناش نجيب النوتس المرتبطة دلوقتي.', style: context.text.caption);
+      return Text(context.l10n.relatedLoadFailed, style: context.text.caption);
     }
     if (!linksAsync.hasValue || !notesAsync.hasValue) return const SizedBox(height: 48);
     final links = linksAsync.value!;
@@ -394,7 +409,7 @@ class _RelatedNotes extends ConsumerWidget {
       if (other != null) related.putIfAbsent(otherId, () => (other, l));
     }
 
-    if (related.isEmpty) return Text('لسه مفيش نوتس شبهها في المشروع ده.', style: context.text.caption);
+    if (related.isEmpty) return Text(context.l10n.relatedEmpty, style: context.text.caption);
     return Column(
       children: [
         for (final (other, link) in related.values)
@@ -402,18 +417,21 @@ class _RelatedNotes extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Pressable(
               pressedScale: 0.98,
-              semanticLabel: '${noteTitle(other)}، ${link.label}',
+              semanticLabel: context.l10n.relatedRowA11y(noteTitle(context, other), link.label),
               onTap: () => context.push('/note/${other.id}', extra: other),
               child: Glass(
                 radius: FikraRadius.md,
-                padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 16, 12),
                 child: Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(noteTitle(other), style: context.text.body.copyWith(fontWeight: FontWeight.w600)),
+                          Text(
+                            noteTitle(context, other),
+                            style: context.text.body.copyWith(fontWeight: FontWeight.w600),
+                          ),
                           Text(link.label, style: context.text.meta.copyWith(color: context.colors.textLink)),
                         ],
                       ),

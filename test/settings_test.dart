@@ -35,6 +35,20 @@ void main() {
     expect(await settings.watchTheme().first, AppTheme.system);
   });
 
+  test('language defaults to system, persists, and unknown values fall back', () async {
+    expect(await settings.watchLanguage().first, AppLanguage.system);
+    await settings.setLanguage(AppLanguage.en);
+    final reopened = LocalSettingsRepository(db, AttachmentStore());
+    expect(await reopened.watchLanguage().first, AppLanguage.en);
+    await settings.setLanguage(AppLanguage.ar);
+    expect(await reopened.watchLanguage().first, AppLanguage.ar);
+    await settings.setLanguage(AppLanguage.system);
+    expect(await reopened.watchLanguage().first, AppLanguage.system);
+    expect(await (db.select(db.settings)..where((s) => s.key.equals('language'))).get(), isEmpty);
+    await db.into(db.settings).insertOnConflictUpdate(const Setting(key: 'language', value: 'unknown'));
+    expect(await reopened.watchLanguage().first, AppLanguage.system);
+  });
+
   test('wipe removes all data and files but keeps the theme', () async {
     final projects = LocalProjectsRepository(db);
     final notes = LocalNotesRepository(db);
@@ -46,6 +60,7 @@ void main() {
     final unrelated = await File('${temp.path}/other.txt').writeAsString('x');
 
     await settings.setTheme(AppTheme.dark);
+    await settings.setLanguage(AppLanguage.en);
     final p = await projects.create('p');
     await notes.create(projectId: p.id, title: 't', text: 'x', source: NoteSource.voice, voicePath: file.path);
     await chat.add(projectId: p.id, role: 'user', body: 'q');
@@ -61,5 +76,6 @@ void main() {
     expect(draft.existsSync(), isFalse);
     expect(unrelated.existsSync(), isTrue);
     expect(await settings.watchTheme().first, AppTheme.dark);
+    expect(await settings.watchLanguage().first, AppLanguage.en);
   });
 }

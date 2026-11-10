@@ -1,29 +1,32 @@
+import 'package:flutter/widgets.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../ai/demo_ai_service.dart';
 import '../local/database.dart';
 import '../repositories.dart';
 
 /// "جرّب مشروع تجريبي": a ready project so the demo has something to show.
-Future<Project> seedDemoProject(ProjectsRepository projects, NotesRepository notes) async {
-  final project = await projects.create('مشروع التخرج');
-  final ai = DemoAiService(latency: Duration.zero);
+Future<Project> seedDemoProject(
+  ProjectsRepository projects,
+  NotesRepository notes, {
+  Locale locale = const Locale('ar'),
+  DateTime Function()? clock,
+}) async {
+  final l10n = lookupAppLocalizations(locale);
+  final project = await projects.create(l10n.sampleProjectName);
+  final ai = DemoAiService(latency: Duration.zero, locale: locale);
 
-  const samples = <(String, String)>[
-    ('فكرة المشروع', 'تطبيق نوتس بيستخدم الذكاء الاصطناعي عشان يربط الأفكار ببعض ويجاوب على أسئلتي من نوتسي بس.'),
-    (
-      'إزاي RAG بيشتغل',
-      'الـrag بيجيب أقرب أجزاء من النوتس بالـembedding وبعدين الـllm بيكتب الإجابة منها مع ذكر المصدر',
-    ),
-    (
-      'شكل الواجهة',
-      'تصميم الواجهة داكن وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: إضافة، النوتس، الروابط، اسأل.',
-    ),
-    ('إدارة الحالة في Flutter', 'هستخدم riverpod لإدارة الحالة في flutter، وقاعدة بيانات محلية للنسخة التجريبية.'),
-    ('الباك إند', 'علاء هيعمل الباك إند بـfastapi و postgres مع pgvector، والتطبيق هيكلمه عن طريق api.'),
-    ('البحث الدلالي', 'البحث الدلالي بيدوّر بالمعنى مش بالكلمة، وده معتمد على التضمينات اللي بتتخزن في قاعدة بيانات.'),
-    ('محاضرة الشبكات', 'محاضرة الشبكات النهارده كانت عن TCP و UDP، لازم أراجعها قبل الامتحان.'),
+  final samples = <(String, String)>[
+    (l10n.sample1Title, l10n.sample1Body),
+    (l10n.sample2Title, l10n.sample2Body),
+    (l10n.sample3Title, l10n.sample3Body),
+    (l10n.sample4Title, l10n.sample4Body),
+    (l10n.sample5Title, l10n.sample5Body),
+    (l10n.sample6Title, l10n.sample6Body),
+    (l10n.sample7Title, l10n.sample7Body),
   ];
 
-  final base = DateTime.now().subtract(const Duration(days: 2));
+  final base = (clock ?? DateTime.now)().subtract(const Duration(days: 2));
   var i = 0;
   for (final (title, text) in samples) {
     // Spread the samples over the last two days so the list shows day groups.

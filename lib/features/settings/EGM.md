@@ -2,13 +2,13 @@
 
 ## Overview
 
-The settings screen, pushed at `/settings` by `lib/app/router.dart`. It controls appearance, wipes local data, and shows what this build is.
+The settings screen, pushed at `/settings` by `lib/app/router.dart`. It controls appearance and language, wipes local data, and shows what this build is.
 
 ## Interface
 
 - `settings_screen.dart`
   - `SettingsScreen`: `ConsumerWidget` with no parameters.
-- Consumes `appThemeProvider`, `settingsRepoProvider`, `isDemo`, `AppTheme`, and `WipeFilesException` from `lib/app/providers.dart`.
+- Consumes `appThemeProvider`, `appLanguageProvider`, `settingsRepoProvider`, `isDemo`, `AppTheme`, `AppLanguage`, and `WipeFilesException` from `lib/app/providers.dart`.
 
 ## Invariants
 
@@ -21,9 +21,13 @@ The settings screen, pushed at `/settings` by `lib/app/router.dart`. It controls
 ## Side Effects
 
 - Persists the theme through `SettingsRepository.setTheme`.
-- `SettingsRepository.wipeAllData` deletes all chat entries, links, notes, projects, and the current-project setting, then purges attachments and temp recordings. The saved theme is kept.
+- `SettingsRepository.wipeAllData` deletes all chat entries, links, notes, projects, and the current-project setting, then purges attachments and temp recordings. The saved theme and language are kept.
 - After a wipe, `lib/app/router.dart` redirects to `/welcome` because no projects remain.
 - Pops the route and shows snack bars.
+
+## Localization
+
+Language uses the same `SegmentedPill` and persisted-stream pattern as appearance. `_languages` order is system, ar, en; the language names are endonyms in both UIs. Changes update `MaterialApp` immediately. Wiping data preserves both preferences; wipe messages are captured before awaiting the operation.
 
 ## Verification
 

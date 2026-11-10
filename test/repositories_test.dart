@@ -13,6 +13,7 @@ import 'package:fikra/data/repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   late FikraDatabase db;
   late LocalProjectsRepository projects;

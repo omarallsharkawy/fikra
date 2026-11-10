@@ -3,7 +3,11 @@ part of 'links_screen.dart';
 /// Viewport: initial view, zoom buttons and the interactive canvas.
 extension _LinksViewport on _LinksScreenState {
   /// RTL canvas: start the view at its right edge, where each row begins.
-  Matrix4 _home() => Matrix4.translationValues(math.min(0, _viewportW - _canvasW), 0, 0);
+  Matrix4 _home() => Matrix4.translationValues(
+    Directionality.of(context) == TextDirection.rtl ? math.min(0, _viewportW - _canvasW) : 0,
+    0,
+    0,
+  );
 
   void _zoom(double factor) {
     final m = _tc.value.clone();
@@ -22,7 +26,7 @@ extension _LinksViewport on _LinksScreenState {
   Widget _graphCanvas(GraphLayout layout, double width, double height) {
     return LayoutBuilder(
       builder: (context, box) {
-        final key = '${ref.read(selectedProjectProvider)?.id}|$width|${box.maxWidth}';
+        final key = '${ref.read(selectedProjectProvider)?.id}|$width|${box.maxWidth}|${layout.rtl}';
         if (key != _fittedFor) {
           _fittedFor = key;
           _viewportW = box.maxWidth;
@@ -59,9 +63,9 @@ extension _LinksViewport on _LinksScreenState {
                       ),
                     ),
                     for (final row in layout.rows)
-                      Positioned(
+                      PositionedDirectional(
                         top: GraphLayout.padding + row.index * GraphLayout.rowHeight,
-                        right: GraphLayout.padding,
+                        start: GraphLayout.padding,
                         child: Text(
                           row.cluster,
                           style: context.text.chip.copyWith(color: context.colors.textSecondary),
@@ -83,7 +87,10 @@ extension _LinksViewport on _LinksScreenState {
                           rect: _rect(layout.positionInRow(row.index, row.visible.length)),
                           child: _OverflowNode(
                             label: '+${row.hiddenCount}',
-                            semanticLabel: 'عرض ${Fmt.notes(row.notes.length)} في ${row.cluster}',
+                            semanticLabel: context.l10n.showGroupA11y(
+                              Fmt.notes(context.l10n, row.notes.length),
+                              row.cluster,
+                            ),
                             numbersOnly: true,
                             onTap: () => _showCluster(row),
                           ),
@@ -92,7 +99,7 @@ extension _LinksViewport on _LinksScreenState {
                       Positioned.fromRect(
                         rect: _rect(layout.positionInRow(layout.rows.length, 0)),
                         child: _OverflowNode(
-                          label: 'مجموعات أكتر (${layout.hiddenRows.length})',
+                          label: context.l10n.moreGroupsCount(layout.hiddenRows.length),
                           onTap: () => _showMoreClusters(layout),
                         ),
                       ),

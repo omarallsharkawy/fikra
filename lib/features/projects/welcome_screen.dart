@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,12 +19,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   bool _seeding = false;
 
   Future<void> _create() async {
-    final name = await askProjectName(context, title: 'أول مشروع', action: 'إنشاء');
+    final name = await askProjectName(context, title: context.l10n.firstProjectTitle, action: context.l10n.create);
     if (name == null || !mounted) return;
     await runAction(
       context,
       () => ref.read(projectsRepoProvider).create(name),
-      failure: 'مقدرناش نعمل المشروع، جرّب تاني',
+      failure: context.l10n.createProjectFailed,
     );
   }
 
@@ -33,8 +34,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     try {
       await runAction(
         context,
-        () => seedDemoProject(ref.read(projectsRepoProvider), ref.read(notesRepoProvider)),
-        failure: 'مقدرناش نجهّز المشروع التجريبي، جرّب تاني',
+        () => seedDemoProject(
+          ref.read(projectsRepoProvider),
+          ref.read(notesRepoProvider),
+          locale: ref.read(appLocaleProvider),
+          clock: ref.read(appClockProvider),
+        ),
+        failure: context.l10n.sampleProjectFailed,
       );
     } finally {
       if (mounted) setState(() => _seeding = false);
@@ -68,31 +74,35 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'فِكرة',
+                    context.l10n.appTitle,
                     textAlign: TextAlign.center,
                     style: context.text.title.copyWith(fontSize: 34, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'اكتب. اربط. اسأل.',
+                    context.l10n.tagline,
                     textAlign: TextAlign.center,
                     style: context.text.bodyLarge.copyWith(color: context.colors.textSecondary),
                   ),
                   const SizedBox(height: 28),
-                  const _Point(icon: Icons.edit_note_rounded, text: 'اكتب أو سجّل صوت أو ارفع PDF'),
-                  const _Point(icon: Icons.hub_outlined, text: 'فِكرة بتربط النوتس اللي شبه بعض لوحدها'),
-                  const _Point(icon: Icons.chat_bubble_outline_rounded, text: 'اسأل والإجابة تيجي من نوتسك مع المصدر'),
+                  _Point(icon: Icons.edit_note_rounded, text: context.l10n.welcomeCapture),
+                  _Point(icon: Icons.hub_outlined, text: context.l10n.welcomeLinks),
+                  _Point(icon: Icons.chat_bubble_outline_rounded, text: context.l10n.welcomeAsk),
                   const Spacer(flex: 4),
                   if (isDemo) ...[
-                    const Center(
-                      child: FikraBadge(kind: BadgeKind.demo, label: 'نسخة تجريبية: البيانات على الموبايل بس'),
+                    Center(
+                      child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.welcomeDemoBadge),
                     ),
                     const SizedBox(height: 14),
                   ],
-                  FikraButton(label: 'ابدأ مشروع جديد', icon: Icons.add_rounded, onPressed: _seeding ? null : _create),
+                  FikraButton(
+                    label: context.l10n.startNewProject,
+                    icon: Icons.add_rounded,
+                    onPressed: _seeding ? null : _create,
+                  ),
                   const SizedBox(height: 10),
                   FikraButton.secondary(
-                    label: 'جرّب مشروع تجريبي',
+                    label: context.l10n.trySampleProject,
                     icon: Icons.auto_awesome_outlined,
                     loading: _seeding,
                     onPressed: _seed,

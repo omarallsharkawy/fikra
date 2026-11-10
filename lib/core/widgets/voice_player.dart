@@ -1,3 +1,5 @@
+import 'package:fikra/l10n/localizations.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -66,13 +68,17 @@ class _VoicePlayerState extends State<VoicePlayer> {
       radius: widget.embedded ? FikraRadius.md : FikraRadius.lg,
       color: widget.embedded ? context.colors.pressed : null,
       borderColor: widget.embedded ? Colors.transparent : null,
-      padding: widget.embedded ? const EdgeInsets.fromLTRB(8, 8, 4, 8) : const EdgeInsets.fromLTRB(12, 12, 8, 12),
+      padding: widget.embedded
+          ? const EdgeInsetsDirectional.fromSTEB(4, 8, 8, 8)
+          : const EdgeInsetsDirectional.fromSTEB(8, 12, 12, 12),
       child: Row(
         children: [
           Pressable(
             onTap: _error ? null : () => _playing ? _player.pause() : _player.play(),
             minTarget: true,
-            semanticLabel: _error ? 'التسجيل مش متاح' : (_playing ? 'إيقاف مؤقت' : 'تشغيل'),
+            semanticLabel: _error
+                ? context.l10n.voiceUnavailableA11y
+                : (_playing ? context.l10n.voicePauseA11y : context.l10n.voicePlayA11y),
             child: Opacity(
               opacity: _error ? 0.4 : 1,
               child: Container(
@@ -91,7 +97,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.title ?? 'تسجيل صوتي', style: context.text.body),
+                Text(widget.title ?? context.l10n.voiceRecording, style: context.text.body),
                 const SizedBox(height: 6),
                 StreamBuilder<Duration>(
                   stream: _player.positionStream,
@@ -113,7 +119,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          _error ? 'الملف مش متاح' : Fmt.duration(widget.durationMs),
+                          _error ? context.l10n.fileUnavailable : Fmt.duration(widget.durationMs),
                           style: context.text.meta.copyWith(color: context.colors.textSecondary),
                         ),
                       ],
@@ -127,7 +133,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
             Pressable(
               onTap: widget.onDelete,
               minTarget: true,
-              semanticLabel: 'احذف التسجيل',
+              semanticLabel: context.l10n.deleteRecording,
               child: Padding(
                 padding: EdgeInsets.all(12),
                 child: Icon(Icons.delete_outline_rounded, color: context.colors.danger),

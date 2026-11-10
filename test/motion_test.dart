@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/app/shell.dart';
 import 'package:fikra/core/motion/motion.dart';
 import 'package:fikra/core/motion/page_transitions.dart';
@@ -16,13 +17,17 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Center(
-          child: Pressable(onTap: () => taps++, semanticLabel: 'حفظ', child: const SizedBox(width: 48, height: 48)),
+          child: Pressable(
+            onTap: () => taps++,
+            semanticLabel: lookupAppLocalizations(const Locale('ar')).save,
+            child: const SizedBox(width: 48, height: 48),
+          ),
         ),
       ),
     );
-    final node = tester.getSemantics(find.bySemanticsLabel('حفظ'));
+    final node = tester.getSemantics(find.bySemanticsLabel(lookupAppLocalizations(const Locale('ar')).save));
     expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-    tester.semantics.tap(find.semantics.byLabel('حفظ'));
+    tester.semantics.tap(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).save));
     expect(taps, 1);
     semantics.dispose();
   });
@@ -466,6 +471,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         navigatorKey: navigator,
+        locale: const Locale('ar'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         theme: buildFikraTheme(Brightness.dark),
         home: Builder(
           builder: (context) {
@@ -482,7 +490,7 @@ void main() {
     expect(await dismissed, isFalse);
     final confirmed = confirmDestructive(pageContext, title: 'title', message: 'message');
     await tester.pumpAndSettle();
-    await tester.tap(find.text('حذف'));
+    await tester.tap(find.text(lookupAppLocalizations(const Locale('ar')).delete));
     await tester.pumpAndSettle();
     expect(await confirmed, isTrue);
   });

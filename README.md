@@ -68,7 +68,7 @@ Add screen
 - `test/app_flow_test.dart`: التطبيق كامل على داتابيز in-memory، بـ`fikraTest` و`pumpUntil` و`pumpFuture` من `test/support/app_harness.dart`.
 - لقطات شاشة لمراجعة التصميم (مش بتشتغل مع `flutter test` العادي):
   ```bash
-  flutter test test/screenshots --run-skipped -t screenshots    # → build/screenshots/{dark,light}/*.png
+  flutter test test/screenshots --run-skipped -t screenshots    # → build/screenshots/{ar,en}/{dark,light}/*.png
   ```
 - الـoverrides: `databaseProvider` (داتابيز in-memory) و`attachmentStoreProvider` و`fileOpenerProvider` (fakes).
 
@@ -77,3 +77,11 @@ Add screen
 
 ## قبل الربط والـrelease
 [docs/before-backend-and-release.md](docs/before-backend-and-release.md)
+
+## Languages
+
+The UI supports Arabic (RTL) and English (LTR). Settings → Language offers System, العربية, and English. System uses English for an English device and Arabic for every other device language. The preference persists and applies immediately; saved notes, topics, groups and answers keep their original language.
+
+To add or change copy, edit the same key in `lib/l10n/app_ar.arb` (the template) and `app_en.arb`, using the approved wording in `docs/plans/copy-glossary.md`. Add typed placeholder metadata and ICU plural branches when needed, then run `flutter gen-l10n`. Generated `app_localizations*.dart` files live in `lib/l10n` and are checked in; do not edit them by hand. Widgets read `context.l10n` from `lib/l10n/localizations.dart`; code without a context receives the resolved locale and calls `lookupAppLocalizations(locale)`. Demo topic/group labels use `lib/l10n/demo_vocabulary.json`, following the glossary's separate vocabulary tables.
+
+Run `flutter analyze`, `flutter test`, and the screenshot command above after a copy change. Screenshots cover both languages and themes with fixed sample timestamps.

@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/features/settings/settings_screen.dart';
 import 'package:fikra/features/note_details/edit_note_screen.dart';
 import 'package:fikra/features/note_details/note_details_screen.dart';
@@ -13,70 +14,75 @@ import 'package:go_router/go_router.dart';
 import 'support/app_harness.dart';
 
 void main() {
+  final l10n = lookupAppLocalizations(const Locale('ar'));
   fikraTest('welcome -> demo project -> notes list -> links tab', (tester, db) async {
-    final tryDemo = find.text('جرّب مشروع تجريبي');
+    final tryDemo = find.text(l10n.trySampleProject);
     await pumpUntil(tester, tryDemo);
     expect(Directionality.of(tester.element(tryDemo)), TextDirection.rtl);
 
     await tester.tap(tryDemo);
     // Newest seeded note: top of the list once seeding finished.
-    await pumpUntil(tester, find.text('محاضرة الشبكات'));
-    expect(find.text('مشروع التخرج'), findsOneWidget);
+    await pumpUntil(tester, find.text(l10n.sample7Title));
+    expect(find.text(l10n.sampleProjectName), findsOneWidget);
 
     await tester.tap(Tabs.finder(Tabs.links));
     await pumpUntil(tester, find.text('الذكاء الاصطناعي'));
   });
 
   fikraTest('notes search filters after a short pause and clears instantly', (tester, db) async {
-    await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
-    await tester.tap(find.text('جرّب مشروع تجريبي'));
-    await pumpUntil(tester, find.text('محاضرة الشبكات'));
-    expect(find.text('البحث الدلالي'), findsWidgets);
+    await pumpUntil(tester, find.text(l10n.trySampleProject));
+    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.sample7Title));
+    expect(find.text(l10n.sample6Title), findsWidgets);
 
     await tester.enterText(find.byType(TextField).first, 'TCP');
     await tester.pump(const Duration(milliseconds: 50));
-    expect(find.text('البحث الدلالي'), findsWidgets); // debounced: not filtered yet
+    expect(find.text(l10n.sample6Title), findsWidgets); // debounced: not filtered yet
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('محاضرة الشبكات'), findsOneWidget);
-    expect(find.text('البحث الدلالي'), findsNothing);
+    expect(find.text(l10n.sample7Title), findsOneWidget);
+    expect(find.text(l10n.sample6Title), findsNothing);
 
     await tester.enterText(find.byType(TextField).first, '');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('البحث الدلالي'), findsWidgets);
+    expect(find.text(l10n.sample6Title), findsWidgets);
   });
 
   fikraTest('settings: theme choice applies and wipe returns to welcome', (tester, db) async {
-    await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
-    await tester.tap(find.text('جرّب مشروع تجريبي'));
-    await pumpUntil(tester, find.text('محاضرة الشبكات'));
+    await pumpUntil(tester, find.text(l10n.trySampleProject));
+    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.sample7Title));
 
     await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
-    await pumpUntil(tester, find.text('المظهر'));
-    expect(Theme.of(tester.element(find.text('المظهر'))).brightness, Brightness.dark);
+    await pumpUntil(tester, find.text(l10n.appearance));
+    expect(Theme.of(tester.element(find.text(l10n.appearance))).brightness, Brightness.dark);
 
-    await tester.tap(find.text('فاتح'));
-    await pumpUntil(tester, find.text('المظهر'));
-    for (var i = 0; i < 20 && Theme.of(tester.element(find.text('المظهر'))).brightness != Brightness.light; i++) {
+    await tester.tap(find.text(l10n.themeLight));
+    await pumpUntil(tester, find.text(l10n.appearance));
+    for (
+      var i = 0;
+      i < 20 && Theme.of(tester.element(find.text(l10n.appearance))).brightness != Brightness.light;
+      i++
+    ) {
       await tester.pump(const Duration(milliseconds: 50));
     }
-    expect(Theme.of(tester.element(find.text('المظهر'))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text(l10n.appearance))).brightness, Brightness.light);
 
-    await tester.tap(find.text('مسح كل البيانات'));
-    await pumpUntil(tester, find.text('امسح كله'));
-    await tester.tap(find.text('امسح كله'));
-    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
-    await pumpUntil(tester, find.text('كل حاجة اتمسحت'));
+    await tester.tap(find.text(l10n.eraseAll));
+    await pumpUntil(tester, find.text(l10n.eraseAllConfirm));
+    await tester.tap(find.text(l10n.eraseAllConfirm));
+    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.eraseAllDone));
     expect(await pumpFuture(tester, () => db.select(db.notes).get()), isEmpty);
     // The theme choice survives the wipe.
-    expect(Theme.of(tester.element(find.text('ابدأ مشروع جديد'))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text(l10n.startNewProject))).brightness, Brightness.light);
   });
 
   fikraTest('add: one composer box holds title, text, tools and save', (tester, db) async {
-    await pumpUntil(tester, find.text('جرّب مشروع تجريبي'));
-    await tester.tap(find.text('جرّب مشروع تجريبي'));
-    await pumpUntil(tester, find.text('محاضرة الشبكات'));
+    await pumpUntil(tester, find.text(l10n.trySampleProject));
+    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.sample7Title));
 
     await tester.tap(Tabs.finder(Tabs.add));
     final save = find.byKey(const ValueKey('add-save'));
@@ -101,19 +107,19 @@ void main() {
   });
 
   fikraTest('deleting the last project returns to welcome', (tester, db) async {
-    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    await pumpUntil(tester, find.text(l10n.startNewProject));
 
     final projects = LocalProjectsRepository(db);
     final p = await pumpFuture(tester, () => projects.create('مؤقت'));
     await pumpUntil(tester, find.text('مؤقت'));
 
     await pumpFuture(tester, () => projects.delete(p.id));
-    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    await pumpUntil(tester, find.text(l10n.startNewProject));
     expect(await pumpFuture(tester, () => db.select(db.projects).get()), isEmpty);
   });
 
   fikraTest('a note from another project still shows its related notes', (tester, db) async {
-    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    await pumpUntil(tester, find.text(l10n.startNewProject));
     final projects = LocalProjectsRepository(db);
     final notes = LocalNotesRepository(db);
 
@@ -153,7 +159,7 @@ void main() {
     });
 
     Future<Note> seed(WidgetTester tester, FikraDatabase db) async {
-      await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+      await pumpUntil(tester, find.text(l10n.startNewProject));
       late Note note;
       await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('مشروع');
@@ -202,12 +208,12 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('open-pdf')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.textContaining('معرفناش نفتح الملف'), findsOneWidget);
+      expect(find.text(l10n.openFileFailed), findsOneWidget);
     }, opener: opener);
   });
 
   fikraTest('an opened note shows its content on the first frame, before the query returns', (tester, db) async {
-    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    await pumpUntil(tester, find.text(l10n.startNewProject));
     late Note note;
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('مشروع');
@@ -248,7 +254,7 @@ void main() {
   // go_router 18 falls back to NoTransitionPage for Flutter's own MaterialApp,
   // so pushed screens must stay explicit pages with the app's transition.
   fikraTest('note, edit and settings slide in with the push transition through the real router', (tester, db) async {
-    await pumpUntil(tester, find.text('ابدأ مشروع جديد'));
+    await pumpUntil(tester, find.text(l10n.startNewProject));
     late Note note;
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('مشروع');

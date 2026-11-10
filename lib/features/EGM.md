@@ -14,5 +14,9 @@ Dependencies between features are limited to two shared points: `add`, `ask`, `l
 - note_details: [./note_details/EGM.md](./note_details/EGM.md) - Pushed read view and editor at `/note/:id` and `/note/:id/edit`.
 - notes: [./notes/EGM.md](./notes/EGM.md) - List tab at `/notes`: day-grouped lazy list with cached client-side search.
 - projects: [./projects/EGM.md](./projects/EGM.md) - Shared header, project switcher, name prompt, and the `/welcome` screen.
-- settings: [./settings/EGM.md](./settings/EGM.md) - Pushed screen at `/settings`: theme selection and full local data wipe.
+- settings: [./settings/EGM.md](./settings/EGM.md) - Pushed screen at `/settings`: theme/language selection and full local data wipe.
 - shared: [./shared/EGM.md](./shared/EGM.md) - Pure note display helpers for titles and source icons.
+
+## Copy and direction
+
+Every feature uses generated `AppLocalizations` through `context.l10n`; user content remains untouched. Arabic follows RTL and English LTR. Asymmetric insets are directional, and Material back/chevron icons mirror via their built-in `matchTextDirection` metadata.

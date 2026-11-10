@@ -18,25 +18,20 @@ class _MicPermissionCard extends StatelessWidget {
             children: [
               Icon(Icons.mic_off_outlined, color: context.colors.warning),
               const SizedBox(width: 10),
-              Expanded(child: Text('محتاجين إذن المايك', style: context.text.cardTitleSmall)),
+              Expanded(child: Text(context.l10n.micNeededTitle, style: context.text.cardTitleSmall)),
               Pressable(
                 onTap: onClose,
                 minTarget: true,
-                semanticLabel: 'إغلاق',
+                semanticLabel: context.l10n.close,
                 child: const Icon(Icons.close_rounded, size: 20),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            blocked
-                ? 'الإذن مقفول من الإعدادات. افتح إعدادات التطبيق وفعّل المايك.'
-                : 'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.',
-            style: context.text.caption,
-          ),
+          Text(blocked ? context.l10n.micBlockedBody : context.l10n.micAskBody, style: context.text.caption),
           const SizedBox(height: 14),
           FikraButton.secondary(
-            label: blocked ? 'افتح الإعدادات' : 'اسمح بالمايك',
+            label: blocked ? context.l10n.openSettings : context.l10n.allowMic,
             icon: blocked ? Icons.settings_outlined : Icons.mic_none_rounded,
             onPressed: blocked ? openAppSettings : onRetry,
           ),

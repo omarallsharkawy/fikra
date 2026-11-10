@@ -1,6 +1,7 @@
 // Dependency wiring. Implementations live in lib/data; this file only decides
 // which ones the app uses. Tests override [databaseProvider] (in-memory db) or
 // [aiServiceProvider] (fakes).
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/ai/ai_service.dart';
@@ -14,7 +15,7 @@ import '../data/settings_repository.dart';
 import 'app_config.dart';
 
 export 'app_config.dart' show isDemo;
-export '../data/settings_repository.dart' show AppTheme, WipeFilesException;
+export '../data/settings_repository.dart' show AppTheme, AppLanguage, WipeFilesException;
 
 // ---------------------------------------------------------------- services
 
@@ -35,12 +36,46 @@ final settingsRepoProvider = Provider<SettingsRepository>(
 
 /// Saved appearance; `system` until the user picks one (and while loading).
 final appThemeProvider = StreamProvider<AppTheme>((ref) => ref.watch(settingsRepoProvider).watchTheme());
+
+/// Language preference uses the same persisted stream as appearance.
+final appLanguageProvider = StreamProvider<AppLanguage>((ref) => ref.watch(settingsRepoProvider).watchLanguage());
+
+class _DeviceLocale extends Notifier<Locale> with WidgetsBindingObserver {
+  @override
+  Locale build() {
+    WidgetsBinding.instance.addObserver(this);
+    ref.onDispose(() => WidgetsBinding.instance.removeObserver(this));
+    return WidgetsBinding.instance.platformDispatcher.locale;
+  }
+
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    state = locales?.firstOrNull ?? const Locale('ar');
+  }
+}
+
+final deviceLocaleProvider = NotifierProvider<_DeviceLocale, Locale>(_DeviceLocale.new);
+
+/// Every device language except English resolves to Arabic.
+final appLocaleProvider = Provider<Locale>((ref) {
+  final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
+  final device = ref.watch(deviceLocaleProvider);
+  return Locale(switch (language) {
+    AppLanguage.ar => 'ar',
+    AppLanguage.en => 'en',
+    AppLanguage.system => device.languageCode == 'en' ? 'en' : 'ar',
+  });
+});
+
+/// Injectable clock for sample timestamps and date grouping in screenshot tests.
+final appClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
 final attachmentStoreProvider = Provider<AttachmentStore>((ref) => AttachmentStore());
 
 /// Backend seam: note analysis and question answering.
 final aiServiceProvider = Provider<AiService>(
   (ref) => switch (appMode) {
-    AppMode.demo => DemoAiService(),
+    AppMode.demo => DemoAiService(activeLocale: () => ref.read(appLocaleProvider)),
     // Wire ApiAiService here (docs/backend-integration.md).
     AppMode.connected => throw UnimplementedError('FIKRA_MODE=connected has no AiService yet'),
   },
@@ -55,6 +90,7 @@ final noteProcessorProvider = Provider<NoteProcessor>(
 
 /// Runs once at launch (watched by FikraApp).
 final startupMaintenanceProvider = FutureProvider<void>((ref) async {
+  await ref.read(appLanguageProvider.future);
   await ref.read(noteProcessorProvider).resumeInterrupted();
   final notes = ref.read(notesRepoProvider);
   await ref.read(attachmentStoreProvider).sweepOrphans(await notes.attachmentPaths());

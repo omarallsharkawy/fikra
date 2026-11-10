@@ -30,6 +30,10 @@ The chat tab, mounted at `/ask` by `lib/app/router.dart`. The user asks a questi
 - Pushes `/note/<id>` from a source row, without an `extra` note.
 - Shows toasts and invalidates `selectedChatProvider` on retry.
 
+## Localization
+
+Suggestions and source semantics use typed localized placeholders. Stored questions/answers remain unchanged. The demo service resolves new answers in the active language at output time.
+
 ## Verification
 
 - Run: `flutter analyze && flutter test`

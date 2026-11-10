@@ -47,7 +47,7 @@ extension _AddVoice on _AddScreenState {
         await _recorderInstance?.cancel();
       } catch (_) {}
       _set(() => _rec = _Rec.idle);
-      if (mounted) showToast(context, 'التسجيل مش شغال دلوقتي، جرّب تاني');
+      if (mounted) showToast(context, context.l10n.recordStartFailed);
     }
   }
 
@@ -73,7 +73,7 @@ extension _AddVoice on _AddScreenState {
         _voiceMs = _elapsed.inMilliseconds;
       }
     });
-    if (path == null && mounted) showToast(context, 'التسجيل اتقطع، جرّب تاني');
+    if (path == null && mounted) showToast(context, context.l10n.recordInterrupted);
   }
 
   Future<void> _cancelRecording() async {

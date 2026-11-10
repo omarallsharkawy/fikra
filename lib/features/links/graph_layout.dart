@@ -6,8 +6,10 @@ typedef GraphLink = ({String sourceId, String targetId, String label, double str
 typedef GraphPosition = ({double left, double top, double width, double height});
 
 class GraphInput {
-  GraphInput(this.notes, this.links)
+  GraphInput(this.notes, this.links, {this.rtl = true, this.generalLabel = ''})
     : signature = Object.hash(
+        rtl,
+        generalLabel,
         notes.length,
         links.length,
         Object.hashAllUnordered(notes),
@@ -16,6 +18,8 @@ class GraphInput {
 
   final List<GraphNote> notes;
   final List<GraphLink> links;
+  final bool rtl;
+  final String generalLabel;
 
   /// Ignores stream ordering and fields outside the projections. Includes time
   /// (ranking), status, titles, and edge appearance as well as topology.
@@ -23,7 +27,11 @@ class GraphInput {
 
   /// Check equality after hashing too: a hash collision must not hide an edit.
   bool sameData(GraphInput other) =>
-      signature == other.signature && _sameRecords(notes, other.notes) && _sameRecords(links, other.links);
+      signature == other.signature &&
+      rtl == other.rtl &&
+      generalLabel == other.generalLabel &&
+      _sameRecords(notes, other.notes) &&
+      _sameRecords(links, other.links);
 
   static bool _sameRecords<T>(List<T> a, List<T> b) {
     if (identical(a, b)) return true;
@@ -66,9 +74,10 @@ class GraphRow {
 }
 
 /// Pure layout, with no Flutter, database, or UI objects. Coordinates retain the
-/// original graph's geometry; the first note in each row is on the right.
+/// original graph's geometry; rows begin at the reading start.
 class GraphLayout {
   GraphLayout._({
+    required this.rtl,
     required this.rows,
     required this.hiddenRows,
     required this.nodes,
@@ -86,6 +95,7 @@ class GraphLayout {
   static const padding = 24.0;
   static const smallProjectLimit = 60;
 
+  final bool rtl;
   final List<GraphRow> rows;
   final List<GraphRow> hiddenRows;
   final Map<String, GraphNote> nodes;
@@ -96,18 +106,21 @@ class GraphLayout {
   final double height;
 
   GraphPosition positionInRow(int row, int column) => (
-    left: width - padding - (column + 1) * nodeWidth - column * gapX,
+    left: rtl ? width - padding - (column + 1) * nodeWidth - column * gapX : padding + column * (nodeWidth + gapX),
     top: padding + row * rowHeight + 34,
     width: nodeWidth,
     height: nodeHeight,
   );
 
   /// Top-level-compatible callback for Flutter's compute().
-  static GraphLayout fromInput(GraphInput input) => compute(input.notes, input.links);
+  static GraphLayout fromInput(GraphInput input) =>
+      compute(input.notes, input.links, rtl: input.rtl, generalLabel: input.generalLabel);
 
   static GraphLayout compute(
     List<GraphNote> notes,
     List<GraphLink> links, {
+    bool rtl = true,
+    String generalLabel = '',
     int maxNodesPerRow = 12,
     int maxNodes = 240,
     int maxRows = 20,
@@ -121,7 +134,7 @@ class GraphLayout {
     final small = notes.length <= preserveSmallProjectsUpTo;
     final clusters = <String, List<GraphNote>>{};
     for (final note in ready) {
-      clusters.putIfAbsent(note.cluster ?? 'أفكار عامة', () => []).add(note);
+      clusters.putIfAbsent(note.cluster ?? generalLabel, () => []).add(note);
     }
     final ordered = clusters.entries.toList()..sort((a, b) => b.value.length.compareTo(a.value.length));
     final degree = <String, int>{};
@@ -176,6 +189,7 @@ class GraphLayout {
       visibleLinks.removeRange(maxEdges, visibleLinks.length);
     }
     final layout = GraphLayout._(
+      rtl: rtl,
       rows: rows,
       hiddenRows: hiddenRows,
       nodes: nodes,

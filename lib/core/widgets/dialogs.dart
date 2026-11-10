@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../motion/motion.dart';
@@ -11,8 +12,9 @@ Future<bool> confirmDestructive(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'حذف',
+  String? confirmLabel,
 }) async {
+  final label = confirmLabel ?? context.l10n.delete;
   final navigator = Navigator.of(context, rootNavigator: true);
   final ok = await navigator.push<bool>(
     _FikraDialogRoute(
@@ -37,11 +39,14 @@ Future<bool> confirmDestructive(
               Row(
                 children: [
                   Expanded(
-                    child: FikraButton.danger(label: confirmLabel, onPressed: () => Navigator.pop(context, true)),
+                    child: FikraButton.danger(label: label, onPressed: () => Navigator.pop(context, true)),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: FikraButton.secondary(label: 'إلغاء', onPressed: () => Navigator.pop(context, false)),
+                    child: FikraButton.secondary(
+                      label: context.l10n.cancel,
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
                   ),
                 ],
               ),

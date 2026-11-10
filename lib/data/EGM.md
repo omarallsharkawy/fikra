@@ -23,8 +23,9 @@ From `repositories.dart`:
 
 From `settings_repository.dart`:
 
+- `enum AppLanguage { system, ar, en }`: persisted language choice, free of Flutter types.
 - `enum AppTheme { system, light, dark }`: free of Flutter types; the app maps it to `ThemeMode`.
-- `abstract interface class SettingsRepository`, implemented by `LocalSettingsRepository(FikraDatabase db, AttachmentStore files)`: `watchTheme`, `setTheme`, `wipeAllData`.
+- `abstract interface class SettingsRepository`, implemented by `LocalSettingsRepository(FikraDatabase db, AttachmentStore files)`: `watchTheme`, `setTheme`, `watchLanguage`, `setLanguage`, `wipeAllData`.
 - `class WipeFilesException implements Exception`: wraps `cause`.
 
 Subdirectories:
@@ -59,8 +60,8 @@ Projects and settings:
 - `ProjectsRepository.create` trims the name and makes the new project current.
 - Deleting the current project selects the oldest remaining project, or clears the selection if none remain. This happens in the same transaction as the delete.
 - The `current_project` settings key is duplicated as `LocalProjectsRepository._currentKey` and `LocalSettingsRepository._currentProjectKey`. The two must stay equal.
-- `AppTheme.system` is stored as an absent row, and an unknown stored value reads as `system`.
-- `wipeAllData` deletes rows children first in one transaction and keeps the theme. Files are purged only after the rows are gone, so a failure leaves only unreferenced files, and it surfaces as `WipeFilesException`. Retrying is safe.
+- Theme and language each store `system` as an absent row; unknown values read as `system`. Language uses the existing settings table, with no schema change.
+- `wipeAllData` deletes rows children first in one transaction and keeps the theme and language. Files are purged only after the rows are gone, so a failure leaves only unreferenced files, and it surfaces as `WipeFilesException`. Retrying is safe.
 
 Files and ordering:
 

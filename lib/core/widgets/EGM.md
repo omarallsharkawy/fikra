@@ -6,7 +6,7 @@ Shared UI kit for FIKRA screens: glass surfaces, buttons, fields, chips, badges,
 banners, empty and error states, the segmented control, sheet and dialog
 helpers, toasts, the async body wrapper, and the local audio player. It is built
 on [theme](../theme/EGM.md) tokens and [motion](../motion/EGM.md) primitives.
-User-facing default strings are hard-coded Egyptian Arabic, in
+User-facing default strings resolve from `context.l10n`, in
 `status_badges.dart` (`FikraBadge`), `empty_states.dart` (`LoadErrorView`),
 `dialogs.dart` (`confirmDestructive`), `toasts.dart` (`runAction`) and
 `voice_player.dart`.
@@ -25,7 +25,7 @@ User-facing default strings are hard-coded Egyptian Arabic, in
   - `FillScroll({child})`: fills the available height and centers its child,
     scrolling when short.
 - `buttons.dart`
-  - `FikraButton({label, onPressed, icon, style, expand = true, loading = false})`,
+  - `FikraButton({label, onPressed, icon, style, expand = true, loading = false, horizontalPadding = 24, maxLines})`,
     with the constructors `FikraButton.secondary` and `FikraButton.danger`, and
     the enum `FikraButtonStyle { primary, secondary, danger }`.
   - `FikraIconButton({icon, label, onTap, size = 44, solid = false})`.
@@ -93,6 +93,7 @@ User-facing default strings are hard-coded Egyptian Arabic, in
   `reducedFade` with a plain fade under Reduce Motion.
 - `showFikraSheet` resolves to the value popped by the sheet, or null. It uses no
   animation under Reduce Motion, and applies the keyboard inset as bottom padding.
+- `confirmDestructive` resolves the default confirm label before pushing its route. `runAction` resolves its default failure message before awaiting.
 - `runAction` catches every exception and error thrown by `action`. It returns
   true only after `action` completes, and shows `success` only then. It captures
   `ScaffoldMessenger.maybeOf(context)` before awaiting, so it never touches
@@ -119,6 +120,12 @@ User-facing default strings are hard-coded Egyptian Arabic, in
 - `runAction` executes the caller's `action`, which may have any side effect.
 - `_FikraFieldState` owns a `FocusNode`, and `_SegmentedPillState` owns an
   unbounded `AnimationController`. Both are released in `dispose`.
+
+## Localization and direction
+
+- Shared labels, a11y text, errors, dialogs and playback states use `AppLocalizations` through `context.l10n`.
+- Voice-player asymmetric insets use `EdgeInsetsDirectional`; segmented-control positioning already handles both directions.
+- `FikraButton.horizontalPadding` defaults to 24 in every constructor. Rewrite actions use 8, and the keep-original label allows two lines, so the approved labels fit in the existing two-button row without changing button height, typography or outer layout.
 
 ## Verification
 

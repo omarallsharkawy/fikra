@@ -10,7 +10,7 @@ extension _AddFiles on _AddScreenState {
       final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['pdf']);
       if (f == null || f.path == null || !mounted) return;
       if (p.extension(f.name).toLowerCase() != '.pdf') {
-        showToast(context, 'اختار ملف PDF بس');
+        showToast(context, context.l10n.pdfOnly);
         return;
       }
       final bytes = await File(f.path!).length();
@@ -19,7 +19,7 @@ extension _AddFiles on _AddScreenState {
         _pdfBytes = bytes;
       });
     } catch (_) {
-      if (mounted) showToast(context, 'معرفناش نفتح الملف');
+      if (mounted) showToast(context, context.l10n.fileOpenFailed);
     } finally {
       _set(() => _picking = false);
     }
@@ -40,7 +40,7 @@ extension _AddFiles on _AddScreenState {
       final usable = picked.where((f) => f.path != null);
       _set(() => _images = [..._images, ...usable]);
     } catch (_) {
-      if (mounted) showToast(context, 'معرفناش نفتح الصور');
+      if (mounted) showToast(context, context.l10n.photosOpenFailed);
     } finally {
       _set(() => _picking = false);
     }

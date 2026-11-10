@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/format.dart';
@@ -36,7 +37,7 @@ class InlineRecorder extends StatelessWidget {
                 decoration: BoxDecoration(color: context.colors.danger, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
-              Text('بيسجّل', style: context.text.chip),
+              Text(context.l10n.recordingNow, style: context.text.chip),
               const Spacer(),
               Text(
                 '${Fmt.duration(elapsed.inMilliseconds)} / ${Fmt.duration(max.inMilliseconds)}',
@@ -47,7 +48,10 @@ class InlineRecorder extends StatelessWidget {
           const SizedBox(height: 18),
           SizedBox(
             height: 72,
-            child: CustomPaint(painter: _LevelsPainter(levels, context.colors.accentLight), size: Size.infinite),
+            child: CustomPaint(
+              painter: _LevelsPainter(levels, context.colors.accentLight, Directionality.of(context)),
+              size: Size.infinite,
+            ),
           ),
           const SizedBox(height: 18),
         ],
@@ -57,7 +61,8 @@ class InlineRecorder extends StatelessWidget {
 }
 
 class _LevelsPainter extends CustomPainter {
-  _LevelsPainter(this.levels, this.color);
+  _LevelsPainter(this.levels, this.color, this.direction);
+  final TextDirection direction;
   final Color color;
   final List<double> levels;
 
@@ -73,7 +78,8 @@ class _LevelsPainter extends CustomPainter {
     final padded = List<double>.filled(bars - recent.length, 0.06) + recent;
     for (var i = 0; i < bars; i++) {
       final h = (padded[i] * size.height).clamp(3.0, size.height);
-      final x = size.width - (i + 0.5) * step; // newest on the left (RTL time flow)
+      final offset = (i + 0.5) * step;
+      final x = direction == TextDirection.rtl ? size.width - offset : offset;
       canvas.drawLine(Offset(x, (size.height - h) / 2), Offset(x, (size.height + h) / 2), paint);
     }
   }

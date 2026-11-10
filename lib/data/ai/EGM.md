@@ -23,8 +23,8 @@ From `ai_service.dart`:
 From `demo_ai_service.dart`:
 
 - `class DemoAiService implements AiService`
-  - `DemoAiService({Duration latency = const Duration(milliseconds: 2500)})`
-  - Static helpers, public for tests and seeding: `detectConcepts(String)`, `clusterFor(String)`, `improve(String)`, `suggestTitle(String)`.
+  - `DemoAiService({Duration latency = const Duration(milliseconds: 2500), Locale locale = const Locale('ar'), Locale Function()? activeLocale})`
+  - Static helpers, public for tests and seeding: `detectConcepts(String, {Locale locale})`, `clusterFor(String, {Locale locale})` (both asynchronous), `improve(String, {Locale locale})`, `suggestTitle(String, {Locale locale})`.
 
 Uses `Note` and `NoteSource` from [`../local/EGM.md`](../local/EGM.md).
 
@@ -37,7 +37,7 @@ Interface contract:
 
 `DemoAiService.analyze`:
 
-- Deterministic given its inputs, offline, and awaits `latency` before computing.
+- Deterministic given its inputs and resolved locale, offline, and awaits `latency` before computing.
 - `proposedText` is only produced when the rewrite differs from the trimmed original and is non-empty.
 - `title` keeps a non-blank `note.title`; otherwise it comes from `suggestTitle`.
 - `links` holds at most 4 entries, sorted by descending `strength`. Strength is the Jaccard ratio of concept sets, and only notes sharing at least one concept qualify.
@@ -52,13 +52,21 @@ Helpers:
 
 - `detectConcepts` returns at most 5 distinct concepts, in dictionary order.
 - Latin dictionary keys match whole words only ("api" does not match "rapid"). Arabic keys match as substrings so prefixed forms still count.
-- `clusterFor` returns the cluster with the most keyword hits, or `'أفكار عامة'` when none match.
-- `suggestTitle` uses the first 6 words, appending `…` when truncated, and returns `'نوت بدون عنوان'` for empty content.
+- `clusterFor` returns the cluster with the most keyword hits, or the localized `clusterGeneral` when none match.
+- `suggestTitle` uses the first 6 words, appending `…` when truncated, and returns localized `untitledNoteFallback` for empty content.
 
 ## Side Effects
 
-- `DemoAiService` only waits on timers. It performs no network, disk or database access.
+- `DemoAiService` waits on timers and loads the bundled `lib/l10n/demo_vocabulary.json` asset once. It performs no network or database access.
 - Nothing in this directory writes results back. Persistence is the caller's job.
+
+## Localized output
+
+- The active-locale callback is read after simulated latency, when output is computed. Standalone callers can supply a fixed locale instead.
+- Generated `lookupAppLocalizations` supplies answers, link reasons, expansions, fallback titles and the general group. The removed demo answer footer is not emitted.
+- Topic/group display values come verbatim from glossary section 13 in `lib/l10n/demo_vocabulary.json`, separate from ARB as required by that glossary. Dictionary tuples contain neutral lookup IDs only.
+- Arabic keywords and stop words are search data, never labels. English keys include lecture, exam, study, network (plus networks for the approved sample), video, design, interface, ai and embeddings.
+- Results are stored in their analysis language. Changing UI language does not translate existing notes, topics, groups or answers.
 
 ## Verification
 

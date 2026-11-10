@@ -1,0 +1,430 @@
+{
+  "@@locale": "ar",
+  "appTitle": "فِكرة",
+  "navAdd": "إضافة",
+  "navNotes": "الملاحظات",
+  "navLinks": "الروابط",
+  "navAsk": "اسأل",
+  "storageErrorTitle": "فيه مشكلة في التخزين",
+  "storageErrorBody": "مقدرناش نقرا بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية على الموبايل، وجرّب تاني.",
+  "retry": "جرّب تاني",
+  "today": "النهارده",
+  "yesterday": "امبارح",
+  "justNow": "دلوقتي",
+  "sizeBytes": "{size} بايت",
+  "sizeKb": "{size} KB",
+  "sizeMb": "{size} MB",
+  "badgeSampleData": "بيانات تجريبية",
+  "badgeSaved": "اتحفظت",
+  "badgeAnalyzing": "بنحللها…",
+  "badgeFailed": "فيه مشكلة",
+  "delete": "احذف",
+  "cancel": "إلغاء",
+  "loadErrorTitle": "مقدرناش نحمّل البيانات",
+  "loadErrorBody": "مقدرناش نقرا بياناتك دلوقتي. جرّب تاني.",
+  "genericError": "حصلت مشكلة. جرّب تاني.",
+  "voicePlayA11y": "شغّل",
+  "voicePauseA11y": "وقّف",
+  "voiceUnavailableA11y": "التسجيل مش متاح",
+  "voiceRecording": "تسجيل صوتي",
+  "fileUnavailable": "الملف مش متاح",
+  "deleteRecording": "احذف التسجيل",
+  "firstProjectTitle": "سمّي أول مشروع",
+  "create": "إنشاء",
+  "createProjectFailed": "مقدرناش نعمل المشروع. جرّب تاني.",
+  "sampleProjectFailed": "مقدرناش نفتح المشروع الجاهز. جرّب تاني.",
+  "tagline": "اكتب. اربط. اسأل.",
+  "welcomeCapture": "اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور",
+  "welcomeLinks": "فِكرة بتربط الملاحظات القريبة من بعض لوحدها",
+  "welcomeAsk": "اسأل، والإجابة بتيجي من ملاحظاتك ومعاها المصدر",
+  "welcomeDemoBadge": "نسخة تجريبية: كل حاجة بتفضل على موبايلك",
+  "startNewProject": "ابدأ مشروع جديد",
+  "trySampleProject": "جرّب مشروع جاهز",
+  "projectPillA11y": "المشروع: {name}. دوس عشان تغيّره",
+  "noProject": "مفيش مشروع",
+  "settings": "الإعدادات",
+  "projectsTitle": "المشاريع",
+  "newProject": "مشروع جديد",
+  "projectOptionsA11y": "خيارات «{name}»",
+  "renameProject": "غيّر الاسم",
+  "save": "احفظ",
+  "deleteProject": "احذف المشروع",
+  "deleteProjectTitle": "تحذف «{name}»؟",
+  "deleteProjectBody": "كل الملاحظات والملفات والمحادثات اللي في المشروع ده هتتحذف، ومش هتعرف ترجّعها.",
+  "projectDeleted": "المشروع اتحذف",
+  "projectNameHint": "اسم المشروع، مثلاً: مذاكرة",
+  "recordStartFailed": "مقدرناش نبدأ التسجيل. جرّب تاني.",
+  "recordInterrupted": "التسجيل اتقطع. سجّل تاني.",
+  "pdfOnly": "الملف ده مش PDF. اختار ملف PDF.",
+  "fileOpenFailed": "مقدرناش نفتح الملف. جرّب ملف تاني.",
+  "photosOpenFailed": "مقدرناش نفتح الصور. جرّب تاني.",
+  "noteSaved": "الملاحظة اتحفظت",
+  "noteSavedAnalyzing": "الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي",
+  "noteSaveFailed": "مقدرناش نحفظ الملاحظة. جرّب تاني.",
+  "photosTitle": "صور",
+  "addTitle": "ملاحظة جديدة",
+  "titleOptionalHint": "عنوان (اختياري)",
+  "bodyHintWithFileLinks": "اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)",
+  "bodyHint": "اكتب فكرتك هنا…",
+  "addFooter": "الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.",
+  "discardRecording": "الغي التسجيل",
+  "stopRecording": "وقّف التسجيل",
+  "recordVoice": "سجّل صوت",
+  "addPdf": "ضيف PDF",
+  "addPhotos": "ضيف صور",
+  "removeFile": "شيل الملف",
+  "removePhoto": "شيل الصورة {n}",
+  "micNeededTitle": "محتاجين إذن المايك",
+  "close": "اقفل",
+  "micBlockedBody": "المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.",
+  "micAskBody": "عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.",
+  "openSettings": "افتح الإعدادات",
+  "allowMic": "اسمح بالمايك",
+  "recordingNow": "بيسجّل",
+  "notesTitle": "الملاحظات",
+  "searchNotesHint": "دوّر في الملاحظات",
+  "notesEmptyTitle": "لسه مفيش ملاحظات",
+  "notesEmptyBody": "اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.",
+  "addFirstNote": "ضيف أول ملاحظة",
+  "noResultsTitle": "مفيش نتايج",
+  "noResultsBody": "مفيش ملاحظة فيها «{query}». جرّب كلمة تانية.",
+  "noteAnalysisFailed": "مقدرناش نحللها",
+  "noteRewriteSuggested": "فيه صياغة مقترحة",
+  "noteSavedBadge": "محفوظة",
+  "openFileA11y": "افتح {name}",
+  "untitledNote": "ملاحظة جديدة",
+  "openFileFailed": "مقدرناش نفتح الملف. اتأكد إن عندك تطبيق يفتح النوع ده.",
+  "noteOptions": "خيارات الملاحظة",
+  "edit": "عدّل",
+  "restoreOriginal": "رجّع النص الأصلي",
+  "originalRestored": "رجّعنا النص الأصلي",
+  "deleteNote": "احذف الملاحظة",
+  "deleteNoteTitle": "تحذف الملاحظة دي؟",
+  "deleteNoteBody": "الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.",
+  "noteDeleted": "الملاحظة اتحذفت",
+  "back": "رجوع",
+  "options": "خيارات",
+  "noteNotFoundTitle": "الملاحظة دي مش موجودة",
+  "noteNotFoundBody": "يمكن تكون اتحذفت.",
+  "analysisFailedBanner": "مقدرناش نحلل الملاحظة، بس هي محفوظة زي ما هي.",
+  "analyzeAgain": "حلّلها تاني",
+  "viewEdited": "المعدّلة",
+  "viewOriginal": "الأصلية",
+  "originalTextLabel": "النص الأصلي",
+  "topicsHeader": "المواضيع",
+  "relatedNotesHeader": "ملاحظات مرتبطة",
+  "analyzingBody": "فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.",
+  "suggestedRewrite": "صياغة مقترحة",
+  "demoBadge": "تجريبي",
+  "useRewrite": "استخدمها",
+  "keepOriginal": "خلّي النص الأصلي",
+  "pdfFile": "ملف PDF",
+  "openPhotoA11y": "افتح الصورة {n}",
+  "relatedLoadFailed": "مقدرناش نجيب الملاحظات المرتبطة دلوقتي.",
+  "relatedEmpty": "لسه مفيش ملاحظات مرتبطة بيها في المشروع ده.",
+  "relatedRowA11y": "{title}، {reason}",
+  "changesSaved": "التعديل اتحفظ",
+  "changesSaveFailed": "مقدرناش نحفظ التعديل. جرّب تاني.",
+  "unsavedTitle": "عندك تعديلات مش محفوظة",
+  "saveChanges": "احفظ التعديل",
+  "discardChanges": "اخرج من غير حفظ",
+  "keepEditing": "كمّل تعديل",
+  "editNoteTitle": "تعديل الملاحظة",
+  "titleHint": "العنوان",
+  "noteTextA11y": "نص الملاحظة",
+  "originalKeptHint": "النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.",
+  "clusterGeneral": "أفكار عامة",
+  "moreGroups": "باقي المجموعات",
+  "linksTitle": "الروابط",
+  "linksEmptyTitle": "الروابط بتظهر هنا",
+  "linksEmptyBody": "ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.",
+  "addNote": "ضيف ملاحظة",
+  "linksSummary": "{notesCount} · {linksCount}",
+  "zoomIn": "كبّر",
+  "zoomOut": "صغّر",
+  "resetView": "رجّع العرض",
+  "showGroupA11y": "اعرض {notesCount} في «{cluster}»",
+  "moreGroupsCount": "باقي المجموعات ({count})",
+  "noLinksYet": "لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.",
+  "nodeMeta": "{cluster} · {linksCount}",
+  "openNote": "افتح الملاحظة",
+  "askFailed": "مقدرناش نجاوب دلوقتي. جرّب تاني.",
+  "clearChatTitle": "تمسح المحادثة؟",
+  "clearChatBody": "الأسئلة والإجابات هتتمسح، والملاحظات نفسها مش هيحصلها حاجة.",
+  "clear": "امسح",
+  "askSuggestion": "إيه اللي كتبته عن {title}؟",
+  "askTitle": "اسأل",
+  "clearChatA11y": "امسح المحادثة",
+  "askDemoBadge": "إجابات تجريبية من ملاحظاتك",
+  "askEmptyTitle": "اسأل عن ملاحظاتك",
+  "askEmptyNoNotes": "ضيف ملاحظات الأول، وبعدين اسأل عنها هنا. الإجابة بتيجي من ملاحظاتك بس، ومعاها المصدر.",
+  "askEmptyBody": "الإجابة بتيجي من ملاحظات المشروع ده بس، ومعاها المصدر.",
+  "askHint": "اسأل عن أي حاجة في ملاحظاتك",
+  "send": "ابعت",
+  "notFoundInNotes": "ملقيناش إجابة في ملاحظاتك",
+  "sources": "المصادر",
+  "sourceA11y": "مصدر {index}: {title}",
+  "sourceDeletedA11y": "مصدر {index}: ملاحظة اتحذفت",
+  "deletedNote": "ملاحظة اتحذفت",
+  "eraseAllTitle": "تمسح كل البيانات؟",
+  "eraseAllBody": "كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هتعرف ترجّعها.",
+  "eraseAllConfirm": "امسح كل حاجة",
+  "eraseAllDone": "كل حاجة اتمسحت",
+  "eraseAllPartial": "البيانات اتمسحت، بس فيه ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني.",
+  "eraseAllFailed": "مقدرناش نمسح البيانات. جرّب تاني.",
+  "settingsTitle": "الإعدادات",
+  "appearance": "المظهر",
+  "themeSystem": "زي الموبايل",
+  "themeLight": "فاتح",
+  "themeDark": "غامق",
+  "themeHint": "«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.",
+  "dataSection": "البيانات",
+  "dataStaysLocal": "ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.",
+  "eraseAll": "امسح كل البيانات",
+  "aboutSection": "عن التطبيق",
+  "demoVersion": "نسخة تجريبية",
+  "languageSection": "اللغة",
+  "languageSystem": "زي الموبايل",
+  "languageArabic": "العربية",
+  "languageEnglish": "English",
+  "demoLinkReason": "مرتبطة بـ{concept}",
+  "demoAnswerNotFound": "مفيش ملاحظة في المشروع ده بتتكلم عن الموضوع ده. جرّب تسأل بطريقة تانية، أو ضيف ملاحظة عنه.",
+  "demoAnswerIntro": "من ملاحظاتك في المشروع ده:",
+  "untitledNoteFallback": "ملاحظة من غير عنوان",
+  "expandLlm": "LLM (نموذج لغوي كبير)",
+  "expandRag": "RAG (Retrieval-Augmented Generation)",
+  "sampleProjectName": "مشروع التخرج",
+  "sample1Title": "فكرة المشروع",
+  "sample1Body": "تطبيق ملاحظات بيستخدم الذكاء الاصطناعي عشان يربط الأفكار ببعض ويجاوب على أسئلتي من ملاحظاتي بس.",
+  "sample2Title": "إزاي RAG بيشتغل",
+  "sample2Body": "الـrag بيجيب أقرب أجزاء من الملاحظات بالـembedding وبعدين الـllm بيكتب الإجابة منها مع ذكر المصدر",
+  "sample3Title": "شكل الواجهة",
+  "sample3Body": "تصميم الواجهة غامق وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: إضافة، الملاحظات، الروابط، اسأل.",
+  "sample4Title": "إدارة الحالة في Flutter",
+  "sample4Body": "هستخدم riverpod لإدارة الحالة في flutter، وقاعدة بيانات محلية للنسخة التجريبية.",
+  "sample5Title": "الباك إند",
+  "sample5Body": "علاء هيعمل الباك إند بـfastapi و postgres مع pgvector، والتطبيق هيكلمه عن طريق api.",
+  "sample6Title": "البحث الدلالي",
+  "sample6Body": "البحث الدلالي بيدوّر بالمعنى مش بالكلمة، وده معتمد على الـembedding اللي بيتخزن في قاعدة بيانات.",
+  "sample7Title": "محاضرة الشبكات",
+  "sample7Body": "محاضرة الشبكات النهارده كانت عن TCP و UDP، لازم أراجعها قبل الامتحان.",
+  "clearSearch": "امسح البحث",
+  "noteSavedNoText": "الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي",
+  "noTextNoLinks": "الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.",
+  "pdfOpenElsewhere": "افتح في تطبيق تاني",
+  "pdfPageOf": "{page} من {total}",
+  "pdfLoadFailed": "مقدرناش نفتح الملف ده. ممكن يكون بايظ أو اتحذف.",
+  "notesCount": "{count, plural, zero{مفيش ملاحظات} one{ملاحظة واحدة} two{ملاحظتين} few{{count} ملاحظات} many{{count} ملاحظة} other{{count} ملاحظة}}",
+  "linksCount": "{count, plural, zero{مفيش روابط} one{رابط واحد} two{رابطين} few{{count} روابط} many{{count} رابط} other{{count} رابط}}",
+  "minutesAgo": "{count, plural, zero{دلوقتي} one{من دقيقة} two{من دقيقتين} few{من {count} دقايق} many{من {count} دقيقة} other{من {count} دقيقة}}",
+  "hoursAgo": "{count, plural, zero{من {count} ساعة} one{من ساعة} two{من ساعتين} few{من {count} ساعات} many{من {count} ساعة} other{من {count} ساعة}}",
+  "@sizeBytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeKb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeMb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectPillA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectOptionsA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@removePhoto": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@noResultsBody": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@openFileA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@openPhotoA11y": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@relatedRowA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "@linksSummary": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@showGroupA11y": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "cluster": {
+        "type": "String"
+      }
+    }
+  },
+  "@moreGroupsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nodeMeta": {
+    "placeholders": {
+      "cluster": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@askSuggestion": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceDeletedA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@demoLinkReason": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    },
+    "description": "The concept is a stored topic label from a note; do not translate the placeholder value."
+  },
+  "@pdfPageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@notesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@linksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@appTitle": {
+    "description": "Proper app name; retain the approved brand spelling."
+  },
+  "@languageArabic": {
+    "description": "Language name shown in Arabic in both UI languages so users can recognize it."
+  },
+  "@languageEnglish": {
+    "description": "Language name shown in English in both UI languages so users can recognize it."
+  },
+  "@sample3Body": {
+    "description": "Historical student note describing the original UI; preserve the dark/RTL description in both languages."
+  },
+  "@originalKeptHint": {
+    "description": "Applies to every note source. There is no automatic voice transcription."
+  },
+  "@photosTitle": {
+    "description": "Default title for a photo-only note. The parenthetical location note in the glossary is not UI copy."
+  },
+  "pdfFormat": "PDF",
+  "@pdfFormat": {
+    "description": "File-format fallback when an attachment has no stored filename; this technical abbreviation is identical in both languages."
+  }
+}

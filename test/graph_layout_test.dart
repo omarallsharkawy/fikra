@@ -1,3 +1,5 @@
+import 'package:fikra/l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fikra/features/links/graph_layout.dart';
 import 'package:flutter/foundation.dart' as flutter;
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +26,20 @@ void main() {
     expect(accounted, notes.length);
     expect(layout.width, 2236); // 12 nodes + overflow chip, with original gaps.
     expect(layout.height, 2820); // 20 rows + more-clusters affordance.
+  });
+
+  test('LTR graph mirrors the same geometry and memo input includes locale', () {
+    final notes = [note(0), note(1)];
+    final rtl = GraphLayout.compute(notes, []);
+    final ltr = GraphLayout.compute(notes, [], rtl: false);
+    for (final note in notes) {
+      final a = rtl.positions[note.id]!;
+      final b = ltr.positions[note.id]!;
+      expect(b.left, rtl.width - a.left - a.width);
+      expect(b.top, a.top);
+    }
+    expect(GraphInput(notes, []).sameData(GraphInput(notes, [], rtl: false)), isFalse);
+    expect(GraphInput(notes, [], generalLabel: 'a').sameData(GraphInput(notes, [], generalLabel: 'b')), isFalse);
   });
 
   test('total cap also works when the final row has a partial node budget', () {
@@ -121,8 +137,9 @@ void main() {
   test('empty, processing-only, and null clusters use original geometry/default', () {
     expect(GraphLayout.compute([], []).nodes, isEmpty);
     expect(GraphLayout.compute([note(1, status: 0)], []).readyCount, 0);
-    final layout = GraphLayout.compute([note(0, cluster: null), note(1, cluster: null)], []);
-    expect(layout.rows.single.cluster, 'أفكار عامة');
+    final label = lookupAppLocalizations(const Locale('ar')).clusterGeneral;
+    final layout = GraphLayout.compute([note(0, cluster: null), note(1, cluster: null)], [], generalLabel: label);
+    expect(layout.rows.single.cluster, label);
     expect(layout.width, 366);
   });
 

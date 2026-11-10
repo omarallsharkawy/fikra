@@ -1,4 +1,7 @@
 import 'dart:io';
+
+import 'package:fikra/l10n/localizations.dart';
+
 import 'dart:ui' show ImageByteFormat;
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -32,12 +35,18 @@ void fikraTest(
   Object? tags,
   Brightness brightness = Brightness.dark,
   FileOpener? opener,
+  Locale locale = const Locale('ar'),
+  DateTime Function()? clock,
 }) {
   testWidgets(description, (tester) async {
+    tester.platformDispatcher.localeTestValue = locale;
+    tester.platformDispatcher.localesTestValue = [locale];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
     tester.platformDispatcher.platformBrightnessTestValue = brightness;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-    await initializeDateFormatting('ar');
+    await initializeDateFormatting();
     final db = FikraDatabase(NativeDatabase.memory());
     await tester.pumpWidget(
       RepaintBoundary(
@@ -45,6 +54,7 @@ void fikraTest(
         child: ProviderScope(
           overrides: [
             databaseProvider.overrideWithValue(db),
+            if (clock != null) appClockProvider.overrideWithValue(clock),
             attachmentStoreProvider.overrideWithValue(_NoFilesStore()),
             if (opener != null) fileOpenerProvider.overrideWithValue(opener),
           ],
@@ -157,3 +167,6 @@ Future<void> loadAppFonts() async {
     await (FontLoader('MaterialIcons')..addFont(Future.value(ByteData.sublistView(icons.readAsBytesSync())))).load();
   }
 }
+
+/// Resolve the current app copy, including during a runtime language switch.
+AppLocalizations testL10n(WidgetTester tester) => AppLocalizations.of(tester.element(find.byType(Navigator).first));

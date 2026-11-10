@@ -11,6 +11,6 @@ Future<void> main() async {
     // Fail loudly instead of running the demo services under a "connected" label.
     throw UnsupportedError('FIKRA_MODE=connected is not wired yet. See docs/backend-integration.md');
   }
-  await initializeDateFormatting('ar');
+  await initializeDateFormatting();
   runApp(const ProviderScope(child: FikraApp()));
 }

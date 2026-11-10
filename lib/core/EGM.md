@@ -2,22 +2,19 @@
 
 ## Overview
 
-App-wide presentation foundation for FIKRA: Arabic display formatting, plus the
+App-wide presentation foundation for FIKRA: localized display formatting, plus the
 theme, motion and shared-widget packages that feature screens are built from. It
 holds no domain, storage or network logic.
 
 ## Interface
 
-- `format.dart`
-  - `Fmt` (`abstract final`), static methods returning display strings:
-    - `time(DateTime)`: localized clock time.
-    - `dayHeader(DateTime)`: today, yesterday, or a weekday and date.
-    - `relative(DateTime)`: now, minutes ago, hours ago, then `dayHeader`.
-    - `count(int n, {required one, required two, required few, required many})`:
-      Egyptian-Arabic count phrasing.
-    - `notes(int)` and `links(int)`: counts with a zero-state phrase.
-    - `duration(int ms)`: `m:ss`.
-    - `bytes(int)`: bytes, KB or MB with Arabic unit labels.
+- `format.dart`: `Fmt` static methods return display strings.
+  - `time(AppLocalizations, DateTime)`: locale-specific 12-hour clock.
+  - `dayHeader(AppLocalizations, DateTime, {DateTime? now})`: today, yesterday, or weekday/date.
+  - `relative(AppLocalizations, DateTime, {DateTime? now})`: localized ICU minutes/hours or day header.
+  - `notes(AppLocalizations, int)` and `links(AppLocalizations, int)`: ICU plural messages, including zero.
+  - `duration(int ms)`: numeric `m:ss`.
+  - `bytes(AppLocalizations, int)`: localized bytes/KB/MB using `NumberFormat`.
 - Subpackages:
   - [motion](./motion/EGM.md): `FikraMotion`, `FikraSwitcher`, `FikraSprings`,
     `Pressable`, `FikraPageTransitionsBuilder`.
@@ -33,29 +30,20 @@ holds no domain, storage or network logic.
 ## Invariants
 
 - `lib/core` imports nothing from `lib/app`, `lib/data` or `lib/features`. Its
-  only external packages are Flutter, `intl`, `flutter_riverpod` and `just_audio`.
+  external packages are Flutter, `intl`, `flutter_riverpod` and `just_audio`; localized strings come from `lib/l10n`.
 - Internal dependencies point one way: `widgets` depends on `theme`, `motion` and
   `format.dart`, and `theme` depends on `motion`. `motion` depends on no other
   core package.
-- `Fmt.time`, and `Fmt.dayHeader` for dates before yesterday, require Arabic
-  locale data to be loaded first, which `main` in `lib/main.dart` does with
-  `initializeDateFormatting('ar')`. `Fmt.relative` needs it too when it falls
-  through to `dayHeader`. Tests reaching these paths must initialize it as well.
-- `Fmt` output keeps Western digits (0-9). Formatted dates pass through `_ascii`,
-  which converts Eastern Arabic digits.
-- `Fmt.count` treats 1 and 2 as whole phrases with no number. Values from 3 to 10
-  use `few`, and every other value, including 0 and negatives, uses `many`. Callers
-  needing a zero state must handle it first, as `Fmt.notes` and `Fmt.links` do.
-- `Fmt.relative` treats any time less than one minute ago, including future
-  times, as "now".
+- Date symbols are initialized by `main` using `initializeDateFormatting()`; standalone tests using dates initialize them too.
+- Formatting always keeps Western digits, including localized dates and sizes. Counts use generated ICU forms; Arabic 103 uses `few`.
+- `Fmt.relative` treats less than one minute, including future dates, as now.
 - Reduce Motion is honored throughout `motion` and `widgets`, using
   `MediaQuery.disableAnimations` as the single signal.
 
 ## Side Effects
 
 - `Fmt.dayHeader` and `Fmt.relative` read the device clock through `DateTime.now`.
-  `Fmt` is otherwise pure, and its `DateFormat` instances are lazily initialized
-  static finals.
+  unless `now` is supplied. `Fmt` is otherwise pure.
 - Subpackage side effects are listed in their contracts. Runtime resources are
   limited to widget-owned controllers, a `WidgetsBindingObserver`, modal routes,
   snackbars, and the audio player in `VoicePlayer`.
@@ -63,4 +51,4 @@ holds no domain, storage or network logic.
 ## Verification
 
 - Run: `flutter analyze && flutter test`
-- Run from the repository root. No test calls `Fmt` directly.
+- `test/localization_test.dart` covers plural forms, date/time and size formatting.

@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +56,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
         found: answer.found,
       );
     } catch (_) {
-      if (mounted) showToast(context, 'معرفناش نجاوب دلوقتي، جرّب تاني');
+      if (mounted) showToast(context, context.l10n.askFailed);
     } finally {
       if (mounted) setState(() => _thinking = false);
       _toBottom();
@@ -81,9 +82,9 @@ class _AskScreenState extends ConsumerState<AskScreen> {
     if (project == null || _thinking) return;
     final ok = await confirmDestructive(
       context,
-      title: 'تمسح المحادثة؟',
-      message: 'الأسئلة والإجابات هتتمسح. النوتس نفسها مش هتتأثر.',
-      confirmLabel: 'مسح',
+      title: context.l10n.clearChatTitle,
+      message: context.l10n.clearChatBody,
+      confirmLabel: context.l10n.clear,
     );
     if (ok && mounted) await runAction(context, () => ref.read(chatRepoProvider).clear(project.id));
   }
@@ -109,20 +110,20 @@ class _AskScreenState extends ConsumerState<AskScreen> {
     final notesById = {for (final n in notes) n.id: n};
     // Suggestions come from the user's own notes, so they always have an answer.
     final suggestions = [
-      for (final n in notes.where((n) => n.title.trim().isNotEmpty).take(3)) 'إيه اللي كتبته عن ${n.title.trim()}؟',
+      for (final n in notes.where((n) => n.title.trim().isNotEmpty).take(3)) context.l10n.askSuggestion(n.title.trim()),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ProjectHeader(
-          title: 'اسأل',
+          title: context.l10n.askTitle,
           trailing: entries.isEmpty || _thinking
               ? null
               : Pressable(
                   onTap: _clear,
                   minTarget: true,
-                  semanticLabel: 'مسح المحادثة',
+                  semanticLabel: context.l10n.clearChatA11y,
                   child: Padding(
                     padding: EdgeInsets.all(12),
                     child: Icon(Icons.delete_sweep_outlined, color: context.colors.textSecondary),
@@ -130,11 +131,11 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                 ),
         ),
         if (isDemo)
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
             child: Align(
               alignment: AlignmentDirectional.centerStart,
-              child: FikraBadge(kind: BadgeKind.demo, label: 'إجابات تجريبية من نوتسك'),
+              child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.askDemoBadge),
             ),
           ),
         Expanded(
@@ -156,10 +157,8 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                         EmptyState(
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           icon: Icons.chat_bubble_outline_rounded,
-                          title: 'اسأل نوتسك',
-                          description: notes.isEmpty
-                              ? 'ضيف نوتس الأول، وبعدها اسأل عنها هنا. الإجابة بتيجي من نوتسك بس، ومعاها المصدر.'
-                              : 'الإجابة بتيجي من النوتس اللي في المشروع ده بس، ومعاها المصدر.',
+                          title: context.l10n.askEmptyTitle,
+                          description: notes.isEmpty ? context.l10n.askEmptyNoNotes : context.l10n.askEmptyBody,
                         ),
                         if (suggestions.isNotEmpty) ...[
                           const SizedBox(height: 8),
@@ -218,7 +217,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
               Expanded(
                 child: FikraField(
                   controller: _input,
-                  hint: 'اسأل عن أي حاجة في نوتسك',
+                  hint: context.l10n.askHint,
                   textInputAction: TextInputAction.send,
                   maxLength: 500,
                   onChanged: (_) => setState(() {}),
@@ -230,7 +229,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                 opacity: _input.text.trim().isEmpty || _thinking ? 0.4 : 1,
                 child: Pressable(
                   onTap: _input.text.trim().isEmpty || _thinking ? null : _send,
-                  semanticLabel: 'إرسال',
+                  semanticLabel: context.l10n.send,
                   child: Container(
                     width: FikraSpace.field,
                     height: FikraSpace.field,
@@ -294,7 +293,10 @@ class _AnswerBubble extends StatelessWidget {
                   children: [
                     Icon(Icons.search_off_rounded, size: 18, color: context.colors.warning),
                     const SizedBox(width: 6),
-                    Text('ملقيناش إجابة في نوتسك', style: context.text.chip.copyWith(color: context.colors.warning)),
+                    Text(
+                      context.l10n.notFoundInNotes,
+                      style: context.text.chip.copyWith(color: context.colors.warning),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -302,7 +304,7 @@ class _AnswerBubble extends StatelessWidget {
               Text(entry.body, style: context.text.answer),
               if (sources.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text('المصادر', style: context.text.meta.copyWith(fontSize: 12)),
+                Text(context.l10n.sources, style: context.text.meta.copyWith(fontSize: 12)),
                 const SizedBox(height: 6),
                 for (var i = 0; i < sources.length; i++)
                   Padding(
@@ -329,7 +331,9 @@ class _SourceRow extends StatelessWidget {
     return Pressable(
       pressedScale: 0.98,
       onTap: n == null ? null : () => context.push('/note/${n.id}'),
-      semanticLabel: n == null ? 'مصدر $index: نوت اتحذفت' : 'مصدر $index: ${noteTitle(n)}',
+      semanticLabel: n == null
+          ? context.l10n.sourceDeletedA11y(index)
+          : context.l10n.sourceA11y(index, noteTitle(context, n)),
       child: Container(
         constraints: const BoxConstraints(minHeight: Pressable.minTargetSize),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -349,7 +353,7 @@ class _SourceRow extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                n == null ? 'نوت اتحذفت' : noteTitle(n),
+                n == null ? context.l10n.deletedNote : noteTitle(context, n),
                 style: context.text.chip.copyWith(color: n == null ? context.colors.textMeta : context.colors.textLink),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

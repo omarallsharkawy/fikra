@@ -12,7 +12,7 @@ class _PdfChip extends StatelessWidget {
       radius: FikraRadius.md,
       color: context.colors.pressed,
       borderColor: Colors.transparent,
-      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 12, 8),
       child: Row(
         children: [
           Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
@@ -22,14 +22,17 @@ class _PdfChip extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text(Fmt.bytes(bytes), style: context.text.meta.copyWith(color: context.colors.textSecondary)),
+                Text(
+                  Fmt.bytes(context.l10n, bytes),
+                  style: context.text.meta.copyWith(color: context.colors.textSecondary),
+                ),
               ],
             ),
           ),
           Pressable(
             onTap: onRemove,
             minTarget: true,
-            semanticLabel: 'شيل الملف',
+            semanticLabel: context.l10n.removeFile,
             child: const Padding(padding: EdgeInsets.all(12), child: Icon(Icons.close_rounded)),
           ),
         ],
@@ -66,7 +69,7 @@ class _ImageStrip extends StatelessWidget {
                   child: Pressable(
                     onTap: () => onRemove(image),
                     minTarget: true,
-                    semanticLabel: 'شيل الصورة ${i + 1}',
+                    semanticLabel: context.l10n.removePhoto(i + 1),
                     child: Container(
                       width: 26,
                       height: 26,

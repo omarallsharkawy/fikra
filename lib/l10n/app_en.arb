@@ -1,0 +1,408 @@
+{
+  "@@locale": "en",
+  "appTitle": "Fikra",
+  "navAdd": "Add",
+  "navNotes": "Notes",
+  "navLinks": "Links",
+  "navAsk": "Ask",
+  "storageErrorTitle": "There's a storage problem",
+  "storageErrorBody": "Couldn't read your data right now. Make sure your phone has free space, then try again.",
+  "retry": "Try again",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "justNow": "Just now",
+  "sizeBytes": "{size} B",
+  "sizeKb": "{size} KB",
+  "sizeMb": "{size} MB",
+  "badgeSampleData": "Sample data",
+  "badgeSaved": "Saved",
+  "badgeAnalyzing": "Analyzing…",
+  "badgeFailed": "Failed",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "loadErrorTitle": "Couldn't load your data",
+  "loadErrorBody": "Couldn't read your data right now. Try again.",
+  "genericError": "Something went wrong. Try again.",
+  "voicePlayA11y": "Play",
+  "voicePauseA11y": "Pause",
+  "voiceUnavailableA11y": "Recording unavailable",
+  "voiceRecording": "Voice recording",
+  "fileUnavailable": "File unavailable",
+  "deleteRecording": "Delete recording",
+  "firstProjectTitle": "Name your first project",
+  "create": "Create",
+  "createProjectFailed": "Couldn't create the project. Try again.",
+  "sampleProjectFailed": "Couldn't open the sample project. Try again.",
+  "tagline": "Write. Connect. Ask.",
+  "welcomeCapture": "Type, record your voice, or add a PDF or photos",
+  "welcomeLinks": "Fikra links related notes for you",
+  "welcomeAsk": "Ask, and get answers from your notes with sources",
+  "welcomeDemoBadge": "Demo version: everything stays on your phone",
+  "startNewProject": "Start a new project",
+  "trySampleProject": "Try a sample project",
+  "projectPillA11y": "Project: {name}. Tap to change",
+  "noProject": "None",
+  "settings": "Settings",
+  "projectsTitle": "Projects",
+  "newProject": "New project",
+  "projectOptionsA11y": "Options for {name}",
+  "renameProject": "Rename",
+  "save": "Save",
+  "deleteProject": "Delete project",
+  "deleteProjectTitle": "Delete \"{name}\"?",
+  "deleteProjectBody": "All notes, files and chats in this project will be deleted. You can't undo this.",
+  "projectDeleted": "Project deleted",
+  "projectNameHint": "Project name, e.g. Study",
+  "recordStartFailed": "Couldn't start recording. Try again.",
+  "recordInterrupted": "The recording stopped. Record again.",
+  "pdfOnly": "That file isn't a PDF. Choose a PDF.",
+  "fileOpenFailed": "Couldn't open that file. Try another one.",
+  "photosOpenFailed": "Couldn't open the photos. Try again.",
+  "noteSaved": "Note saved",
+  "noteSavedAnalyzing": "Note saved. Fikra is analyzing it now.",
+  "noteSaveFailed": "Couldn't save the note. Try again.",
+  "photosTitle": "Photos",
+  "addTitle": "New note",
+  "titleOptionalHint": "Title (optional)",
+  "bodyHintWithFileLinks": "Add a few lines about the file so Fikra can link it (optional)",
+  "bodyHint": "Write your idea…",
+  "addFooter": "Your note is saved right away, then Fikra analyzes the text and links it to related notes. Files stay on your phone.",
+  "discardRecording": "Discard recording",
+  "stopRecording": "Stop recording",
+  "recordVoice": "Record voice",
+  "addPdf": "Add PDF",
+  "addPhotos": "Add photos",
+  "removeFile": "Remove file",
+  "removePhoto": "Remove photo {n}",
+  "micNeededTitle": "Microphone access needed",
+  "close": "Close",
+  "micBlockedBody": "Microphone access is off. Open app settings and allow the microphone.",
+  "micAskBody": "To record your voice, let Fikra use the microphone.",
+  "openSettings": "Open settings",
+  "allowMic": "Allow microphone",
+  "recordingNow": "Recording",
+  "notesTitle": "Notes",
+  "searchNotesHint": "Search notes",
+  "notesEmptyTitle": "No notes yet",
+  "notesEmptyBody": "Type an idea, record your voice, or add a PDF or photos. Fikra sorts and links them for you.",
+  "addFirstNote": "Add your first note",
+  "noResultsTitle": "No results",
+  "noResultsBody": "No notes contain \"{query}\". Try another word.",
+  "noteAnalysisFailed": "Couldn't analyze",
+  "noteRewriteSuggested": "Rewrite suggested",
+  "noteSavedBadge": "Saved",
+  "openFileA11y": "Open {name}",
+  "untitledNote": "New note",
+  "openFileFailed": "Couldn't open the file. Make sure you have an app that can open it.",
+  "noteOptions": "Note options",
+  "edit": "Edit",
+  "restoreOriginal": "Restore original text",
+  "originalRestored": "Original text restored",
+  "deleteNote": "Delete note",
+  "deleteNoteTitle": "Delete this note?",
+  "deleteNoteBody": "The note, its files and its links will be deleted. You can't undo this.",
+  "noteDeleted": "Note deleted",
+  "back": "Back",
+  "options": "Options",
+  "noteNotFoundTitle": "Note not found",
+  "noteNotFoundBody": "It may have been deleted.",
+  "analysisFailedBanner": "Couldn't analyze this note, but it's saved as is.",
+  "analyzeAgain": "Analyze again",
+  "viewEdited": "Edited",
+  "viewOriginal": "Original",
+  "originalTextLabel": "Original text",
+  "topicsHeader": "Topics",
+  "relatedNotesHeader": "Related notes",
+  "analyzingBody": "Fikra is analyzing this note to find its topics and related notes. The note itself is saved.",
+  "suggestedRewrite": "Suggested rewrite",
+  "demoBadge": "Demo",
+  "useRewrite": "Use it",
+  "keepOriginal": "Keep original text",
+  "pdfFile": "PDF file",
+  "openPhotoA11y": "Open photo {n}",
+  "relatedLoadFailed": "Couldn't load related notes right now.",
+  "relatedEmpty": "No related notes in this project yet.",
+  "relatedRowA11y": "{title}, {reason}",
+  "changesSaved": "Changes saved",
+  "changesSaveFailed": "Couldn't save your changes. Try again.",
+  "unsavedTitle": "You have unsaved changes",
+  "saveChanges": "Save changes",
+  "discardChanges": "Discard changes",
+  "keepEditing": "Keep editing",
+  "editNoteTitle": "Edit note",
+  "titleHint": "Title",
+  "noteTextA11y": "Note text",
+  "originalKeptHint": "Your original text is kept. You can restore it from the note's options.",
+  "clusterGeneral": "General",
+  "moreGroups": "More groups",
+  "linksTitle": "Links",
+  "linksEmptyTitle": "Links show up here",
+  "linksEmptyBody": "Add two or more notes on related topics, and Fikra will link them.",
+  "addNote": "Add a note",
+  "linksSummary": "{notesCount} · {linksCount}",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "resetView": "Reset view",
+  "showGroupA11y": "Show {notesCount} in {cluster}",
+  "moreGroupsCount": "More groups ({count})",
+  "noLinksYet": "No links yet. Notes on the same topics get linked automatically.",
+  "nodeMeta": "{cluster} · {linksCount}",
+  "openNote": "Open note",
+  "askFailed": "Couldn't answer right now. Try again.",
+  "clearChatTitle": "Clear this chat?",
+  "clearChatBody": "Questions and answers will be cleared. Your notes stay as they are.",
+  "clear": "Clear",
+  "askSuggestion": "What did I write about {title}?",
+  "askTitle": "Ask",
+  "clearChatA11y": "Clear chat",
+  "askDemoBadge": "Demo answers from your notes",
+  "askEmptyTitle": "Ask about your notes",
+  "askEmptyNoNotes": "Add some notes first, then ask about them here. Answers come only from your notes, with sources.",
+  "askEmptyBody": "Answers come only from this project's notes, with sources.",
+  "askHint": "Ask anything about your notes",
+  "send": "Send",
+  "notFoundInNotes": "No answer found in your notes",
+  "sources": "Sources",
+  "sourceA11y": "Source {index}: {title}",
+  "sourceDeletedA11y": "Source {index}: deleted note",
+  "deletedNote": "Deleted note",
+  "eraseAllTitle": "Erase all data?",
+  "eraseAllBody": "All projects, notes, recordings, files and chats will be erased from this phone. You can't undo this.",
+  "eraseAllConfirm": "Erase everything",
+  "eraseAllDone": "All data erased",
+  "eraseAllPartial": "Your data was erased, but a few files are left. They'll be removed next time you open the app.",
+  "eraseAllFailed": "Couldn't erase your data. Try again.",
+  "settingsTitle": "Settings",
+  "appearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeHint": "\"System\" follows your phone's light or dark mode.",
+  "dataSection": "Data",
+  "dataStaysLocal": "Your notes and files are stored only on this phone and are never sent anywhere.",
+  "eraseAll": "Erase all data",
+  "aboutSection": "About",
+  "demoVersion": "Demo version",
+  "languageSection": "Language",
+  "languageSystem": "System",
+  "languageArabic": "العربية",
+  "languageEnglish": "English",
+  "demoLinkReason": "Both mention {concept}",
+  "demoAnswerNotFound": "None of the notes in this project cover that. Try asking another way, or add a note about it.",
+  "demoAnswerIntro": "From your notes in this project:",
+  "untitledNoteFallback": "Untitled note",
+  "expandLlm": "LLM (large language model)",
+  "expandRag": "RAG (Retrieval-Augmented Generation)",
+  "sampleProjectName": "Graduation project",
+  "sample1Title": "Project idea",
+  "sample1Body": "A notes app that uses AI to connect ideas and answer my questions from my own notes only.",
+  "sample2Title": "How RAG works",
+  "sample2Body": "rag finds the closest chunks of my notes using embeddings, then the llm writes the answer from them and cites the source",
+  "sample3Title": "The UI",
+  "sample3Body": "The UI is dark and simple, right-to-left in Arabic, with four tabs: Add, Notes, Links, Ask.",
+  "sample4Title": "State management in Flutter",
+  "sample4Body": "I'll use riverpod for state management in flutter, with a local database for the demo.",
+  "sample5Title": "Backend",
+  "sample5Body": "Alaa is building the backend with fastapi and postgres with pgvector. The app talks to it through an api.",
+  "sample6Title": "Semantic search",
+  "sample6Body": "Semantic search looks for meaning, not exact words. It relies on embeddings stored in a database.",
+  "sample7Title": "Networks lecture",
+  "sample7Body": "Today's networks lecture was about TCP and UDP. I need to review it before the exam.",
+  "clearSearch": "Clear search",
+  "noteSavedNoText": "Note saved. Add a few lines so it can be linked.",
+  "noTextNoLinks": "This note has no text, so Fikra can't link it.",
+  "pdfOpenElsewhere": "Open in another app",
+  "pdfPageOf": "{page} of {total}",
+  "pdfLoadFailed": "Couldn't open this file. It may be damaged or missing.",
+  "notesCount": "{count, plural, =0{No notes} one{1 note} other{{count} notes}}",
+  "linksCount": "{count, plural, =0{No links} one{1 link} other{{count} links}}",
+  "minutesAgo": "{count, plural, =0{Just now} one{1 minute ago} other{{count} minutes ago}}",
+  "hoursAgo": "{count, plural, one{1 hour ago} other{{count} hours ago}}",
+  "@sizeBytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeKb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeMb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectPillA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectOptionsA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@removePhoto": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@noResultsBody": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@openFileA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@openPhotoA11y": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@relatedRowA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "@linksSummary": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@showGroupA11y": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "cluster": {
+        "type": "String"
+      }
+    }
+  },
+  "@moreGroupsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nodeMeta": {
+    "placeholders": {
+      "cluster": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@askSuggestion": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceDeletedA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@demoLinkReason": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    }
+  },
+  "@pdfPageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@notesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@linksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pdfFormat": "PDF"
+}

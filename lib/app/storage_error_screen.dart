@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,10 +14,10 @@ class StorageErrorScreen extends ConsumerWidget {
     return FikraScaffold(
       child: EmptyState(
         icon: Icons.sd_card_alert_outlined,
-        title: 'في مشكلة في التخزين',
-        description: 'مش قادرين نقرأ بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية وجرّب تاني.',
+        title: context.l10n.storageErrorTitle,
+        description: context.l10n.storageErrorBody,
         action: FikraButton(
-          label: 'جرّب تاني',
+          label: context.l10n.retry,
           icon: Icons.refresh_rounded,
           expand: false,
           onPressed: () {

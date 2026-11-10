@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,45 +19,108 @@ class ProjectHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final project = ref.watch(selectedProjectProvider);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(title, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
-          ),
-          ?trailing,
-          if (trailing != null) const SizedBox(width: 8),
-          Pressable(
-            onTap: () => showProjectSwitcher(context, ref),
-            minTarget: true,
-            semanticLabel: 'المشروع: ${project?.name ?? 'مفيش'}. تغيير المشروع',
-            child: Glass(
-              radius: FikraRadius.full,
-              padding: const EdgeInsets.fromLTRB(10, 8, 14, 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.folder_outlined, size: 18, color: context.colors.accentLight),
-                  const SizedBox(width: 6),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 110),
-                    child: Text(project?.name ?? '—', style: context.text.chip, overflow: TextOverflow.ellipsis),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: context.colors.textSecondary),
-                ],
+    final titleStyle = context.text.title.copyWith(fontWeight: FontWeight.w700);
+    const titleGap = 12.0;
+    const settingsWidth = Pressable.minTargetSize + 4;
+    // Padding, icons, internal gaps and the glass border, without the name.
+    const chipChromeWidth = 24 + 18 + 6 + 4 + 18 + 2 * FikraSpace.hairline;
+    const compactChipChromeWidth = 8 + 4 + 18 + 2 * FikraSpace.hairline;
+    final actionWidth = trailing == null ? 0.0 : Pressable.minTargetSize + 8;
+
+    Widget projectChip({required bool compact}) => Pressable(
+      onTap: () => showProjectSwitcher(context, ref),
+      minTarget: true,
+      semanticLabel: context.l10n.projectPillA11y(project?.name ?? context.l10n.noProject),
+      child: Glass(
+        radius: FikraRadius.full,
+        padding: compact
+            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 8)
+            : const EdgeInsetsDirectional.fromSTEB(14, 8, 10, 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!compact) ...[
+              Icon(Icons.folder_outlined, size: 18, color: context.colors.accentLight),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 110),
+                child: Text(
+                  project?.name ?? '—',
+                  style: context.text.chip,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 4),
-          FikraIconButton(
-            icon: Icons.settings_outlined,
-            label: 'الإعدادات',
-            size: 40,
-            onTap: () => context.push('/settings'),
-          ),
-        ],
+            const SizedBox(width: 4),
+            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: context.colors.textSecondary),
+          ],
+        ),
+      ),
+    );
+
+    Widget controls({required bool compact}) => Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ?trailing,
+        if (trailing != null) const SizedBox(width: 8),
+        Flexible(child: projectChip(compact: compact)),
+        const SizedBox(width: 4),
+        FikraIconButton(
+          icon: Icons.settings_outlined,
+          label: context.l10n.settings,
+          size: 40,
+          onTap: () => context.push('/settings'),
+        ),
+      ],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 12),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final textScaler = MediaQuery.textScalerOf(context);
+          final measurement = TextPainter(
+            text: TextSpan(text: title, style: titleStyle),
+            textDirection: Directionality.of(context),
+            textScaler: textScaler,
+            locale: Localizations.localeOf(context),
+            maxLines: 1,
+          )..layout();
+          final chipWidth = constraints.maxWidth - measurement.width - titleGap - settingsWidth - actionWidth;
+          measurement.dispose();
+          // Keep an initial character and the renderer's ellipsis visible.
+          final nameMeasurement = TextPainter(
+            text: TextSpan(
+              text: '${(project?.name ?? '—').characters.firstOrNull ?? ''}\u2026',
+              style: context.text.chip,
+            ),
+            textDirection: Directionality.of(context),
+            textScaler: textScaler,
+            locale: Localizations.localeOf(context),
+            maxLines: 1,
+          )..layout();
+          final nameSpace = nameMeasurement.width;
+          nameMeasurement.dispose();
+          final minimumChipWidth = (compactChipChromeWidth + nameSpace).clamp(Pressable.minTargetSize, double.infinity);
+          final heading = Text(title, style: titleStyle, maxLines: 1, softWrap: false);
+          // Preserve the full title and 48 dp controls when both cannot fit.
+          if (chipWidth < minimumChipWidth) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [heading, const SizedBox(height: 8), controls(compact: false)],
+            );
+          }
+          return Row(
+            children: [
+              heading,
+              const SizedBox(width: titleGap),
+              Expanded(child: controls(compact: chipWidth < chipChromeWidth + nameSpace)),
+            ],
+          );
+        },
       ),
     );
   }
@@ -65,7 +129,7 @@ class ProjectHeader extends ConsumerWidget {
 Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
   return showFikraSheet<void>(
     context,
-    title: 'المشاريع',
+    title: context.l10n.projectsTitle,
     builder: (sheetContext) => Consumer(
       builder: (context, ref, _) {
         final projects = ref.watch(projectsProvider).value ?? const [];
@@ -89,10 +153,14 @@ Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
               ),
             const SizedBox(height: 8),
             FikraButton.secondary(
-              label: 'مشروع جديد',
+              label: context.l10n.newProject,
               icon: Icons.add_rounded,
               onPressed: () async {
-                final name = await askProjectName(sheetContext, title: 'مشروع جديد', action: 'إنشاء');
+                final name = await askProjectName(
+                  sheetContext,
+                  title: context.l10n.newProject,
+                  action: context.l10n.create,
+                );
                 if (name == null || !sheetContext.mounted) return;
                 Navigator.pop(sheetContext);
                 await runAction(context, () => ref.read(projectsRepoProvider).create(name));
@@ -129,7 +197,7 @@ class _ProjectRow extends StatelessWidget {
         radius: FikraRadius.md,
         gradient: selected ? context.colors.selectedGradient : context.colors.glassGradient,
         borderColor: selected ? Colors.transparent : context.colors.border,
-        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(8, 12, 16, 12),
         child: Row(
           children: [
             Icon(
@@ -150,7 +218,7 @@ class _ProjectRow extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    Fmt.notes(count),
+                    Fmt.notes(context.l10n, count),
                     style: context.text.meta.copyWith(
                       color: selected ? context.colors.textOnSelected : context.colors.textSecondary,
                     ),
@@ -161,7 +229,7 @@ class _ProjectRow extends StatelessWidget {
             Pressable(
               onTap: onMore,
               minTarget: true,
-              semanticLabel: 'خيارات ${project.name}',
+              semanticLabel: context.l10n.projectOptionsA11y(project.name),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Icon(
@@ -184,28 +252,37 @@ Future<void> _projectActions(BuildContext context, WidgetRef ref, Project projec
     builder: (sheet) => Column(
       children: [
         SheetOption(
-          label: 'إعادة تسمية',
+          label: context.l10n.renameProject,
           icon: Icons.edit_outlined,
           onTap: () async {
-            final name = await askProjectName(sheet, title: 'إعادة تسمية', action: 'حفظ', initial: project.name);
+            final name = await askProjectName(
+              sheet,
+              title: context.l10n.renameProject,
+              action: context.l10n.save,
+              initial: project.name,
+            );
             if (name == null || !sheet.mounted) return;
             Navigator.pop(sheet);
             await runAction(context, () => ref.read(projectsRepoProvider).rename(project.id, name));
           },
         ),
         SheetOption(
-          label: 'حذف المشروع',
+          label: context.l10n.deleteProject,
           icon: Icons.delete_outline_rounded,
           danger: true,
           onTap: () async {
             final ok = await confirmDestructive(
               sheet,
-              title: 'تحذف «${project.name}»؟',
-              message: 'كل النوتس والروابط والمحادثات اللي في المشروع هتتحذف، ومش هينفع ترجّعها.',
+              title: context.l10n.deleteProjectTitle(project.name),
+              message: context.l10n.deleteProjectBody,
             );
             if (!ok || !sheet.mounted) return;
             Navigator.pop(sheet);
-            await runAction(context, () => ref.read(projectsRepoProvider).delete(project.id), success: 'المشروع اتحذف');
+            await runAction(
+              context,
+              () => ref.read(projectsRepoProvider).delete(project.id),
+              success: context.l10n.projectDeleted,
+            );
           },
         ),
       ],
@@ -236,7 +313,7 @@ Future<String?> askProjectName(
           children: [
             FikraField(
               controller: controller,
-              hint: 'اسم المشروع',
+              hint: context.l10n.projectNameHint,
               icon: Icons.folder_outlined,
               autofocus: true,
               maxLength: 40,

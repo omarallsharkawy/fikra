@@ -14,6 +14,7 @@ extension _AddSave on _AddScreenState {
     final voicePath = _voicePath;
     final voiceMs = _voiceMs;
     final images = _images;
+    final fileOnlyTitle = _fileOnlyTitle(pdf, voicePath);
     _set(() => _saving = true);
 
     // A PDF, a recording and photos can share one note; all are copied in first.
@@ -44,7 +45,7 @@ extension _AddSave on _AddScreenState {
           .read(notesRepoProvider)
           .create(
             projectId: project.id,
-            title: text.trim().isEmpty && title.trim().isEmpty ? _fileOnlyTitle(pdf, voiceStored) : title,
+            title: text.trim().isEmpty && title.trim().isEmpty ? fileOnlyTitle : title,
             text: text,
             source: source,
             attachmentPath: pdfPath,
@@ -67,11 +68,11 @@ extension _AddSave on _AddScreenState {
         _pdf = null;
         _images = const [];
       });
-      showToast(context, text.trim().isEmpty ? 'اتحفظت' : 'اتحفظت. فِكرة بتحللها دلوقتي');
+      showToast(context, text.trim().isEmpty ? context.l10n.noteSaved : context.l10n.noteSavedAnalyzing);
       context.go('/notes');
     } catch (_) {
       await AttachmentStore.deleteQuietly(stored);
-      if (mounted) showToast(context, 'معرفناش نحفظ النوت، جرّب تاني');
+      if (mounted) showToast(context, context.l10n.noteSaveFailed);
     } finally {
       _set(() => _saving = false);
     }
@@ -80,6 +81,6 @@ extension _AddSave on _AddScreenState {
   /// Nothing typed means no analysis, so no AI title will ever come.
   String _fileOnlyTitle(PlatformFile? pdf, String? voice) {
     if (pdf != null) return p.basenameWithoutExtension(pdf.name);
-    return voice != null ? 'تسجيل صوتي' : 'صور';
+    return voice != null ? context.l10n.voiceRecording : context.l10n.photosTitle;
   }
 }

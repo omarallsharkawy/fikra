@@ -2,7 +2,7 @@
 
 ## System Overview
 
-FIKRA is a Flutter Android app for Arabic notes. Notes, projects, links, and chat history are stored on the device in a Drift SQLite database, and attachment files are stored in the app's private documents directory.
+FIKRA is a Flutter Android app for Arabic and English notes. Notes, projects, links, and chat history are stored on the device in a Drift SQLite database, and attachment files are stored in the app's private documents directory.
 
 The current build is the demo. `AiService` is the boundary to the backend, and the demo implementation sits behind it. Voice recordings, PDFs, and photos stay on the device and are never parsed; only typed text is analyzed. `FIKRA_MODE=connected` is rejected at startup because no backend implementation exists yet.
 
@@ -22,6 +22,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `test/`, `i
 - lib/app: [./lib/app/EGM.md](./lib/app/EGM.md) - Build mode, providers, routes, and the four-tab shell.
 - lib/core: [./lib/core/EGM.md](./lib/core/EGM.md) - Formatting, theme, motion, and shared widgets. Imports nothing from `app`, `data`, or `features`.
 - lib/data: [./lib/data/EGM.md](./lib/data/EGM.md) - Repositories, schema, files, analysis queue, and the AI boundary.
+- lib/l10n: [./lib/l10n/EGM.md](./lib/l10n/EGM.md) - Approved Arabic/English copy, generated lookups, and demo vocabulary.
 - lib/features: [./lib/features/EGM.md](./lib/features/EGM.md) - Screens, grouped by folder.
 
 ## Global Invariants
@@ -45,3 +46,8 @@ Not covered by these contracts: `android/` (a default Flutter host), `test/`, `i
 ## System Verification
 
 - Run: `flutter analyze && flutter test`
+
+## Languages
+
+- Arabic is RTL; English is LTR. A persisted language preference resolves through `appLocaleProvider`; device mode uses English only for an English device and Arabic otherwise.
+- UI copy lives in `lib/l10n`, based on `docs/plans/copy-glossary.md`. Stored content, topics, groups and answers retain their creation language.

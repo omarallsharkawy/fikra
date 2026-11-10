@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,14 +39,14 @@ class NoteCard extends StatelessWidget {
                     const SizedBox(width: 2),
                     Expanded(
                       child: Text(
-                        noteTitle(note),
+                        noteTitle(context, note),
                         style: context.text.cardTitleSmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(Fmt.time(note.createdAt), style: context.text.meta),
+                    Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
                   ],
                 ),
                 if (note.displayText.isNotEmpty) ...[
@@ -59,16 +60,19 @@ class NoteCard extends StatelessWidget {
                     key: ValueKey(note.status),
                     child: switch (note.status) {
                       ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing),
-                      ProcessingStatus.failed => const FikraBadge(kind: BadgeKind.failed, label: 'التحليل فشل'),
+                      ProcessingStatus.failed => FikraBadge(
+                        kind: BadgeKind.failed,
+                        label: context.l10n.noteAnalysisFailed,
+                      ),
                       ProcessingStatus.ready => Wrap(
                         spacing: 6,
                         runSpacing: 6,
                         children: [
                           if (note.rewrite == RewriteStatus.pending)
-                            const FikraBadge(kind: BadgeKind.processing, label: 'في اقتراح صياغة'),
+                            FikraBadge(kind: BadgeKind.processing, label: context.l10n.noteRewriteSuggested),
                           for (final c in concepts.take(3)) _ConceptTag(c),
                           if (concepts.isEmpty && note.rewrite != RewriteStatus.pending)
-                            const FikraBadge(kind: BadgeKind.saved, label: 'محفوظة'),
+                            FikraBadge(kind: BadgeKind.saved, label: context.l10n.noteSavedBadge),
                         ],
                       ),
                     },
@@ -97,7 +101,7 @@ class _OpenPdfArea extends ConsumerWidget {
       key: ValueKey('open-pdf-${note.id}'),
       onTap: () => openAttachment(context, ref, note.attachmentPath!),
       pressedScale: 1,
-      semanticLabel: 'افتح ملف ${note.attachmentName ?? 'PDF'}',
+      semanticLabel: context.l10n.openFileA11y(note.attachmentName ?? context.l10n.pdfFormat),
       child: const SizedBox.expand(),
     );
   }

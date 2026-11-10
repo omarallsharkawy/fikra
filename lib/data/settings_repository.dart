@@ -4,8 +4,14 @@ import 'local/database.dart';
 /// Appearance choice. Kept free of Flutter types; the app maps it to ThemeMode.
 enum AppTheme { system, light, dark }
 
+/// Language preference, independent of Flutter locale types.
+enum AppLanguage { system, ar, en }
+
 /// App-wide preferences and the "start over" action.
 abstract interface class SettingsRepository {
+  Stream<AppLanguage> watchLanguage();
+  Future<void> setLanguage(AppLanguage language);
+
   Stream<AppTheme> watchTheme();
   Future<void> setTheme(AppTheme theme);
 
@@ -42,6 +48,20 @@ class LocalSettingsRepository implements SettingsRepository {
       await (db.delete(db.settings)..where((s) => s.key.equals(_themeKey))).go();
     } else {
       await db.into(db.settings).insertOnConflictUpdate(Setting(key: _themeKey, value: theme.name));
+    }
+  }
+
+  @override
+  Stream<AppLanguage> watchLanguage() => (db.select(db.settings)..where((s) => s.key.equals('language')))
+      .watchSingleOrNull()
+      .map((s) => AppLanguage.values.asNameMap()[s?.value] ?? AppLanguage.system);
+
+  @override
+  Future<void> setLanguage(AppLanguage language) async {
+    if (language == AppLanguage.system) {
+      await (db.delete(db.settings)..where((s) => s.key.equals('language'))).go();
+    } else {
+      await db.into(db.settings).insertOnConflictUpdate(Setting(key: 'language', value: language.name));
     }
   }
 

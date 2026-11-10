@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
 void showToast(BuildContext context, String message) {
@@ -8,12 +9,8 @@ void showToast(BuildContext context, String message) {
 
 /// Runs a user action, showing [success] only after it completes and a toast
 /// on failure. Returns whether it succeeded.
-Future<bool> runAction(
-  BuildContext context,
-  Future<void> Function() action, {
-  String? success,
-  String failure = 'حصلت مشكلة، جرّب تاني',
-}) async {
+Future<bool> runAction(BuildContext context, Future<void> Function() action, {String? success, String? failure}) async {
+  final failureMessage = failure ?? context.l10n.genericError;
   final messenger = ScaffoldMessenger.maybeOf(context);
   void toast(String m) => messenger
     ?..hideCurrentSnackBar()
@@ -23,7 +20,7 @@ Future<bool> runAction(
     if (success != null) toast(success);
     return true;
   } catch (_) {
-    toast(failure);
+    toast(failureMessage);
     return false;
   }
 }

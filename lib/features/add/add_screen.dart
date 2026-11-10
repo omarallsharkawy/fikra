@@ -1,3 +1,5 @@
+import 'package:fikra/l10n/localizations.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -152,7 +154,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ProjectHeader(title: 'إضافة'),
+        ProjectHeader(title: context.l10n.addTitle),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 24),
@@ -175,7 +177,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               AnimatedContainer(
                 duration: FikraMotion.reduced(context) ? Duration.zero : FikraMotion.enter,
                 curve: FikraMotion.enterCurve,
-                padding: const EdgeInsets.fromLTRB(16, 4, 10, 10),
+                padding: const EdgeInsetsDirectional.fromSTEB(10, 4, 16, 10),
                 decoration: BoxDecoration(
                   gradient: c.glassGradient,
                   borderRadius: BorderRadius.circular(FikraRadius.xl),
@@ -202,7 +204,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         counterText: '',
-                        hintText: 'عنوان (اختياري)',
+                        hintText: context.l10n.titleOptionalHint,
                         hintStyle: context.text.cardTitleSmall.copyWith(color: c.textPlaceholder),
                       ),
                     ),
@@ -228,7 +230,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 counterText: '',
-                                hintText: _hasAttachment ? 'ضيف ملاحظة على الملف (اختياري)' : 'اكتب فكرتك هنا…',
+                                hintText: _hasAttachment ? context.l10n.bodyHintWithFileLinks : context.l10n.bodyHint,
                                 hintStyle: context.text.bodyLarge.copyWith(color: c.textPlaceholder),
                               ),
                             ),
@@ -253,7 +255,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'النوت بتتحفظ الأول، وبعدين فِكرة بتحلل النص وتربطه. الملفات بتفضل على موبايلك.',
+                context.l10n.addFooter,
                 textAlign: TextAlign.center,
                 style: context.text.meta.copyWith(fontSize: 12),
               ),

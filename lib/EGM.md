@@ -2,11 +2,12 @@
 
 ## Overview
 
-All application source for FIKRA, a local-first Arabic notes app for Android. `main.dart` starts the app. The four subpackages split the code by role: `app` wires it together, `core` holds shared presentation code, `data` owns storage and the AI boundary, and `features` holds the screens.
+All application source for FIKRA, a local-first Arabic and English notes app for Android. `main.dart` starts the app. The four subpackages split the code by role: `app` wires it together, `core` holds shared presentation code, `data` owns storage and the AI boundary, and `features` holds the screens.
 
 ## Interface
 
 - `main.dart`: `main()`.
+- [l10n](./l10n/EGM.md): Arabic/English ARB messages, generated `AppLocalizations`, context extension, and demo vocabulary.
 - Subpackages:
   - [app](./app/EGM.md): `FikraApp`, `routerProvider`, the Riverpod providers, `AppShell`, `appMode`.
   - [core](./core/EGM.md): `Fmt`, theme tokens, motion tokens, shared widgets.
@@ -16,11 +17,11 @@ All application source for FIKRA, a local-first Arabic notes app for Android. `m
 ## Invariants
 
 - [`main.dart:main`] throws `UnsupportedError` before `runApp` when `appMode == AppMode.connected`. Connected mode must not run on the demo services. This check must be removed when the backend is wired in.
-- [`main.dart:main`] calls `initializeDateFormatting('ar')` before `runApp`. `Fmt` date formatting depends on it.
+- [`main.dart:main`] calls `initializeDateFormatting()` before `runApp`. `Fmt` date formatting depends on it.
 
 ## Side Effects
 
-- [`main.dart:main`] loads Arabic date symbols and starts the widget tree inside a `ProviderScope`.
+- [`main.dart:main`] loads date symbols for supported locales and starts the widget tree inside a `ProviderScope`.
 
 ## Verification
 
