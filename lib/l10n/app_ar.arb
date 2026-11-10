@@ -426,5 +426,8 @@
   "pdfFormat": "PDF",
   "@pdfFormat": {
     "description": "File-format fallback when an attachment has no stored filename; this technical abbreviation is identical in both languages."
-  }
+  },
+  "removeAttachmentBody": "الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.",
+  "emptyNoteBlocked": "الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.",
+  "pdfPasswordProtected": "الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني."
 }

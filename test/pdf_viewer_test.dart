@@ -1,3 +1,5 @@
+import 'package:fikra/data/attachment_draft.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -31,12 +33,19 @@ void main() {
             title: 'test',
             text: '',
             source: NoteSource.pdf,
-            attachmentPath: '/private/test.pdf',
+            attachments: [AttachmentDraft(kind: AttachmentKind.pdf, path: '/private/test.pdf')],
           );
         });
         await pumpUntil(tester, find.text('test'));
-        tester.element(find.text('test').first).push('/note/${note.id}/pdf');
-        await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
+        tester
+            .element(find.text('test').first)
+            .push(
+              '/note/${note.id}/pdf/${(await pumpFuture(tester, () => LocalNotesRepository(db).watchAttachments(note.id).first)).firstOrNull?.id ?? 'missing'}',
+            );
+        final locked = failure is PdfPasswordException;
+        await pumpUntil(tester, find.text(locked ? l10n.pdfPasswordProtected : l10n.pdfLoadFailed));
+        expect(find.text(l10n.retry), locked ? findsNothing : findsOneWidget);
+        expect(find.text(locked ? l10n.pdfLoadFailed : l10n.pdfPasswordProtected), findsNothing);
         expect(find.byType(LoadErrorView), findsOneWidget);
         await tester.pump(const Duration(milliseconds: 500));
         await tester.tap(find.byKey(const ValueKey('pdf-open-elsewhere')));
@@ -47,6 +56,20 @@ void main() {
       },
     );
   }
+
+  test('an encrypted document accepting an empty password is classified and disposed', () async {
+    final document = _Document(encrypted: true);
+    final container = ProviderContainer(
+      overrides: [pdfDocumentLoaderProvider.overrideWithValue((_) async => document)],
+    );
+    addTearDown(container.dispose);
+    container.listen(pdfDocumentProvider('/private/encrypted.pdf'), (_, _) {});
+    await expectLater(
+      container.read(pdfDocumentProvider('/private/encrypted.pdf').future),
+      throwsA(isA<PdfPasswordException>()),
+    );
+    expect(document.disposals, 1);
+  });
 
   test('default loader rejects a missing file before native initialization', () async {
     final container = ProviderContainer();
@@ -89,7 +112,10 @@ void main() {
 
 // Lifecycle tests never create a native document or a PdfViewer.
 class _Document extends PdfDocument {
-  _Document() : super(sourceName: 'test');
+  _Document({this.encrypted = false}) : super(sourceName: 'test');
+  final bool encrypted;
+  @override
+  bool get isEncrypted => encrypted;
   int disposals = 0;
 
   @override

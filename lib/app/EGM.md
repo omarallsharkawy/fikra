@@ -66,7 +66,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 | `/ask` | `AskScreen` | Shell branch 3 |
 | `/settings` | `SettingsScreen` | Top level, `pageBuilder:` via `_pushed` |
 | `/note/:id` | `NoteDetailsScreen` | Top level, `pageBuilder:` via `_pushed` |
-| `/note/:id/pdf` | `PdfViewerScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
+| `/note/:id/pdf/:attachmentId` | `PdfViewerScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
 | `/note/:id/edit` | `EditNoteScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
 
 `/note/:id` accepts an optional `extra` of type `Note`, used as the screen's
@@ -145,7 +145,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
   Flutter's own `MaterialApp`, go_router 18 falls back to `NoTransitionPage` for
   `builder:` routes, so a push made that way would jump in one frame. Routes that
   replace each other (splash, welcome, the shell) intentionally keep `builder:`.
-- `/note/:id/pdf` passes only the note ID. The viewer resolves its file from `noteProvider`; query parameters and `extra` cannot supply a file path.
+- `/note/:id/pdf/:attachmentId` passes note and attachment IDs. The viewer resolves its file from `noteProvider` plus `noteAttachmentsProvider`; query parameters and `extra` cannot supply a file path.
 - The `extra` on `/note/:id` is used only when it is a `Note` whose `id` matches
   the path parameter. Otherwise `initial` is `null`, as for deep links.
 
@@ -214,3 +214,9 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 - Tests that exercise this package: `test/motion_test.dart` (shell and veil),
   `test/app_flow_test.dart`, and the shared harness in
   `test/support/app_harness.dart`.
+
+`noteAttachmentsProvider(noteId)` streams ordered files for details/edit/viewer. `projectAttachmentsProvider(projectId)` shares one joined attachment query among all cards, avoiding per-card streams. Startup sweeping awaits database initialization/migration and uses every attachment-table path. Migration failures prevent maintenance from running; there is no legacy-column fallback.
+
+## Recording ownership
+
+`recordingActiveProvider` is app-scoped and persists across the offstage tab shell and pushed Edit. `RecordingActivity.claim(owner)` synchronously excludes a second recorder; only its owner can release. Native start/cancel/dispose completes before release, including failures and disposal during permission/start. `audioRecorderFactoryProvider` and `microphonePermissionProvider` inject the existing record/permission boundaries for lifecycle tests.

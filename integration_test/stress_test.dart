@@ -152,21 +152,37 @@ void main() {
             final text = List.filled(1 + rnd.nextInt(4), body).join('. ');
             b.insert(
               db.notes,
-              Note(
+              NotesCompanion.insert(
                 id: id,
                 projectId: 'p',
                 title: '$topic ${i + 1}',
                 originalText: text,
-                imagePaths: '',
                 source: NoteSource.text,
                 status: ProcessingStatus.ready,
-                rewrite: RewriteStatus.none,
-                concepts: [topic, 'مراجعة', 'نوت ${i % 50}'].join('|'),
-                cluster: topic,
+                concepts: Value([topic, 'مراجعة', 'نوت ${i % 50}'].join('|')),
+                cluster: Value(topic),
                 createdAt: now.subtract(Duration(minutes: i * 37)),
                 updatedAt: now,
               ),
             );
+            if (i % 4 == 0) {
+              for (var j = 0; j < 6; j++) {
+                b.insert(
+                  db.noteAttachments,
+                  NoteAttachment(
+                    id: '$id-a$j',
+                    noteId: id,
+                    kind: AttachmentKind.values[j ~/ 2],
+                    path: '/stress/$id-$j',
+                    name: 'file-$j.pdf',
+                    bytes: 12345,
+                    durationMs: 3000,
+                    position: j,
+                    createdAt: now,
+                  ),
+                );
+              }
+            }
           }
         });
       }
@@ -210,6 +226,7 @@ void main() {
     report['q_watchNotes_ms'] = await time(() => notesRepo.watchNotes('p').first);
     report['q_watchProjects_ms'] = await time(() => projectsRepo.watchProjects().first);
     report['q_watchLinks_ms'] = await time(() => notesRepo.watchLinks('p').first);
+    report['q_projectAttachments_ms'] = await time(() => notesRepo.watchProjectAttachments('p').first);
     report['q_attachmentPaths_ms'] = await time(() => notesRepo.attachmentPaths());
 
     // ---- demo AI against N notes (what runs after every save / every question)

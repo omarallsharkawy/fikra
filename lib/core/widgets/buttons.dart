@@ -18,6 +18,7 @@ class FikraButton extends StatelessWidget {
     this.loading = false,
     this.horizontalPadding = 24,
     this.maxLines,
+    this.growForText = false,
   });
 
   const FikraButton.secondary({
@@ -29,6 +30,7 @@ class FikraButton extends StatelessWidget {
     this.loading = false,
     this.horizontalPadding = 24,
     this.maxLines,
+    this.growForText = false,
   }) : style = FikraButtonStyle.secondary;
 
   const FikraButton.danger({
@@ -40,6 +42,7 @@ class FikraButton extends StatelessWidget {
     this.loading = false,
     this.horizontalPadding = 24,
     this.maxLines,
+    this.growForText = false,
   }) : style = FikraButtonStyle.danger;
 
   final String label;
@@ -50,6 +53,9 @@ class FikraButton extends StatelessWidget {
   final bool loading;
   final double horizontalPadding;
   final int? maxLines;
+
+  /// Preserve the minimum target while allowing large text to wrap in full.
+  final bool growForText;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +88,7 @@ class FikraButton extends StatelessWidget {
           child: Text(
             label,
             style: text.copyWith(color: fg),
-            overflow: TextOverflow.ellipsis,
+            overflow: growForText ? TextOverflow.visible : TextOverflow.ellipsis,
             maxLines: maxLines,
             textAlign: TextAlign.center,
           ),
@@ -95,9 +101,10 @@ class FikraButton extends StatelessWidget {
         onTap: enabled ? onPressed : null,
         semanticLabel: label,
         child: Container(
-          height: FikraSpace.button,
+          height: growForText ? null : FikraSpace.button,
+          constraints: growForText ? const BoxConstraints(minHeight: FikraSpace.button) : null,
           width: expand ? double.infinity : null,
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 0),
           decoration: BoxDecoration(
             gradient: gradient,
             color: color,

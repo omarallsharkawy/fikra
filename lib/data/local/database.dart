@@ -5,6 +5,8 @@ part 'database.g.dart';
 
 enum NoteSource { text, voice, pdf }
 
+enum AttachmentKind { pdf, voice, image }
+
 /// "Saved" and "AI finished" are separate states.
 enum ProcessingStatus { processing, ready, failed }
 
@@ -47,16 +49,16 @@ class Notes extends Table {
   TextColumn get status => textEnum<ProcessingStatus>()();
   TextColumn get rewrite => textEnum<RewriteStatus>().withDefault(const Constant('none'))();
 
-  /// The PDF (since schema v2; v1 also kept recordings here).
+  /// Legacy PDF columns, retained for migration/recovery only since v5.
   TextColumn get attachmentPath => text().nullable()();
   TextColumn get attachmentName => text().nullable()();
   IntColumn get attachmentBytes => integer().nullable()();
 
-  /// The voice recording and its length, alone or beside a PDF (schema v2).
+  /// Legacy recording columns, retained for migration/recovery only since v5.
   TextColumn get voicePath => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
 
-  /// Attached photos: file paths separated by '|' (schema v4).
+  /// Legacy photo paths separated by '|', retained for migration/recovery only.
   TextColumn get imagePaths => text().withDefault(const Constant(''))();
 
   /// Concepts separated by '|'.
@@ -64,6 +66,23 @@ class Notes extends Table {
   TextColumn get cluster => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('NoteAttachment')
+@TableIndex(name: 'note_attachments_note', columns: {#noteId})
+class NoteAttachments extends Table {
+  TextColumn get id => text()();
+  TextColumn get noteId => text().references(Notes, #id, onDelete: KeyAction.cascade)();
+  TextColumn get kind => textEnum<AttachmentKind>()();
+  TextColumn get path => text()();
+  TextColumn get name => text().nullable()();
+  IntColumn get bytes => integer().nullable()();
+  IntColumn get durationMs => integer().nullable()();
+  IntColumn get position => integer()();
+  DateTimeColumn get createdAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -113,12 +132,12 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Projects, Notes, NoteLinks, ChatEntries, Settings])
+@DriftDatabase(tables: [Projects, Notes, NoteAttachments, NoteLinks, ChatEntries, Settings])
 class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -171,6 +190,56 @@ class FikraDatabase extends _$FikraDatabase {
           }
         });
       }
+      if (from < 5) {
+        await transaction(() async {
+          final tables = await customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'note_attachments'",
+          ).get();
+          if (tables.isEmpty) await m.createTable(noteAttachments);
+          await customStatement('CREATE INDEX IF NOT EXISTS note_attachments_note ON note_attachments (note_id)');
+          // Stable IDs make partial backfills and a repeated upgrade harmless.
+          // Keep the original columns intact for recovery.
+          for (final note in await select(notes).get()) {
+            var position = 0;
+            Future<void> copy(
+              String key,
+              AttachmentKind kind,
+              String? path, {
+              String? name,
+              int? bytes,
+              int? durationMs,
+            }) async {
+              if (path == null || path.trim().isEmpty) return;
+              await into(noteAttachments).insert(
+                NoteAttachment(
+                  id: 'legacy:${note.id}:$key',
+                  noteId: note.id,
+                  kind: kind,
+                  path: path,
+                  name: name,
+                  bytes: bytes,
+                  durationMs: durationMs,
+                  position: position++,
+                  createdAt: note.createdAt,
+                ),
+                mode: InsertMode.insertOrIgnore,
+              );
+            }
+
+            await copy(
+              'pdf',
+              AttachmentKind.pdf,
+              note.attachmentPath,
+              name: note.attachmentName,
+              bytes: note.attachmentBytes,
+            );
+            await copy('voice', AttachmentKind.voice, note.voicePath, durationMs: note.durationMs);
+            for (final (i, path) in note.imagePaths.split('|').indexed) {
+              await copy('image:$i', AttachmentKind.image, path);
+            }
+          }
+        });
+      }
     },
     beforeOpen: (details) async => customStatement('PRAGMA foreign_keys = ON'),
   );
@@ -187,14 +256,6 @@ extension NoteX on Note {
 
   /// What the user sees by default.
   String get displayText => editedText ?? originalContent;
-
-  bool get hasPdf => attachmentPath != null;
-  bool get hasVoice => voicePath != null;
-  List<String> get imageList => imagePaths.isEmpty ? const [] : imagePaths.split('|');
-  bool get hasImages => imagePaths.isNotEmpty;
-
-  /// Every file this note owns on disk.
-  List<String> get filePaths => [?attachmentPath, ?voicePath, ...imageList];
 
   bool get hasImprovedVersion => editedText != null && editedText != originalContent;
 }

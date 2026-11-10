@@ -13,9 +13,9 @@ void main() {
   late SchemaVerifier verifier;
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 → v4 produces exactly the current schema', () async {
+  test('v1 → v5 produces exactly the current schema', () async {
     final db = FikraDatabase(await verifier.startAt(1));
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     await db.close();
   });
 
@@ -34,7 +34,7 @@ void main() {
     note('text', 'text');
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final byId = {for (final n in await db.select(db.notes).get()) n.id: n};
 
     final voice = byId['voice']!;
@@ -42,7 +42,10 @@ void main() {
     expect(voice.durationMs, 61000);
     expect([voice.attachmentPath, voice.attachmentName, voice.attachmentBytes], everyElement(isNull));
     expect(voice.source, NoteSource.voice);
-    expect(voice.filePaths, ['/files/rec.m4a']);
+    expect(
+      (await db.select(db.noteAttachments).get()).where((a) => a.noteId == voice.id).single.path,
+      '/files/rec.m4a',
+    );
 
     final pdf = byId['pdf']!;
     expect(pdf.attachmentPath, '/files/doc.pdf');
@@ -51,7 +54,7 @@ void main() {
     expect(pdf.voicePath, isNull);
 
     final text = byId['text']!;
-    expect(text.filePaths, isEmpty);
+    expect((await db.select(db.noteAttachments).get()).where((a) => a.noteId == text.id), isEmpty);
     expect(text.conceptList, ['RAG']);
     expect(text.title, 'title-text');
     await db.close();
@@ -71,7 +74,7 @@ void main() {
     expect(raw.userVersion, 1);
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final n = await db.select(db.notes).getSingle();
     expect(n.voicePath, '/files/rec.m4a');
     expect(n.attachmentPath, isNull);
@@ -84,7 +87,7 @@ void main() {
     // An interrupted v3 upgrade: one index already exists, user_version still 2.
     schema.rawDatabase.execute('CREATE INDEX notes_status ON notes (status)');
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final names = (await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get())
         .map((r) => r.read<String>('name'))
         .toSet();
@@ -119,10 +122,9 @@ void main() {
     raw.execute("ALTER TABLE notes ADD COLUMN image_paths TEXT NOT NULL DEFAULT ''");
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final n = await db.select(db.notes).getSingle();
-    expect(n.imageList, isEmpty);
-    expect(n.hasImages, isFalse);
+    expect((await db.select(db.noteAttachments).get()).where((a) => a.kind == AttachmentKind.image), isEmpty);
     expect(n.attachmentPath, '/files/doc.pdf');
     expect(n.extractedText, 'مستخرج');
     expect(n.displayText, 'نص\n\nمستخرج');

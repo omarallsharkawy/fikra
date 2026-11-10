@@ -9,8 +9,12 @@ import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/files/attachment_store.dart';
+import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/files/file_opener.dart';
 import 'package:fikra/data/local/database.dart';
+import 'package:fikra/data/repositories.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
 import 'package:fikra/features/note_details/pdf_document_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -39,6 +43,13 @@ void fikraTest(
   Locale locale = const Locale('ar'),
   DateTime Function()? clock,
   PdfDocumentLoader? pdfLoader,
+  AttachmentStore? attachmentStore,
+  AiService? aiService,
+  NotesRepository Function(FikraDatabase)? notesRepository,
+  AudioRecorder Function()? recorderFactory,
+  Future<PermissionStatus> Function()? microphonePermission,
+  List<String>? audioEvents,
+  Future<void> Function(String path)? pauseAudio,
 }) {
   testWidgets(description, (tester) async {
     tester.platformDispatcher.localeTestValue = locale;
@@ -49,6 +60,7 @@ void fikraTest(
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     await initializeDateFormatting();
+    mockAudioPlayers(events: audioEvents, pause: pauseAudio);
     final db = FikraDatabase(NativeDatabase.memory());
     await tester.pumpWidget(
       RepaintBoundary(
@@ -56,8 +68,12 @@ void fikraTest(
         child: ProviderScope(
           overrides: [
             databaseProvider.overrideWithValue(db),
+            if (notesRepository != null) notesRepoProvider.overrideWithValue(notesRepository(db)),
+            if (recorderFactory != null) audioRecorderFactoryProvider.overrideWithValue(recorderFactory),
+            if (microphonePermission != null) microphonePermissionProvider.overrideWithValue(microphonePermission),
+            if (aiService != null) aiServiceProvider.overrideWithValue(aiService),
             if (clock != null) appClockProvider.overrideWithValue(clock),
-            attachmentStoreProvider.overrideWithValue(_NoFilesStore()),
+            attachmentStoreProvider.overrideWithValue(attachmentStore ?? _NoFilesStore()),
             if (opener != null) fileOpenerProvider.overrideWithValue(opener),
             // No native PDFium calls in widget tests, including missing-file cases.
             pdfDocumentLoaderProvider.overrideWithValue(
@@ -176,3 +192,66 @@ Future<void> loadAppFonts() async {
 
 /// Resolve the current app copy, including during a runtime language switch.
 AppLocalizations testL10n(WidgetTester tester) => AppLocalizations.of(tester.element(find.byType(Navigator).first));
+
+/// A local audio channel fake: no native audio or file decoding in widget tests.
+void mockAudioPlayers({List<String>? events, Future<void> Function(String path)? pause}) {
+  final paths = <String, String>{};
+  String? uriIn(Object? value) {
+    if (value is Map) {
+      if (value['uri'] is String) return value['uri'] as String;
+      for (final v in value.values) {
+        final found = uriIn(v);
+        if (found != null) return found;
+      }
+    } else if (value is List) {
+      for (final v in value) {
+        final found = uriIn(v);
+        if (found != null) return found;
+      }
+    }
+    return null;
+  }
+
+  final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(const MethodChannel('com.ryanheise.just_audio.methods'), (call) async {
+    if (call.method == 'disposePlayer') {
+      events?.add('dispose:${paths[(call.arguments as Map)['id']] ?? (call.arguments as Map)['id']}');
+      final id = (call.arguments as Map)['id'] as String;
+      ServicesBinding.instance.channelBuffers.push('com.ryanheise.just_audio.events.$id', null, (_) {});
+      ServicesBinding.instance.channelBuffers.push('com.ryanheise.just_audio.data.$id', null, (_) {});
+      await Future<void>.value();
+    }
+    if (call.method == 'init') {
+      final id = (call.arguments as Map)['id'] as String;
+      events?.add('init:$id');
+      messenger.setMockMethodCallHandler(MethodChannel('com.ryanheise.just_audio.events.$id'), (_) async => null);
+      messenger.setMockMethodCallHandler(MethodChannel('com.ryanheise.just_audio.data.$id'), (_) async => null);
+      messenger.setMockMethodCallHandler(MethodChannel('com.ryanheise.just_audio.methods.$id'), (method) async {
+        if (method.method == 'load') {
+          final uri = uriIn(method.arguments);
+          paths[id] = uri == null ? id : Uri.parse(uri).toFilePath();
+          events?.add('load:${paths[id]}');
+          ServicesBinding.instance.channelBuffers.push(
+            'com.ryanheise.just_audio.events.$id',
+            const StandardMethodCodec().encodeSuccessEnvelope({
+              'processingState': 3,
+              'updateTime': 0,
+              'updatePosition': 0,
+              'bufferedPosition': 0,
+              'duration': 61000000,
+              'currentIndex': 0,
+            }),
+            (_) {},
+          );
+          return {'duration': 61000000};
+        }
+        if (method.method == 'play' || method.method == 'pause') {
+          events?.add('${method.method}:${paths[id] ?? id}');
+          if (method.method == 'pause') await pause?.call(paths[id] ?? id);
+        }
+        return <String, dynamic>{};
+      });
+    }
+    return <String, dynamic>{};
+  });
+}

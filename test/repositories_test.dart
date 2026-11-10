@@ -1,3 +1,5 @@
+import 'package:fikra/data/attachment_draft.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -139,14 +141,17 @@ void main() {
       title: 't',
       text: '',
       source: NoteSource.pdf,
-      attachmentPath: pdf.path,
-      attachmentName: 'a.pdf',
-      voicePath: voice.path,
-      durationMs: 3000,
-      imagePaths: [photo1.path, photo2.path],
+      attachments: [
+        AttachmentDraft(kind: AttachmentKind.pdf, path: pdf.path, name: 'a.pdf'),
+        AttachmentDraft(kind: AttachmentKind.voice, path: voice.path, durationMs: 3000),
+        for (final path in [photo1.path, photo2.path]) AttachmentDraft(kind: AttachmentKind.image, path: path),
+      ],
     );
-    expect(n.hasPdf && n.hasVoice && n.hasImages, isTrue);
-    expect(n.imageList, [photo1.path, photo2.path]);
+    expect(await notes.watchAttachments(n.id).first, hasLength(4));
+    expect((await notes.watchAttachments(n.id).first).where((a) => a.kind == AttachmentKind.image).map((a) => a.path), [
+      photo1.path,
+      photo2.path,
+    ]);
     expect(await notes.attachmentPaths(), {pdf.path, voice.path, photo1.path, photo2.path});
 
     await notes.delete(n.id);
@@ -167,9 +172,11 @@ void main() {
       title: 't',
       text: '',
       source: NoteSource.pdf,
-      attachmentPath: pdf.path,
-      voicePath: voice.path,
-      imagePaths: [photo.path],
+      attachments: [
+        AttachmentDraft(kind: AttachmentKind.pdf, path: pdf.path),
+        AttachmentDraft(kind: AttachmentKind.voice, path: voice.path),
+        for (final path in [photo.path]) AttachmentDraft(kind: AttachmentKind.image, path: path),
+      ],
     );
     await projects.delete(p.id);
     expect(await pdf.exists(), isFalse);
@@ -192,7 +199,7 @@ void main() {
         title: 'lecture',
         text: '   ',
         source: NoteSource.pdf,
-        attachmentPath: '/f/a.pdf',
+        attachments: [AttachmentDraft(kind: AttachmentKind.pdf, path: '/f/a.pdf')],
       );
       final ai = _ScriptedAi([]); // any analyze call would fail on the empty script
       await NoteProcessor(notes, ai).process(n);
@@ -209,7 +216,7 @@ void main() {
         title: '',
         text: 'نص مكتوب',
         source: NoteSource.pdf,
-        attachmentPath: '/f/a.pdf',
+        attachments: [AttachmentDraft(kind: AttachmentKind.pdf, path: '/f/a.pdf')],
       );
       final ai = _ScriptedAi([() async => _insights(title: 'ok')]);
       await NoteProcessor(notes, ai).process(n);

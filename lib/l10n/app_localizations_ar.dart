@@ -760,4 +760,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pdfFormat => 'PDF';
+
+  @override
+  String get removeAttachmentBody => 'الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.';
+
+  @override
+  String get emptyNoteBlocked => 'الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.';
+
+  @override
+  String get pdfPasswordProtected => 'الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.';
 }

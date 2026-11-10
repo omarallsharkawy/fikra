@@ -9,7 +9,7 @@ The note list tab, mounted at `/notes` by `lib/app/router.dart`. It shows the se
 - `notes_screen.dart`
   - `NotesScreen`: `ConsumerStatefulWidget` with no parameters.
 - `note_card.dart`
-  - `NoteCard({required Note note, required VoidCallback onTap})`: stateless list card with a single note-opening tap target.
+  - `NoteCard({required Note note, required VoidCallback onTap})`: consumer list card with a single note-opening tap target.
 - Consumes `selectedNotesProvider` from `lib/app/providers.dart`, `ProjectHeader` from [projects](../projects/EGM.md), and `noteTitle` and `sourceIcons` from [shared](../shared/EGM.md).
 
 ## Invariants
@@ -38,3 +38,5 @@ All list/card labels, unnamed PDF format fallbacks and errors use `context.l10n`
 
 - Run: `flutter analyze && flutter test`
 - `integration_test/stress_test.dart` imports `note_card.dart` directly.
+
+Cards share `projectAttachmentsProvider(projectId)`, one joined attachment query per project, and render one icon per kind with a count only above one. A file-free/text-free note retains its source-icon fallback. `NoteCard` is now a ConsumerWidget; its constructor and row keys are unchanged. Stress seeds six attachments on every fourth note and times the same batched project query.

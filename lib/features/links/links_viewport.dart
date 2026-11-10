@@ -4,16 +4,16 @@ part of 'links_screen.dart';
 extension _LinksViewport on _LinksScreenState {
   /// RTL canvas: start the view at its right edge, where each row begins.
   Matrix4 _home() => Matrix4.translationValues(
-    Directionality.of(context) == TextDirection.rtl ? math.min(0, _viewportW - _canvasW) : 0,
+    Directionality.of(context) == TextDirection.rtl ? math.min(0, _viewportSize.width - _canvasW) : 0,
     0,
     0,
   );
 
   void _zoom(double factor) {
+    if (_viewportSize.isEmpty) return;
     final m = _tc.value.clone();
     final s = (m.getMaxScaleOnAxis() * factor).clamp(0.5, 2.5) / m.getMaxScaleOnAxis();
-    final size = context.size ?? const Size(400, 600);
-    final c = Offset(size.width / 2, size.height / 2);
+    final c = _viewportSize.center(Offset.zero);
     _tc.value = Matrix4.identity()
       ..translateByDouble(c.dx, c.dy, 0, 1)
       ..scaleByDouble(s, s, 1, 1)
@@ -26,10 +26,11 @@ extension _LinksViewport on _LinksScreenState {
   Widget _graphCanvas(GraphLayout layout, double width, double height) {
     return LayoutBuilder(
       builder: (context, box) {
+        // Refresh height even when width (and the reading-start fit) is unchanged.
+        _viewportSize = box.biggest;
         final key = '${ref.read(selectedProjectProvider)?.id}|$width|${box.maxWidth}|${layout.rtl}';
         if (key != _fittedFor) {
           _fittedFor = key;
-          _viewportW = box.maxWidth;
           _canvasW = width;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _tc.value = _home();

@@ -1,3 +1,5 @@
+import 'package:fikra/data/attachment_draft.dart';
+
 import 'dart:io';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -62,7 +64,13 @@ void main() {
     await settings.setTheme(AppTheme.dark);
     await settings.setLanguage(AppLanguage.en);
     final p = await projects.create('p');
-    await notes.create(projectId: p.id, title: 't', text: 'x', source: NoteSource.voice, voicePath: file.path);
+    await notes.create(
+      projectId: p.id,
+      title: 't',
+      text: 'x',
+      source: NoteSource.voice,
+      attachments: [AttachmentDraft(kind: AttachmentKind.voice, path: file.path)],
+    );
     await chat.add(projectId: p.id, role: 'user', body: 'q');
 
     await settings.wipeAllData();

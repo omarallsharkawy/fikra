@@ -33,32 +33,120 @@ class VoicePlayer extends StatefulWidget {
   State<VoicePlayer> createState() => _VoicePlayerState();
 }
 
+/// Shared arbitration for all local previews and note recordings.
+class VoicePlaybackCoordinator {
+  Future<void>? _pending;
+  Future<void> Function()? _stop;
+  Object? _owner;
+
+  Future<void> _stopCurrent() async {
+    final stop = _stop;
+    _owner = null;
+    _stop = null;
+    await stop?.call();
+  }
+
+  Future<void> _enqueue(Future<void> Function() action) {
+    final previous = _pending;
+    final next = previous == null ? action() : previous.then((_) => action());
+    final settled = next.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    _pending = settled;
+    unawaited(
+      settled.then((_) {
+        if (identical(_pending, settled)) _pending = null;
+      }),
+    );
+    return next;
+  }
+
+  Future<void> stop() => _enqueue(_stopCurrent);
+
+  Future<void> start(
+    Object owner,
+    Future<void> Function() stop,
+    void Function() play, {
+    bool Function()? isActive,
+    Future<void> Function()? prepare,
+  }) {
+    return _enqueue(() async {
+      if (isActive?.call() == false) return;
+      await _stopCurrent();
+      if (isActive?.call() == false) return;
+      _owner = owner;
+      _stop = stop;
+      await prepare?.call();
+      if (!identical(_owner, owner) || isActive?.call() == false) return;
+      play();
+    });
+  }
+
+  void release(Object owner) {
+    if (identical(_owner, owner)) {
+      _owner = null;
+      _stop = null;
+    }
+  }
+}
+
+final voicePlaybackCoordinator = VoicePlaybackCoordinator();
+
 class _VoicePlayerState extends State<VoicePlayer> {
-  final _player = AudioPlayer();
+  AudioPlayer? _player;
   StreamSubscription<PlayerState>? _sub;
   bool _playing = false;
+  bool _starting = false;
   bool _error = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _player.setFilePath(widget.path).catchError((_) {
-      if (mounted) setState(() => _error = true);
-      return null;
-    });
-    _sub = _player.playerStateStream.listen((s) {
+  Future<void> _prepare() async {
+    if (!mounted || _player != null) return;
+    final player = _player = AudioPlayer();
+    _sub = player.playerStateStream.listen((s) {
       if (s.processingState == ProcessingState.completed) {
-        _player.pause();
-        _player.seek(Duration.zero);
+        unawaited(player.pause());
+        unawaited(player.seek(Duration.zero));
       }
       if (mounted) setState(() => _playing = s.playing && s.processingState != ProcessingState.completed);
     });
+    await player.setFilePath(widget.path);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggle() async {
+    if (_error || _starting) return;
+    if (_playing) {
+      await _player?.pause();
+      return;
+    }
+    setState(() => _starting = true);
+    try {
+      await voicePlaybackCoordinator.start(
+        this,
+        () async {
+          await _player?.pause();
+        },
+        () {
+          unawaited(
+            _player!.play().catchError((Object _) {
+              if (mounted) setState(() => _error = true);
+            }),
+          );
+        },
+        prepare: _prepare,
+        isActive: () => mounted,
+      );
+    } catch (_) {
+      if (mounted) setState(() => _error = true);
+    } finally {
+      if (mounted) setState(() => _starting = false);
+    }
   }
 
   @override
   void dispose() {
+    voicePlaybackCoordinator.release(this);
     _sub?.cancel();
-    _player.dispose();
+    // No player exists for previews that were never played.
+    unawaited(_player?.dispose().catchError((Object _) {}) ?? Future<void>.value());
     super.dispose();
   }
 
@@ -74,7 +162,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
       child: Row(
         children: [
           Pressable(
-            onTap: _error ? null : () => _playing ? _player.pause() : _player.play(),
+            onTap: _error || _starting ? null : _toggle,
             minTarget: true,
             semanticLabel: _error
                 ? context.l10n.voiceUnavailableA11y
@@ -100,7 +188,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
                 Text(widget.title ?? context.l10n.voiceRecording, style: context.text.body),
                 const SizedBox(height: 6),
                 StreamBuilder<Duration>(
-                  stream: _player.positionStream,
+                  stream: _player?.positionStream,
                   builder: (context, snap) {
                     final pos = snap.data ?? Duration.zero;
                     final total = widget.durationMs <= 0 ? 1 : widget.durationMs;

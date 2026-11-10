@@ -14,8 +14,8 @@ Future<PdfDocument> _loadDocument(String path) async {
   await file.close();
   await pdfrxFlutterInitialize();
   final document = await PdfDocument.openFile(path, passwordProvider: () async => null, useProgressiveLoading: true);
-  // Also reject encrypted documents that happen to accept an empty password.
-  if (document.isEncrypted || document.pages.isEmpty) {
+  // The provider classifies encryption separately, including empty passwords.
+  if (!document.isEncrypted && document.pages.isEmpty) {
     await document.dispose();
     throw const FormatException('Unsupported PDF document');
   }
@@ -30,6 +30,10 @@ final pdfDocumentProvider = FutureProvider.autoDispose.family<PdfDocument, Strin
   if (disposed) {
     await _disposeDocument(document);
     throw StateError('PDF viewer disposed while loading');
+  }
+  if (document.isEncrypted) {
+    await _disposeDocument(document);
+    throw const PdfPasswordException('Password-protected PDF');
   }
   ref.onDispose(() => _disposeDocument(document));
   return document;

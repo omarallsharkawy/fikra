@@ -1,9 +1,10 @@
-part of 'add_screen.dart';
+part of 'attachment_editor.dart';
 
 /// Bottom row of the composer. Idle: mic, PDF and photos on the start side, save on the
 /// end. Recording: cancel + stop.
 class _Toolbar extends StatelessWidget {
   const _Toolbar({
+    this.showSave = true,
     required this.recording,
     required this.micEnabled,
     required this.pdfEnabled,
@@ -17,6 +18,7 @@ class _Toolbar extends StatelessWidget {
     required this.onCancel,
     required this.onSave,
   });
+  final bool showSave;
   final bool recording;
   final bool micEnabled;
   final bool pdfEnabled;
@@ -82,15 +84,16 @@ class _Toolbar extends StatelessWidget {
                     onTap: imagesEnabled ? onImages : null,
                   ),
                   const Spacer(),
-                  _RoundAction(
-                    key: const ValueKey('add-save'),
-                    icon: Icons.check_rounded,
-                    label: context.l10n.save,
-                    gradient: c.sendGradient,
-                    foreground: c.textOnSend,
-                    loading: saving,
-                    onTap: canSave ? onSave : null,
-                  ),
+                  if (showSave)
+                    _RoundAction(
+                      key: const ValueKey('add-save'),
+                      icon: Icons.check_rounded,
+                      label: context.l10n.save,
+                      gradient: c.sendGradient,
+                      foreground: c.textOnSend,
+                      loading: saving,
+                      onTap: canSave ? onSave : null,
+                    ),
                 ],
               ),
       ),

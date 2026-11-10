@@ -1,4 +1,4 @@
-part of 'add_screen.dart';
+part of 'attachment_editor.dart';
 
 class _MicPermissionCard extends StatelessWidget {
   const _MicPermissionCard({required this.blocked, required this.onRetry, required this.onClose});

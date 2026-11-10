@@ -11,15 +11,20 @@ import '../../l10n/localizations.dart';
 import '../shared/open_attachment.dart';
 import 'pdf_document_provider.dart';
 
-/// Only the note ID comes from navigation; file paths always come from storage.
+/// Navigation supplies note and attachment IDs; file paths always come from storage.
 class PdfViewerScreen extends ConsumerWidget {
-  const PdfViewerScreen({super.key, required this.noteId});
+  const PdfViewerScreen({super.key, required this.noteId, required this.attachmentId});
   final String noteId;
+  final String attachmentId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final note = ref.watch(noteProvider(noteId));
-    final path = note.value?.hasPdf == true ? note.value!.attachmentPath : null;
+    final attachments = ref.watch(noteAttachmentsProvider(noteId));
+    final attachment = attachments.value
+        ?.where((a) => a.id == attachmentId && a.kind == AttachmentKind.pdf)
+        .firstOrNull;
+    final path = note.value == null ? null : attachment?.path;
     return FikraScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,7 +41,7 @@ class PdfViewerScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    note.value?.attachmentName ?? context.l10n.pdfFile,
+                    attachment?.name ?? context.l10n.pdfFile,
                     style: context.text.cardTitleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -53,12 +58,17 @@ class PdfViewerScreen extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: note.isLoading && !note.hasValue && !note.hasError
+            child:
+                (note.isLoading && !note.hasValue && !note.hasError) ||
+                    (attachments.isLoading && !attachments.hasValue && !attachments.hasError)
                 ? const Center(child: CircularProgressIndicator())
                 : path == null
                 ? LoadErrorView(
                     description: context.l10n.pdfLoadFailed,
-                    onRetry: () => ref.invalidate(noteProvider(noteId)),
+                    onRetry: () {
+                      ref.invalidate(noteProvider(noteId));
+                      ref.invalidate(noteAttachmentsProvider(noteId));
+                    },
                   )
                 : _Document(key: ValueKey(path), path: path),
           ),
@@ -90,7 +100,11 @@ class _DocumentState extends ConsumerState<_Document> {
     final document = ref.watch(pdfDocumentProvider(widget.path));
     void retry() => ref.invalidate(pdfDocumentProvider(widget.path));
     if (document.hasError) {
-      return LoadErrorView(description: context.l10n.pdfLoadFailed, onRetry: retry);
+      final locked = document.error is PdfPasswordException;
+      return LoadErrorView(
+        description: locked ? context.l10n.pdfPasswordProtected : context.l10n.pdfLoadFailed,
+        onRetry: locked ? null : retry,
+      );
     }
     if (!document.hasValue) return const Center(child: CircularProgressIndicator());
 

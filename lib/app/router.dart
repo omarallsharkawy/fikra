@@ -95,8 +95,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
         routes: [
           GoRoute(
-            path: 'pdf',
-            pageBuilder: (_, s) => _pushed(s, PdfViewerScreen(noteId: s.pathParameters['id']!)),
+            path: 'pdf/:attachmentId',
+            pageBuilder: (_, s) => _pushed(
+              s,
+              PdfViewerScreen(noteId: s.pathParameters['id']!, attachmentId: s.pathParameters['attachmentId']!),
+            ),
           ),
           GoRoute(
             path: 'edit',

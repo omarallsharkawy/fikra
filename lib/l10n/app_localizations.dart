@@ -1405,6 +1405,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'PDF'**
   String get pdfFormat;
+
+  /// No description provided for @removeAttachmentBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.'**
+  String get removeAttachmentBody;
+
+  /// No description provided for @emptyNoteBlocked.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.'**
+  String get emptyNoteBlocked;
+
+  /// No description provided for @pdfPasswordProtected.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.'**
+  String get pdfPasswordProtected;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -404,5 +404,8 @@
       }
     }
   },
-  "pdfFormat": "PDF"
+  "pdfFormat": "PDF",
+  "removeAttachmentBody": "The file will be deleted from this note when you save changes. You can't undo this.",
+  "emptyNoteBlocked": "A note can't be empty. Add text or a file.",
+  "pdfPasswordProtected": "This PDF is password-protected. Open it in another app."
 }

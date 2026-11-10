@@ -26,3 +26,5 @@ All application source for FIKRA, a local-first Arabic and English notes app for
 ## Verification
 
 - Run: `flutter analyze && flutter test`
+
+Attachment persistence is schema v5 (`NoteAttachments`). Add and Edit share the draft editor; copies precede atomic repository saves, and stored-file deletion follows commit. Cards share one per-project attachment stream. All files and recording operations remain local.

@@ -2,8 +2,7 @@ part of 'links_screen.dart';
 
 Rect _rect(GraphPosition position) => Rect.fromLTWH(position.left, position.top, position.width, position.height);
 
-String _graphTitle(BuildContext context, GraphNote note) =>
-    note.title.trim().isEmpty ? context.l10n.untitledNote : note.title;
+String _graphTitle(BuildContext context, GraphNote note) => noteTitleText(context, note.title);
 
 class _OverflowNode extends StatelessWidget {
   const _OverflowNode({required this.label, required this.onTap, this.semanticLabel, this.numbersOnly = false});
@@ -114,7 +113,7 @@ class _Node extends StatelessWidget {
           ),
         ),
         child: Text(
-          note.title,
+          _graphTitle(context, note),
           style: context.text.chip.copyWith(
             color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
           ),

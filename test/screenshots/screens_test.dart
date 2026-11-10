@@ -4,7 +4,13 @@
 @Tags(['screenshots'])
 library;
 
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:fikra/l10n/localizations.dart';
+import 'package:fikra/data/attachment_draft.dart';
+import 'package:fikra/features/add/add_screen.dart';
+import 'package:fikra/features/shared/attachment_editor.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
@@ -47,6 +53,91 @@ void main() {
           await tester.tap(find.text(l10n.trySampleProject));
           await pumpUntil(tester, find.text(l10n.sample7Title));
           await capture('02_notes');
+
+          final photoDirectory = await tester.runAsync(() async {
+            final dir = await Directory.systemTemp.createTemp('fikra-screenshot-photos-');
+            for (var i = 1; i <= 2; i++) {
+              final recorder = ui.PictureRecorder();
+              final canvas = Canvas(recorder);
+              canvas.drawColor(const Color(0xff666666), BlendMode.src);
+              canvas.drawRect(Rect.fromLTWH(i * 20, 20, 50, 70), Paint()..color = const Color(0xffcccccc));
+              final picture = recorder.endRecording();
+              final image = await picture.toImage(120, 120);
+              final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+              await File('${dir.path}/photo-$i.png').writeAsBytes(bytes!.buffer.asUint8List());
+              image.dispose();
+              picture.dispose();
+            }
+            return dir;
+          });
+          addTearDown(() => photoDirectory!.delete(recursive: true));
+          await tester.runAsync(() async {
+            for (var i = 1; i <= 2; i++) {
+              await precacheImage(
+                ResizeImage(FileImage(File('${photoDirectory!.path}/photo-$i.png')), width: 360),
+                ctx(),
+              );
+            }
+          });
+          final multipleFiles = <AttachmentDraft>[
+            for (var i = 1; i <= 2; i++)
+              AttachmentDraft(
+                kind: AttachmentKind.pdf,
+                path: '/private/lecture-$i.pdf',
+                name: 'lecture-$i.pdf',
+                bytes: 54945382,
+              ),
+            for (var i = 1; i <= 2; i++)
+              AttachmentDraft(kind: AttachmentKind.voice, path: '/private/rec-$i.m4a', durationMs: 61000),
+            for (var i = 1; i <= 2; i++)
+              AttachmentDraft(
+                kind: AttachmentKind.image,
+                path: '${photoDirectory!.path}/photo-$i.png',
+                name: 'photo-$i.png',
+              ),
+          ];
+          final multi = await pumpFuture(tester, () async {
+            final repo = LocalNotesRepository(db);
+            final p = (await db.select(db.projects).get()).first;
+            final n = await repo.create(
+              projectId: p.id,
+              title: 'lecture-1',
+              text: '',
+              source: NoteSource.pdf,
+              attachments: multipleFiles,
+              createdAt: DateTime(2026, 11, 10, 11, 59),
+            );
+            await repo.markReady(n.id);
+            return n;
+          });
+          await pumpUntil(tester, find.text('lecture-1'));
+          await capture('25_notes_files');
+          ctx().push('/note/${multi.id}');
+          await pumpUntil(tester, find.text('lecture-2.pdf'));
+          await capture('21_details_files');
+          ctx().push('/note/${multi.id}/edit');
+          await pumpUntil(tester, find.text(l10n.editNoteTitle));
+          await capture('22_edit_files');
+          await tester.drag(
+            find.byWidgetPredicate((w) => w is ListView && w.scrollDirection == Axis.vertical).last,
+            const Offset(0, -450),
+          );
+          await tester.pump(const Duration(milliseconds: 400));
+          await capture('23_edit_files_bottom');
+          ctx().go('/add');
+          await pumpUntil(tester, find.byType(AddScreen));
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pump(const Duration(milliseconds: 400));
+          final draft = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
+          draft.updateDraft(() => draft.draftFiles = multipleFiles);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 400));
+          await Scrollable.ensureVisible(tester.element(find.byKey(const ValueKey('add-save'))), alignment: 0.7);
+          await tester.pump(const Duration(milliseconds: 400));
+          await capture('24_add_files');
+          draft.updateDraft(() => draft.draftFiles = []);
+          ctx().go('/notes');
+          await pumpUntil(tester, find.text(l10n.sample7Title));
 
           // Details of a note with a pending rewrite, concepts and links.
           final rag = await pumpFuture(
@@ -137,11 +228,14 @@ void main() {
               title: l10n.pdfFile,
               text: '',
               source: NoteSource.pdf,
-              attachmentPath: '/private/document.pdf',
-              attachmentName: 'document.pdf',
+              attachments: [
+                AttachmentDraft(kind: AttachmentKind.pdf, path: '/private/document.pdf', name: 'document.pdf'),
+              ],
             ),
           );
-          ctx().push('/note/${pdf.id}/pdf');
+          ctx().push(
+            '/note/${pdf.id}/pdf/${(await pumpFuture(tester, () => LocalNotesRepository(db).watchAttachments(pdf.id).first)).first.id}',
+          );
           await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
           await capture('20_pdf_failure');
         },

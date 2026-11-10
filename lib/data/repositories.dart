@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'ai/ai_service.dart';
+import 'attachment_draft.dart';
 import 'files/attachment_store.dart';
 import 'ids.dart';
 import 'local/database.dart';
@@ -20,6 +21,8 @@ abstract interface class ProjectsRepository {
 abstract interface class NotesRepository {
   Stream<List<Note>> watchNotes(String projectId);
   Stream<Note?> watchNote(String id);
+  Stream<List<NoteAttachment>> watchAttachments(String noteId);
+  Stream<Map<String, List<NoteAttachment>>> watchProjectAttachments(String projectId);
   Future<List<Note>> notesOf(String projectId);
 
   /// Notes left in [status] across all projects (e.g. processing after a kill).
@@ -29,12 +32,7 @@ abstract interface class NotesRepository {
     required String title,
     required String text,
     required NoteSource source,
-    String? attachmentPath,
-    String? attachmentName,
-    int? attachmentBytes,
-    String? voicePath,
-    int? durationMs,
-    List<String> imagePaths,
+    List<AttachmentDraft> attachments,
     DateTime? createdAt,
   });
   Future<void> markProcessing(String id);
@@ -47,7 +45,7 @@ abstract interface class NotesRepository {
   Future<Set<String>> attachmentPaths();
   Future<void> acceptRewrite(String id);
   Future<void> rejectRewrite(String id);
-  Future<void> edit(String id, {required String title, required String text});
+  Future<void> edit(String id, {required String title, required String text, List<AttachmentDraft>? attachments});
   Future<void> restoreOriginal(String id);
   Future<void> delete(String id);
   Stream<List<NoteLink>> watchLinks(String projectId);
@@ -134,7 +132,9 @@ class LocalProjectsRepository implements ProjectsRepository {
 }
 
 class LocalNotesRepository implements NotesRepository {
-  LocalNotesRepository(this.db);
+  LocalNotesRepository(this.db, {Future<void> Function(Iterable<String>)? deleteFiles})
+    : _deleteFiles = deleteFiles ?? AttachmentStore.deleteQuietly;
+  final Future<void> Function(Iterable<String>) _deleteFiles;
   final FikraDatabase db;
 
   @override
@@ -161,35 +161,80 @@ class LocalNotesRepository implements NotesRepository {
     required String title,
     required String text,
     required NoteSource source,
-    String? attachmentPath,
-    String? attachmentName,
-    int? attachmentBytes,
-    String? voicePath,
-    int? durationMs,
-    List<String> imagePaths = const [],
+    List<AttachmentDraft> attachments = const [],
     DateTime? createdAt,
   }) async {
     final now = createdAt ?? DateTime.now();
-    final note = Note(
-      id: newId(),
-      projectId: projectId,
-      title: title.trim(),
-      originalText: text.trim(),
-      source: source,
-      status: ProcessingStatus.processing,
-      rewrite: RewriteStatus.none,
-      attachmentPath: attachmentPath,
-      attachmentName: attachmentName,
-      attachmentBytes: attachmentBytes,
-      voicePath: voicePath,
-      durationMs: durationMs,
-      imagePaths: imagePaths.join('|'),
-      concepts: '',
-      createdAt: now,
-      updatedAt: now,
-    );
-    await db.into(db.notes).insert(note);
-    return note;
+    final id = newId();
+    return db.transaction(() async {
+      await db
+          .into(db.notes)
+          .insert(
+            NotesCompanion.insert(
+              id: id,
+              projectId: projectId,
+              title: title.trim(),
+              originalText: text.trim(),
+              source: source,
+              status: ProcessingStatus.processing,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      await _replaceAttachments(id, attachments);
+      return (db.select(db.notes)..where((n) => n.id.equals(id))).getSingle();
+    });
+  }
+
+  @override
+  Stream<List<NoteAttachment>> watchAttachments(String noteId) =>
+      (db.select(db.noteAttachments)
+            ..where((a) => a.noteId.equals(noteId))
+            ..orderBy([(a) => OrderingTerm.asc(a.position), (a) => OrderingTerm.asc(a.id)]))
+          .watch();
+
+  @override
+  Stream<Map<String, List<NoteAttachment>>> watchProjectAttachments(String projectId) =>
+      (db.select(db.noteAttachments).join([
+              innerJoin(db.notes, db.notes.id.equalsExp(db.noteAttachments.noteId), useColumns: false),
+            ])
+            ..where(db.notes.projectId.equals(projectId))
+            ..orderBy([OrderingTerm.asc(db.noteAttachments.position), OrderingTerm.asc(db.noteAttachments.id)]))
+          .watch()
+          .map((rows) {
+            final grouped = <String, List<NoteAttachment>>{};
+            for (final row in rows) {
+              final a = row.readTable(db.noteAttachments);
+              (grouped[a.noteId] ??= []).add(a);
+            }
+            return grouped;
+          });
+
+  Future<void> _replaceAttachments(String noteId, List<AttachmentDraft> attachments) async {
+    // Existing IDs must belong to this note; callers cannot move another note's files.
+    final existing = await (db.select(db.noteAttachments)..where((a) => a.noteId.equals(noteId))).get();
+    final byId = {for (final a in existing) a.id: a};
+    for (final a in attachments.where((a) => a.id != null)) {
+      if (byId[a.id]?.path != a.path) throw StateError('Attachment no longer exists');
+    }
+    await (db.delete(db.noteAttachments)..where((a) => a.noteId.equals(noteId))).go();
+    for (final (position, a) in attachments.indexed) {
+      await db
+          .into(db.noteAttachments)
+          .insert(
+            NoteAttachment(
+              id: a.id ?? newId(),
+              noteId: noteId,
+              kind: a.kind,
+              path: a.path,
+              name: a.name,
+              bytes: a.bytes,
+              durationMs: a.durationMs,
+              position: position,
+              createdAt: byId[a.id]?.createdAt ?? DateTime.now(),
+            ),
+          );
+    }
   }
 
   Future<void> _write(String id, NotesCompanion c) =>
@@ -284,19 +329,50 @@ class LocalNotesRepository implements NotesRepository {
       _write(id, const NotesCompanion(proposedText: Value(null), rewrite: Value(RewriteStatus.rejected)));
 
   @override
-  Future<void> edit(String id, {required String title, required String text}) async {
-    final n = await (db.select(db.notes)..where((n) => n.id.equals(id))).getSingle();
-    final t = text.trim();
-    await _write(
-      id,
-      NotesCompanion(
-        title: Value(title.trim().isEmpty ? n.title : title.trim()),
-        editedText: Value(t == n.originalContent ? null : t),
-        // A proposal made from the old text no longer applies.
-        proposedText: const Value(null),
-        rewrite: Value(n.rewrite == RewriteStatus.pending ? RewriteStatus.none : n.rewrite),
-      ),
-    );
+  Future<void> edit(
+    String id, {
+    required String title,
+    required String text,
+    List<AttachmentDraft>? attachments,
+  }) async {
+    final removed = await db.transaction(() async {
+      final n = await (db.select(db.notes)..where((n) => n.id.equals(id))).getSingle();
+      final old = await (db.select(db.noteAttachments)..where((a) => a.noteId.equals(id))).get();
+      final t = text.trim();
+      if (t.isEmpty && (attachments?.isEmpty ?? old.isEmpty)) {
+        throw const EmptyNoteException();
+      }
+      final kinds = attachments?.map((a) => a.kind) ?? old.map((a) => a.kind);
+      final source = kinds.contains(AttachmentKind.pdf)
+          ? NoteSource.pdf
+          : kinds.contains(AttachmentKind.voice)
+          ? NoteSource.voice
+          : NoteSource.text;
+      final textChanged = t != n.displayText.trim();
+      await _write(
+        id,
+        NotesCompanion(
+          source: Value(source),
+          title: Value(title.trim().isEmpty ? n.title : title.trim()),
+          editedText: textChanged ? Value(t == n.originalContent ? null : t) : const Value.absent(),
+          proposedText: textChanged ? const Value(null) : const Value.absent(),
+          rewrite: textChanged && n.rewrite == RewriteStatus.pending
+              ? const Value(RewriteStatus.none)
+              : const Value.absent(),
+        ),
+      );
+      if (attachments == null) return <String>[];
+      await _replaceAttachments(id, attachments);
+      final kept = attachments.map((a) => a.path).toSet();
+      return old.map((a) => a.path).where((p) => !kept.contains(p)).toList();
+    });
+    // Only committed removals reach disk. Failures here are retried by the sweep.
+    try {
+      await _deleteFiles(removed);
+    } catch (_) {
+      // The database commit succeeded. Cleanup must never make the caller
+      // roll back copies that now belong to the saved note; the sweep retries.
+    }
   }
 
   @override
@@ -304,9 +380,12 @@ class LocalNotesRepository implements NotesRepository {
 
   @override
   Future<void> delete(String id) async {
-    final n = await (db.select(db.notes)..where((n) => n.id.equals(id))).getSingleOrNull();
-    await (db.delete(db.notes)..where((n) => n.id.equals(id))).go();
-    if (n != null) await AttachmentStore.deleteQuietly(n.filePaths);
+    final paths = await db.transaction(() async {
+      final paths = await _filePaths(db, db.notes.id.equals(id));
+      await (db.delete(db.notes)..where((n) => n.id.equals(id))).go();
+      return paths;
+    });
+    await AttachmentStore.deleteQuietly(paths);
   }
 
   @override
@@ -352,14 +431,9 @@ class LocalChatRepository implements ChatRepository {
 
 /// Every attachment file (PDF, voice, photos) of the notes matching [where].
 Future<List<String>> _filePaths(FikraDatabase db, Expression<bool>? where) async {
-  final q = db.selectOnly(db.notes)..addColumns([db.notes.attachmentPath, db.notes.voicePath, db.notes.imagePaths]);
+  final q = db.select(db.noteAttachments).join([
+    innerJoin(db.notes, db.notes.id.equalsExp(db.noteAttachments.noteId), useColumns: false),
+  ]);
   if (where != null) q.where(where);
-  final rows = await q.get();
-  return [
-    for (final r in rows) ...[
-      ?r.read(db.notes.attachmentPath),
-      ?r.read(db.notes.voicePath),
-      ...?r.read(db.notes.imagePaths)?.split('|').where((p) => p.isNotEmpty),
-    ],
-  ];
+  return (await q.get()).map((r) => r.readTable(db.noteAttachments).path).toList();
 }

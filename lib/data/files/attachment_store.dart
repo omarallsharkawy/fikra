@@ -10,7 +10,7 @@ import '../ids.dart';
 ///
 /// Files live in the app's private documents dir under `attachments/`, so they
 /// survive cache clears and aren't readable by other apps. The database stores
-/// the absolute path in `Notes.attachmentPath`.
+/// each absolute path in `note_attachments.path`.
 class AttachmentStore {
   /// The directory getters are injectable so tests can use temp folders.
   AttachmentStore({Future<Directory> Function()? documentsDir, Future<Directory> Function()? tempDir})
@@ -97,8 +97,8 @@ class AttachmentStore {
       try {
         final f = File(path);
         if (await f.exists()) await f.delete();
-      } on FileSystemException {
-        // Left for the next orphan sweep.
+      } catch (_) {
+        // Cleanup is best effort, including non-I/O errors. Left for the next orphan sweep.
       }
     }
   }

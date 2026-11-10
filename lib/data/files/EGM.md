@@ -5,8 +5,7 @@
 Owns voice recordings, PDFs, and photos on disk, and opens them in other apps. Attachments live in the app's private
 documents directory under `attachments/`, so they survive cache clears and are
 not readable by other apps. In-progress recordings live in the temp directory.
-The database holds the absolute paths, in `Notes.attachmentPath` (PDF),
-`Notes.voicePath` (recording), and `Notes.imagePaths` (photos).
+The database holds every live absolute path in `note_attachments.path`. Legacy note columns remain only for migration/recovery.
 
 ## Interface
 
@@ -22,7 +21,7 @@ From `attachment_store.dart`:
   - `Future<void> purgeAll()`
   - `static Future<void> deleteQuietly(Iterable<String> paths)`
   - `static String imageExtension(String fileName)`: the extension a photo is stored under, never containing `|`.
-  - `Future<void> clearPickerCopies()`: best-effort delete of the file picker's cache copies. Runs after a save, at launch, and on a full wipe.
+  - `Future<void> clearPickerCopies()`: best-effort delete of the file picker's cache copies. Runs after Add saves, at launch, and on a full wipe. Edit never clears the picker cache because Add may keep a draft offstage.
 
 From `file_opener.dart`:
 
@@ -35,7 +34,7 @@ From `file_opener.dart`:
 - `newRecordingPath` only computes a path. It does not create the file.
 - `persist` copies and leaves `source` in place. If the copy fails, the partial destination is removed and the error is rethrown.
 - `sweepOrphans` must receive every path referenced by any note, in exactly the stored form, because membership is an exact string comparison. An incomplete set would delete live files older than the grace period. `NotesRepository.attachmentPaths()` provides the complete set.
-- `sweepOrphans` never deletes a file younger than `sweepGrace`, since a save may still be in flight. In the temp directory it only considers `rec_` files. It is best effort and swallows all errors; leftovers are retried on the next launch.
+- `sweepOrphans` never deletes a file younger than `sweepGrace`, since a save may still be in flight. In the temp directory it only considers `rec_` files. Deletion and sweeping are best effort and swallow all errors; leftovers are retried on the next launch.
 - `purgeAll` ignores references and the grace period, and throws if something cannot be deleted. Callers must remove the database rows first; `LocalSettingsRepository.wipeAllData` does.
 - `deleteQuietly` skips missing files and swallows only `FileSystemException`.
 

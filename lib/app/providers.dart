@@ -3,6 +3,8 @@
 // [aiServiceProvider] (fakes).
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:record/record.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../data/ai/ai_service.dart';
 import '../data/ai/demo_ai_service.dart';
@@ -145,3 +147,39 @@ final selectedLinksProvider = Provider.autoDispose<AsyncValue<List<NoteLink>>>(
 final selectedChatProvider = Provider.autoDispose<AsyncValue<List<ChatEntry>>>(
   (ref) => _forSelected(ref, const <ChatEntry>[], (id) => ref.watch(chatOfProjectProvider(id))),
 );
+
+/// One indexed stream for the note page and editor.
+final noteAttachmentsProvider = StreamProvider.autoDispose.family<List<NoteAttachment>, String>(
+  (ref, id) => ref.watch(notesRepoProvider).watchAttachments(id),
+);
+
+/// One joined query per project, shared by every visible card (no per-card query).
+final projectAttachmentsProvider = StreamProvider.autoDispose.family<Map<String, List<NoteAttachment>>, String>(
+  (ref, id) => ref.watch(notesRepoProvider).watchProjectAttachments(id),
+);
+
+final audioRecorderFactoryProvider = Provider<AudioRecorder Function()>((ref) => AudioRecorder.new);
+final microphonePermissionProvider = Provider<Future<PermissionStatus> Function()>(
+  (ref) =>
+      () => Permission.microphone.request(),
+);
+
+class RecordingActivity extends Notifier<bool> {
+  Object? _owner;
+  @override
+  bool build() => false;
+  bool claim(Object owner) {
+    if (_owner != null) return false;
+    _owner = owner;
+    state = true;
+    return true;
+  }
+
+  void release(Object owner) {
+    if (!identical(_owner, owner)) return;
+    _owner = null;
+    if (ref.mounted) state = false;
+  }
+}
+
+final recordingActiveProvider = NotifierProvider<RecordingActivity, bool>(RecordingActivity.new);

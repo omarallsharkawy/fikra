@@ -25,7 +25,7 @@ User-facing default strings resolve from `context.l10n`, in
   - `FillScroll({child})`: fills the available height and centers its child,
     scrolling when short.
 - `buttons.dart`
-  - `FikraButton({label, onPressed, icon, style, expand = true, loading = false, horizontalPadding = 24, maxLines})`,
+  - `FikraButton({label, onPressed, icon, style, expand = true, loading = false, horizontalPadding = 24, maxLines, growForText = false})`,
     with the constructors `FikraButton.secondary` and `FikraButton.danger`, and
     the enum `FikraButtonStyle { primary, secondary, danger }`.
   - `FikraIconButton({icon, label, onTap, size = 44, solid = false})`.
@@ -111,8 +111,8 @@ User-facing default strings resolve from `context.l10n`, in
 
 ## Side Effects
 
-- `VoicePlayer` creates one just_audio `AudioPlayer` per state and opens the file
-  at `path` during `initState`. `dispose` cancels the player state subscription
+- `VoicePlayer` creates its just_audio `AudioPlayer` lazily on first play and opens
+  the file at `path` then. Unplayed previews allocate no native player. `dispose` cancels the player state subscription
   and releases the player.
 - `showFikraSheet` and `confirmDestructive` push modal routes.
 - `showToast`, and `runAction` whenever it has a message to show, hide the
@@ -125,11 +125,15 @@ User-facing default strings resolve from `context.l10n`, in
 
 - Shared labels, a11y text, errors, dialogs and playback states use `AppLocalizations` through `context.l10n`.
 - Voice-player asymmetric insets use `EdgeInsetsDirectional`; segmented-control positioning already handles both directions.
-- `FikraButton.horizontalPadding` defaults to 24 in every constructor. Rewrite actions use 8, and the keep-original label allows two lines, so the approved labels fit in the existing two-button row without changing button height, typography or outer layout.
+- `FikraButton.horizontalPadding` defaults to 24. `growForText` is opt-in: it retains a 56 dp minimum and allows full multiline text with vertical padding and natural height. Other callers keep their fixed-height behavior. Rewrite actions use padding 8 and this option; their local layout chooses a measured row or a column without changing typography.
 
 ## Verification
 
 - Run: `flutter analyze && flutter test`
 - `test/motion_test.dart` covers the `confirmDestructive` results. No test refers
   to `showFikraSheet`, `runAction`, `showToast`, `AsyncBody`, `LoadErrorView`,
-  `SegmentedPill` or `VoicePlayer` by name.
+  `SegmentedPill` by name. `attachment_review_test.dart` drives real VoicePlayer widgets through the shared coordinator and verifies native allocation, pause/play ordering and disposal.
+
+## Multi-recording arbitration
+
+`VoicePlaybackCoordinator.start` serializes playback requests and awaits pausing the previous player before starting another. VoicePlayer uses the shared coordinator in Add, Edit and details, releases ownership on disposal and ignores queued starts after disposal. Late plugin disposal errors are caught during cleanup; no user action is performed from disposal. Playback widgets retain the public constructor and existing style. The public singleton `voicePlaybackCoordinator` exposes awaited `stop()` for recording. Loading is serialized with playback changes so a pending player cannot start after the mic. Idle queues are cleared. Unit tests verify queued starts; widget tests verify actual players, lazy allocation and disposal.

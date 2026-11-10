@@ -40,6 +40,7 @@ The knowledge graph tab, mounted at `/links` by `lib/app/router.dart`. Each clus
 - The selection is cleared when a new layout no longer contains the selected node.
 - The graph shows its empty state when `readyCount < 2`.
 - Zoom is limited to 0.5..2.5.
+- Zoom buttons anchor at the current `InteractiveViewer` viewport centre measured by its `LayoutBuilder`, not the entire screen. Height-only resizing refreshes this size without resetting the reading-start transform.
 - The canvas sits in a `RepaintBoundary`, so panning and zooming do not repaint nodes and edges.
 
 ## Side Effects
@@ -57,3 +58,5 @@ Localized counts, node metadata, fallback titles, accessibility text and group c
 
 - Run: `flutter analyze && flutter test`
 - `test/graph_layout_test.dart` imports `graph_layout.dart` directly.
+
+Graph nodes, selected previews, link reasons and cluster sheets all resolve titles through shared `noteTitleText`, the same fallback used by note cards/details. `phone_regressions_test.dart` covers blank node text and viewport-centred zoom in both directions, including height-only resize.

@@ -52,3 +52,5 @@ holds no domain, storage or network logic.
 
 - Run: `flutter analyze && flutter test`
 - `test/localization_test.dart` covers plural forms, date/time and size formatting.
+
+VoicePlayer now arbitrates local recording playback through `VoicePlaybackCoordinator`; all previews and saved-note players share one active owner. File size direction is handled by explicit LTR Text at attachment render sites, leaving `Fmt.bytes` and localized units unchanged.

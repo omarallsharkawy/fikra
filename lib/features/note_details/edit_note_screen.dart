@@ -6,7 +6,10 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../../data/attachment_draft.dart';
 import '../../data/local/database.dart';
+import '../shared/attachment_editor.dart';
+import '../shared/note_presentation.dart';
 
 class EditNoteScreen extends ConsumerStatefulWidget {
   const EditNoteScreen({super.key, required this.noteId});
@@ -16,15 +19,25 @@ class EditNoteScreen extends ConsumerStatefulWidget {
   ConsumerState<EditNoteScreen> createState() => _EditNoteScreenState();
 }
 
-class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
+class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with AttachmentEditing<EditNoteScreen> {
   TextEditingController? _title;
   TextEditingController? _text;
   String _initialTitle = '';
   String _initialText = '';
-  bool _saving = false;
+  List<String>? _initialFiles;
+  List<AttachmentDraft> _initialAttachments = [];
+  bool _titleEdited = false;
   bool _allowPop = false;
+  @override
+  bool get confirmAttachmentRemoval => true;
 
-  bool get _dirty => _title != null && (_title!.text != _initialTitle || _text!.text != _initialText);
+  bool get _dirty {
+    if (_title == null) return false;
+    if (_title!.text != _initialTitle || _text!.text != _initialText) return true;
+    final initial = _initialFiles ?? const <String>[];
+    if (draftFiles.length != initial.length) return true;
+    return draftFiles.indexed.any((entry) => (entry.$2.id ?? entry.$2.path) != initial[entry.$1]);
+  }
 
   @override
   void dispose() {
@@ -34,16 +47,36 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
   }
 
   Future<void> _save() async {
-    setState(() => _saving = true);
+    if (attachmentBusy || _initialFiles == null) return;
+    if (_text!.text.trim().isEmpty && draftFiles.isEmpty) {
+      showToast(context, context.l10n.emptyNoteBlocked);
+      return;
+    }
+    var title = _title!.text;
+    final text = _text!.text;
+    final draft = List<AttachmentDraft>.of(draftFiles);
+    if (text.trim().isEmpty && !_titleEdited && title == _initialTitle && draft.isNotEmpty) {
+      final keptIds = draft.map((a) => a.id).toSet();
+      final removed = _initialAttachments.where((a) => !keptIds.contains(a.id));
+      if (removed.any((a) => attachmentTitle(context.l10n, a) == _initialTitle)) {
+        title = attachmentTitle(context.l10n, draft.first);
+      }
+    }
+    setState(() => saving = true);
     try {
-      await ref.read(notesRepoProvider).edit(widget.noteId, title: _title!.text, text: _text!.text);
+      await saveAttachmentDraft(
+        ref.read(attachmentStoreProvider),
+        draft,
+        (stored) => ref.read(notesRepoProvider).edit(widget.noteId, title: title, text: text, attachments: stored),
+      );
+      await cleanDraftRecordings();
       if (!mounted) return;
       showToast(context, context.l10n.changesSaved);
       _exit();
     } catch (_) {
       if (mounted) showToast(context, context.l10n.changesSaveFailed);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) setState(() => saving = false);
     }
   }
 
@@ -57,7 +90,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
 
   /// Back or Cancel: ask before throwing away unsaved edits.
   Future<void> _requestLeave() async {
-    if (_saving) return;
+    if (attachmentBusy) return;
     if (!_dirty) return _exit();
     final choice = await showFikraSheet<_Leave>(
       context,
@@ -97,6 +130,12 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
   @override
   Widget build(BuildContext context) {
     final noteAsync = ref.watch(noteProvider(widget.noteId));
+    final files = ref.watch(noteAttachmentsProvider(widget.noteId));
+    if (files.hasValue && _initialFiles == null) {
+      draftFiles = files.requireValue.map(AttachmentDraft.saved).toList();
+      _initialFiles = draftFiles.map((a) => a.id!).toList();
+      _initialAttachments = List.of(draftFiles);
+    }
     final note = noteAsync.value;
     if (note != null && _title == null) {
       _initialTitle = note.title;
@@ -128,6 +167,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
                   const SizedBox(height: 16),
                   FikraField(
                     controller: _title,
+                    onChanged: (_) => setState(() => _titleEdited = true),
                     hint: context.l10n.titleHint,
                     icon: Icons.title_rounded,
                     maxLength: 80,
@@ -140,6 +180,8 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
                       label: context.l10n.noteTextA11y,
                       child: TextField(
                         controller: _text,
+                        readOnly: saving,
+                        onChanged: (_) => setState(() {}),
                         minLines: 8,
                         maxLines: 20,
                         maxLength: 5000,
@@ -150,15 +192,30 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(context.l10n.originalKeptHint, style: context.text.meta.copyWith(fontSize: 12)),
+                  const SizedBox(height: 12),
+                  if (files.hasError && !files.hasValue)
+                    FikraButton.secondary(
+                      label: context.l10n.retry,
+                      onPressed: () => ref.invalidate(noteAttachmentsProvider(widget.noteId)),
+                    ),
+                  permissionCard(),
+                  if (recording) recordingPreview(),
+                  attachmentPreviews(),
+                  attachmentToolbar(
+                    canSave: !attachmentBusy && _initialFiles != null,
+                    onSave: _save,
+                    enabled: _initialFiles != null,
+                    showSave: false,
+                  ),
                   const SizedBox(height: 22),
                   FikraButton(
                     label: context.l10n.saveChanges,
                     icon: Icons.check_rounded,
-                    loading: _saving,
-                    onPressed: _save,
+                    loading: saving,
+                    onPressed: attachmentBusy || _initialFiles == null ? null : _save,
                   ),
                   const SizedBox(height: 10),
-                  FikraButton.secondary(label: context.l10n.cancel, onPressed: _saving ? null : _requestLeave),
+                  FikraButton.secondary(label: context.l10n.cancel, onPressed: attachmentBusy ? null : _requestLeave),
                 ],
               ),
       ),

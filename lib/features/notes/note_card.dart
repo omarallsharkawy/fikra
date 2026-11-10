@@ -1,5 +1,8 @@
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../app/providers.dart';
 
 import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
@@ -9,14 +12,16 @@ import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../shared/note_presentation.dart';
 
-class NoteCard extends StatelessWidget {
+class NoteCard extends ConsumerWidget {
   const NoteCard({super.key, required this.note, required this.onTap});
   final Note note;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final concepts = note.conceptList;
+    final attachments =
+        ref.watch(projectAttachmentsProvider(note.projectId)).value?[note.id] ?? const <NoteAttachment>[];
     return Pressable(
       onTap: onTap,
       pressedScale: 0.98,
@@ -28,8 +33,9 @@ class NoteCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                for (final icon in sourceIcons(note)) ...[
-                  Icon(icon, size: 18, color: context.colors.accentLight),
+                for (final item in attachmentIcons(note, attachments)) ...[
+                  Icon(item.icon, size: 18, color: context.colors.accentLight),
+                  if (item.count > 1) Text(' ${item.count}', style: context.text.meta),
                   const SizedBox(width: 6),
                 ],
                 const SizedBox(width: 2),

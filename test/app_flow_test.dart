@@ -1,3 +1,4 @@
+import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/features/settings/settings_screen.dart';
 import 'package:fikra/features/note_details/edit_note_screen.dart';
@@ -171,9 +172,11 @@ void main() {
           title: 'ملزمة',
           text: '',
           source: NoteSource.pdf,
-          attachmentPath: '/files/a.pdf',
-          attachmentName: 'a.pdf',
-          imagePaths: const ['/files/1.jpg', '/files/2.jpg'],
+          attachments: [
+            AttachmentDraft(kind: AttachmentKind.pdf, path: '/files/a.pdf', name: 'a.pdf'),
+            for (final path in const ['/files/1.jpg', '/files/2.jpg'])
+              AttachmentDraft(kind: AttachmentKind.image, path: path),
+          ],
         );
         await notes.markReady(note.id);
       });
@@ -183,18 +186,30 @@ void main() {
 
     Future<void> openNote(WidgetTester tester, Note note) async {
       tester.element(find.text('ملزمة')).push('/note/${note.id}');
-      await pumpUntil(tester, find.byKey(const ValueKey('open-pdf')));
+      await pumpUntil(
+        tester,
+        find.byWidgetPredicate(
+          (w) => w.key is ValueKey<String> && (w.key! as ValueKey<String>).value.startsWith('open-pdf-'),
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 500));
     }
 
     fikraTest('the PDF row pushes the viewer; photos still open externally', (tester, db) async {
       final note = await seed(tester, db);
       await openNote(tester, note);
-      await tester.tap(find.byKey(const ValueKey('open-pdf')));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) => w.key is ValueKey<String> && (w.key! as ValueKey<String>).value.startsWith('open-pdf-'),
+        ),
+      );
       await pumpUntil(tester, find.byType(PdfViewerScreen));
       await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
       final context = tester.element(find.byType(PdfViewerScreen));
-      expect(GoRouterState.of(context).uri.path, '/note/${note.id}/pdf');
+      expect(
+        GoRouterState.of(context).uri.path,
+        '/note/${note.id}/pdf/${(await pumpFuture(tester, () => LocalNotesRepository(db).watchAttachments(note.id).first)).firstOrNull?.id ?? 'missing'}',
+      );
       expect(opened, isEmpty);
       await tester.pump(const Duration(milliseconds: 500));
       context.pop();
@@ -216,7 +231,11 @@ void main() {
     fikraTest('a missing PDF shows the error and can open the stored path elsewhere', (tester, db) async {
       final note = await seed(tester, db);
       // A query parameter must never override the file stored on the note.
-      tester.element(find.text('ملزمة')).push('/note/${note.id}/pdf?path=/untrusted.pdf');
+      tester
+          .element(find.text('ملزمة'))
+          .push(
+            '/note/${note.id}/pdf/${(await pumpFuture(tester, () => LocalNotesRepository(db).watchAttachments(note.id).first)).firstOrNull?.id ?? 'missing'}?path=/untrusted.pdf',
+          );
       await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
       await tester.pump(const Duration(milliseconds: 500));
       await tester.tap(find.byKey(const ValueKey('pdf-open-elsewhere')));
@@ -228,7 +247,11 @@ void main() {
     fikraTest('says so when nothing on the phone can open it', (tester, db) async {
       canOpen = false;
       await openNote(tester, await seed(tester, db));
-      await tester.tap(find.byKey(const ValueKey('open-pdf')));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) => w.key is ValueKey<String> && (w.key! as ValueKey<String>).value.startsWith('open-pdf-'),
+        ),
+      );
       await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
       await tester.pump(const Duration(milliseconds: 500));
       await tester.tap(find.byKey(const ValueKey('pdf-open-elsewhere')));
@@ -245,7 +268,11 @@ void main() {
             LocalNotesRepository(db)
                 .create(projectId: pdfNote.projectId, title: 'text', text: 'text', source: NoteSource.text),
       );
-      tester.element(find.text('ملزمة')).push('/note/${note.id}/pdf?path=/untrusted.pdf');
+      tester
+          .element(find.text('ملزمة'))
+          .push(
+            '/note/${note.id}/pdf/${(await pumpFuture(tester, () => LocalNotesRepository(db).watchAttachments(note.id).first)).firstOrNull?.id ?? 'missing'}?path=/untrusted.pdf',
+          );
       await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
       expect(find.byType(PdfViewerScreen), findsOneWidget);
       expect(opened, isEmpty);
@@ -254,7 +281,7 @@ void main() {
 
     fikraTest('a deleted note has a failure state on the PDF route', (tester, db) async {
       await seed(tester, db);
-      tester.element(find.text('ملزمة')).push('/note/deleted/pdf');
+      tester.element(find.text('ملزمة')).push('/note/deleted/pdf/missing');
       await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
       expect(tester.takeException(), isNull);
     }, opener: opener);

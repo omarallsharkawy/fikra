@@ -1167,6 +1167,472 @@ class NotesCompanion extends UpdateCompanion<Note> {
   }
 }
 
+class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachmentsTable, NoteAttachment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NoteAttachmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteIdMeta = const VerificationMeta('noteId');
+  @override
+  late final GeneratedColumn<String> noteId = GeneratedColumn<String>(
+    'note_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES notes (id) ON DELETE CASCADE'),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<AttachmentKind, String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<AttachmentKind>($NoteAttachmentsTable.$converterkind);
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+    'path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bytesMeta = const VerificationMeta('bytes');
+  @override
+  late final GeneratedColumn<int> bytes = GeneratedColumn<int>(
+    'bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _durationMsMeta = const VerificationMeta('durationMs');
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+    'duration_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta('position');
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, noteId, kind, path, name, bytes, durationMs, position, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'note_attachments';
+  @override
+  VerificationContext validateIntegrity(Insertable<NoteAttachment> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('note_id')) {
+      context.handle(_noteIdMeta, noteId.isAcceptableOrUnknown(data['note_id']!, _noteIdMeta));
+    } else if (isInserting) {
+      context.missing(_noteIdMeta);
+    }
+    if (data.containsKey('path')) {
+      context.handle(_pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    }
+    if (data.containsKey('bytes')) {
+      context.handle(_bytesMeta, bytes.isAcceptableOrUnknown(data['bytes']!, _bytesMeta));
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(_durationMsMeta, durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta));
+    }
+    if (data.containsKey('position')) {
+      context.handle(_positionMeta, position.isAcceptableOrUnknown(data['position']!, _positionMeta));
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NoteAttachment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NoteAttachment(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      noteId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}note_id'])!,
+      kind: $NoteAttachmentsTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      ),
+      path: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name']),
+      bytes: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}bytes']),
+      durationMs: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
+      position: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}position'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $NoteAttachmentsTable createAlias(String alias) {
+    return $NoteAttachmentsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<AttachmentKind, String, String> $converterkind = const EnumNameConverter<AttachmentKind>(
+    AttachmentKind.values,
+  );
+}
+
+class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
+  final String id;
+  final String noteId;
+  final AttachmentKind kind;
+  final String path;
+  final String? name;
+  final int? bytes;
+  final int? durationMs;
+  final int position;
+  final DateTime createdAt;
+  const NoteAttachment({
+    required this.id,
+    required this.noteId,
+    required this.kind,
+    required this.path,
+    this.name,
+    this.bytes,
+    this.durationMs,
+    required this.position,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['note_id'] = Variable<String>(noteId);
+    {
+      map['kind'] = Variable<String>($NoteAttachmentsTable.$converterkind.toSql(kind));
+    }
+    map['path'] = Variable<String>(path);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || bytes != null) {
+      map['bytes'] = Variable<int>(bytes);
+    }
+    if (!nullToAbsent || durationMs != null) {
+      map['duration_ms'] = Variable<int>(durationMs);
+    }
+    map['position'] = Variable<int>(position);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  NoteAttachmentsCompanion toCompanion(bool nullToAbsent) {
+    return NoteAttachmentsCompanion(
+      id: Value(id),
+      noteId: Value(noteId),
+      kind: Value(kind),
+      path: Value(path),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      bytes: bytes == null && nullToAbsent ? const Value.absent() : Value(bytes),
+      durationMs: durationMs == null && nullToAbsent ? const Value.absent() : Value(durationMs),
+      position: Value(position),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory NoteAttachment.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NoteAttachment(
+      id: serializer.fromJson<String>(json['id']),
+      noteId: serializer.fromJson<String>(json['noteId']),
+      kind: $NoteAttachmentsTable.$converterkind.fromJson(serializer.fromJson<String>(json['kind'])),
+      path: serializer.fromJson<String>(json['path']),
+      name: serializer.fromJson<String?>(json['name']),
+      bytes: serializer.fromJson<int?>(json['bytes']),
+      durationMs: serializer.fromJson<int?>(json['durationMs']),
+      position: serializer.fromJson<int>(json['position']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'noteId': serializer.toJson<String>(noteId),
+      'kind': serializer.toJson<String>($NoteAttachmentsTable.$converterkind.toJson(kind)),
+      'path': serializer.toJson<String>(path),
+      'name': serializer.toJson<String?>(name),
+      'bytes': serializer.toJson<int?>(bytes),
+      'durationMs': serializer.toJson<int?>(durationMs),
+      'position': serializer.toJson<int>(position),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  NoteAttachment copyWith({
+    String? id,
+    String? noteId,
+    AttachmentKind? kind,
+    String? path,
+    Value<String?> name = const Value.absent(),
+    Value<int?> bytes = const Value.absent(),
+    Value<int?> durationMs = const Value.absent(),
+    int? position,
+    DateTime? createdAt,
+  }) => NoteAttachment(
+    id: id ?? this.id,
+    noteId: noteId ?? this.noteId,
+    kind: kind ?? this.kind,
+    path: path ?? this.path,
+    name: name.present ? name.value : this.name,
+    bytes: bytes.present ? bytes.value : this.bytes,
+    durationMs: durationMs.present ? durationMs.value : this.durationMs,
+    position: position ?? this.position,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  NoteAttachment copyWithCompanion(NoteAttachmentsCompanion data) {
+    return NoteAttachment(
+      id: data.id.present ? data.id.value : this.id,
+      noteId: data.noteId.present ? data.noteId.value : this.noteId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      path: data.path.present ? data.path.value : this.path,
+      name: data.name.present ? data.name.value : this.name,
+      bytes: data.bytes.present ? data.bytes.value : this.bytes,
+      durationMs: data.durationMs.present ? data.durationMs.value : this.durationMs,
+      position: data.position.present ? data.position.value : this.position,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoteAttachment(')
+          ..write('id: $id, ')
+          ..write('noteId: $noteId, ')
+          ..write('kind: $kind, ')
+          ..write('path: $path, ')
+          ..write('name: $name, ')
+          ..write('bytes: $bytes, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('position: $position, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, noteId, kind, path, name, bytes, durationMs, position, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NoteAttachment &&
+          other.id == this.id &&
+          other.noteId == this.noteId &&
+          other.kind == this.kind &&
+          other.path == this.path &&
+          other.name == this.name &&
+          other.bytes == this.bytes &&
+          other.durationMs == this.durationMs &&
+          other.position == this.position &&
+          other.createdAt == this.createdAt);
+}
+
+class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
+  final Value<String> id;
+  final Value<String> noteId;
+  final Value<AttachmentKind> kind;
+  final Value<String> path;
+  final Value<String?> name;
+  final Value<int?> bytes;
+  final Value<int?> durationMs;
+  final Value<int> position;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const NoteAttachmentsCompanion({
+    this.id = const Value.absent(),
+    this.noteId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.path = const Value.absent(),
+    this.name = const Value.absent(),
+    this.bytes = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.position = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NoteAttachmentsCompanion.insert({
+    required String id,
+    required String noteId,
+    required AttachmentKind kind,
+    required String path,
+    this.name = const Value.absent(),
+    this.bytes = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    required int position,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       noteId = Value(noteId),
+       kind = Value(kind),
+       path = Value(path),
+       position = Value(position),
+       createdAt = Value(createdAt);
+  static Insertable<NoteAttachment> custom({
+    Expression<String>? id,
+    Expression<String>? noteId,
+    Expression<String>? kind,
+    Expression<String>? path,
+    Expression<String>? name,
+    Expression<int>? bytes,
+    Expression<int>? durationMs,
+    Expression<int>? position,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (noteId != null) 'note_id': noteId,
+      if (kind != null) 'kind': kind,
+      if (path != null) 'path': path,
+      if (name != null) 'name': name,
+      if (bytes != null) 'bytes': bytes,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (position != null) 'position': position,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NoteAttachmentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? noteId,
+    Value<AttachmentKind>? kind,
+    Value<String>? path,
+    Value<String?>? name,
+    Value<int?>? bytes,
+    Value<int?>? durationMs,
+    Value<int>? position,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return NoteAttachmentsCompanion(
+      id: id ?? this.id,
+      noteId: noteId ?? this.noteId,
+      kind: kind ?? this.kind,
+      path: path ?? this.path,
+      name: name ?? this.name,
+      bytes: bytes ?? this.bytes,
+      durationMs: durationMs ?? this.durationMs,
+      position: position ?? this.position,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (noteId.present) {
+      map['note_id'] = Variable<String>(noteId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>($NoteAttachmentsTable.$converterkind.toSql(kind.value));
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (bytes.present) {
+      map['bytes'] = Variable<int>(bytes.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoteAttachmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('noteId: $noteId, ')
+          ..write('kind: $kind, ')
+          ..write('path: $path, ')
+          ..write('name: $name, ')
+          ..write('bytes: $bytes, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('position: $position, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $NoteLinksTable extends NoteLinks with TableInfo<$NoteLinksTable, NoteLink> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2081,6 +2547,7 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
   $FikraDatabaseManager get managers => $FikraDatabaseManager(this);
   late final $ProjectsTable projects = $ProjectsTable(this);
   late final $NotesTable notes = $NotesTable(this);
+  late final $NoteAttachmentsTable noteAttachments = $NoteAttachmentsTable(this);
   late final $NoteLinksTable noteLinks = $NoteLinksTable(this);
   late final $ChatEntriesTable chatEntries = $ChatEntriesTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
@@ -2089,6 +2556,10 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
     'CREATE INDEX notes_project_created ON notes (project_id, created_at)',
   );
   late final Index notesStatus = Index('notes_status', 'CREATE INDEX notes_status ON notes (status)');
+  late final Index noteAttachmentsNote = Index(
+    'note_attachments_note',
+    'CREATE INDEX note_attachments_note ON note_attachments (note_id)',
+  );
   late final Index noteLinksProject = Index(
     'note_links_project',
     'CREATE INDEX note_links_project ON note_links (project_id)',
@@ -2111,11 +2582,13 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     projects,
     notes,
+    noteAttachments,
     noteLinks,
     chatEntries,
     settings,
     notesProjectCreated,
     notesStatus,
+    noteAttachmentsNote,
     noteLinksProject,
     noteLinksSource,
     noteLinksTarget,
@@ -2126,6 +2599,10 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
     WritePropagation(
       on: TableUpdateQuery.onTableName('projects', limitUpdateKind: UpdateKind.delete),
       result: [TableUpdate('notes', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName('notes', limitUpdateKind: UpdateKind.delete),
+      result: [TableUpdate('note_attachments', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName('projects', limitUpdateKind: UpdateKind.delete),
@@ -2518,6 +2995,20 @@ final class $$NotesTableReferences extends BaseReferences<_$FikraDatabase, $Note
     return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
   }
 
+  static MultiTypedResultKey<$NoteAttachmentsTable, List<NoteAttachment>> _noteAttachmentsRefsTable(
+    _$FikraDatabase db,
+  ) => MultiTypedResultKey.fromTable(db.noteAttachments, aliasName: 'notes__id__note_attachments__note_id');
+
+  $$NoteAttachmentsTableProcessedTableManager get noteAttachmentsRefs {
+    final manager = $$NoteAttachmentsTableTableManager(
+      $_db,
+      $_db.noteAttachments,
+    ).filter((f) => f.noteId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_noteAttachmentsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+
   static MultiTypedResultKey<$NoteLinksTable, List<NoteLink>> _outgoingLinksTable(_$FikraDatabase db) =>
       MultiTypedResultKey.fromTable(db.noteLinks, aliasName: 'notes__id__note_links__source_id');
 
@@ -2625,6 +3116,24 @@ class $$NotesTableFilterComposer extends Composer<_$FikraDatabase, $NotesTable> 
           ),
     );
     return composer;
+  }
+
+  Expression<bool> noteAttachmentsRefs(Expression<bool> Function($$NoteAttachmentsTableFilterComposer f) f) {
+    final $$NoteAttachmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.noteAttachments,
+      getReferencedColumn: (t) => t.noteId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteAttachmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.noteAttachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 
   Expression<bool> outgoingLinks(Expression<bool> Function($$NoteLinksTableFilterComposer f) f) {
@@ -2820,6 +3329,26 @@ class $$NotesTableAnnotationComposer extends Composer<_$FikraDatabase, $NotesTab
     return composer;
   }
 
+  Expression<T> noteAttachmentsRefs<T extends Object>(
+    Expression<T> Function($$NoteAttachmentsTableAnnotationComposer a) f,
+  ) {
+    final $$NoteAttachmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.noteAttachments,
+      getReferencedColumn: (t) => t.noteId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteAttachmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.noteAttachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> outgoingLinks<T extends Object>(Expression<T> Function($$NoteLinksTableAnnotationComposer a) f) {
     final $$NoteLinksTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2870,7 +3399,7 @@ class $$NotesTableTableManager
           $$NotesTableUpdateCompanionBuilder,
           (Note, $$NotesTableReferences),
           Note,
-          PrefetchHooks Function({bool projectId, bool outgoingLinks, bool incomingLinks})
+          PrefetchHooks Function({bool projectId, bool noteAttachmentsRefs, bool outgoingLinks, bool incomingLinks})
         > {
   $$NotesTableTableManager(_$FikraDatabase db, $NotesTable table)
     : super(
@@ -2974,61 +3503,75 @@ class $$NotesTableTableManager
               ),
           withReferenceMapper: (p0) =>
               p0.map((e) => (e.readTable<$NotesTable, Note>(table), $$NotesTableReferences(db, table, e))).toList(),
-          prefetchHooksCallback: ({projectId = false, outgoingLinks = false, incomingLinks = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (outgoingLinks) db.noteLinks, if (incomingLinks) db.noteLinks],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (projectId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.projectId,
-                        referencedTable: $$NotesTableReferences._projectIdTable(db),
-                        referencedColumn: $$NotesTableReferences._projectIdTable(db).id,
-                      ) as T;
-                    }
+          prefetchHooksCallback:
+              ({projectId = false, noteAttachmentsRefs = false, outgoingLinks = false, incomingLinks = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (noteAttachmentsRefs) db.noteAttachments,
+                    if (outgoingLinks) db.noteLinks,
+                    if (incomingLinks) db.noteLinks,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (projectId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.projectId,
+                            referencedTable: $$NotesTableReferences._projectIdTable(db),
+                            referencedColumn: $$NotesTableReferences._projectIdTable(db).id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (noteAttachmentsRefs)
+                        await $_getPrefetchedDataByColumns<Note, $NotesTable, NoteAttachment, $NoteAttachmentsTable>(
+                          currentTable: table,
+                          referencedTable: $$NotesTableReferences._noteAttachmentsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$NotesTableReferences(db, table, p0).noteAttachmentsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'note_id',
+                          typedResults: items,
+                        ),
+                      if (outgoingLinks)
+                        await $_getPrefetchedDataByColumns<Note, $NotesTable, NoteLink, $NoteLinksTable>(
+                          currentTable: table,
+                          referencedTable: $$NotesTableReferences._outgoingLinksTable(db),
+                          managerFromTypedResult: (p0) => $$NotesTableReferences(db, table, p0).outgoingLinks,
+                          currentColumn: 'id',
+                          referencedColumn: 'source_id',
+                          typedResults: items,
+                        ),
+                      if (incomingLinks)
+                        await $_getPrefetchedDataByColumns<Note, $NotesTable, NoteLink, $NoteLinksTable>(
+                          currentTable: table,
+                          referencedTable: $$NotesTableReferences._incomingLinksTable(db),
+                          managerFromTypedResult: (p0) => $$NotesTableReferences(db, table, p0).incomingLinks,
+                          currentColumn: 'id',
+                          referencedColumn: 'target_id',
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (outgoingLinks)
-                    await $_getPrefetchedDataByColumns<Note, $NotesTable, NoteLink, $NoteLinksTable>(
-                      currentTable: table,
-                      referencedTable: $$NotesTableReferences._outgoingLinksTable(db),
-                      managerFromTypedResult: (p0) => $$NotesTableReferences(db, table, p0).outgoingLinks,
-                      currentColumn: 'id',
-                      referencedColumn: 'source_id',
-                      typedResults: items,
-                    ),
-                  if (incomingLinks)
-                    await $_getPrefetchedDataByColumns<Note, $NotesTable, NoteLink, $NoteLinksTable>(
-                      currentTable: table,
-                      referencedTable: $$NotesTableReferences._incomingLinksTable(db),
-                      managerFromTypedResult: (p0) => $$NotesTableReferences(db, table, p0).incomingLinks,
-                      currentColumn: 'id',
-                      referencedColumn: 'target_id',
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -3045,7 +3588,322 @@ typedef $$NotesTableProcessedTableManager =
       $$NotesTableUpdateCompanionBuilder,
       (Note, $$NotesTableReferences),
       Note,
-      PrefetchHooks Function({bool projectId, bool outgoingLinks, bool incomingLinks})
+      PrefetchHooks Function({bool projectId, bool noteAttachmentsRefs, bool outgoingLinks, bool incomingLinks})
+    >;
+typedef $$NoteAttachmentsTableCreateCompanionBuilder = NoteAttachmentsCompanion Function({
+  required String id,
+  required String noteId,
+  required AttachmentKind kind,
+  required String path,
+  Value<String?> name,
+  Value<int?> bytes,
+  Value<int?> durationMs,
+  required int position,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$NoteAttachmentsTableUpdateCompanionBuilder = NoteAttachmentsCompanion Function({
+  Value<String> id,
+  Value<String> noteId,
+  Value<AttachmentKind> kind,
+  Value<String> path,
+  Value<String?> name,
+  Value<int?> bytes,
+  Value<int?> durationMs,
+  Value<int> position,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+final class $$NoteAttachmentsTableReferences
+    extends BaseReferences<_$FikraDatabase, $NoteAttachmentsTable, NoteAttachment> {
+  $$NoteAttachmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $NotesTable _noteIdTable(_$FikraDatabase db) => db.notes.createAlias('note_attachments__note_id__notes__id');
+
+  $$NotesTableProcessedTableManager get noteId {
+    final $_column = $_itemColumn<String>('note_id')!;
+
+    final manager = $$NotesTableTableManager($_db, $_db.notes).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_noteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$NoteAttachmentsTableFilterComposer extends Composer<_$FikraDatabase, $NoteAttachmentsTable> {
+  $$NoteAttachmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<AttachmentKind, AttachmentKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<String> get path => $composableBuilder(column: $table.path, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get bytes => $composableBuilder(column: $table.bytes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationMs =>
+      $composableBuilder(column: $table.durationMs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$NotesTableFilterComposer get noteId {
+    final $$NotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.noteId,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NotesTableFilterComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteAttachmentsTableOrderingComposer extends Composer<_$FikraDatabase, $NoteAttachmentsTable> {
+  $$NoteAttachmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get bytes =>
+      $composableBuilder(column: $table.bytes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationMs =>
+      $composableBuilder(column: $table.durationMs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$NotesTableOrderingComposer get noteId {
+    final $$NotesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.noteId,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NotesTableOrderingComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteAttachmentsTableAnnotationComposer extends Composer<_$FikraDatabase, $NoteAttachmentsTable> {
+  $$NoteAttachmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AttachmentKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get path => $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get bytes => $composableBuilder(column: $table.bytes, builder: (column) => column);
+
+  GeneratedColumn<int> get durationMs => $composableBuilder(column: $table.durationMs, builder: (column) => column);
+
+  GeneratedColumn<int> get position => $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$NotesTableAnnotationComposer get noteId {
+    final $$NotesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.noteId,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NotesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteAttachmentsTableTableManager
+    extends
+        RootTableManager<
+          _$FikraDatabase,
+          $NoteAttachmentsTable,
+          NoteAttachment,
+          $$NoteAttachmentsTableFilterComposer,
+          $$NoteAttachmentsTableOrderingComposer,
+          $$NoteAttachmentsTableAnnotationComposer,
+          $$NoteAttachmentsTableCreateCompanionBuilder,
+          $$NoteAttachmentsTableUpdateCompanionBuilder,
+          (NoteAttachment, $$NoteAttachmentsTableReferences),
+          NoteAttachment,
+          PrefetchHooks Function({bool noteId})
+        > {
+  $$NoteAttachmentsTableTableManager(_$FikraDatabase db, $NoteAttachmentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$NoteAttachmentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$NoteAttachmentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$NoteAttachmentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> noteId = const Value.absent(),
+                Value<AttachmentKind> kind = const Value.absent(),
+                Value<String> path = const Value.absent(),
+                Value<String?> name = const Value.absent(),
+                Value<int?> bytes = const Value.absent(),
+                Value<int?> durationMs = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NoteAttachmentsCompanion(
+                id: id,
+                noteId: noteId,
+                kind: kind,
+                path: path,
+                name: name,
+                bytes: bytes,
+                durationMs: durationMs,
+                position: position,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String noteId,
+                required AttachmentKind kind,
+                required String path,
+                Value<String?> name = const Value.absent(),
+                Value<int?> bytes = const Value.absent(),
+                Value<int?> durationMs = const Value.absent(),
+                required int position,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => NoteAttachmentsCompanion.insert(
+                id: id,
+                noteId: noteId,
+                kind: kind,
+                path: path,
+                name: name,
+                bytes: bytes,
+                durationMs: durationMs,
+                position: position,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$NoteAttachmentsTable, NoteAttachment>(table),
+                  $$NoteAttachmentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({noteId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (noteId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.noteId,
+                        referencedTable: $$NoteAttachmentsTableReferences._noteIdTable(db),
+                        referencedColumn: $$NoteAttachmentsTableReferences._noteIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$NoteAttachmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$FikraDatabase,
+      $NoteAttachmentsTable,
+      NoteAttachment,
+      $$NoteAttachmentsTableFilterComposer,
+      $$NoteAttachmentsTableOrderingComposer,
+      $$NoteAttachmentsTableAnnotationComposer,
+      $$NoteAttachmentsTableCreateCompanionBuilder,
+      $$NoteAttachmentsTableUpdateCompanionBuilder,
+      (NoteAttachment, $$NoteAttachmentsTableReferences),
+      NoteAttachment,
+      PrefetchHooks Function({bool noteId})
     >;
 typedef $$NoteLinksTableCreateCompanionBuilder = NoteLinksCompanion Function({
   required String id,
@@ -3849,6 +4707,8 @@ class $FikraDatabaseManager {
   $FikraDatabaseManager(this._db);
   $$ProjectsTableTableManager get projects => $$ProjectsTableTableManager(_db, _db.projects);
   $$NotesTableTableManager get notes => $$NotesTableTableManager(_db, _db.notes);
+  $$NoteAttachmentsTableTableManager get noteAttachments =>
+      $$NoteAttachmentsTableTableManager(_db, _db.noteAttachments);
   $$NoteLinksTableTableManager get noteLinks => $$NoteLinksTableTableManager(_db, _db.noteLinks);
   $$ChatEntriesTableTableManager get chatEntries => $$ChatEntriesTableTableManager(_db, _db.chatEntries);
   $$SettingsTableTableManager get settings => $$SettingsTableTableManager(_db, _db.settings);

@@ -29,3 +29,9 @@ No runtime I/O in generated messages or the context extension. Demo AI reads the
 - `flutter gen-l10n`
 - `flutter analyze && flutter test`
 - `flutter test test/screenshots --run-skipped -t screenshots` renders `build/screenshots/{ar,en}/{dark,light}/` with fixed sample time.
+
+Multi-attachment editing adds `removeAttachmentBody` (deferred removal confirmation) and `emptyNoteBlocked` (empty edit draft). Other actions reuse existing keys. Generated files are refreshed with gen-l10n.
+
+`pdfPasswordProtected` gives a specific locked-PDF message and suggests opening it in another app. Password failures omit retry; all ordinary PDF errors keep `pdfLoadFailed`. Both ARBs and generated files are updated.
+
+Review follow-up replaces `removeAttachmentBody` and `emptyNoteBlocked` with the exact requested Arabic/English wording. The former is only shown for saved files; the latter explicitly asks for text or a file and does not accept a title alone. No new keys in this follow-up.

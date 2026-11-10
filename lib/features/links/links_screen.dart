@@ -16,6 +16,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
+import '../shared/note_presentation.dart';
 import 'graph_layout.dart';
 
 part 'edges_painter.dart';
@@ -36,7 +37,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
   final _tc = TransformationController();
   String? _selected;
   String? _fittedFor;
-  double _viewportW = 0;
+  Size _viewportSize = Size.zero;
   double _canvasW = 0;
 
   List<Note>? _notesSource;

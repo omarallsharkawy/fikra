@@ -747,4 +747,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pdfFormat => 'PDF';
+
+  @override
+  String get removeAttachmentBody =>
+      'The file will be deleted from this note when you save changes. You can\'t undo this.';
+
+  @override
+  String get emptyNoteBlocked => 'A note can\'t be empty. Add text or a file.';
+
+  @override
+  String get pdfPasswordProtected => 'This PDF is password-protected. Open it in another app.';
 }

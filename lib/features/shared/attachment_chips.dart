@@ -1,10 +1,10 @@
-part of 'add_screen.dart';
+part of 'attachment_editor.dart';
 
 class _PdfChip extends StatelessWidget {
   const _PdfChip({required this.name, required this.bytes, required this.onRemove});
   final String name;
   final int bytes;
-  final VoidCallback onRemove;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +24,7 @@ class _PdfChip extends StatelessWidget {
                 Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
                 Text(
                   Fmt.bytes(context.l10n, bytes),
+                  textDirection: TextDirection.ltr,
                   style: context.text.meta.copyWith(color: context.colors.textSecondary),
                 ),
               ],
@@ -43,8 +44,8 @@ class _PdfChip extends StatelessWidget {
 
 class _ImageStrip extends StatelessWidget {
   const _ImageStrip({required this.images, required this.onRemove});
-  final List<PlatformFile> images;
-  final ValueChanged<PlatformFile> onRemove;
+  final List<AttachmentDraft> images;
+  final ValueChanged<AttachmentDraft>? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +63,12 @@ class _ImageStrip extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                PhotoThumb(path: image.path!),
+                PhotoThumb(path: image.path),
                 PositionedDirectional(
                   top: 0,
                   end: 0,
                   child: Pressable(
-                    onTap: () => onRemove(image),
+                    onTap: onRemove == null ? null : () => onRemove!(image),
                     minTarget: true,
                     semanticLabel: context.l10n.removePhoto(i + 1),
                     child: Container(
