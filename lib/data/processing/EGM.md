@@ -25,7 +25,7 @@ Depends on `NotesRepository` from [`../EGM.md`](../EGM.md) and `AiService` from
 - `process` uses only `note.id`. Each job re-reads the note when it starts, and that snapshot is the `basis` for `applyInsights`, so edits made while the AI runs win.
 - A note deleted while queued is skipped without any write.
 - A note whose `originalText` is blank goes straight to `ready`, and `AiService` is not called. Attachments are never parsed.
-- Any error during analysis or while applying the result marks the note `failed`, including a timeout. A job that exceeds `timeout` is failed and the queue moves on, but the underlying `analyze` call is not cancelled; its result is discarded.
+- In normal processing, any error during analysis or while applying the result marks the note `failed`, including a timeout. A job that exceeds `timeout` is failed and the queue moves on, but the underlying `analyze` call is not cancelled; its result is discarded.
 - The doc comment on `process` says the future never throws, but the initial `watchNote(id).first` read sits outside the `try`. If that read fails, the error reaches the future returned by `process` while the queue still continues.
 
 ## Side Effects
@@ -37,3 +37,7 @@ Depends on `NotesRepository` from [`../EGM.md`](../EGM.md) and `AiService` from
 ## Verification
 
 - Run: `flutter analyze && flutter test`
+
+## Relinking
+
+`Future<void> relink(Iterable<String> ids)` appends unique IDs to the same FIFO queue. A job rereads the note and its current project when it starts; missing/blank notes are skipped. It calls applyInsights with linksOnly and never marks processing, ready or failed. Analysis errors/timeouts and apply errors are swallowed; analysis failure performs no write, and transactional apply failures roll back. Subsequent jobs still run.

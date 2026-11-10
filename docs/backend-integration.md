@@ -40,3 +40,5 @@
 - لو التطبيق اتقفل وسط التحليل، بيكمّل لوحده أول ما يفتح.
 - النوت الواحدة ممكن يبقى فيها PDF وتسجيل صوتي وصور، وجنبهم نص. الملفات مش بتتحلل. لو النوت من غير نص، `NoteProcessor` بيخليها `ready` من غير ما ينادي `AiService`.
 - لسه ناقص قبل الربط (`docs/before-backend-and-release.md`): attempt id، retry/backoff، وتخزين الـtokens في Keystore.
+
+User-made links and note groups stay on the phone. They are not sent to the server; this phase adds only local data operations and does not change `AiService`.

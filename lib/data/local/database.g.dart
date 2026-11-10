@@ -218,6 +218,396 @@ class ProjectsCompanion extends UpdateCompanion<Project> {
   }
 }
 
+class $NoteGroupsTable extends NoteGroups with TableInfo<$NoteGroupsTable, NoteGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NoteGroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _projectIdMeta = const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+    'project_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES projects (id) ON DELETE CASCADE'),
+  );
+  static const VerificationMeta _parentIdMeta = const VerificationMeta('parentId');
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+    'parent_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES note_groups (id) ON DELETE SET NULL'),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<int> color = GeneratedColumn<int>(
+    'color',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta('position');
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, projectId, parentId, name, color, position, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'note_groups';
+  @override
+  VerificationContext validateIntegrity(Insertable<NoteGroup> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta, projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
+    } else if (isInserting) {
+      context.missing(_projectIdMeta);
+    }
+    if (data.containsKey('parent_id')) {
+      context.handle(_parentIdMeta, parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('color')) {
+      context.handle(_colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    }
+    if (data.containsKey('position')) {
+      context.handle(_positionMeta, position.isAcceptableOrUnknown(data['position']!, _positionMeta));
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NoteGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NoteGroup(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}project_id'])!,
+      parentId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      color: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}color']),
+      position: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}position'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $NoteGroupsTable createAlias(String alias) {
+    return $NoteGroupsTable(attachedDatabase, alias);
+  }
+}
+
+class NoteGroup extends DataClass implements Insertable<NoteGroup> {
+  final String id;
+  final String projectId;
+  final String? parentId;
+  final String name;
+  final int? color;
+  final int position;
+  final DateTime createdAt;
+  const NoteGroup({
+    required this.id,
+    required this.projectId,
+    this.parentId,
+    required this.name,
+    this.color,
+    required this.position,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['project_id'] = Variable<String>(projectId);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || color != null) {
+      map['color'] = Variable<int>(color);
+    }
+    map['position'] = Variable<int>(position);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  NoteGroupsCompanion toCompanion(bool nullToAbsent) {
+    return NoteGroupsCompanion(
+      id: Value(id),
+      projectId: Value(projectId),
+      parentId: parentId == null && nullToAbsent ? const Value.absent() : Value(parentId),
+      name: Value(name),
+      color: color == null && nullToAbsent ? const Value.absent() : Value(color),
+      position: Value(position),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory NoteGroup.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NoteGroup(
+      id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String>(json['projectId']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+      name: serializer.fromJson<String>(json['name']),
+      color: serializer.fromJson<int?>(json['color']),
+      position: serializer.fromJson<int>(json['position']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String>(projectId),
+      'parentId': serializer.toJson<String?>(parentId),
+      'name': serializer.toJson<String>(name),
+      'color': serializer.toJson<int?>(color),
+      'position': serializer.toJson<int>(position),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  NoteGroup copyWith({
+    String? id,
+    String? projectId,
+    Value<String?> parentId = const Value.absent(),
+    String? name,
+    Value<int?> color = const Value.absent(),
+    int? position,
+    DateTime? createdAt,
+  }) => NoteGroup(
+    id: id ?? this.id,
+    projectId: projectId ?? this.projectId,
+    parentId: parentId.present ? parentId.value : this.parentId,
+    name: name ?? this.name,
+    color: color.present ? color.value : this.color,
+    position: position ?? this.position,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  NoteGroup copyWithCompanion(NoteGroupsCompanion data) {
+    return NoteGroup(
+      id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      name: data.name.present ? data.name.value : this.name,
+      color: data.color.present ? data.color.value : this.color,
+      position: data.position.present ? data.position.value : this.position,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoteGroup(')
+          ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
+          ..write('parentId: $parentId, ')
+          ..write('name: $name, ')
+          ..write('color: $color, ')
+          ..write('position: $position, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, projectId, parentId, name, color, position, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NoteGroup &&
+          other.id == this.id &&
+          other.projectId == this.projectId &&
+          other.parentId == this.parentId &&
+          other.name == this.name &&
+          other.color == this.color &&
+          other.position == this.position &&
+          other.createdAt == this.createdAt);
+}
+
+class NoteGroupsCompanion extends UpdateCompanion<NoteGroup> {
+  final Value<String> id;
+  final Value<String> projectId;
+  final Value<String?> parentId;
+  final Value<String> name;
+  final Value<int?> color;
+  final Value<int> position;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const NoteGroupsCompanion({
+    this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.color = const Value.absent(),
+    this.position = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NoteGroupsCompanion.insert({
+    required String id,
+    required String projectId,
+    this.parentId = const Value.absent(),
+    required String name,
+    this.color = const Value.absent(),
+    required int position,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       projectId = Value(projectId),
+       name = Value(name),
+       position = Value(position),
+       createdAt = Value(createdAt);
+  static Insertable<NoteGroup> custom({
+    Expression<String>? id,
+    Expression<String>? projectId,
+    Expression<String>? parentId,
+    Expression<String>? name,
+    Expression<int>? color,
+    Expression<int>? position,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
+      if (parentId != null) 'parent_id': parentId,
+      if (name != null) 'name': name,
+      if (color != null) 'color': color,
+      if (position != null) 'position': position,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NoteGroupsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? projectId,
+    Value<String?>? parentId,
+    Value<String>? name,
+    Value<int?>? color,
+    Value<int>? position,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return NoteGroupsCompanion(
+      id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
+      parentId: parentId ?? this.parentId,
+      name: name ?? this.name,
+      color: color ?? this.color,
+      position: position ?? this.position,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
+    }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (color.present) {
+      map['color'] = Variable<int>(color.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoteGroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
+          ..write('parentId: $parentId, ')
+          ..write('name: $name, ')
+          ..write('color: $color, ')
+          ..write('position: $position, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -404,6 +794,16 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES note_groups (id) ON DELETE SET NULL'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -426,6 +826,7 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     cluster,
     createdAt,
     updatedAt,
+    groupId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -511,6 +912,9 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    }
     return context;
   }
 
@@ -546,6 +950,7 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
       cluster: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}cluster']),
       createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      groupId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}group_id']),
     );
   }
 
@@ -588,16 +993,16 @@ class Note extends DataClass implements Insertable<Note> {
   final ProcessingStatus status;
   final RewriteStatus rewrite;
 
-  /// The PDF (since schema v2; v1 also kept recordings here).
+  /// Legacy PDF columns, retained for migration/recovery only since v5.
   final String? attachmentPath;
   final String? attachmentName;
   final int? attachmentBytes;
 
-  /// The voice recording and its length, alone or beside a PDF (schema v2).
+  /// Legacy recording columns, retained for migration/recovery only since v5.
   final String? voicePath;
   final int? durationMs;
 
-  /// Attached photos: file paths separated by '|' (schema v4).
+  /// Legacy photo paths separated by '|', retained for migration/recovery only.
   final String imagePaths;
 
   /// Concepts separated by '|'.
@@ -605,6 +1010,7 @@ class Note extends DataClass implements Insertable<Note> {
   final String? cluster;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? groupId;
   const Note({
     required this.id,
     required this.projectId,
@@ -626,6 +1032,7 @@ class Note extends DataClass implements Insertable<Note> {
     this.cluster,
     required this.createdAt,
     required this.updatedAt,
+    this.groupId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -674,6 +1081,9 @@ class Note extends DataClass implements Insertable<Note> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<String>(groupId);
+    }
     return map;
   }
 
@@ -699,6 +1109,7 @@ class Note extends DataClass implements Insertable<Note> {
       cluster: cluster == null && nullToAbsent ? const Value.absent() : Value(cluster),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      groupId: groupId == null && nullToAbsent ? const Value.absent() : Value(groupId),
     );
   }
 
@@ -725,6 +1136,7 @@ class Note extends DataClass implements Insertable<Note> {
       cluster: serializer.fromJson<String?>(json['cluster']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      groupId: serializer.fromJson<String?>(json['groupId']),
     );
   }
   @override
@@ -751,6 +1163,7 @@ class Note extends DataClass implements Insertable<Note> {
       'cluster': serializer.toJson<String?>(cluster),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'groupId': serializer.toJson<String?>(groupId),
     };
   }
 
@@ -775,6 +1188,7 @@ class Note extends DataClass implements Insertable<Note> {
     Value<String?> cluster = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<String?> groupId = const Value.absent(),
   }) => Note(
     id: id ?? this.id,
     projectId: projectId ?? this.projectId,
@@ -796,6 +1210,7 @@ class Note extends DataClass implements Insertable<Note> {
     cluster: cluster.present ? cluster.value : this.cluster,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    groupId: groupId.present ? groupId.value : this.groupId,
   );
   Note copyWithCompanion(NotesCompanion data) {
     return Note(
@@ -819,6 +1234,7 @@ class Note extends DataClass implements Insertable<Note> {
       cluster: data.cluster.present ? data.cluster.value : this.cluster,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
     );
   }
 
@@ -844,13 +1260,14 @@ class Note extends DataClass implements Insertable<Note> {
           ..write('concepts: $concepts, ')
           ..write('cluster: $cluster, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     projectId,
     title,
@@ -871,7 +1288,8 @@ class Note extends DataClass implements Insertable<Note> {
     cluster,
     createdAt,
     updatedAt,
-  );
+    groupId,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -895,7 +1313,8 @@ class Note extends DataClass implements Insertable<Note> {
           other.concepts == this.concepts &&
           other.cluster == this.cluster &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.groupId == this.groupId);
 }
 
 class NotesCompanion extends UpdateCompanion<Note> {
@@ -919,6 +1338,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
   final Value<String?> cluster;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String?> groupId;
   final Value<int> rowid;
   const NotesCompanion({
     this.id = const Value.absent(),
@@ -941,6 +1361,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     this.cluster = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NotesCompanion.insert({
@@ -964,6 +1385,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     this.cluster = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.groupId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        projectId = Value(projectId),
@@ -994,6 +1416,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     Expression<String>? cluster,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? groupId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1017,6 +1440,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
       if (cluster != null) 'cluster': cluster,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (groupId != null) 'group_id': groupId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1042,6 +1466,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     Value<String?>? cluster,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String?>? groupId,
     Value<int>? rowid,
   }) {
     return NotesCompanion(
@@ -1065,6 +1490,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
       cluster: cluster ?? this.cluster,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      groupId: groupId ?? this.groupId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1132,6 +1558,9 @@ class NotesCompanion extends UpdateCompanion<Note> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1161,6 +1590,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
           ..write('cluster: $cluster, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('groupId: $groupId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1696,7 +2126,46 @@ class $NoteLinksTable extends NoteLinks with TableInfo<$NoteLinksTable, NoteLink
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, projectId, sourceId, targetId, label, strength];
+  late final GeneratedColumnWithTypeConverter<LinkOrigin, String> origin = GeneratedColumn<String>(
+    'origin',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('ai'),
+  ).withConverter<LinkOrigin>($NoteLinksTable.$converterorigin);
+  static const VerificationMeta _dismissedMeta = const VerificationMeta('dismissed');
+  @override
+  late final GeneratedColumn<bool> dismissed = GeneratedColumn<bool>(
+    'dismissed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("dismissed" IN (0, 1))'),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    projectId,
+    sourceId,
+    targetId,
+    label,
+    strength,
+    origin,
+    dismissed,
+    createdAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1736,6 +2205,12 @@ class $NoteLinksTable extends NoteLinks with TableInfo<$NoteLinksTable, NoteLink
     } else if (isInserting) {
       context.missing(_strengthMeta);
     }
+    if (data.containsKey('dismissed')) {
+      context.handle(_dismissedMeta, dismissed.isAcceptableOrUnknown(data['dismissed']!, _dismissedMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
     return context;
   }
 
@@ -1751,6 +2226,11 @@ class $NoteLinksTable extends NoteLinks with TableInfo<$NoteLinksTable, NoteLink
       targetId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}target_id'])!,
       label: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}label'])!,
       strength: attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}strength'])!,
+      origin: $NoteLinksTable.$converterorigin.fromSql(
+        attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}origin'])!,
+      ),
+      dismissed: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}dismissed'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
     );
   }
 
@@ -1758,6 +2238,10 @@ class $NoteLinksTable extends NoteLinks with TableInfo<$NoteLinksTable, NoteLink
   $NoteLinksTable createAlias(String alias) {
     return $NoteLinksTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<LinkOrigin, String, String> $converterorigin = const EnumNameConverter<LinkOrigin>(
+    LinkOrigin.values,
+  );
 }
 
 class NoteLink extends DataClass implements Insertable<NoteLink> {
@@ -1767,6 +2251,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
   final String targetId;
   final String label;
   final double strength;
+  final LinkOrigin origin;
+  final bool dismissed;
+  final DateTime? createdAt;
   const NoteLink({
     required this.id,
     required this.projectId,
@@ -1774,6 +2261,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
     required this.targetId,
     required this.label,
     required this.strength,
+    required this.origin,
+    required this.dismissed,
+    this.createdAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1784,6 +2274,13 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
     map['target_id'] = Variable<String>(targetId);
     map['label'] = Variable<String>(label);
     map['strength'] = Variable<double>(strength);
+    {
+      map['origin'] = Variable<String>($NoteLinksTable.$converterorigin.toSql(origin));
+    }
+    map['dismissed'] = Variable<bool>(dismissed);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
     return map;
   }
 
@@ -1795,6 +2292,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
       targetId: Value(targetId),
       label: Value(label),
       strength: Value(strength),
+      origin: Value(origin),
+      dismissed: Value(dismissed),
+      createdAt: createdAt == null && nullToAbsent ? const Value.absent() : Value(createdAt),
     );
   }
 
@@ -1807,6 +2307,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
       targetId: serializer.fromJson<String>(json['targetId']),
       label: serializer.fromJson<String>(json['label']),
       strength: serializer.fromJson<double>(json['strength']),
+      origin: $NoteLinksTable.$converterorigin.fromJson(serializer.fromJson<String>(json['origin'])),
+      dismissed: serializer.fromJson<bool>(json['dismissed']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
     );
   }
   @override
@@ -1819,6 +2322,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
       'targetId': serializer.toJson<String>(targetId),
       'label': serializer.toJson<String>(label),
       'strength': serializer.toJson<double>(strength),
+      'origin': serializer.toJson<String>($NoteLinksTable.$converterorigin.toJson(origin)),
+      'dismissed': serializer.toJson<bool>(dismissed),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
     };
   }
 
@@ -1829,6 +2335,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
     String? targetId,
     String? label,
     double? strength,
+    LinkOrigin? origin,
+    bool? dismissed,
+    Value<DateTime?> createdAt = const Value.absent(),
   }) => NoteLink(
     id: id ?? this.id,
     projectId: projectId ?? this.projectId,
@@ -1836,6 +2345,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
     targetId: targetId ?? this.targetId,
     label: label ?? this.label,
     strength: strength ?? this.strength,
+    origin: origin ?? this.origin,
+    dismissed: dismissed ?? this.dismissed,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
   );
   NoteLink copyWithCompanion(NoteLinksCompanion data) {
     return NoteLink(
@@ -1845,6 +2357,9 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
       targetId: data.targetId.present ? data.targetId.value : this.targetId,
       label: data.label.present ? data.label.value : this.label,
       strength: data.strength.present ? data.strength.value : this.strength,
+      origin: data.origin.present ? data.origin.value : this.origin,
+      dismissed: data.dismissed.present ? data.dismissed.value : this.dismissed,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
 
@@ -1856,13 +2371,16 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
           ..write('sourceId: $sourceId, ')
           ..write('targetId: $targetId, ')
           ..write('label: $label, ')
-          ..write('strength: $strength')
+          ..write('strength: $strength, ')
+          ..write('origin: $origin, ')
+          ..write('dismissed: $dismissed, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, projectId, sourceId, targetId, label, strength);
+  int get hashCode => Object.hash(id, projectId, sourceId, targetId, label, strength, origin, dismissed, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1872,7 +2390,10 @@ class NoteLink extends DataClass implements Insertable<NoteLink> {
           other.sourceId == this.sourceId &&
           other.targetId == this.targetId &&
           other.label == this.label &&
-          other.strength == this.strength);
+          other.strength == this.strength &&
+          other.origin == this.origin &&
+          other.dismissed == this.dismissed &&
+          other.createdAt == this.createdAt);
 }
 
 class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
@@ -1882,6 +2403,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
   final Value<String> targetId;
   final Value<String> label;
   final Value<double> strength;
+  final Value<LinkOrigin> origin;
+  final Value<bool> dismissed;
+  final Value<DateTime?> createdAt;
   final Value<int> rowid;
   const NoteLinksCompanion({
     this.id = const Value.absent(),
@@ -1890,6 +2414,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
     this.targetId = const Value.absent(),
     this.label = const Value.absent(),
     this.strength = const Value.absent(),
+    this.origin = const Value.absent(),
+    this.dismissed = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NoteLinksCompanion.insert({
@@ -1899,6 +2426,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
     required String targetId,
     required String label,
     required double strength,
+    this.origin = const Value.absent(),
+    this.dismissed = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        projectId = Value(projectId),
@@ -1913,6 +2443,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
     Expression<String>? targetId,
     Expression<String>? label,
     Expression<double>? strength,
+    Expression<String>? origin,
+    Expression<bool>? dismissed,
+    Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1922,6 +2455,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
       if (targetId != null) 'target_id': targetId,
       if (label != null) 'label': label,
       if (strength != null) 'strength': strength,
+      if (origin != null) 'origin': origin,
+      if (dismissed != null) 'dismissed': dismissed,
+      if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1933,6 +2469,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
     Value<String>? targetId,
     Value<String>? label,
     Value<double>? strength,
+    Value<LinkOrigin>? origin,
+    Value<bool>? dismissed,
+    Value<DateTime?>? createdAt,
     Value<int>? rowid,
   }) {
     return NoteLinksCompanion(
@@ -1942,6 +2481,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
       targetId: targetId ?? this.targetId,
       label: label ?? this.label,
       strength: strength ?? this.strength,
+      origin: origin ?? this.origin,
+      dismissed: dismissed ?? this.dismissed,
+      createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1967,6 +2509,15 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
     if (strength.present) {
       map['strength'] = Variable<double>(strength.value);
     }
+    if (origin.present) {
+      map['origin'] = Variable<String>($NoteLinksTable.$converterorigin.toSql(origin.value));
+    }
+    if (dismissed.present) {
+      map['dismissed'] = Variable<bool>(dismissed.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1982,6 +2533,9 @@ class NoteLinksCompanion extends UpdateCompanion<NoteLink> {
           ..write('targetId: $targetId, ')
           ..write('label: $label, ')
           ..write('strength: $strength, ')
+          ..write('origin: $origin, ')
+          ..write('dismissed: $dismissed, ')
+          ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2546,16 +3100,26 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
   _$FikraDatabase(QueryExecutor e) : super(e);
   $FikraDatabaseManager get managers => $FikraDatabaseManager(this);
   late final $ProjectsTable projects = $ProjectsTable(this);
+  late final $NoteGroupsTable noteGroups = $NoteGroupsTable(this);
   late final $NotesTable notes = $NotesTable(this);
   late final $NoteAttachmentsTable noteAttachments = $NoteAttachmentsTable(this);
   late final $NoteLinksTable noteLinks = $NoteLinksTable(this);
   late final $ChatEntriesTable chatEntries = $ChatEntriesTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
+  late final Index noteGroupsProject = Index(
+    'note_groups_project',
+    'CREATE INDEX note_groups_project ON note_groups (project_id)',
+  );
+  late final Index noteGroupsParent = Index(
+    'note_groups_parent',
+    'CREATE INDEX note_groups_parent ON note_groups (parent_id)',
+  );
   late final Index notesProjectCreated = Index(
     'notes_project_created',
     'CREATE INDEX notes_project_created ON notes (project_id, created_at)',
   );
   late final Index notesStatus = Index('notes_status', 'CREATE INDEX notes_status ON notes (status)');
+  late final Index notesGroup = Index('notes_group', 'CREATE INDEX notes_group ON notes (group_id)');
   late final Index noteAttachmentsNote = Index(
     'note_attachments_note',
     'CREATE INDEX note_attachments_note ON note_attachments (note_id)',
@@ -2581,13 +3145,17 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     projects,
+    noteGroups,
     notes,
     noteAttachments,
     noteLinks,
     chatEntries,
     settings,
+    noteGroupsProject,
+    noteGroupsParent,
     notesProjectCreated,
     notesStatus,
+    notesGroup,
     noteAttachmentsNote,
     noteLinksProject,
     noteLinksSource,
@@ -2598,7 +3166,19 @@ abstract class _$FikraDatabase extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName('projects', limitUpdateKind: UpdateKind.delete),
+      result: [TableUpdate('note_groups', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName('note_groups', limitUpdateKind: UpdateKind.delete),
+      result: [TableUpdate('note_groups', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName('projects', limitUpdateKind: UpdateKind.delete),
       result: [TableUpdate('notes', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName('note_groups', limitUpdateKind: UpdateKind.delete),
+      result: [TableUpdate('notes', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName('notes', limitUpdateKind: UpdateKind.delete),
@@ -2638,6 +3218,19 @@ typedef $$ProjectsTableUpdateCompanionBuilder = ProjectsCompanion Function({
 
 final class $$ProjectsTableReferences extends BaseReferences<_$FikraDatabase, $ProjectsTable, Project> {
   $$ProjectsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$NoteGroupsTable, List<NoteGroup>> _noteGroupsRefsTable(_$FikraDatabase db) =>
+      MultiTypedResultKey.fromTable(db.noteGroups, aliasName: 'projects__id__note_groups__project_id');
+
+  $$NoteGroupsTableProcessedTableManager get noteGroupsRefs {
+    final manager = $$NoteGroupsTableTableManager(
+      $_db,
+      $_db.noteGroups,
+    ).filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_noteGroupsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
 
   static MultiTypedResultKey<$NotesTable, List<Note>> _notesRefsTable(_$FikraDatabase db) =>
       MultiTypedResultKey.fromTable(db.notes, aliasName: 'projects__id__notes__project_id');
@@ -2693,6 +3286,24 @@ class $$ProjectsTableFilterComposer extends Composer<_$FikraDatabase, $ProjectsT
 
   ColumnFilters<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> noteGroupsRefs(Expression<bool> Function($$NoteGroupsTableFilterComposer f) f) {
+    final $$NoteGroupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.projectId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableFilterComposer(
+            $db: $db,
+            $table: $db.noteGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> notesRefs(Expression<bool> Function($$NotesTableFilterComposer f) f) {
     final $$NotesTableFilterComposer composer = $composerBuilder(
@@ -2780,6 +3391,24 @@ class $$ProjectsTableAnnotationComposer extends Composer<_$FikraDatabase, $Proje
 
   GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
+  Expression<T> noteGroupsRefs<T extends Object>(Expression<T> Function($$NoteGroupsTableAnnotationComposer a) f) {
+    final $$NoteGroupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.projectId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.noteGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> notesRefs<T extends Object>(Expression<T> Function($$NotesTableAnnotationComposer a) f) {
     final $$NotesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2848,7 +3477,7 @@ class $$ProjectsTableTableManager
           $$ProjectsTableUpdateCompanionBuilder,
           (Project, $$ProjectsTableReferences),
           Project,
-          PrefetchHooks Function({bool notesRefs, bool noteLinksRefs, bool chatEntriesRefs})
+          PrefetchHooks Function({bool noteGroupsRefs, bool notesRefs, bool noteLinksRefs, bool chatEntriesRefs})
         > {
   $$ProjectsTableTableManager(_$FikraDatabase db, $ProjectsTable table)
     : super(
@@ -2873,48 +3502,59 @@ class $$ProjectsTableTableManager
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable<$ProjectsTable, Project>(table), $$ProjectsTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({notesRefs = false, noteLinksRefs = false, chatEntriesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (notesRefs) db.notes,
-                if (noteLinksRefs) db.noteLinks,
-                if (chatEntriesRefs) db.chatEntries,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (notesRefs)
-                    await $_getPrefetchedDataByColumns<Project, $ProjectsTable, Note, $NotesTable>(
-                      currentTable: table,
-                      referencedTable: $$ProjectsTableReferences._notesRefsTable(db),
-                      managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).notesRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'project_id',
-                      typedResults: items,
-                    ),
-                  if (noteLinksRefs)
-                    await $_getPrefetchedDataByColumns<Project, $ProjectsTable, NoteLink, $NoteLinksTable>(
-                      currentTable: table,
-                      referencedTable: $$ProjectsTableReferences._noteLinksRefsTable(db),
-                      managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).noteLinksRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'project_id',
-                      typedResults: items,
-                    ),
-                  if (chatEntriesRefs)
-                    await $_getPrefetchedDataByColumns<Project, $ProjectsTable, ChatEntry, $ChatEntriesTable>(
-                      currentTable: table,
-                      referencedTable: $$ProjectsTableReferences._chatEntriesRefsTable(db),
-                      managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).chatEntriesRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'project_id',
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({noteGroupsRefs = false, notesRefs = false, noteLinksRefs = false, chatEntriesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (noteGroupsRefs) db.noteGroups,
+                    if (notesRefs) db.notes,
+                    if (noteLinksRefs) db.noteLinks,
+                    if (chatEntriesRefs) db.chatEntries,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (noteGroupsRefs)
+                        await $_getPrefetchedDataByColumns<Project, $ProjectsTable, NoteGroup, $NoteGroupsTable>(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences._noteGroupsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).noteGroupsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'project_id',
+                          typedResults: items,
+                        ),
+                      if (notesRefs)
+                        await $_getPrefetchedDataByColumns<Project, $ProjectsTable, Note, $NotesTable>(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences._notesRefsTable(db),
+                          managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).notesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'project_id',
+                          typedResults: items,
+                        ),
+                      if (noteLinksRefs)
+                        await $_getPrefetchedDataByColumns<Project, $ProjectsTable, NoteLink, $NoteLinksTable>(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences._noteLinksRefsTable(db),
+                          managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).noteLinksRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'project_id',
+                          typedResults: items,
+                        ),
+                      if (chatEntriesRefs)
+                        await $_getPrefetchedDataByColumns<Project, $ProjectsTable, ChatEntry, $ChatEntriesTable>(
+                          currentTable: table,
+                          referencedTable: $$ProjectsTableReferences._chatEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) => $$ProjectsTableReferences(db, table, p0).chatEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'project_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2931,7 +3571,414 @@ typedef $$ProjectsTableProcessedTableManager =
       $$ProjectsTableUpdateCompanionBuilder,
       (Project, $$ProjectsTableReferences),
       Project,
-      PrefetchHooks Function({bool notesRefs, bool noteLinksRefs, bool chatEntriesRefs})
+      PrefetchHooks Function({bool noteGroupsRefs, bool notesRefs, bool noteLinksRefs, bool chatEntriesRefs})
+    >;
+typedef $$NoteGroupsTableCreateCompanionBuilder = NoteGroupsCompanion Function({
+  required String id,
+  required String projectId,
+  Value<String?> parentId,
+  required String name,
+  Value<int?> color,
+  required int position,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$NoteGroupsTableUpdateCompanionBuilder = NoteGroupsCompanion Function({
+  Value<String> id,
+  Value<String> projectId,
+  Value<String?> parentId,
+  Value<String> name,
+  Value<int?> color,
+  Value<int> position,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+final class $$NoteGroupsTableReferences extends BaseReferences<_$FikraDatabase, $NoteGroupsTable, NoteGroup> {
+  $$NoteGroupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$FikraDatabase db) =>
+      db.projects.createAlias('note_groups__project_id__projects__id');
+
+  $$ProjectsTableProcessedTableManager get projectId {
+    final $_column = $_itemColumn<String>('project_id')!;
+
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $NoteGroupsTable _parentIdTable(_$FikraDatabase db) =>
+      db.noteGroups.createAlias('note_groups__parent_id__note_groups__id');
+
+  $$NoteGroupsTableProcessedTableManager? get parentId {
+    final $_column = $_itemColumn<String>('parent_id');
+    if ($_column == null) return null;
+    final manager = $$NoteGroupsTableTableManager($_db, $_db.noteGroups).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_parentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$NotesTable, List<Note>> _notesRefsTable(_$FikraDatabase db) =>
+      MultiTypedResultKey.fromTable(db.notes, aliasName: 'note_groups__id__notes__group_id');
+
+  $$NotesTableProcessedTableManager get notesRefs {
+    final manager = $$NotesTableTableManager(
+      $_db,
+      $_db.notes,
+    ).filter((f) => f.groupId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_notesRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$NoteGroupsTableFilterComposer extends Composer<_$FikraDatabase, $NoteGroupsTable> {
+  $$NoteGroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get color => $composableBuilder(column: $table.color, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.projectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$ProjectsTableFilterComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NoteGroupsTableFilterComposer get parentId {
+    final $$NoteGroupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableFilterComposer(
+            $db: $db,
+            $table: $db.noteGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> notesRefs(Expression<bool> Function($$NotesTableFilterComposer f) f) {
+    final $$NotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.groupId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NotesTableFilterComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$NoteGroupsTableOrderingComposer extends Composer<_$FikraDatabase, $NoteGroupsTable> {
+  $$NoteGroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get color =>
+      $composableBuilder(column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.projectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$ProjectsTableOrderingComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NoteGroupsTableOrderingComposer get parentId {
+    final $$NoteGroupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.noteGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteGroupsTableAnnotationComposer extends Composer<_$FikraDatabase, $NoteGroupsTable> {
+  $$NoteGroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get color => $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<int> get position => $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.projectId,
+      referencedTable: $db.projects,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$ProjectsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NoteGroupsTableAnnotationComposer get parentId {
+    final $$NoteGroupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.noteGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> notesRefs<T extends Object>(Expression<T> Function($$NotesTableAnnotationComposer a) f) {
+    final $$NotesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.groupId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NotesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$NoteGroupsTableTableManager
+    extends
+        RootTableManager<
+          _$FikraDatabase,
+          $NoteGroupsTable,
+          NoteGroup,
+          $$NoteGroupsTableFilterComposer,
+          $$NoteGroupsTableOrderingComposer,
+          $$NoteGroupsTableAnnotationComposer,
+          $$NoteGroupsTableCreateCompanionBuilder,
+          $$NoteGroupsTableUpdateCompanionBuilder,
+          (NoteGroup, $$NoteGroupsTableReferences),
+          NoteGroup,
+          PrefetchHooks Function({bool projectId, bool parentId, bool notesRefs})
+        > {
+  $$NoteGroupsTableTableManager(_$FikraDatabase db, $NoteGroupsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$NoteGroupsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$NoteGroupsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$NoteGroupsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> projectId = const Value.absent(),
+                Value<String?> parentId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int?> color = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NoteGroupsCompanion(
+                id: id,
+                projectId: projectId,
+                parentId: parentId,
+                name: name,
+                color: color,
+                position: position,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String projectId,
+                Value<String?> parentId = const Value.absent(),
+                required String name,
+                Value<int?> color = const Value.absent(),
+                required int position,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => NoteGroupsCompanion.insert(
+                id: id,
+                projectId: projectId,
+                parentId: parentId,
+                name: name,
+                color: color,
+                position: position,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable<$NoteGroupsTable, NoteGroup>(table), $$NoteGroupsTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({projectId = false, parentId = false, notesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (notesRefs) db.notes],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (projectId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.projectId,
+                        referencedTable: $$NoteGroupsTableReferences._projectIdTable(db),
+                        referencedColumn: $$NoteGroupsTableReferences._projectIdTable(db).id,
+                      ) as T;
+                    }
+                    if (parentId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.parentId,
+                        referencedTable: $$NoteGroupsTableReferences._parentIdTable(db),
+                        referencedColumn: $$NoteGroupsTableReferences._parentIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (notesRefs)
+                    await $_getPrefetchedDataByColumns<NoteGroup, $NoteGroupsTable, Note, $NotesTable>(
+                      currentTable: table,
+                      referencedTable: $$NoteGroupsTableReferences._notesRefsTable(db),
+                      managerFromTypedResult: (p0) => $$NoteGroupsTableReferences(db, table, p0).notesRefs,
+                      currentColumn: 'id',
+                      referencedColumn: 'group_id',
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$NoteGroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$FikraDatabase,
+      $NoteGroupsTable,
+      NoteGroup,
+      $$NoteGroupsTableFilterComposer,
+      $$NoteGroupsTableOrderingComposer,
+      $$NoteGroupsTableAnnotationComposer,
+      $$NoteGroupsTableCreateCompanionBuilder,
+      $$NoteGroupsTableUpdateCompanionBuilder,
+      (NoteGroup, $$NoteGroupsTableReferences),
+      NoteGroup,
+      PrefetchHooks Function({bool projectId, bool parentId, bool notesRefs})
     >;
 typedef $$NotesTableCreateCompanionBuilder = NotesCompanion Function({
   required String id,
@@ -2954,6 +4001,7 @@ typedef $$NotesTableCreateCompanionBuilder = NotesCompanion Function({
   Value<String?> cluster,
   required DateTime createdAt,
   required DateTime updatedAt,
+  Value<String?> groupId,
   Value<int> rowid,
 });
 typedef $$NotesTableUpdateCompanionBuilder = NotesCompanion Function({
@@ -2977,6 +4025,7 @@ typedef $$NotesTableUpdateCompanionBuilder = NotesCompanion Function({
   Value<String?> cluster,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
+  Value<String?> groupId,
   Value<int> rowid,
 });
 
@@ -2991,6 +4040,18 @@ final class $$NotesTableReferences extends BaseReferences<_$FikraDatabase, $Note
 
     final manager = $$ProjectsTableTableManager($_db, $_db.projects).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $NoteGroupsTable _groupIdTable(_$FikraDatabase db) =>
+      db.noteGroups.createAlias('notes__group_id__note_groups__id');
+
+  $$NoteGroupsTableProcessedTableManager? get groupId {
+    final $_column = $_itemColumn<String>('group_id');
+    if ($_column == null) return null;
+    final manager = $$NoteGroupsTableTableManager($_db, $_db.noteGroups).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_groupIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
   }
@@ -3110,6 +4171,24 @@ class $$NotesTableFilterComposer extends Composer<_$FikraDatabase, $NotesTable> 
           $$ProjectsTableFilterComposer(
             $db: $db,
             $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NoteGroupsTableFilterComposer get groupId {
+    final $$NoteGroupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableFilterComposer(
+            $db: $db,
+            $table: $db.noteGroups,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
@@ -3254,6 +4333,24 @@ class $$NotesTableOrderingComposer extends Composer<_$FikraDatabase, $NotesTable
     );
     return composer;
   }
+
+  $$NoteGroupsTableOrderingComposer get groupId {
+    final $$NoteGroupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.noteGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$NotesTableAnnotationComposer extends Composer<_$FikraDatabase, $NotesTable> {
@@ -3321,6 +4418,24 @@ class $$NotesTableAnnotationComposer extends Composer<_$FikraDatabase, $NotesTab
           $$ProjectsTableAnnotationComposer(
             $db: $db,
             $table: $db.projects,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NoteGroupsTableAnnotationComposer get groupId {
+    final $$NoteGroupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.noteGroups,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$NoteGroupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.noteGroups,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
@@ -3399,7 +4514,13 @@ class $$NotesTableTableManager
           $$NotesTableUpdateCompanionBuilder,
           (Note, $$NotesTableReferences),
           Note,
-          PrefetchHooks Function({bool projectId, bool noteAttachmentsRefs, bool outgoingLinks, bool incomingLinks})
+          PrefetchHooks Function({
+            bool projectId,
+            bool groupId,
+            bool noteAttachmentsRefs,
+            bool outgoingLinks,
+            bool incomingLinks,
+          })
         > {
   $$NotesTableTableManager(_$FikraDatabase db, $NotesTable table)
     : super(
@@ -3431,6 +4552,7 @@ class $$NotesTableTableManager
                 Value<String?> cluster = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String?> groupId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotesCompanion(
                 id: id,
@@ -3453,6 +4575,7 @@ class $$NotesTableTableManager
                 cluster: cluster,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                groupId: groupId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3477,6 +4600,7 @@ class $$NotesTableTableManager
                 Value<String?> cluster = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String?> groupId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotesCompanion.insert(
                 id: id,
@@ -3499,12 +4623,19 @@ class $$NotesTableTableManager
                 cluster: cluster,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                groupId: groupId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) =>
               p0.map((e) => (e.readTable<$NotesTable, Note>(table), $$NotesTableReferences(db, table, e))).toList(),
           prefetchHooksCallback:
-              ({projectId = false, noteAttachmentsRefs = false, outgoingLinks = false, incomingLinks = false}) {
+              ({
+                projectId = false,
+                groupId = false,
+                noteAttachmentsRefs = false,
+                outgoingLinks = false,
+                incomingLinks = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
@@ -3534,6 +4665,14 @@ class $$NotesTableTableManager
                             currentColumn: table.projectId,
                             referencedTable: $$NotesTableReferences._projectIdTable(db),
                             referencedColumn: $$NotesTableReferences._projectIdTable(db).id,
+                          ) as T;
+                        }
+                        if (groupId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.groupId,
+                            referencedTable: $$NotesTableReferences._groupIdTable(db),
+                            referencedColumn: $$NotesTableReferences._groupIdTable(db).id,
                           ) as T;
                         }
 
@@ -3588,7 +4727,13 @@ typedef $$NotesTableProcessedTableManager =
       $$NotesTableUpdateCompanionBuilder,
       (Note, $$NotesTableReferences),
       Note,
-      PrefetchHooks Function({bool projectId, bool noteAttachmentsRefs, bool outgoingLinks, bool incomingLinks})
+      PrefetchHooks Function({
+        bool projectId,
+        bool groupId,
+        bool noteAttachmentsRefs,
+        bool outgoingLinks,
+        bool incomingLinks,
+      })
     >;
 typedef $$NoteAttachmentsTableCreateCompanionBuilder = NoteAttachmentsCompanion Function({
   required String id,
@@ -3912,6 +5057,9 @@ typedef $$NoteLinksTableCreateCompanionBuilder = NoteLinksCompanion Function({
   required String targetId,
   required String label,
   required double strength,
+  Value<LinkOrigin> origin,
+  Value<bool> dismissed,
+  Value<DateTime?> createdAt,
   Value<int> rowid,
 });
 typedef $$NoteLinksTableUpdateCompanionBuilder = NoteLinksCompanion Function({
@@ -3921,6 +5069,9 @@ typedef $$NoteLinksTableUpdateCompanionBuilder = NoteLinksCompanion Function({
   Value<String> targetId,
   Value<String> label,
   Value<double> strength,
+  Value<LinkOrigin> origin,
+  Value<bool> dismissed,
+  Value<DateTime?> createdAt,
   Value<int> rowid,
 });
 
@@ -3977,6 +5128,15 @@ class $$NoteLinksTableFilterComposer extends Composer<_$FikraDatabase, $NoteLink
 
   ColumnFilters<double> get strength =>
       $composableBuilder(column: $table.strength, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<LinkOrigin, LinkOrigin, String> get origin =>
+      $composableBuilder(column: $table.origin, builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<bool> get dismissed =>
+      $composableBuilder(column: $table.dismissed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   $$ProjectsTableFilterComposer get projectId {
     final $$ProjectsTableFilterComposer composer = $composerBuilder(
@@ -4049,6 +5209,15 @@ class $$NoteLinksTableOrderingComposer extends Composer<_$FikraDatabase, $NoteLi
   ColumnOrderings<double> get strength =>
       $composableBuilder(column: $table.strength, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get origin =>
+      $composableBuilder(column: $table.origin, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get dismissed =>
+      $composableBuilder(column: $table.dismissed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
   $$ProjectsTableOrderingComposer get projectId {
     final $$ProjectsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4117,6 +5286,13 @@ class $$NoteLinksTableAnnotationComposer extends Composer<_$FikraDatabase, $Note
   GeneratedColumn<String> get label => $composableBuilder(column: $table.label, builder: (column) => column);
 
   GeneratedColumn<double> get strength => $composableBuilder(column: $table.strength, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<LinkOrigin, String> get origin =>
+      $composableBuilder(column: $table.origin, builder: (column) => column);
+
+  GeneratedColumn<bool> get dismissed => $composableBuilder(column: $table.dismissed, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   $$ProjectsTableAnnotationComposer get projectId {
     final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
@@ -4204,6 +5380,9 @@ class $$NoteLinksTableTableManager
                 Value<String> targetId = const Value.absent(),
                 Value<String> label = const Value.absent(),
                 Value<double> strength = const Value.absent(),
+                Value<LinkOrigin> origin = const Value.absent(),
+                Value<bool> dismissed = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NoteLinksCompanion(
                 id: id,
@@ -4212,6 +5391,9 @@ class $$NoteLinksTableTableManager
                 targetId: targetId,
                 label: label,
                 strength: strength,
+                origin: origin,
+                dismissed: dismissed,
+                createdAt: createdAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4222,6 +5404,9 @@ class $$NoteLinksTableTableManager
                 required String targetId,
                 required String label,
                 required double strength,
+                Value<LinkOrigin> origin = const Value.absent(),
+                Value<bool> dismissed = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NoteLinksCompanion.insert(
                 id: id,
@@ -4230,6 +5415,9 @@ class $$NoteLinksTableTableManager
                 targetId: targetId,
                 label: label,
                 strength: strength,
+                origin: origin,
+                dismissed: dismissed,
+                createdAt: createdAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4706,6 +5894,7 @@ class $FikraDatabaseManager {
   final _$FikraDatabase _db;
   $FikraDatabaseManager(this._db);
   $$ProjectsTableTableManager get projects => $$ProjectsTableTableManager(_db, _db.projects);
+  $$NoteGroupsTableTableManager get noteGroups => $$NoteGroupsTableTableManager(_db, _db.noteGroups);
   $$NotesTableTableManager get notes => $$NotesTableTableManager(_db, _db.notes);
   $$NoteAttachmentsTableTableManager get noteAttachments =>
       $$NoteAttachmentsTableTableManager(_db, _db.noteAttachments);

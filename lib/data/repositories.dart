@@ -4,7 +4,9 @@ import 'ai/ai_service.dart';
 import 'attachment_draft.dart';
 import 'files/attachment_store.dart';
 import 'ids.dart';
+import 'link_label.dart';
 import 'local/database.dart';
+import 'links_repository.dart';
 
 typedef ProjectSummary = ({Project project, int noteCount});
 
@@ -41,7 +43,9 @@ abstract interface class NotesRepository {
 
   /// Applies an AI result computed from [basis]. Fields the user changed while
   /// the analysis ran win over the result.
-  Future<void> applyInsights(String id, NoteInsights insights, {Note? basis});
+  Future<void> applyInsights(String id, NoteInsights insights, {Note? basis, bool linksOnly = false});
+  Future<({int userLinks, int suggestions})> moveImpact(Iterable<String> noteIds, String targetProjectId);
+  Future<List<String>> moveNotes(Iterable<String> noteIds, String targetProjectId);
   Future<Set<String>> attachmentPaths();
   Future<void> acceptRewrite(String id);
   Future<void> rejectRewrite(String id);
@@ -251,29 +255,37 @@ class LocalNotesRepository implements NotesRepository {
   Future<void> markFailed(String id) => _write(id, const NotesCompanion(status: Value(ProcessingStatus.failed)));
 
   @override
-  Future<void> applyInsights(String id, NoteInsights i, {Note? basis}) async {
+  Future<void> applyInsights(String id, NoteInsights i, {Note? basis, bool linksOnly = false}) async {
     await db.transaction(() async {
       final live = await (db.select(db.notes)..where((n) => n.id.equals(id))).getSingleOrNull();
       if (live == null) return; // deleted while processing
       final b = basis ?? live;
+      final sameProject = b.projectId == live.projectId;
+      if (linksOnly && !sameProject) return;
       final userEdited = live.editedText != b.editedText || live.originalText != b.originalText;
       final keepTitle = live.title.trim().isNotEmpty;
       final proposal = userEdited || live.editedText != null ? null : i.proposedText;
-      await _write(
-        id,
+      await (db.update(db.notes)..where((n) => n.id.equals(id))).write(
         NotesCompanion(
-          title: keepTitle ? const Value.absent() : Value(i.title),
-          proposedText: Value(proposal),
-          rewrite: Value(
-            proposal != null
-                ? RewriteStatus.pending
-                : (live.rewrite == RewriteStatus.pending ? RewriteStatus.none : live.rewrite),
-          ),
-          concepts: Value(i.concepts.take(8).join('|')),
-          cluster: Value(i.cluster),
-          status: const Value(ProcessingStatus.ready),
+          title: linksOnly || keepTitle ? const Value.absent() : Value(i.title),
+          proposedText: linksOnly ? const Value.absent() : Value(proposal),
+          rewrite: linksOnly
+              ? const Value.absent()
+              : Value(
+                  proposal != null
+                      ? RewriteStatus.pending
+                      : (live.rewrite == RewriteStatus.pending ? RewriteStatus.none : live.rewrite),
+                ),
+          concepts: sameProject ? Value(i.concepts.take(8).join('|')) : const Value.absent(),
+          cluster: sameProject ? Value(i.cluster) : const Value.absent(),
+          status: linksOnly ? const Value.absent() : const Value(ProcessingStatus.ready),
+          updatedAt: linksOnly ? const Value.absent() : Value(DateTime.now()),
         ),
       );
+
+      // Concepts and links belong to the project used for analysis. A normal
+      // job may still finish the title/rewrite/status after a move.
+      if (!sameProject) return;
 
       // AI output is untrusted: keep only targets that exist in the same
       // project, no self links, no duplicates, strength in 0..1.
@@ -285,11 +297,19 @@ class LocalNotesRepository implements NotesRepository {
                   .map((r) => r.read(db.notes.id)!)
                   .get())
               .toSet();
-      // This note owns its outgoing edges only.
-      await (db.delete(db.noteLinks)..where((l) => l.sourceId.equals(id))).go();
+      await (db.delete(
+        db.noteLinks,
+      )..where((l) => l.sourceId.equals(id) & l.origin.equalsValue(LinkOrigin.ai) & l.dismissed.equals(false))).go();
+      // Retained rows block the unordered pair, before applying the cap.
+      final retained = await (db.select(
+        db.noteLinks,
+      )..where((l) => l.sourceId.equals(id) | l.targetId.equals(id))).get();
+      final blocked = retained.map((l) => l.sourceId == id ? l.targetId : l.sourceId).toSet();
       final seen = <String>{};
       for (final l in i.links) {
-        if (!valid.contains(l.targetId) || !seen.add(l.targetId) || seen.length > 8) continue;
+        if (!valid.contains(l.targetId) || blocked.contains(l.targetId) || !seen.add(l.targetId) || seen.length > 8) {
+          continue;
+        }
         final strength = l.strength.isFinite ? l.strength.clamp(0.0, 1.0) : 0.0;
         await db
             .into(db.noteLinks)
@@ -299,8 +319,11 @@ class LocalNotesRepository implements NotesRepository {
                 projectId: live.projectId,
                 sourceId: id,
                 targetId: l.targetId,
-                label: l.label.length > 80 ? l.label.substring(0, 80) : l.label,
+                label: capLinkLabel(l.label),
                 strength: strength,
+                origin: LinkOrigin.ai,
+                dismissed: false,
+                createdAt: DateTime.now(),
               ),
             );
       }
@@ -389,8 +412,42 @@ class LocalNotesRepository implements NotesRepository {
   }
 
   @override
-  Stream<List<NoteLink>> watchLinks(String projectId) =>
-      (db.select(db.noteLinks)..where((l) => l.projectId.equals(projectId))).watch();
+  Stream<List<NoteLink>> watchLinks(String projectId) => LocalLinksRepository(db).watchLinks(projectId);
+
+  Future<Set<String>> _moving(Iterable<String> ids, String targetProjectId) async => (await (db.select(
+    db.notes,
+  )..where((n) => n.id.isIn(ids) & n.projectId.equals(targetProjectId).not())).get()).map((n) => n.id).toSet();
+
+  Expression<bool> _crossing(NoteLinks l, Set<String> ids) =>
+      (l.sourceId.isIn(ids) & l.targetId.isNotIn(ids)) | (l.targetId.isIn(ids) & l.sourceId.isNotIn(ids));
+
+  @override
+  Future<({int userLinks, int suggestions})> moveImpact(Iterable<String> noteIds, String targetProjectId) =>
+      db.transaction(() async {
+        final ids = await _moving(noteIds, targetProjectId);
+        final rows = await (db.select(db.noteLinks)..where((l) => _crossing(l, ids) & l.dismissed.equals(false))).get();
+        (String, String) pair(NoteLink l) =>
+            l.sourceId.compareTo(l.targetId) < 0 ? (l.sourceId, l.targetId) : (l.targetId, l.sourceId);
+        final users = rows.where((l) => l.origin == LinkOrigin.user).map(pair).toSet();
+        final suggestions = rows.where((l) => l.origin == LinkOrigin.ai).map(pair).toSet();
+        return (userLinks: users.length, suggestions: suggestions.difference(users).length);
+      });
+
+  @override
+  Future<List<String>> moveNotes(Iterable<String> noteIds, String targetProjectId) => db.transaction(() async {
+    if (await (db.select(db.projects)..where((p) => p.id.equals(targetProjectId))).getSingleOrNull() == null) {
+      throw StateError('Target project does not exist');
+    }
+    final ids = await _moving(noteIds, targetProjectId);
+    await (db.delete(db.noteLinks)..where((l) => _crossing(l, ids))).go();
+    await (db.update(db.noteLinks)..where((l) => l.sourceId.isIn(ids) & l.targetId.isIn(ids))).write(
+      NoteLinksCompanion(projectId: Value(targetProjectId)),
+    );
+    await (db.update(db.notes)..where((n) => n.id.isIn(ids))).write(
+      NotesCompanion(projectId: Value(targetProjectId), groupId: const Value(null), updatedAt: Value(DateTime.now())),
+    );
+    return ids.toList();
+  });
 }
 
 class LocalChatRepository implements ChatRepository {

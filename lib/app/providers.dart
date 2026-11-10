@@ -11,6 +11,8 @@ import '../data/ai/demo_ai_service.dart';
 import '../data/files/attachment_store.dart';
 import '../data/files/file_opener.dart';
 import '../data/local/database.dart';
+import '../data/links_repository.dart';
+import '../data/groups_repository.dart';
 import '../data/processing/note_processor.dart';
 import '../data/repositories.dart';
 import '../data/settings_repository.dart';
@@ -31,6 +33,8 @@ final projectsRepoProvider = Provider<ProjectsRepository>(
   (ref) => LocalProjectsRepository(ref.watch(databaseProvider)),
 );
 final notesRepoProvider = Provider<NotesRepository>((ref) => LocalNotesRepository(ref.watch(databaseProvider)));
+final linksRepoProvider = Provider<LinksRepository>((ref) => LocalLinksRepository(ref.watch(databaseProvider)));
+final groupsRepoProvider = Provider<GroupsRepository>((ref) => LocalGroupsRepository(ref.watch(databaseProvider)));
 final chatRepoProvider = Provider<ChatRepository>((ref) => LocalChatRepository(ref.watch(databaseProvider)));
 final settingsRepoProvider = Provider<SettingsRepository>(
   (ref) => LocalSettingsRepository(ref.watch(databaseProvider), ref.watch(attachmentStoreProvider)),

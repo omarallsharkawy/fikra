@@ -7,6 +7,8 @@ enum NoteSource { text, voice, pdf }
 
 enum AttachmentKind { pdf, voice, image }
 
+enum LinkOrigin { ai, user }
+
 /// "Saved" and "AI finished" are separate states.
 enum ProcessingStatus { processing, ready, failed }
 
@@ -25,6 +27,7 @@ class Projects extends Table {
 @DataClassName('Note')
 @TableIndex(name: 'notes_project_created', columns: {#projectId, #createdAt})
 @TableIndex(name: 'notes_status', columns: {#status})
+@TableIndex(name: 'notes_group', columns: {#groupId})
 class Notes extends Table {
   TextColumn get id => text()();
   TextColumn get projectId => text().references(Projects, #id, onDelete: KeyAction.cascade)();
@@ -66,6 +69,23 @@ class Notes extends Table {
   TextColumn get cluster => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn get groupId => text().nullable().references(NoteGroups, #id, onDelete: KeyAction.setNull)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('NoteGroup')
+@TableIndex(name: 'note_groups_project', columns: {#projectId})
+@TableIndex(name: 'note_groups_parent', columns: {#parentId})
+class NoteGroups extends Table {
+  TextColumn get id => text()();
+  TextColumn get projectId => text().references(Projects, #id, onDelete: KeyAction.cascade)();
+  TextColumn get parentId => text().nullable().references(NoteGroups, #id, onDelete: KeyAction.setNull)();
+  TextColumn get name => text()();
+  IntColumn get color => integer().nullable()();
+  IntColumn get position => integer()();
+  DateTimeColumn get createdAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -101,6 +121,9 @@ class NoteLinks extends Table {
   TextColumn get targetId => text().references(Notes, #id, onDelete: KeyAction.cascade)();
   TextColumn get label => text()();
   RealColumn get strength => real()();
+  TextColumn get origin => textEnum<LinkOrigin>().withDefault(const Constant('ai'))();
+  BoolColumn get dismissed => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -132,12 +155,12 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Projects, Notes, NoteAttachments, NoteLinks, ChatEntries, Settings])
+@DriftDatabase(tables: [Projects, NoteGroups, Notes, NoteAttachments, NoteLinks, ChatEntries, Settings])
 class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -199,7 +222,13 @@ class FikraDatabase extends _$FikraDatabase {
           await customStatement('CREATE INDEX IF NOT EXISTS note_attachments_note ON note_attachments (note_id)');
           // Stable IDs make partial backfills and a repeated upgrade harmless.
           // Keep the original columns intact for recovery.
-          for (final note in await select(notes).get()) {
+          // Do not select the current Notes model here: later schema columns
+          // (such as v6 group_id) do not exist yet on a v4 database.
+          final legacy = await customSelect(
+            'SELECT id, attachment_path, attachment_name, attachment_bytes, voice_path, '
+            'duration_ms, image_paths, created_at FROM notes',
+          ).get();
+          for (final note in legacy) {
             var position = 0;
             Future<void> copy(
               String key,
@@ -212,15 +241,15 @@ class FikraDatabase extends _$FikraDatabase {
               if (path == null || path.trim().isEmpty) return;
               await into(noteAttachments).insert(
                 NoteAttachment(
-                  id: 'legacy:${note.id}:$key',
-                  noteId: note.id,
+                  id: 'legacy:${note.read<String>('id')}:$key',
+                  noteId: note.read<String>('id'),
                   kind: kind,
                   path: path,
                   name: name,
                   bytes: bytes,
                   durationMs: durationMs,
                   position: position++,
-                  createdAt: note.createdAt,
+                  createdAt: note.read<DateTime>('created_at'),
                 ),
                 mode: InsertMode.insertOrIgnore,
               );
@@ -229,15 +258,42 @@ class FikraDatabase extends _$FikraDatabase {
             await copy(
               'pdf',
               AttachmentKind.pdf,
-              note.attachmentPath,
-              name: note.attachmentName,
-              bytes: note.attachmentBytes,
+              note.readNullable<String>('attachment_path'),
+              name: note.readNullable<String>('attachment_name'),
+              bytes: note.readNullable<int>('attachment_bytes'),
             );
-            await copy('voice', AttachmentKind.voice, note.voicePath, durationMs: note.durationMs);
-            for (final (i, path) in note.imagePaths.split('|').indexed) {
+            await copy(
+              'voice',
+              AttachmentKind.voice,
+              note.readNullable<String>('voice_path'),
+              durationMs: note.readNullable<int>('duration_ms'),
+            );
+            for (final (i, path) in note.read<String>('image_paths').split('|').indexed) {
               await copy('image:$i', AttachmentKind.image, path);
             }
           }
+        });
+      }
+      if (from < 6) {
+        await transaction(() async {
+          final tables = await customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'note_groups'",
+          ).get();
+          if (tables.isEmpty) await m.createTable(noteGroups);
+          // The referenced table must exist before notes gains its foreign key.
+          final noteColumns = await customSelect('PRAGMA table_info(notes)').get();
+          if (!noteColumns.any((c) => c.read<String>('name') == 'group_id')) {
+            await m.addColumn(notes, notes.groupId);
+          }
+          final linkColumns = await customSelect('PRAGMA table_info(note_links)').get();
+          for (final column in <GeneratedColumn<Object>>[noteLinks.origin, noteLinks.dismissed, noteLinks.createdAt]) {
+            if (!linkColumns.any((c) => c.read<String>('name') == column.$name)) {
+              await m.addColumn(noteLinks, column);
+            }
+          }
+          await customStatement('CREATE INDEX IF NOT EXISTS note_groups_project ON note_groups (project_id)');
+          await customStatement('CREATE INDEX IF NOT EXISTS note_groups_parent ON note_groups (parent_id)');
+          await customStatement('CREATE INDEX IF NOT EXISTS notes_group ON notes (group_id)');
         });
       }
     },

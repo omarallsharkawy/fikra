@@ -71,6 +71,7 @@ class LocalSettingsRepository implements SettingsRepository {
       await db.delete(db.chatEntries).go();
       await db.delete(db.noteLinks).go();
       await db.delete(db.notes).go();
+      await db.delete(db.noteGroups).go();
       await db.delete(db.projects).go();
       await (db.delete(db.settings)..where((s) => s.key.equals(_currentProjectKey))).go();
     });

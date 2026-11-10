@@ -45,19 +45,29 @@ class NoteProcessor {
     }
   }
 
-  Future<void> _run(String id) async {
-    final basis = await notes.watchNote(id).first;
-    if (basis == null) return; // deleted while queued
+  /// Rebuilds concepts and links without changing processing or rewrite state.
+  Future<void> relink(Iterable<String> ids) async {
+    for (final id in ids.toSet()) {
+      final job = _queue.then((_) => _run(id, linksOnly: true));
+      _queue = job.catchError((_) {});
+    }
+    await _queue;
+  }
+
+  Future<void> _run(String id, {bool linksOnly = false}) async {
     try {
+      final basis = await notes.watchNote(id).first;
+      if (basis == null) return; // deleted while queued
       if (basis.originalText.trim().isEmpty) {
-        await notes.markReady(id);
+        if (!linksOnly) await notes.markReady(id);
         return;
       }
-      await notes.markProcessing(id);
+      if (!linksOnly) await notes.markProcessing(id);
       final projectNotes = await notes.notesOf(basis.projectId);
       final insights = await ai.analyze(basis, projectNotes).timeout(timeout);
-      await notes.applyInsights(id, insights, basis: basis);
+      await notes.applyInsights(id, insights, basis: basis, linksOnly: linksOnly);
     } catch (_) {
+      if (linksOnly) return;
       try {
         await notes.markFailed(id);
       } catch (_) {} // note deleted meanwhile

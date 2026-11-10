@@ -1,0 +1,125 @@
+import 'package:drift/drift.dart';
+
+import 'ids.dart';
+import 'link_label.dart';
+import 'local/database.dart';
+
+abstract interface class LinksRepository {
+  Stream<List<NoteLink>> watchLinks(String projectId);
+  Future<List<String>> linkNotes(String sourceId, Iterable<String> targetIds, {String? label});
+  Future<void> updateLabel(String linkId, String? label);
+  Future<void> removeLink(String linkId);
+  Future<void> acceptSuggestion(String linkId);
+  Future<void> dismissSuggestion(String linkId);
+}
+
+class LocalLinksRepository implements LinksRepository {
+  LocalLinksRepository(this.db);
+  final FikraDatabase db;
+
+  Expression<bool> _pair(NoteLinks l, String a, String b) =>
+      (l.sourceId.equals(a) & l.targetId.equals(b)) | (l.sourceId.equals(b) & l.targetId.equals(a));
+
+  @override
+  Stream<List<NoteLink>> watchLinks(String projectId) =>
+      (db.select(db.noteLinks)..where((l) => l.projectId.equals(projectId) & l.dismissed.equals(false))).watch();
+
+  @override
+  Future<List<String>> linkNotes(String sourceId, Iterable<String> targetIds, {String? label}) =>
+      db.transaction(() async {
+        final source = await (db.select(db.notes)..where((n) => n.id.equals(sourceId))).getSingleOrNull();
+        if (source == null) return [];
+        final normalized = _label(label);
+        final result = <String>[];
+        for (final targetId in targetIds.toSet()) {
+          if (targetId == sourceId) continue;
+          final target = await (db.select(db.notes)..where((n) => n.id.equals(targetId))).getSingleOrNull();
+          if (target == null || target.projectId != source.projectId) continue;
+          final rows = await (db.select(db.noteLinks)..where((l) => _pair(l, sourceId, targetId))).get();
+          final users = rows.where((l) => l.origin == LinkOrigin.user);
+          final existing = users.firstOrNull ?? rows.firstOrNull;
+          if (users.isEmpty) {
+            final id = existing?.id ?? newId();
+            await db
+                .into(db.noteLinks)
+                .insertOnConflictUpdate(
+                  NoteLink(
+                    id: id,
+                    projectId: source.projectId,
+                    sourceId: sourceId,
+                    targetId: targetId,
+                    label: normalized ?? existing?.label ?? '',
+                    strength: 1.0,
+                    origin: LinkOrigin.user,
+                    dismissed: false,
+                    createdAt: DateTime.now(),
+                  ),
+                );
+            result.add(id);
+          }
+          final redundant = rows.where((l) => l.id != existing?.id && (l.origin == LinkOrigin.ai || l.dismissed));
+          await (db.delete(db.noteLinks)..where((l) => l.id.isIn(redundant.map((r) => r.id)))).go();
+        }
+        return result;
+      });
+
+  @override
+  Future<void> updateLabel(String linkId, String? label) => db.transaction(() async {
+    final row = await _read(linkId);
+    if (row == null) return;
+    if (row.origin != LinkOrigin.user) throw StateError('Accept the suggestion before editing its label');
+    await (db.update(
+      db.noteLinks,
+    )..where((l) => l.id.equals(linkId))).write(NoteLinksCompanion(label: Value(_label(label) ?? '')));
+  });
+
+  @override
+  Future<void> removeLink(String linkId) => db.transaction(() async {
+    final row = await _read(linkId);
+    if (row == null) return;
+    await (db.update(db.noteLinks)..where((l) => l.id.equals(linkId))).write(
+      const NoteLinksCompanion(origin: Value(LinkOrigin.ai), dismissed: Value(true)),
+    );
+    // Dismiss legacy reverse suggestions too, so a removed pair disappears.
+    await dismissSuggestion(linkId);
+  });
+
+  @override
+  Future<void> acceptSuggestion(String linkId) => db.transaction(() async {
+    final row = await _read(linkId);
+    if (row == null || row.origin != LinkOrigin.ai || row.dismissed) return;
+    await (db.update(db.noteLinks)..where((l) => l.id.equals(linkId))).write(
+      NoteLinksCompanion(
+        origin: const Value(LinkOrigin.user),
+        dismissed: const Value(false),
+        strength: const Value(1.0),
+        createdAt: Value(row.createdAt ?? DateTime.now()),
+      ),
+    );
+    await (db.delete(db.noteLinks)..where(
+          (l) =>
+              _pair(l, row.sourceId, row.targetId) &
+              l.id.equals(linkId).not() &
+              l.origin.equalsValue(LinkOrigin.ai) &
+              l.dismissed.equals(false),
+        ))
+        .go();
+  });
+
+  @override
+  Future<void> dismissSuggestion(String linkId) => db.transaction(() async {
+    final row = await _read(linkId);
+    if (row == null) return;
+    await (db.update(db.noteLinks)
+          ..where((l) => _pair(l, row.sourceId, row.targetId) & l.origin.equalsValue(LinkOrigin.ai)))
+        .write(const NoteLinksCompanion(dismissed: Value(true)));
+  });
+
+  Future<NoteLink?> _read(String id) => (db.select(db.noteLinks)..where((l) => l.id.equals(id))).getSingleOrNull();
+
+  static String? _label(String? label) {
+    final value = label?.trim();
+    if (value == null || value.isEmpty) return null;
+    return capLinkLabel(value);
+  }
+}

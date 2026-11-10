@@ -54,7 +54,7 @@ Notes:
 - A proposed rewrite is discarded when the user edited the note since `basis`, or when `editedText` is already set.
 - Concepts are capped at 8.
 - AI output is untrusted. Links are kept only for targets in the same project, with no self links and no duplicates, and at most 8 per note. Strength is clamped to 0..1 and non-finite values become 0. Labels are cut to 80 characters.
-- A note owns only its outgoing edges: previous links with this `source_id` are replaced, and incoming links are left alone.
+- A note owns its outgoing live AI suggestions only: user links, tombstones and incoming links are retained.
 
 Projects and settings:
 
@@ -72,7 +72,7 @@ Files and ordering:
 
 ## Side Effects
 
-- Reads and writes the `projects`, `notes`, `note_attachments`, `note_links`, `chat_entries` and `settings` tables through `FikraDatabase`. Project deletion relies on foreign-key cascades for notes, links and chat.
+- Reads and writes the `projects`, `notes`, `note_attachments`, `note_links`, `chat_entries`, `note_groups` and `settings` tables through `FikraDatabase`. Project deletion relies on foreign-key cascades for notes, links and chat.
 - `LocalProjectsRepository.delete` and `LocalNotesRepository.delete` remove attachment files through the static `AttachmentStore.deleteQuietly`, after the row delete.
 - `LocalSettingsRepository.wipeAllData` deletes all attachment files and temp recordings through `AttachmentStore.purgeAll`.
 - Child side effects are listed in each subdirectory's contract.
@@ -86,3 +86,13 @@ Files and ordering:
 `attachment_draft.dart` defines `AttachmentDraft` (saved ID or new source path), `EmptyNoteException`, and `saveAttachmentDraft`. The helper copies each new source in draft order, calls the atomic repository operation, and deletes only its new destination files if any copy or commit fails. Sources remain available for retry. `create(attachments:)` writes the note and attachments in one transaction and omits legacy fields.
 
 `watchAttachments(noteId)` is an indexed ordered stream. `watchProjectAttachments(projectId)` performs one joined query and groups rows by note ID. Cards share its provider; they never start one query per note. `_filePaths` joins the new table for note/project deletion; wipe relies on cascades and purges after commit.
+
+## Local links, groups and moves (v6)
+
+`links_repository.dart` exposes `LinksRepository` / `LocalLinksRepository`: `watchLinks`, `linkNotes`, `updateLabel`, `removeLink`, `acceptSuggestion`, `dismissSuggestion`. Pair matching uses both directions. Batch linking converts a suggestion or tombstone, leaves an existing user link alone and removes redundant AI/dismissed rows. User labels are trimmed/capped at 80 UTF-16 units without splitting a surrogate pair; absent labels persist as `''` in the existing NOT NULL column. `link_label.dart` shares `capLinkLabel` between user and AI operations. User links have strength 1 and creation time. AI labels require acceptance before editing. Removing a user link leaves an AI tombstone; dismiss covers both-direction AI rows. Accept acts only on non-dismissed AI suggestions; stale accepts of dismissed, removed or already accepted rows do nothing. Missing accept/dismiss IDs are no-ops. Both repository watch APIs exclude dismissed rows.
+
+`applyInsights` replaces only outgoing, non-dismissed AI rows. A retained user, dismissed or reverse AI row blocks that pair before the eight-link cap. New suggestions have creation times. `linksOnly` updates only concepts, cluster and links, preserving updatedAt, title, original/edited/proposed text, rewrite and processing status. When the analysis basis belongs to a previous project, concepts, cluster and link replacement are skipped; normal jobs still finish title, rewrite and status, while linksOnly makes no writes.
+
+`NotesRepository.moveImpact` returns `({int userLinks, int suggestions})` for distinct unordered non-dismissed crossing pairs. Reverse/duplicate rows count once; a pair with both origins counts once as a user link. `moveNotes` validates the destination, skips missing/already-destination notes, clears groupId and returns moved IDs atomically. Internal links (including tombstones) follow the moved set; crossing rows are deleted. Attachment rows and paths never change.
+
+`groups_repository.dart` exposes `GroupsRepository` / `LocalGroupsRepository`: `watchGroups`, `create`, `rename`, `setColor`, `setParent`, `delete`, `assignNotes`. Positions increase within a project. Names must be nonblank after trim; colors are null or 0–3. Parents must exist, be top level and in the same project; self-parenting and parenting a group with children are forbidden. Violations throw `GroupRuleException` carrying `GroupRuleReason` (`emptyName`, `invalidColor`, `missingProject`, `missingGroup`, `invalidParent`, `selfParent`, `hasChildren`). Assignment replaces one group, skips cross-project/missing notes and permits null to clear. Foreign keys clear deleted groups from notes, raise children to top level and cascade groups on project deletion. Wipe explicitly clears note_groups before projects.

@@ -57,3 +57,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `integratio
 A note owns ordered rows in `note_attachments`, with cascading deletion. Add and saved-note Edit share capture/preview code. Draft removals never delete disk files before commit; failed saves clean new copies and retain the draft. Startup sweeping queries all new rows only after the database migration succeeds; failed opening prevents maintenance. A one-hour grace protects files copied by an in-flight save. Cards share a batched project stream, and PDFs route by note plus attachment ID.
 
 Phone follow-up fixes classify locked PDFs with a specific non-retry error, share graph/title fallback text, centre zoom on the graph viewport and adapt rewrite actions to localized label widths and large text. File-size LTR and transition tap behavior are covered by regressions without further gesture or formatting changes.
+
+## Local links and groups (v6)
+
+The data layer now supports user links, rejected-pair tombstones, two-level note groups and atomic moves between projects. These operations have no UI in this phase and never send user links or groups to a server. Labels remain NOT NULL strings; no reason is stored as `''`.

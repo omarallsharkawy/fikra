@@ -109,7 +109,7 @@ void main() {
       }
       final migrated = FikraDatabase(schema.newConnection());
       try {
-        await verifier.migrateAndValidate(migrated, 5);
+        await verifier.migrateAndValidate(migrated, 6);
         await migrated.migration.onUpgrade(Migrator(migrated), 4, 5);
         final repo = LocalNotesRepository(migrated);
         final attachments = await repo.watchAttachments('n').first;

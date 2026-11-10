@@ -220,3 +220,5 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 ## Recording ownership
 
 `recordingActiveProvider` is app-scoped and persists across the offstage tab shell and pushed Edit. `RecordingActivity.claim(owner)` synchronously excludes a second recorder; only its owner can release. Native start/cancel/dispose completes before release, including failures and disposal during permission/start. `audioRecorderFactoryProvider` and `microphonePermissionProvider` inject the existing record/permission boundaries for lifecycle tests.
+
+Local data services include `linksRepoProvider` (`Provider<LinksRepository>`) and `groupsRepoProvider` (`Provider<GroupsRepository>`), backed by the shared database. Existing screen providers and widgets are unchanged.

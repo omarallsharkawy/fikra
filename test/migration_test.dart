@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show driftRuntimeOptions, Migrator;
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,9 +13,9 @@ void main() {
   late SchemaVerifier verifier;
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 → v5 produces exactly the current schema', () async {
+  test('v1 → v6 produces exactly the current schema', () async {
     final db = FikraDatabase(await verifier.startAt(1));
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     await db.close();
   });
 
@@ -34,7 +34,7 @@ void main() {
     note('text', 'text');
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     final byId = {for (final n in await db.select(db.notes).get()) n.id: n};
 
     final voice = byId['voice']!;
@@ -74,7 +74,7 @@ void main() {
     expect(raw.userVersion, 1);
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     final n = await db.select(db.notes).getSingle();
     expect(n.voicePath, '/files/rec.m4a');
     expect(n.attachmentPath, isNull);
@@ -87,7 +87,7 @@ void main() {
     // An interrupted v3 upgrade: one index already exists, user_version still 2.
     schema.rawDatabase.execute('CREATE INDEX notes_status ON notes (status)');
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     final names = (await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get())
         .map((r) => r.read<String>('name'))
         .toSet();
@@ -122,7 +122,7 @@ void main() {
     raw.execute("ALTER TABLE notes ADD COLUMN image_paths TEXT NOT NULL DEFAULT ''");
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     final n = await db.select(db.notes).getSingle();
     expect((await db.select(db.noteAttachments).get()).where((a) => a.kind == AttachmentKind.image), isEmpty);
     expect(n.attachmentPath, '/files/doc.pdf');
@@ -130,4 +130,86 @@ void main() {
     expect(n.displayText, 'نص\n\nمستخرج');
     await db.close();
   });
+  for (final from in [4, 5]) {
+    for (final partial in [false, true]) {
+      test('populated v$from → v6 preserves rows; interrupted=$partial and full rerun', () async {
+        final schema = await verifier.schemaAt(from);
+        final raw = schema.rawDatabase;
+        raw.execute("INSERT INTO projects VALUES ('p', 'project', 1700000000)");
+        for (final id in ['a', 'b']) {
+          raw.execute(
+            'INSERT INTO notes (id, project_id, title, original_text, source, status, attachment_path, '
+            'attachment_name, attachment_bytes, voice_path, duration_ms, image_paths, created_at, updated_at) '
+            "VALUES (?, 'p', 'title', 'original', 'pdf', 'ready', '/a.pdf', 'a.pdf', 42, '/a.m4a', 123, "
+            "'/a.jpg', 1700000000, 1700000000)",
+            [id],
+          );
+        }
+        raw.execute("INSERT INTO note_links VALUES ('ab', 'p', 'a', 'b', 'reason', 0.75)");
+        raw.execute("INSERT INTO note_links VALUES ('ba', 'p', 'b', 'a', 'reverse', 0.25)");
+        if (from == 5) {
+          raw.execute(
+            "INSERT INTO note_attachments (id, note_id, kind, path, position, created_at) "
+            "VALUES ('saved', 'a', 'image', '/saved.jpg', 7, 1700000000)",
+          );
+        }
+        if (partial) {
+          // A partial v6 step with data already written must not be reset.
+          final v6 = await verifier.schemaAt(6);
+          raw.execute(
+            v6.rawDatabase.select("SELECT sql FROM sqlite_master WHERE name = 'note_groups'").single['sql'] as String,
+          );
+          raw.execute('ALTER TABLE notes ADD COLUMN group_id TEXT NULL REFERENCES note_groups(id) ON DELETE SET NULL');
+          raw.execute("ALTER TABLE note_links ADD COLUMN origin TEXT NOT NULL DEFAULT 'ai'");
+          raw.execute("INSERT INTO note_groups VALUES ('g', 'p', NULL, 'group', 2, 0, 1700000000)");
+          raw.execute("UPDATE notes SET group_id = 'g' WHERE id = 'a'");
+          raw.execute('CREATE INDEX note_groups_project ON note_groups(project_id)');
+          expect(raw.userVersion, from);
+        }
+        final db = FikraDatabase(schema.newConnection());
+        try {
+          await verifier.migrateAndValidate(db, 6);
+          final declaredColumns = db.notes.$columns.map((c) => c.$name).toList();
+          final physicalColumns = (await db.customSelect('PRAGMA table_info(notes)').get())
+              .map((r) => r.read<String>('name'))
+              .toList();
+          expect(declaredColumns, physicalColumns);
+          expect(declaredColumns.last, 'group_id');
+          final labelColumn = (await db.customSelect('PRAGMA table_info(note_links)').get()).singleWhere(
+            (r) => r.read<String>('name') == 'label',
+          );
+          expect(labelColumn.read<int>('notnull'), 1);
+          final notesBefore = await db.select(db.notes).get();
+          final linksBefore = await db.select(db.noteLinks).get();
+          final filesBefore = await db.select(db.noteAttachments).get();
+          final groupsBefore = await db.select(db.noteGroups).get();
+          expect(notesBefore, hasLength(2));
+          expect(notesBefore.first.originalText, 'original');
+          expect(notesBefore.first.attachmentPath, '/a.pdf');
+          expect(filesBefore, hasLength(from == 4 ? 6 : 1));
+          if (from == 4) {
+            expect(filesBefore.where((a) => a.noteId == 'a').map((a) => a.path), ['/a.pdf', '/a.m4a', '/a.jpg']);
+          } else {
+            expect(filesBefore.single.id, 'saved');
+            expect(filesBefore.single.position, 7);
+          }
+          expect(linksBefore.map((l) => l.id), ['ab', 'ba']);
+          expect(linksBefore.map((l) => l.label), ['reason', 'reverse']);
+          expect(linksBefore.map((l) => l.strength), [0.75, 0.25]);
+          expect(linksBefore.every((l) => l.origin == LinkOrigin.ai && !l.dismissed && l.createdAt == null), isTrue);
+          expect(groupsBefore, hasLength(partial ? 1 : 0));
+          expect(notesBefore.first.groupId, partial ? 'g' : null);
+          await db.migration.onUpgrade(Migrator(db), 5, 6);
+          await db.migration.onUpgrade(Migrator(db), 5, 6);
+          expect(await db.select(db.notes).get(), notesBefore);
+          expect(await db.select(db.noteLinks).get(), linksBefore);
+          expect(await db.select(db.noteAttachments).get(), filesBefore);
+          expect(await db.select(db.noteGroups).get(), groupsBefore);
+          expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
+        } finally {
+          await db.close();
+        }
+      });
+    }
+  }
 }

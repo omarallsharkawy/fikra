@@ -198,6 +198,9 @@ void main() {
                 targetId: 'n${rnd.nextInt(i)}',
                 label: 'مرتبطة',
                 strength: rnd.nextDouble(),
+                origin: LinkOrigin.ai,
+                dismissed: false,
+                createdAt: now,
               ),
             );
           }

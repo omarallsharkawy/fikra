@@ -42,7 +42,9 @@ lib/
   core/                      مشترك ومش مربوط بشاشة: theme/tokens, motion (springs), widgets, format
   data/
     local/database.dart      الجداول (drift) + extensions على Note
-    repositories.dart        كل القراءة والكتابة في الداتابيز
+    repositories.dart        المشاريع والنوتس والنقل والشات
+    links_repository.dart    روابط المستخدم واقتراحات التحليل
+    groups_repository.dart   مجموعات النوتس المحلية
     ai/                      AiService (interface) + النسخة التجريبية
     processing/              NoteProcessor: طابور التحليل بعد الحفظ
     files/                   AttachmentStore وفتح الملفات: الصوت والـPDF والصور على الموبايل
@@ -98,6 +100,8 @@ Documents stay local: no upload, indexing, or AI analysis. The loader opens the 
 
 The release split arm64 APK measured 29,140,552 bytes after this feature (baseline 21,601,841; +7,538,711 bytes, +34.9%). The regenerated merged release manifest adds no permissions and keeps minSdk 24 / targetSdk 36.
 
-Each note can contain several PDFs, recordings and photos. Add or remove individual files on the edit screen, then Save changes; leaving without saving preserves the saved files. Files are stored locally in the v5 attachment table, and cards show per-kind counts. Only typed text is analyzed.
+Each note can contain several PDFs, recordings and photos. Add or remove individual files on the edit screen, then Save changes; leaving without saving preserves the saved files. Files are stored locally in the attachment table (retained in schema v6), and cards show per-kind counts. Only typed text is analyzed.
 
 File-only notes use the first file’s title: PDF name without its extension, “Voice recording”, or the photo title in the current language. Editing cannot save a note without body text or files. Untouched auto-titles follow a removed first file; typed titles are preserved. Add and Edit share microphone ownership, and recording stops current playback first.
+
+Schema v6 adds on-device user links, rejected-pair tombstones, two-level note groups and atomic moves between projects. This phase exposes data APIs only; screens and `AiService` are unchanged.
