@@ -1,6 +1,6 @@
 # جدول المصطلحات والكلام — فِكرة
 
-التاريخ: 2026-11-10. الحالة: مسودة مستنية موافقة عمر. مفيش كود اتغير.
+التاريخ: 2026-11-10. الحالة: نهائي. Argon راجع المقترح (`copy-review-argon.md`) ومراجعته اتدمجت هنا، والقرارات كلها اتحسمت (القسم ج). عمود "المقترح" والإنجليزي هما النص النهائي اللي يتنقل لملفات الـARB. مفيش كود اتغير.
 
 الملف ده فيه كل كلمة بتظهر للمستخدم في التطبيق، والكلام المقترح بدلها بالعربي، والإنجليزي. الهدف إن الكلام يبقى زي ما واحد بيكلم صاحبه: مصري، بسيط، ونفس الحاجة ليها نفس الاسم في كل حتة.
 
@@ -8,12 +8,13 @@
 
 - عامية مصرية بسيطة، بنفس النبرة في كل الشاشات.
 - مفيش كلمات متألفة أو منقولة بالحروف لو فيه كلمة عربي عادية. الكلمات التقنية اللي الناس بتقولها فعلاً بالإنجليزي (PDF، الباك إند، RAG) بتفضل زي ما هي.
-- الأزرار أفعال: "احفظ"، "احذف"، "ضيف"، مش "حفظ" و"حذف" و"إضافة". الاستثناء الوحيد: "إلغاء"، لأنه متعارف عليه ومفيش فعل أوضح منه.
+- الأزرار أفعال: "احفظ"، "احذف"، "ضيف"، مش "حفظ" و"حذف" و"إضافة". الاستثناءين: "إلغاء"، لأنه متعارف عليه ومفيش فعل أوضح منه، و"إنشاء" (اتحسم، القسم ج). اسم التاب "إضافة" مش زرار، فبيفضل زي ما هو.
 - رسالة الغلط بتقول إيه اللي حصل وتعمل إيه: "مقدرناش نحفظ الملاحظة. جرّب تاني."
 - مفيش علامات تعجب.
 - الإنجليزي بسيط، sentence case، ومش ترجمة حرفية.
 - كل الفشل بقى "مقدرناش…" بدل الخليط بين "معرفناش" و"مقدرناش" و"مش قادرين".
-- "احذف/اتحذف" للحاجات اللي ليها اسم (ملاحظة، مشروع، تسجيل). "امسح/اتمسح" للتنضيف الشامل (المحادثة، كل البيانات).
+- "احذف/اتحذف" للحاجات اللي ليها اسم (ملاحظة، مشروع، تسجيل، ملف). "امسح/اتمسح" للتنضيف الشامل (المحادثة، كل البيانات، البحث).
+- الإنجليزي في رسايل الفشل بيبدأ بـ`Couldn't…` من غير `We`، زي "مقدرناش…" بالعربي.
 
 ---
 
@@ -29,9 +30,9 @@
 | المثنى | نوتين | ملاحظتين | two notes | |
 | تاب الملاحظات | النوتس | الملاحظات | Notes | راجعت العرض: التاب عرضه حوالي 87dp، و"الملاحظات" المفروض تكفي. لازم تتراجع في الـscreenshots بعد التنفيذ. |
 | project | مشروع | بدون تغيير | project | |
-| concept | مفهوم / المفاهيم | موضوع / المواضيع | topic / Topics | "المفاهيم" كلمة كتب. اللي بيظهر فعلاً حاجات زي "الشبكات" و"RAG"، ودي مواضيع. (في قائمة الحاجات اللي محتاجة قرار تحت) |
+| concept | مفهوم / المفاهيم | موضوع / المواضيع | topic / Topics | "المفاهيم" كلمة كتب. اللي بيظهر فعلاً حاجات زي "الشبكات" و"RAG"، ودي مواضيع. (اتحسم: المواضيع) |
 | cluster (المجموعة في شاشة الروابط) | مجموعة | بدون تغيير | group | بيظهر كعنوان صف في الروابط وفي سطر التاريخ في صفحة الملاحظة. |
-| link / related | رابط / الروابط / مرتبطة | رابط / الروابط / ملاحظات مرتبطة | link / Links / Related notes | "رابط" ممكن يتفهم لينك ويب، بس معناه هنا واضح من الشاشة. (في قائمة القرار) |
+| link / related | رابط / الروابط / مرتبطة | رابط / الروابط / ملاحظات مرتبطة | link / Links / Related notes | "رابط" ممكن يتفهم لينك ويب، بس معناه هنا واضح من الشاشة. (اتحسم: الروابط) كل حالات قسم الملاحظات المرتبطة في صفحة الملاحظة بتقول "مرتبطة" (`relatedNotesHeader`، `relatedLoadFailed`، `relatedEmpty`، `analyzingBody`). "قريبة" للشرح العام بس (`welcomeLinks`، `linksEmptyBody`). |
 | سبب الربط | مرتبطة بـ{concept} | بدون تغيير | Both mention {concept} | |
 | ask | اسأل | بدون تغيير | Ask | |
 | answer | الإجابة | بدون تغيير | answer | |
@@ -42,9 +43,9 @@
 | photos | صور | بدون تغيير | photos | |
 | recording | تسجيل صوتي | بدون تغيير | voice recording | |
 | زرار التسجيل | تسجيل صوت | سجّل صوت | Record voice | الزرار فعل. |
-| analysis | التحليل | التحليل / بنحلل | analysis / analyzing | بيظهر في الحالة بس. |
+| analysis | التحليل | التحليل / بنحلل / بتحلل | analysis / analyzing | نفس الكلمة في البادج والزرار ورسالة الفشل والشرح (`addFooter`، `analyzingBody`)، مش "بتقرا"، عشان لما التحليل يفشل يبقى "مقدرناش نحلل" و"حلّلها تاني" بنفس المصطلح. |
 | rewrite | اقتراح إعادة صياغة | صياغة مقترحة | Suggested rewrite | أقصر، ونفس المعنى. |
-| original text | النص الأصلي / الأصل / التفريغ الأصلي | النص الأصلي / الأصلية | original text / Original | "التفريغ" غلط: التطبيق مش بيفرّغ الصوت لكلام أصلاً. |
+| original text | النص الأصلي / الأصل / التفريغ الأصلي | النص الأصلي / الأصلية | original text / Original | "التفريغ" غلط: التطبيق مش بيفرّغ الصوت لكلام أصلاً. التابين بالمؤنث على اعتبار "النسخة" ("المعدّلة" / "الأصلية")، وأي زرار أو عنوان تاني بيقول "النص الأصلي" كامل (`originalTextLabel`، `keepOriginal`، `restoreOriginal`). |
 | edited version | النسخة المحسّنة | المعدّلة | Edited | النسخة دي بتظهر كمان لما المستخدم يعدّل بإيده، فكلمة "المحسّنة" مش دقيقة. |
 | demo (نسخة التطبيق) | نسخة تجريبية | بدون تغيير | Demo version | |
 | demo (بيانات) | بيانات تجريبية / تجريبي | بدون تغيير | Sample data / Demo | |
@@ -65,7 +66,7 @@
 | عنوان شاشة اسأل | ~~اسأل ملاحظاتك~~ | **مش طبيعية.** كأنك بتكلم الملاحظات نفسها. البديل: **اسأل عن ملاحظاتك**. |
 | خانة السؤال | اسأل عن أي حاجة في ملاحظاتك | طبيعية. |
 | مفيش إجابة | ملقيناش إجابة في ملاحظاتك | طبيعية. |
-| شاشة الإضافة، الخانة لما فيه ملف | ~~ضيف ملاحظة على الملف~~ | **بتتلخبط.** "ملاحظة" دلوقتي معناها الـnote كلها، فالجملة بقت معناها "ضيف note على الملف". البديل: **اكتب كام سطر عن الملف (اختياري)**. |
+| شاشة الإضافة، الخانة لما فيه ملف | ~~ضيف ملاحظة على الملف~~ | **بتتلخبط.** "ملاحظة" دلوقتي معناها الـnote كلها، فالجملة بقت معناها "ضيف note على الملف". البديل: **اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)** (`bodyHintWithFileLinks`). |
 | من غير عنوان | ملاحظة جديدة | طبيعية. |
 | الحذف | تحذف الملاحظة دي؟ / الملاحظة اتحذفت | طبيعية. |
 | صفحة الملاحظة | ملاحظات مرتبطة | طبيعية. |
@@ -90,7 +91,7 @@
 | `navLinks` | lib/app/shell.dart:25 | الروابط | بدون تغيير | Links |
 | `navAsk` | lib/app/shell.dart:26 | اسأل | بدون تغيير | Ask |
 | `storageErrorTitle` | lib/app/storage_error_screen.dart:16 | في مشكلة في التخزين | فيه مشكلة في التخزين | There's a storage problem |
-| `storageErrorBody` | lib/app/storage_error_screen.dart:17 | مش قادرين نقرأ بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية وجرّب تاني. | مقدرناش نقرا بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية على الموبايل، وجرّب تاني. | We can't read your data right now. Make sure your phone has free space, then try again. |
+| `storageErrorBody` | lib/app/storage_error_screen.dart:17 | مش قادرين نقرأ بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية وجرّب تاني. | مقدرناش نقرا بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية على الموبايل، وجرّب تاني. | Couldn't read your data right now. Make sure your phone has free space, then try again. |
 | `retry` | lib/app/storage_error_screen.dart:19 | جرّب تاني | بدون تغيير | Try again |
 
 ملحوظة: lib/app/app_config.dart:11 كومنت في الكود، مش نص بيظهر.
@@ -144,7 +145,7 @@
 | `delete` | lib/core/widgets/fikra_widgets.dart:569 | حذف | احذف | Delete |
 | `cancel` | lib/core/widgets/fikra_widgets.dart:599 | إلغاء | بدون تغيير | Cancel |
 | `loadErrorTitle` | lib/core/widgets/fikra_widgets.dart:704 | مش قادرين نحمّل البيانات | مقدرناش نحمّل البيانات | Couldn't load your data |
-| `loadErrorBody` | lib/core/widgets/fikra_widgets.dart:705 | حصلت مشكلة وإحنا بنقرا البيانات. جرّب تاني. | بدون تغيير | Something went wrong while reading your data. Try again. |
+| `loadErrorBody` | lib/core/widgets/fikra_widgets.dart:705 | حصلت مشكلة وإحنا بنقرا البيانات. جرّب تاني. | مقدرناش نقرا بياناتك دلوقتي. جرّب تاني. | Couldn't read your data right now. Try again. |
 | `retry` | lib/core/widgets/fikra_widgets.dart:708 | جرّب تاني | بدون تغيير | Try again |
 | `genericError` | lib/core/widgets/fikra_widgets.dart:720 | حصلت مشكلة، جرّب تاني | حصلت مشكلة. جرّب تاني. | Something went wrong. Try again. |
 | `voicePlayA11y` | lib/core/widgets/voice_player.dart:75 | تشغيل | شغّل | Play |
@@ -163,10 +164,10 @@
 | `firstProjectTitle` | welcome_screen.dart:21 | أول مشروع | سمّي أول مشروع | Name your first project |
 | `create` | welcome_screen.dart:21 | إنشاء | بدون تغيير | Create |
 | `createProjectFailed` | welcome_screen.dart:26 | مقدرناش نعمل المشروع، جرّب تاني | مقدرناش نعمل المشروع. جرّب تاني. | Couldn't create the project. Try again. |
-| `sampleProjectFailed` | welcome_screen.dart:37 | مقدرناش نجهّز المشروع التجريبي، جرّب تاني | مقدرناش نجهّز المشروع الجاهز. جرّب تاني. | Couldn't set up the sample project. Try again. |
+| `sampleProjectFailed` | welcome_screen.dart:37 | مقدرناش نجهّز المشروع التجريبي، جرّب تاني | مقدرناش نفتح المشروع الجاهز. جرّب تاني. | Couldn't open the sample project. Try again. |
 | `appTitle` | welcome_screen.dart:71 | فِكرة | بدون تغيير | Fikra |
 | `tagline` | welcome_screen.dart:77 | اكتب. اربط. اسأل. | بدون تغيير | Write. Connect. Ask. |
-| `welcomeCapture` | welcome_screen.dart:82 | اكتب أو سجّل صوت أو ارفع PDF | اكتب، أو سجّل صوتك، أو ضيف PDF وصور | Type, record your voice, or add a PDF and photos |
+| `welcomeCapture` | welcome_screen.dart:82 | اكتب أو سجّل صوت أو ارفع PDF | اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور | Type, record your voice, or add a PDF or photos |
 | `welcomeLinks` | welcome_screen.dart:83 | فِكرة بتربط النوتس اللي شبه بعض لوحدها | فِكرة بتربط الملاحظات القريبة من بعض لوحدها | Fikra links related notes for you |
 | `welcomeAsk` | welcome_screen.dart:84 | اسأل والإجابة تيجي من نوتسك مع المصدر | اسأل، والإجابة بتيجي من ملاحظاتك ومعاها المصدر | Ask, and get answers from your notes with sources |
 | `welcomeDemoBadge` | welcome_screen.dart:88 | نسخة تجريبية: البيانات على الموبايل بس | نسخة تجريبية: كل حاجة بتفضل على موبايلك | Demo version: everything stays on your phone |
@@ -208,16 +209,16 @@
 | `fileOpenFailed` | add_screen.dart:213 | معرفناش نفتح الملف | مقدرناش نفتح الملف. جرّب ملف تاني. | Couldn't open that file. Try another one. |
 | `photosOpenFailed` | add_screen.dart:236 | معرفناش نفتح الصور | مقدرناش نفتح الصور. جرّب تاني. | Couldn't open the photos. Try again. |
 | `noteSaved` | add_screen.dart:314 | اتحفظت | الملاحظة اتحفظت | Note saved |
-| `noteSavedAnalyzing` | add_screen.dart:314 | اتحفظت. فِكرة بتحللها دلوقتي | بدون تغيير | Saved. Fikra is analyzing it now. |
+| `noteSavedAnalyzing` | add_screen.dart:314 | اتحفظت. فِكرة بتحللها دلوقتي | الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي | Note saved. Fikra is analyzing it now. |
 | `noteSaveFailed` | add_screen.dart:318 | معرفناش نحفظ النوت، جرّب تاني | مقدرناش نحفظ الملاحظة. جرّب تاني. | Couldn't save the note. Try again. |
 | `voiceRecording` | add_screen.dart:327 | تسجيل صوتي (عنوان ملاحظة صوت بس) | بدون تغيير | Voice recording |
 | `photosTitle` | add_screen.dart:327 | صور (عنوان ملاحظة صور بس) | بدون تغيير | Photos |
 | `addTitle` | add_screen.dart:381 | إضافة | ملاحظة جديدة | New note |
 | `titleOptionalHint` | add_screen.dart:431 | عنوان (اختياري) | بدون تغيير | Title (optional) |
-| `bodyHintWithFile` | add_screen.dart:457 | ضيف ملاحظة على الملف (اختياري) | اكتب كام سطر عن الملف (اختياري) | Add a few lines about it (optional) |
+| `bodyHintWithFileLinks` | add_screen.dart:457 | ضيف ملاحظة على الملف (اختياري) | اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري) | Add a few lines about the file so Fikra can link it (optional) |
 | `bodyHint` | add_screen.dart:457 | اكتب فكرتك هنا… | بدون تغيير | Write your idea… |
-| `addFooter` | add_screen.dart:482 | النوت بتتحفظ الأول، وبعدين فِكرة بتحلل النص وتربطه. الملفات بتفضل على موبايلك. | الملاحظة بتتحفظ على طول، وبعدين فِكرة بتقرا النص وتربطه بالباقي. الملفات بتفضل على موبايلك. | Your note is saved right away. Then Fikra reads the text and links it. Files stay on your phone. |
-| `discardRecording` | add_screen.dart:538 | إلغاء التسجيل | بدون تغيير | Discard recording |
+| `addFooter` | add_screen.dart:482 | النوت بتتحفظ الأول، وبعدين فِكرة بتحلل النص وتربطه. الملفات بتفضل على موبايلك. | الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك. | Your note is saved right away, then Fikra analyzes the text and links it to related notes. Files stay on your phone. |
+| `discardRecording` | add_screen.dart:538 | إلغاء التسجيل | الغي التسجيل | Discard recording |
 | `stopRecording` | add_screen.dart:545 | إيقاف التسجيل | وقّف التسجيل | Stop recording |
 | `recordVoice` | add_screen.dart:558 | تسجيل صوت | سجّل صوت | Record voice |
 | `addPdf` | add_screen.dart:565 | إرفاق ملف PDF | ضيف PDF | Add PDF |
@@ -233,7 +234,13 @@
 | `allowMic` | add_screen.dart:788 | اسمح بالمايك | بدون تغيير | Allow microphone |
 | `recordingNow` | inline_recorder.dart:39 | بيسجّل | بدون تغيير | Recording |
 
-ملحوظة على `addTitle`: التاب نفسه يفضل "إضافة"، بس عنوان الشاشة "ملاحظة جديدة" بيقول إنت بتعمل إيه. بالإنجليزي "Add" لوحدها كعنوان شاشة شكلها ناقص. (في قائمة القرار)
+ملحوظة على `addTitle`: التاب نفسه يفضل "إضافة"، بس عنوان الشاشة "ملاحظة جديدة" بيقول إنت بتعمل إيه. بالإنجليزي "Add" لوحدها كعنوان شاشة شكلها ناقص. (اتحسم)
+
+ملحوظة على `bodyHintWithFileLinks`: اتحسم إن الخانة لما فيه ملف بتستخدم نسخة UX-04 اللي بتقول ليه يكتب. المفتاح القديم `bodyHintWithFile` ("اكتب كام سطر عن الملف (اختياري)") اتشال، ومفيش غير المفتاح ده للخانة دي.
+
+ملحوظة على رسايل الحفظ (`noteSaved`، `noteSavedAnalyzing`، `noteSavedNoText`): التلاتة بيظهروا من نفس المكان بعد الحفظ، فكلهم بيبدأوا بـ"الملاحظة اتحفظت" / `Note saved`. البادج `badgeSaved` ("اتحفظت") حاجة تانية وبيفضل قصير.
+
+ملحوظة على `discardRecording`: الزرار ده بيلغي التسجيل اللي شغال دلوقتي ويرمي الجزء اللي اتسجل. "الغي التسجيل" فعل زي "وقّف التسجيل" اللي جنبه.
 
 ### 7. قائمة الملاحظات — `lib/features/notes/`
 
@@ -242,7 +249,7 @@
 | `notesTitle` | notes_screen.dart:118 | النوتس | الملاحظات | Notes |
 | `searchNotesHint` | notes_screen.dart:124 | دوّر في النوتس | دوّر في الملاحظات | Search notes |
 | `notesEmptyTitle` | notes_screen.dart:152 | لسه مفيش نوتس | لسه مفيش ملاحظات | No notes yet |
-| `notesEmptyBody` | notes_screen.dart:153 | اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها. | اكتب فكرة، أو سجّل صوتك، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها. | Type an idea, record your voice, or add a PDF or photos. Fikra sorts and links them for you. |
+| `notesEmptyBody` | notes_screen.dart:153 | اكتب فكرة أو سجّل صوت أو ارفع PDF، وفِكرة هتنظمها وتربطها لوحدها. | اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها. | Type an idea, record your voice, or add a PDF or photos. Fikra sorts and links them for you. |
 | `addFirstNote` | notes_screen.dart:155 | ضيف أول نوت | ضيف أول ملاحظة | Add your first note |
 | `noResultsTitle` | notes_screen.dart:166 | مفيش نتايج | بدون تغيير | No results |
 | `noResultsBody` | notes_screen.dart:167 | مفيش نوت فيها «{query}». جرّب كلمة تانية. | مفيش ملاحظة فيها «{query}». جرّب كلمة تانية. | No notes contain "{query}". Try another word. |
@@ -265,7 +272,7 @@
 | `originalRestored` | note_details_screen.dart:58 | رجعنا النص الأصلي | رجّعنا النص الأصلي | Original text restored |
 | `deleteNote` | note_details_screen.dart:62 | حذف النوت | احذف الملاحظة | Delete note |
 | `deleteNoteTitle` | note_details_screen.dart:68 | تحذف النوت دي؟ | تحذف الملاحظة دي؟ | Delete this note? |
-| `deleteNoteBody` | note_details_screen.dart:69 | النوت وروابطها هيتحذفوا، ومش هينفع ترجّعها. | الملاحظة وملفاتها وروابطها هيتحذفوا، ومش هتعرف ترجّعها. | The note, its files and its links will be deleted. You can't undo this. |
+| `deleteNoteBody` | note_details_screen.dart:69 | النوت وروابطها هيتحذفوا، ومش هينفع ترجّعها. | الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها. | The note, its files and its links will be deleted. You can't undo this. |
 | `noteDeleted` | note_details_screen.dart:74 | النوت اتحذفت | الملاحظة اتحذفت | Note deleted |
 | `back` | note_details_screen.dart:99 | رجوع | بدون تغيير | Back |
 | `options` | note_details_screen.dart:102 | خيارات | بدون تغيير | Options |
@@ -278,16 +285,16 @@
 | `originalTextLabel` | note_details_screen.dart:186 | النص الأصلي | بدون تغيير | Original text |
 | `topicsHeader` | note_details_screen.dart:193 | المفاهيم | المواضيع | Topics |
 | `relatedNotesHeader` | note_details_screen.dart:199 | نوتس مرتبطة | ملاحظات مرتبطة | Related notes |
-| `analyzingBody` | note_details_screen.dart:226 | فِكرة بتحلل النوت: بتطلّع المفاهيم وبتدوّر على نوتس مرتبطة. النوت نفسها محفوظة. | فِكرة بتقرا الملاحظة عشان تطلّع مواضيعها وتلاقي الملاحظات القريبة منها. الملاحظة نفسها محفوظة. | Fikra is reading this note to find its topics and related notes. The note itself is saved. |
+| `analyzingBody` | note_details_screen.dart:226 | فِكرة بتحلل النوت: بتطلّع المفاهيم وبتدوّر على نوتس مرتبطة. النوت نفسها محفوظة. | فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة. | Fikra is analyzing this note to find its topics and related notes. The note itself is saved. |
 | `suggestedRewrite` | note_details_screen.dart:272 | اقتراح إعادة صياغة | صياغة مقترحة | Suggested rewrite |
 | `demoBadge` | note_details_screen.dart:273 | تجريبي | بدون تغيير | Demo |
 | `useRewrite` | note_details_screen.dart:283 | اعتمد | استخدمها | Use it |
-| `keepOriginal` | note_details_screen.dart:292 | خلي الأصل | خلّي الأصلي | Keep original |
+| `keepOriginal` | note_details_screen.dart:292 | خلي الأصل | خلّي النص الأصلي | Keep original text |
 | `pdfFile` | note_details_screen.dart:310 | ملف PDF | بدون تغيير | PDF file |
 | `openFileA11y` | note_details_screen.dart:320 | افتح ملف {name} | افتح {name} | Open {name} |
 | `openPhotoA11y` | note_details_screen.dart:364 | افتح الصورة {n} | بدون تغيير | Open photo {n} |
 | `relatedLoadFailed` | note_details_screen.dart:382 | مقدرناش نجيب النوتس المرتبطة دلوقتي. | مقدرناش نجيب الملاحظات المرتبطة دلوقتي. | Couldn't load related notes right now. |
-| `relatedEmpty` | note_details_screen.dart:397 | لسه مفيش نوتس شبهها في المشروع ده. | لسه مفيش ملاحظات قريبة منها في المشروع ده. | No related notes in this project yet. |
+| `relatedEmpty` | note_details_screen.dart:397 | لسه مفيش نوتس شبهها في المشروع ده. | لسه مفيش ملاحظات مرتبطة بيها في المشروع ده. | No related notes in this project yet. |
 | `relatedRowA11y` | note_details_screen.dart:405 | {title}، {reason} | بدون تغيير | {title}, {reason} |
 
 ليه "المعدّلة" بدل "النسخة المحسّنة": الزرار ده بيظهر لما `editedText` يبقى مختلف عن الأصل (lib/data/local/database.dart:199). ده بيحصل لو المستخدم قبل الصياغة المقترحة، أو عدّل بإيده (lib/data/repositories.dart:294). في الحالة التانية كلمة "المحسّنة" غلط.
@@ -332,7 +339,7 @@
 | `resetView` | links_screen.dart:305 | رجّع العرض | بدون تغيير | Reset view |
 | `showGroupA11y` | links_screen.dart:383 | عرض {notesCount} في {cluster} | اعرض {notesCount} في «{cluster}» | Show {notesCount} in {cluster} |
 | `moreGroupsCount` | links_screen.dart:392 | مجموعات أكتر ({count}) | باقي المجموعات ({count}) | More groups ({count}) |
-| `noLinksYet` | links_screen.dart:412 | لسه مفيش روابط. النوتس اللي فيها مفاهيم مشتركة هتترابط. | لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتترابط لوحدها. | No links yet. Notes on the same topics get linked automatically. |
+| `noLinksYet` | links_screen.dart:412 | لسه مفيش روابط. النوتس اللي فيها مفاهيم مشتركة هتترابط. | لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها. | No links yet. Notes on the same topics get linked automatically. |
 | `untitledNote` | links_screen.dart:449 | نوت جديدة | ملاحظة جديدة | New note |
 | `clusterGeneral` | links_screen.dart:498 | أفكار عامة | بدون تغيير | General |
 | `nodeMeta` | links_screen.dart:498 | {cluster} · {linksCount} | بدون تغيير | {cluster} · {linksCount} |
@@ -355,7 +362,7 @@
 | `askEmptyBody` | ask_screen.dart:162 | الإجابة بتيجي من النوتس اللي في المشروع ده بس، ومعاها المصدر. | الإجابة بتيجي من ملاحظات المشروع ده بس، ومعاها المصدر. | Answers come only from this project's notes, with sources. |
 | `askHint` | ask_screen.dart:221 | اسأل عن أي حاجة في نوتسك | اسأل عن أي حاجة في ملاحظاتك | Ask anything about your notes |
 | `send` | ask_screen.dart:233 | إرسال | ابعت | Send |
-| `notFoundInNotes` | ask_screen.dart:297 | ملقيناش إجابة في نوتسك | ملقيناش إجابة في ملاحظاتك | Not in your notes |
+| `notFoundInNotes` | ask_screen.dart:297 | ملقيناش إجابة في نوتسك | ملقيناش إجابة في ملاحظاتك | No answer found in your notes |
 | `sources` | ask_screen.dart:305 | المصادر | بدون تغيير | Sources |
 | `sourceA11y` | ask_screen.dart:332 | مصدر {index}: {title} | بدون تغيير | Source {index}: {title} |
 | `sourceDeletedA11y` | ask_screen.dart:332 | مصدر {index}: نوت اتحذفت | مصدر {index}: ملاحظة اتحذفت | Source {index}: deleted note |
@@ -368,7 +375,7 @@
 | `eraseAllTitle` | settings_screen.dart:19 | تمسح كل البيانات؟ | بدون تغيير | Erase all data? |
 | `eraseAllBody` | settings_screen.dart:20 | كل المشاريع والنوتس والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هينفع ترجّعها. | كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هتعرف ترجّعها. | All projects, notes, recordings, files and chats will be erased from this phone. You can't undo this. |
 | `eraseAllConfirm` | settings_screen.dart:21 | امسح كله | امسح كل حاجة | Erase everything |
-| `eraseAllDone` | settings_screen.dart:31 | كل حاجة اتمسحت | بدون تغيير | Everything was erased |
+| `eraseAllDone` | settings_screen.dart:31 | كل حاجة اتمسحت | بدون تغيير | All data erased |
 | `eraseAllPartial` | settings_screen.dart:33 | البيانات اتمسحت، بس شوية ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني. | البيانات اتمسحت، بس فيه ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني. | Your data was erased, but a few files are left. They'll be removed next time you open the app. |
 | `eraseAllFailed` | settings_screen.dart:35 | مقدرناش نمسح البيانات، جرّب تاني | مقدرناش نمسح البيانات. جرّب تاني. | Couldn't erase your data. Try again. |
 | `back` | settings_screen.dart:57 | رجوع | بدون تغيير | Back |
@@ -377,7 +384,7 @@
 | `themeSystem` | settings_screen.dart:67 | زي الموبايل | بدون تغيير | System |
 | `themeLight` | settings_screen.dart:67 | فاتح | بدون تغيير | Light |
 | `themeDark` | settings_screen.dart:67 | غامق | بدون تغيير | Dark |
-| `themeHint` | settings_screen.dart:73 | لو اخترت "زي الموبايل"، فِكرة هتمشي على وضع الموبايل الفاتح أو الغامق. | «زي الموبايل» يعني فِكرة هتبقى فاتحة أو غامقة على حسب موبايلك. | "System" follows your phone's light or dark mode. |
+| `themeHint` | settings_screen.dart:73 | لو اخترت "زي الموبايل"، فِكرة هتمشي على وضع الموبايل الفاتح أو الغامق. | «زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك. | "System" follows your phone's light or dark mode. |
 | `dataSection` | settings_screen.dart:76 | البيانات | بدون تغيير | Data |
 | `dataStaysLocal` | settings_screen.dart:85 | نوتسك وملفاتك محفوظة على الموبايل ده بس، ومش بتتنقل لأي مكان. | ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان. | Your notes and files are stored only on this phone and are never sent anywhere. |
 | `eraseAll` | settings_screen.dart:92 | مسح كل البيانات | امسح كل البيانات | Erase all data |
@@ -401,7 +408,7 @@
 | `demoLinkReason` | demo_ai_service.dart:109 | مرتبطة بـ{concept} | بدون تغيير | Both mention {concept} |
 | `demoAnswerNotFound` | demo_ai_service.dart:142 | مفيش نوت في المشروع ده بتتكلم عن الموضوع. جرّب تسأل بطريقة تانية أو ضيف نوت عنه. | مفيش ملاحظة في المشروع ده بتتكلم عن الموضوع ده. جرّب تسأل بطريقة تانية، أو ضيف ملاحظة عنه. | None of the notes in this project cover that. Try asking another way, or add a note about it. |
 | `demoAnswerIntro` | demo_ai_service.dart:147 | من نوتسك في المشروع ده: | من ملاحظاتك في المشروع ده: | From your notes in this project: |
-| `demoAnswerFooter` | demo_ai_service.dart:151 | (إجابة تجريبية من نوتسك) | يتشال (شوف UX-14) | (removed) |
+| `demoAnswerFooter` | demo_ai_service.dart:151 | (إجابة تجريبية من نوتسك) | يتشال (اتحسم، شوف UX-14). مفيش مفتاح ARB للسطر ده، والبادج `askDemoBadge` بيكفي. | (removed) |
 | `clusterGeneral` | demo_ai_service.dart:172 | أفكار عامة | بدون تغيير | General |
 | `untitledNoteFallback` | demo_ai_service.dart:206 | نوت بدون عنوان | ملاحظة من غير عنوان | Untitled note |
 | `expandLlm` | demo_ai_service.dart:55 | LLM (نموذج لغوي كبير) | بدون تغيير | LLM (large language model) |
@@ -441,7 +448,9 @@
 
 الحاجات اللي مش بتظهر وما اتحسبتش: مفاتيح البحث في القاموس (الكلمات على الشمال في السطور 17–50، زي `'نموذج لغوي'` و`'محاضرة'`) والـstop words (السطور 59–91). دي بيتدوّر بيها جوه نص المستخدم.
 
-ملحوظة لمرحلة اللغات: القاموس دلوقتي بيعرف "محاضرة" و"امتحان" و"مذاكرة" و"شبكات" و"فيديو" و"تصميم" و"واجهة" و"ذكاء اصطناعي" بالعربي بس. عشان نص الـdemo الإنجليزي يطلّع نفس المواضيع، لازم تتضاف مفاتيح إنجليزي: `lecture`، `exam`، `study`، `network`، `video`، `design`، `interface`، `ai`. كمان المواضيع بتتخزن في الداتابيز وقت التحليل، فلو المستخدم غيّر اللغة بعدين، الملاحظات القديمة هتفضل مواضيعها بلغة التحليل.
+ملحوظة لمرحلة اللغات: القاموس دلوقتي بيعرف "محاضرة" و"امتحان" و"مذاكرة" و"شبكات" و"فيديو" و"تصميم" و"واجهة" و"ذكاء اصطناعي" بالعربي بس. عشان نص الـdemo الإنجليزي يطلّع نفس المواضيع، لازم تتضاف مفاتيح إنجليزي: `lecture`، `exam`، `study`، `network`، `video`، `design`، `interface`، `ai`، و`embeddings` (المفاتيح اللاتيني بتتطابق ككلمة كاملة، فـ`embedding` الموجود مش بيلقط "embeddings" اللي في `sample6Body` الإنجليزي).
+
+**قيد معروف (اتحسم: الاختيار ب من مراجعة Argon):** أسماء المواضيع والمجموعات (زي "الذكاء الاصطناعي" و"المذاكرة" و"أفكار عامة") بتتخزن في الداتابيز كنص، بلغة الواجهة وقت التحليل، ومفيش مفتاح محايد زي `topic_ai`. لو المستخدم غيّر لغة التطبيق بعدين، الملاحظات القديمة هتفضل مواضيعها ومجموعاتها باللغة اللي اتحللت بيها، والجديدة هتتحلل باللغة الجديدة. ده مقبول للنسخة التجريبية، ومفيش مفاتيح ARB للمواضيع أو المجموعات بسببه. الجدولين اللي فوق بيوضحوا القيمة اللي الـdemo AI بيطلّعها في كل لغة.
 
 ### 14. المشروع الجاهز — `lib/data/demo/demo_seed.dart`
 
@@ -453,13 +462,13 @@
 | `sample2Title` | demo_seed.dart:13 | إزاي RAG بيشتغل | بدون تغيير | How RAG works |
 | `sample2Body` | demo_seed.dart:14 | الـrag بيجيب أقرب أجزاء من النوتس بالـembedding وبعدين الـllm بيكتب الإجابة منها مع ذكر المصدر | الـrag بيجيب أقرب أجزاء من الملاحظات بالـembedding وبعدين الـllm بيكتب الإجابة منها مع ذكر المصدر | rag finds the closest chunks of my notes using embeddings, then the llm writes the answer from them and cites the source |
 | `sample3Title` | demo_seed.dart:17 | شكل الواجهة | بدون تغيير | The UI |
-| `sample3Body` | demo_seed.dart:18 | تصميم الواجهة داكن وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: إضافة، النوتس، الروابط، اسأل. | تصميم الواجهة غامق وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: {أسماء التابات بالترتيب النهائي}. | The UI is dark and simple, right-to-left in Arabic, with four tabs: {final tab names in order}. |
+| `sample3Body` | demo_seed.dart:18 | تصميم الواجهة داكن وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: إضافة، النوتس، الروابط، اسأل. | تصميم الواجهة غامق وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: إضافة، الملاحظات، الروابط، اسأل. | The UI is dark and simple, right-to-left in Arabic, with four tabs: Add, Notes, Links, Ask. |
 | `sample4Title` | demo_seed.dart:20 | إدارة الحالة في Flutter | بدون تغيير | State management in Flutter |
 | `sample4Body` | demo_seed.dart:20 | هستخدم riverpod لإدارة الحالة في flutter، وقاعدة بيانات محلية للنسخة التجريبية. | بدون تغيير | I'll use riverpod for state management in flutter, with a local database for the demo. |
 | `sample5Title` | demo_seed.dart:21 | الباك إند | بدون تغيير | Backend |
 | `sample5Body` | demo_seed.dart:21 | علاء هيعمل الباك إند بـfastapi و postgres مع pgvector، والتطبيق هيكلمه عن طريق api. | بدون تغيير | Alaa is building the backend with fastapi and postgres with pgvector. The app talks to it through an api. |
 | `sample6Title` | demo_seed.dart:22 | البحث الدلالي | بدون تغيير | Semantic search |
-| `sample6Body` | demo_seed.dart:22 | البحث الدلالي بيدوّر بالمعنى مش بالكلمة، وده معتمد على التضمينات اللي بتتخزن في قاعدة بيانات. | بدون تغيير | Semantic search looks for meaning, not exact words. It relies on embeddings stored in a database. |
+| `sample6Body` | demo_seed.dart:22 | البحث الدلالي بيدوّر بالمعنى مش بالكلمة، وده معتمد على التضمينات اللي بتتخزن في قاعدة بيانات. | البحث الدلالي بيدوّر بالمعنى مش بالكلمة، وده معتمد على الـembedding اللي بيتخزن في قاعدة بيانات. | Semantic search looks for meaning, not exact words. It relies on embeddings stored in a database. |
 | `sample7Title` | demo_seed.dart:23 | محاضرة الشبكات | بدون تغيير | Networks lecture |
 | `sample7Body` | demo_seed.dart:23 | محاضرة الشبكات النهارده كانت عن TCP و UDP، لازم أراجعها قبل الامتحان. | بدون تغيير | Today's networks lecture was about TCP and UDP. I need to review it before the exam. |
 
@@ -467,45 +476,45 @@
 
 - demo_seed.dart:5 كومنت.
 - النص الإنجليزي للعينات متعمّد يكون بحروف صغيرة في `rag` و`llm` و`fastapi`، عشان الـdemo بيوري "الصياغة المقترحة" بتكبّر الحروف وتشرح الاختصارات.
-- `sample3Body` بيذكر أسماء التابات، فلازم يتكتب بعد ما عمر يقرر ترتيبها (UX-01).
+- `sample3Body` (اتحسم: الاختيار أ من مراجعة Argon): بيفضل ملاحظة تاريخية كتبها طالب عن فكرة مشروعه، فـ"غامق" و"بالعربي من اليمين للشمال" بيفضلوا رغم إن التطبيق بقى فيه فاتح وإنجليزي. الحاجة الوحيدة اللي اتغيرت أسماء التابات، بالترتيب الحالي (UX-01 اتحسم إن الترتيب يفضل زي ما هو) وبأسمائها الجديدة.
+- `sample6Body`: "الـembedding" بدل "التضمينات"، لأن محدش بيقول "التضمينات". بالمفرد مش "الـembeddings" عشان سببين: نفس الكلمة اللي في `sample2Body` ("بالـembedding")، والقاموس في demo_ai_service.dart (`_containsWord`، حوالي السطر 178) بيطابق المفاتيح اللاتيني ككلمة كاملة، فالمفتاح `embedding` مش بيلقط "embeddings". لو اتكتبت بالجمع، الملاحظة دي هتخسر موضوع Embeddings وربطها بـ`sample2Body`.
 
 ### 15. نصوص جديدة (من الخطة ومن docs/plans/ux-proposals.md)
 
-مش موجودة في الكود لسه، ومش داخلة في العدد اللي تحت.
+مش موجودة في الكود لسه، ومش داخلة في العدد اللي تحت. `bodyHintWithFileLinks` (UX-04) مش هنا: اتحسم إنه بيحل محل الخانة القديمة، فبقى في القسم 6 مكان `bodyHintWithFile`.
 
 | المفتاح | لفين | المقترح | English |
 |---|---|---|---|
 | `clearSearch` | زرار ✕ في البحث، وزرار حالة "مفيش نتايج" (UX-05) | امسح البحث | Clear search |
-| `bodyHintWithFileLinks` | خانة الإضافة لما فيه ملف (UX-04). بديل `bodyHintWithFile` لو UX-04 اتوافق عليه | اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري) | Add a few lines so Fikra can link it (optional) |
-| `noteSavedNoText` | toast بعد حفظ ملف من غير نص (UX-04) | اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي | Saved. Add a few lines so it can be linked. |
-| `noTextNoLinks` | صفحة الملاحظة لما مفيش نص (UX-04) | الملاحظة دي ملهاش نص، ففِكرة مش هتربطها بحاجة. | This note has no text, so Fikra can't link it. |
+| `noteSavedNoText` | toast بعد حفظ ملف من غير نص (UX-04) | الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي | Note saved. Add a few lines so it can be linked. |
+| `noTextNoLinks` | صفحة الملاحظة لما مفيش نص (UX-04) | الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة. | This note has no text, so Fikra can't link it. |
 | `pdfOpenElsewhere` | عارض الـPDF | افتح في تطبيق تاني | Open in another app |
 | `pdfPageOf` | عارض الـPDF | {page} من {total} | {page} of {total} |
-| `pdfLoadFailed` | عارض الـPDF | مقدرناش نفتح الملف ده. ممكن يكون بايظ أو اتمسح. | Couldn't open this file. It may be damaged or missing. |
+| `pdfLoadFailed` | عارض الـPDF | مقدرناش نفتح الملف ده. ممكن يكون بايظ أو اتحذف. | Couldn't open this file. It may be damaged or missing. |
 | `languageSection` وأخواتها | الإعدادات | شوف القسم 12 | |
 
 ### العدد
 
-252 سطر في جداول القسم (ب): 228 نص في الجداول العادية، و17 موضوع و5 مجموعات من الـdemo AI، وصيغتين للوقت واليوم. ده من غير جدول الجمع (هو تفصيل لأربع سطور موجودة أصلاً)، ومن غير المفاتيح الأربعة الجديدة للغة. فيه 23 ملف جواهم حروف عربي، و22 منهم فيهم نص بيظهر للمستخدم. الملف الوحيد اللي مفيهوش هو lib/app/app_config.dart، لأن العربي اللي فيه كومنت بس.
+252 سطر في جداول القسم (ب): 228 نص في الجداول العادية، و17 موضوع و5 مجموعات من الـdemo AI، وصيغتين للوقت واليوم. ده من غير جدول الجمع (هو تفصيل لأربع سطور موجودة أصلاً)، ومن غير المفاتيح الأربعة الجديدة للغة، ومن غير الـ6 نصوص الجديدة في القسم 15. يعني المجموع 262 سطر نص (252 + 4 + 6). (`bodyHintWithFileLinks` بيتعد مرة واحدة، في القسم 6.) فيه 23 ملف جواهم حروف عربي، و22 منهم فيهم نص بيظهر للمستخدم. الملف الوحيد اللي مفيهوش هو lib/app/app_config.dart، لأن العربي اللي فيه كومنت بس.
 
 ---
 
-## ج) حاجات محتاجة قرار من عمر
+## ج) القرارات
 
-1. **concept: "المواضيع" ولا "المفاهيم"؟**
-   - المواضيع / Topics (اقتراحي): أبسط، والـchips فعلاً مواضيع زي "الشبكات" و"RAG".
-   - المفاهيم / Concepts: أدق تقنياً، بس كلمة كتب.
-2. **تاب "الروابط": يفضل كده ولا يتغير؟**
-   - الروابط / Links (اقتراحي، بدون تغيير): الناس فهماها من الرسم.
-   - الخريطة / Map: بتوصف الشاشة أحسن، بس بتبعد عن كلمة "مرتبطة" اللي في صفحة الملاحظة.
-3. **زرار قبول الصياغة المقترحة:**
-   - استخدمها / Use it (اقتراحي)
-   - اعتمد / Accept (الحالي): مفهوم، بس رسمي شوية.
-4. **عنوان شاشة الإضافة:**
-   - ملاحظة جديدة / New note (اقتراحي)، والتاب يفضل "إضافة".
-   - إضافة / Add: نفس اسم التاب.
-5. **زرار إنشاء المشروع:**
-   - إنشاء / Create (اقتراحي، بدون تغيير): متعارف عليه.
-   - اعمله: مصري أكتر، بس غريب على زرار.
-6. **"جرّب مشروع جاهز" ولا "جرّب مشروع تجريبي"؟** اقتراحي "جاهز"، عشان كلمة "تجريبي" مستخدمة لنسخة التطبيق نفسها.
-7. **سطر "(إجابة تجريبية…)" جوه كل إجابة:** اقتراحي نشيله ونكتفي بالبادج اللي تحت العنوان (UX-14). لو عمر عايز يفضل، يبقى "(إجابة تجريبية)" بس.
+مفيش حاجة مفتوحة. كل اللي كان محتاج قرار اتحسم، والجداول فوق مكتوبة على أساسه.
+
+**قرارات عمر على الكلام (2026-11-10، في docs/plans/2026-11-10_restructure-plan.md):**
+
+1. **concept = "المواضيع" / Topics**، مش "المفاهيم". الصفوف: `topicsHeader`، وسطر concept في القسم أ.
+2. **تاب "الروابط" / Links بيفضل زي ما هو**، مش "الخريطة". الصفوف: `navLinks`، `linksTitle`.
+3. **زرار قبول الصياغة المقترحة = "استخدمها" / Use it**، مش "اعتمد". الصف: `useRewrite`.
+4. **عنوان شاشة الإضافة = "ملاحظة جديدة" / New note، والتاب بيفضل "إضافة" / Add.** الصفوف: `addTitle`، `navAdd`.
+5. **زرار إنشاء المشروع = "إنشاء" / Create (بدون تغيير)**، مش "اعمله". ده الاستثناء التاني من قاعدة "الأزرار أفعال". الصف: `create`.
+6. **"جرّب مشروع جاهز" / Try a sample project**، مش "مشروع تجريبي". الصفوف: `trySampleProject`، `sampleProjectFailed`، وسطر demo project في القسم أ.
+7. **سطر "(إجابة تجريبية…)" اتشال من جوه الإجابة**، والبادج `askDemoBadge` بيكفي (UX-14). الصف: `demoAnswerFooter`.
+
+**قرارات المنسق على مراجعة Argon (القسم ٥ في copy-review-argon.md):**
+
+8. **المواضيع والمجموعات بتتخزن كنص بلغة التحليل (الاختيار ب).** مفيش مفاتيح ARB ليها. ده قيد معروف، مكتوب في القسم 13.
+9. **`sample3Body` بيفضل ملاحظة تاريخية (الاختيار أ)**، والتابات بس اتكتبت بالترتيب والأسماء النهائية. شوف ملحوظات القسم 14.
+10. **الخانة لما فيه ملف = `bodyHintWithFileLinks` (نسخة UX-04).** `bodyHintWithFile` اتشال، ومفيش غير مفتاح واحد للخانة دي (القسم 6).
