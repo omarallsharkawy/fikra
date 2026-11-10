@@ -6,41 +6,52 @@ Shared UI kit for FIKRA screens: glass surfaces, buttons, fields, chips, badges,
 banners, empty and error states, the segmented control, sheet and dialog
 helpers, toasts, the async body wrapper, and the local audio player. It is built
 on [theme](../theme/EGM.md) tokens and [motion](../motion/EGM.md) primitives.
-User-facing default strings are hard-coded Egyptian Arabic.
+User-facing default strings are hard-coded Egyptian Arabic, in
+`status_badges.dart` (`FikraBadge`), `empty_states.dart` (`LoadErrorView`),
+`dialogs.dart` (`confirmDestructive`), `toasts.dart` (`runAction`) and
+`voice_player.dart`.
 
 ## Interface
 
-- `fikra_widgets.dart`
-  - Surfaces and layout:
-    - `Glass`: gradient surface with a hairline border. Takes `child`, `radius`,
-      `padding`, `borderColor`, `borderWidth`, `gradient`, `color`, `width`,
-      `height`.
-    - `FikraScaffold({child, safeBottom = true})`: full-screen page outside the
-      tab shell.
-    - `FillScroll({child})`: fills the available height and centers its child,
-      scrolling when short.
-  - Controls:
-    - `FikraButton({label, onPressed, icon, style, expand = true, loading = false})`,
-      with the constructors `FikraButton.secondary` and `FikraButton.danger`, and
-      the enum `FikraButtonStyle { primary, secondary, danger }`.
-    - `FikraField`: pill-shaped text input. Takes `controller`, `hint`, `icon`,
-      `onChanged`, `onSubmitted`, `autofocus`, `error`, `keyboardType`,
-      `obscure`, `textInputAction`, `maxLength`.
-    - `FikraChip({label, selected = false, onTap})`.
-    - `FikraIconButton({icon, label, onTap, size = 44, solid = false})`.
-    - `SegmentedPill({options, selected, onChanged})`.
-    - `SheetOption({label, icon, onTap, danger = false})`.
-  - Status and states:
-    - `FikraBadge({kind, label})` with `BadgeKind { demo, saved, processing, failed }`.
-    - `StatusBanner({kind, message})` with `BannerKind { offline, error, info }`.
-    - `EmptyState({icon, title, description, action, padding})`.
-    - `LoadErrorView({onRetry})`.
-    - `AsyncBody<T>({value, data, onRetry})`: renders a Riverpod `AsyncValue<T>`.
-  - Functions:
-    - `Future<T?> showFikraSheet<T>(context, {required title, required builder})`.
-    - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel})`.
-    - `void showToast(context, message)`.
-    - `Future<bool> runAction(context, action, {success, failure})`.
+- `fikra_widgets.dart`: barrel that exports every file below except
+  `photo_thumb.dart` and `voice_player.dart`. Screens import this barrel.
+- `glass.dart`
+  - `Glass`: gradient surface with a hairline border. Takes `child`, `radius`,
+    `padding`, `borderColor`, `borderWidth`, `gradient`, `color`, `width`,
+    `height`.
+- `layout.dart`
+  - `FikraScaffold({child, safeBottom = true})`: full-screen page outside the
+    tab shell.
+  - `FillScroll({child})`: fills the available height and centers its child,
+    scrolling when short.
+- `buttons.dart`
+  - `FikraButton({label, onPressed, icon, style, expand = true, loading = false})`,
+    with the constructors `FikraButton.secondary` and `FikraButton.danger`, and
+    the enum `FikraButtonStyle { primary, secondary, danger }`.
+  - `FikraIconButton({icon, label, onTap, size = 44, solid = false})`.
+- `fikra_field.dart`
+  - `FikraField`: pill-shaped text input. Takes `controller`, `hint`, `icon`,
+    `onChanged`, `onSubmitted`, `autofocus`, `error`, `keyboardType`,
+    `obscure`, `textInputAction`, `maxLength`.
+- `selectors.dart`
+  - `FikraChip({label, selected = false, onTap})`.
+  - `SegmentedPill({options, selected, onChanged})`.
+- `status_badges.dart`
+  - `FikraBadge({kind, label})` with `BadgeKind { demo, saved, processing, failed }`.
+  - `StatusBanner({kind, message})` with `BannerKind { offline, error, info }`.
+- `empty_states.dart`
+  - `EmptyState({icon, title, description, action, padding})`.
+  - `LoadErrorView({onRetry})`.
+  - `AsyncBody<T>({value, data, onRetry})`: renders a Riverpod `AsyncValue<T>`.
+- `sheets.dart`
+  - `Future<T?> showFikraSheet<T>(context, {required title, required builder})`.
+  - `SheetOption({label, icon, onTap, danger = false})`.
+- `dialogs.dart`
+  - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel})`,
+    pushed through the file-private `_FikraDialogRoute`.
+- `toasts.dart`
+  - `void showToast(context, message)`.
+  - `Future<bool> runAction(context, action, {success, failure})`.
 - `photo_thumb.dart`
   - `PhotoThumb({required String path})`: square-cropped local photo, decoded at thumbnail size, with an icon when it can't be decoded.
 - `voice_player.dart`

@@ -8,7 +8,14 @@ The composer tab, mounted at `/add` by `lib/app/router.dart`. It builds one note
 
 - `add_screen.dart`
   - `AddScreen`: `ConsumerStatefulWidget` with no parameters.
+  - Library file. Holds the imports, the `_Mic` and `_Rec` enums, and `_AddScreenState`: draft fields, `_canSave`, lifecycle and `build` (composer card, attachment switchers, mic card slot, footer note). Everything else is in the `part` files below, which see its private members.
+- `add_voice.dart` (part): `extension _AddVoice on _AddScreenState` with `_startRecording`, `_teardown`, `_stopRecording`, `_cancelRecording`, `_discardVoice`.
+- `add_files.dart` (part): `extension _AddFiles on _AddScreenState` with `_pickPdf`, `_removePdf`, `_pickImages`, `_removeImage`.
+- `add_save.dart` (part): `extension _AddSave on _AddScreenState` with `_save` and `_fileOnlyTitle`.
+- `add_toolbar.dart` (part): `_Toolbar`, the composer's bottom row, plus `_ToolButton` and `_RoundAction`.
   - Toolbar widget keys: `ValueKey('add-mic')`, `ValueKey('add-pdf')`, `ValueKey('add-image')`, `ValueKey('add-save')`, `ValueKey('add-stop')`, `ValueKey('add-cancel-rec')`.
+- `attachment_chips.dart` (part): `_PdfChip` (name, size, remove) and `_ImageStrip` (photo thumbnails with remove buttons).
+- `mic_permission_card.dart` (part): `_MicPermissionCard`, shown when the microphone permission is denied or blocked.
 - `inline_recorder.dart`
   - `kWaveformSamples`: number of level samples drawn (48).
   - `kWaveformFloorDb`: dBFS floor for a flat bar (-50.0).

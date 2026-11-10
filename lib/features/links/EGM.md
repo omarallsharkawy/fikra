@@ -15,6 +15,12 @@ The knowledge graph tab, mounted at `/links` by `lib/app/router.dart`. Each clus
   - `GraphLayout.compute(notes, links, {maxNodesPerRow = 12, maxNodes = 240, maxRows = 20, maxEdges = 1000, preserveSmallProjectsUpTo = smallProjectLimit})`.
 - `links_screen.dart`
   - `LinksScreen`: `ConsumerStatefulWidget` with no parameters.
+  - Library file. Holds the imports and `_LinksScreenState`: graph and viewport fields, `dispose`, the `_setState` forwarder for the part-file extensions, and `build` (error, loading, empty and graph states, the zoom tools row, the no-links banner, and the selected-node preview). Everything else is in the `part` files below, which see its private members.
+- `links_graph_data.dart` (part): `extension _LinksGraphData on _LinksScreenState` with `_setProject`, `_updateGraph`, `_acceptLayout`, `_computePending`.
+- `links_viewport.dart` (part): `extension _LinksViewport on _LinksScreenState` with `_home` (initial transform), `_zoom`, and `_graphCanvas`, the `LayoutBuilder` + `InteractiveViewer` canvas that fits the view once per project, canvas width and viewport width.
+- `links_navigation.dart` (part): `extension _LinksNavigation on _LinksScreenState` with `_openNote`, `_showCluster`, `_showMoreClusters`.
+- `graph_nodes.dart` (part): `_Node`, `_OverflowNode`, `_NodePreview`, and the helpers `_rect` and `_graphTitle`.
+- `edges_painter.dart` (part): `_EdgesPainter`, the link curves.
 - Consumes `selectedNotesProvider`, `selectedLinksProvider`, and `selectedProjectProvider` from `lib/app/providers.dart`, plus `ProjectHeader` from [projects](../projects/EGM.md).
 
 ## Invariants
