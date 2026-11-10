@@ -41,7 +41,7 @@ User-facing default strings resolve from `context.l10n`, in
   - `StatusBanner({kind, message})` with `BannerKind { offline, error, info }`.
 - `empty_states.dart`
   - `EmptyState({icon, title, description, action, padding})`.
-  - `LoadErrorView({onRetry})`.
+  - `LoadErrorView({onRetry, description})`: optional localized feature-specific description, with the existing error title and retry presentation.
   - `AsyncBody<T>({value, data, onRetry})`: renders a Riverpod `AsyncValue<T>`.
 - `sheets.dart`
   - `Future<T?> showFikraSheet<T>(context, {required title, required builder})`.

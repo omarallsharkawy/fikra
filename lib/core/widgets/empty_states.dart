@@ -57,8 +57,9 @@ class EmptyState extends StatelessWidget {
 
 /// "Couldn't load" state. Use instead of an empty state when a query failed.
 class LoadErrorView extends StatelessWidget {
-  const LoadErrorView({super.key, this.onRetry});
+  const LoadErrorView({super.key, this.onRetry, this.description});
   final VoidCallback? onRetry;
+  final String? description;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +67,7 @@ class LoadErrorView extends StatelessWidget {
       child: EmptyState(
         icon: Icons.error_outline_rounded,
         title: context.l10n.loadErrorTitle,
-        description: context.l10n.loadErrorBody,
+        description: description ?? context.l10n.loadErrorBody,
         action: onRetry == null
             ? null
             : FikraButton.secondary(

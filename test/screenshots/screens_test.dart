@@ -6,6 +6,8 @@ library;
 
 import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
+import 'package:fikra/data/local/database.dart';
+import 'package:fikra/data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -125,6 +127,23 @@ void main() {
           await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
           await pumpUntil(tester, find.text(l10n.appearance));
           await capture('19_settings');
+
+          // Route through a real note, but inject a failed document load: no native
+          // PDFium rendering in this widget screenshot suite.
+          final pdf = await pumpFuture(
+            tester,
+            () => LocalNotesRepository(db).create(
+              projectId: rag.projectId,
+              title: l10n.pdfFile,
+              text: '',
+              source: NoteSource.pdf,
+              attachmentPath: '/private/document.pdf',
+              attachmentName: 'document.pdf',
+            ),
+          );
+          ctx().push('/note/${pdf.id}/pdf');
+          await pumpUntil(tester, find.text(l10n.pdfLoadFailed));
+          await capture('20_pdf_failure');
         },
       );
     }

@@ -9,6 +9,7 @@ import '../features/ask/ask_screen.dart';
 import '../features/links/links_screen.dart';
 import '../features/note_details/edit_note_screen.dart';
 import '../features/note_details/note_details_screen.dart';
+import '../features/note_details/pdf_viewer_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/projects/welcome_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -93,6 +94,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ),
         routes: [
+          GoRoute(
+            path: 'pdf',
+            pageBuilder: (_, s) => _pushed(s, PdfViewerScreen(noteId: s.pathParameters['id']!)),
+          ),
           GoRoute(
             path: 'edit',
             pageBuilder: (_, s) => _pushed(s, EditNoteScreen(noteId: s.pathParameters['id']!)),

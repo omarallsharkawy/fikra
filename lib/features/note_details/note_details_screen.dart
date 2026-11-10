@@ -329,7 +329,7 @@ class _Attachment extends ConsumerWidget {
         if (note.hasPdf)
           Pressable(
             key: const ValueKey('open-pdf'),
-            onTap: () => openAttachment(context, ref, note.attachmentPath!),
+            onTap: () => context.push('/note/${note.id}/pdf'),
             pressedScale: 0.98,
             semanticLabel: context.l10n.openFileA11y(name),
             child: Glass(

@@ -4,7 +4,7 @@
 
 FIKRA is a Flutter Android app for Arabic and English notes. Notes, projects, links, and chat history are stored on the device in a Drift SQLite database, and attachment files are stored in the app's private documents directory.
 
-The current build is the demo. `AiService` is the boundary to the backend, and the demo implementation sits behind it. Voice recordings, PDFs, and photos stay on the device and are never parsed; only typed text is analyzed. `FIKRA_MODE=connected` is rejected at startup because no backend implementation exists yet.
+The current build is the demo. `AiService` is the boundary to the backend, and the demo implementation sits behind it. Voice recordings, PDFs, and photos stay on the device and are never sent to AI; only typed text is analyzed. PDFs are parsed locally by PDFium for display. `FIKRA_MODE=connected` is rejected at startup because no backend implementation exists yet.
 
 ```text
 features -> app/providers -> data repositories -> Drift SQLite
@@ -14,7 +14,7 @@ features -> app/providers -> data repositories -> Drift SQLite
 
 A saved note is written to the database first. `NoteProcessor` then runs analysis one note at a time and moves the note to `ready` or `failed`. Screens update from Drift streams through Riverpod providers.
 
-Not covered by these contracts: `android/` (a default Flutter host), `test/`, `integration_test/`, `test_driver/`, and generated `*.g.dart` files.
+Not covered by these contracts: `android/` (a default Flutter host), `integration_test/`, `test_driver/`, and generated `*.g.dart` files. Tests have their own `test/EGM.md` contract.
 
 ## Subdirectories & System Boundaries
 
@@ -40,7 +40,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `test/`, `i
 - Reads and writes the on-device SQLite database named `fikra`.
 - Creates and deletes files under `attachments/` in private storage, and `rec_*` recordings in the temp directory.
 - Requests microphone permission and opens the system file picker (`lib/features/add`).
-- Hands PDFs and photos to other apps through `openWithSystem` (`lib/data/files`).
+- Displays local PDFs in the app with pdfrx; photos and the explicit PDF open-elsewhere action use `openWithSystem` (`lib/data/files`).
 - The demo build makes no network calls from `lib/data/ai`.
 
 ## System Verification

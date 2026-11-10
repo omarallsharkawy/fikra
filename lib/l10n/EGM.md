@@ -14,7 +14,7 @@ Arabic (RTL) and English (LTR) UI copy from `docs/plans/copy-glossary.md`. Arabi
 
 ## Invariants
 
-- Copy approved Arabic and English exactly; do not rewrite in Dart. Section 15 keys are available for future work but unused except language settings (section 12).
+- Copy approved Arabic and English exactly; do not rewrite in Dart. Section 15 keys are available for future work; the PDF viewer uses `pdfOpenElsewhere`, `pdfPageOf`, and `pdfLoadFailed` unchanged. Language settings use section 12.
 - Use `context.l10n` in widgets and `lookupAppLocalizations(locale)` with an explicitly supplied or provider-resolved locale outside widgets.
 - Language labels retain their endonyms. Counts, dates, times and sizes keep Western digits through `Fmt`; `intl` supplies locale date/time symbols and plural rules.
 - Stored content and already analyzed topics/groups are never translated. Vocabulary localization applies only to new output.

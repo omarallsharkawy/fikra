@@ -7,7 +7,7 @@
 ## النسخة الحالية: تجريبية
 - كل حاجة offline على الموبايل: داتابيز SQLite (drift)، والملفات في مساحة التطبيق الخاصة.
 - الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه: [docs/backend-api.md](docs/backend-api.md) و[docs/backend-integration.md](docs/backend-integration.md).
-- الصوت والـPDF والصور بيفضلوا على الموبايل، ومش بيتحللوا. النص المكتوب بس هو اللي بيتحلل. الـPDF والصور بيتفتحوا في تطبيق خارجي.
+- الصوت والـPDF والصور بيفضلوا على الموبايل، ومش بيتحللوا. النص المكتوب بس هو اللي بيتحلل.
 - الباك أب مقفول (`allowBackup=false` + data extraction rules)، عشان البيانات متخرجش من الموبايل.
 - فاتح وغامق: الألوان في `FikraPalette` (`lib/core/theme/tokens.dart`) وبتتقري بـ`context.colors` و`context.text`، مفيش ألوان ثابتة في الشاشات. الاختيار من شاشة الإعدادات (الترس في الهيدر) وبيتحفظ في جدول Settings.
 
@@ -23,7 +23,7 @@ flutter run                     # demo
 flutter analyze                 # لازم يطلع "No issues found!"
 flutter test                    # كل التيستات
 ```
-APK للتجربة (ملف لكل معالج، حوالي 20 ميجا لكل واحد):
+APK للتجربة (ملف لكل معالج):
 ```bash
 flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/debug-info
 ```
@@ -85,3 +85,15 @@ The UI supports Arabic (RTL) and English (LTR). Settings → Language offers Sys
 To add or change copy, edit the same key in `lib/l10n/app_ar.arb` (the template) and `app_en.arb`, using the approved wording in `docs/plans/copy-glossary.md`. Add typed placeholder metadata and ICU plural branches when needed, then run `flutter gen-l10n`. Generated `app_localizations*.dart` files live in `lib/l10n` and are checked in; do not edit them by hand. Widgets read `context.l10n` from `lib/l10n/localizations.dart`; code without a context receives the resolved locale and calls `lookupAppLocalizations(locale)`. Demo topic/group labels use `lib/l10n/demo_vocabulary.json`, following the glossary's separate vocabulary tables.
 
 Run `flutter analyze`, `flutter test`, and the screenshot command above after a copy change. Screenshots cover both languages and themes with fixed sample timestamps.
+
+## Attachments
+
+PDFs open inside FIKRA from the note’s PDF row (`/note/:id/pdf`). The route resolves the local file from the saved note, never a query parameter. Every part of a note card opens its note. Photos continue to open in another app.
+
+The viewer uses pinned `pdfrx` 2.12.0 (PDFium), continuous vertical scrolling, pinch and double-tap zoom, and the existing localized page indicator. Pages retain their document colors on the themed backdrop; app controls follow Arabic RTL or English LTR. Its open-in-another-app action uses the existing `fileOpenerProvider`, including when loading fails. Missing, unreadable, corrupt, password-protected and absent PDF attachments show the existing error-view presentation with `pdfLoadFailed` and retry.
+
+Documents stay local: no upload, indexing, or AI analysis. The loader opens the file by path without a full-file Dart byte buffer; PDFium performs native work on a background worker. Progressive page loading and lazy rendering keep work near the viewport, with a 32 MiB rendering-image cache target (not a total-process memory limit). Source inspection confirmed `FPDF_LoadDocument` runs on the library background worker and rendering uses viewport caches. A Linux native smoke check opened a synthetic 200-page, 52,517,035-byte PDF in 26 ms with only one page initially loaded, rendered its first page by 37 ms and its last page by 90 ms while the Dart event loop kept ticking. These are desktop smoke measurements, not Android frame-time or peak-memory guarantees; real-device large-file and gesture checks are still needed.
+
+`pdfDocumentLoaderProvider` is injectable for widget tests. `test/pdf_viewer_test.dart` covers failure and lifetime behavior; app-flow tests cover navigation, external opening and unchanged photo behavior. The screenshot suite writes `20_pdf_failure.png` in both languages and themes. Loaded PDF screenshots are not part of this widget suite because it does not initialize native PDFium; verify native rendering on a phone.
+
+The release split arm64 APK measured 29,140,552 bytes after this feature (baseline 21,601,841; +7,538,711 bytes, +34.9%). The regenerated merged release manifest adds no permissions and keeps minSdk 24 / targetSdk 36.

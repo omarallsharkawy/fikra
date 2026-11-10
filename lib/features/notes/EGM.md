@@ -9,7 +9,7 @@ The note list tab, mounted at `/notes` by `lib/app/router.dart`. It shows the se
 - `notes_screen.dart`
   - `NotesScreen`: `ConsumerStatefulWidget` with no parameters.
 - `note_card.dart`
-  - `NoteCard({required Note note, required VoidCallback onTap})`: stateless list card. Its PDF hit area needs a `ProviderScope`.
+  - `NoteCard({required Note note, required VoidCallback onTap})`: stateless list card with a single note-opening tap target.
 - Consumes `selectedNotesProvider` from `lib/app/providers.dart`, `ProjectHeader` from [projects](../projects/EGM.md), and `noteTitle` and `sourceIcons` from [shared](../shared/EGM.md).
 
 ## Invariants
@@ -21,7 +21,7 @@ The note list tab, mounted at `/notes` by `lib/app/router.dart`. It shows the se
 - Day grouping relies on `watchNotes` returning notes newest first (`createdAt` descending).
 - The list is built lazily with `ListView.builder`. Note rows use `ValueKey(note.id)`, and `findChildIndexCallback` resolves them through `_rowOf`.
 - The search field is hidden when the project has no notes. An empty project and an empty search result are separate states.
-- On a card with a PDF, an invisible area over the top-start corner opens the file instead of the note.
+- Every point on a note card, including its PDF icon, opens the note through `onTap`. There is no `open-pdf-<id>` overlay or external-file action.
 - `NoteCard`'s `switch` on `ProcessingStatus` is exhaustive. A ready note shows at most three concept tags.
 
 ## Side Effects

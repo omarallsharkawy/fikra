@@ -11,7 +11,7 @@ Display helpers for notes that are used by more than one feature.
   - `List<IconData> sourceIcons(Note n)`: every source of a note.
   - `String noteTitle(BuildContext context, Note n)`: the note's title, or a fallback label when the title is blank.
 - `open_attachment.dart`
-  - `Future<void> openAttachment(BuildContext context, WidgetRef ref, String path)`: opens a file in another app, and shows a toast if it can't.
+  - `Future<void> openAttachment(BuildContext context, WidgetRef ref, String path)`: opens a file in another app, and shows a toast if it returns false or throws. Used for photos and the PDF viewer’s explicit open-elsewhere action.
 
 ## Invariants
 

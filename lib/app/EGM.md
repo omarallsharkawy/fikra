@@ -66,6 +66,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 | `/ask` | `AskScreen` | Shell branch 3 |
 | `/settings` | `SettingsScreen` | Top level, `pageBuilder:` via `_pushed` |
 | `/note/:id` | `NoteDetailsScreen` | Top level, `pageBuilder:` via `_pushed` |
+| `/note/:id/pdf` | `PdfViewerScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
 | `/note/:id/edit` | `EditNoteScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
 
 `/note/:id` accepts an optional `extra` of type `Note`, used as the screen's
@@ -144,6 +145,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
   Flutter's own `MaterialApp`, go_router 18 falls back to `NoTransitionPage` for
   `builder:` routes, so a push made that way would jump in one frame. Routes that
   replace each other (splash, welcome, the shell) intentionally keep `builder:`.
+- `/note/:id/pdf` passes only the note ID. The viewer resolves its file from `noteProvider`; query parameters and `extra` cannot supply a file path.
 - The `extra` on `/note/:id` is used only when it is a `Note` whose `id` matches
   the path parameter. Otherwise `initial` is `null`, as for deep links.
 

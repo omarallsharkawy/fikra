@@ -11,6 +11,7 @@ import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/files/file_opener.dart';
 import 'package:fikra/data/local/database.dart';
+import 'package:fikra/features/note_details/pdf_document_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -37,6 +38,7 @@ void fikraTest(
   FileOpener? opener,
   Locale locale = const Locale('ar'),
   DateTime Function()? clock,
+  PdfDocumentLoader? pdfLoader,
 }) {
   testWidgets(description, (tester) async {
     tester.platformDispatcher.localeTestValue = locale;
@@ -57,6 +59,10 @@ void fikraTest(
             if (clock != null) appClockProvider.overrideWithValue(clock),
             attachmentStoreProvider.overrideWithValue(_NoFilesStore()),
             if (opener != null) fileOpenerProvider.overrideWithValue(opener),
+            // No native PDFium calls in widget tests, including missing-file cases.
+            pdfDocumentLoaderProvider.overrideWithValue(
+              pdfLoader ?? (path) async => throw FileSystemException('', path),
+            ),
           ],
           child: const FikraApp(),
         ),
