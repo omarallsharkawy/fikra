@@ -10,29 +10,56 @@ import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
+import '../shared/note_groups.dart';
 import '../shared/note_presentation.dart';
 
 class NoteCard extends ConsumerWidget {
-  const NoteCard({super.key, required this.note, required this.onTap});
+  const NoteCard({super.key, required this.note, required this.onTap, this.onLongPress, this.selected, this.group});
   final Note note;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+
+  /// Null outside a selection; in one, whether this card is selected (a check
+  /// mark and an accent border, and `selected` for screen readers).
+  final bool? selected;
+
+  /// The note's group, shown as a small tag.
+  final NoteGroup? group;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final concepts = note.conceptList;
     final attachments =
         ref.watch(projectAttachmentsProvider(note.projectId)).value?[note.id] ?? const <NoteAttachment>[];
+    final selected = this.selected;
+    final group = this.group;
+    final on = selected ?? false;
+    // The thicker border takes its width from the padding, so nothing moves.
+    final inset = on ? 2 - FikraSpace.hairline : 0.0;
     return Pressable(
       onTap: onTap,
+      onLongPress: onLongPress,
+      selected: selected,
       pressedScale: 0.98,
       child: Glass(
         radius: FikraRadius.lg,
-        padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+        padding: EdgeInsets.fromLTRB(18 - inset, 16 - inset, 18 - inset, 16 - inset),
+        borderColor: on ? context.colors.accentLight : null,
+        borderWidth: on ? 2 : FikraSpace.hairline,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
+                if (selected != null) ...[
+                  Icon(
+                    selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                    key: ValueKey('note-check-${note.id}'),
+                    size: 22,
+                    color: selected ? context.colors.accentLight : context.colors.textSecondary,
+                  ),
+                  const SizedBox(width: 10),
+                ],
                 for (final item in attachmentIcons(note, attachments)) ...[
                   Icon(item.icon, size: 18, color: context.colors.accentLight),
                   if (item.count > 1) Text(' ${item.count}', style: context.text.meta),
@@ -56,6 +83,10 @@ class NoteCard extends ConsumerWidget {
               Text(note.displayText, style: context.text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
             ],
             const SizedBox(height: 10),
+            if (group != null) ...[
+              GroupTag(key: ValueKey('note-group-${note.id}'), group: group),
+              const SizedBox(height: 6),
+            ],
             FikraSwitcher(
               alignment: AlignmentDirectional.topStart,
               child: KeyedSubtree(

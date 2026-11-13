@@ -925,4 +925,243 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteProjectEmptyChatBody =>
       'This project has no notes, but its chat will be deleted. You can\'t undo this.';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+      zero: 'Nothing selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeSelection => 'Close selection';
+
+  @override
+  String get linkTogether => 'Link together';
+
+  @override
+  String get groupAction => 'Group';
+
+  @override
+  String linkTogetherLimit(int max) {
+    return 'You can link up to $max notes together. For more, use a group.';
+  }
+
+  @override
+  String get linkTogetherNeedsTwo => 'Select at least 2 notes to link them.';
+
+  @override
+  String linksAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Added $count links',
+      one: 'Added 1 link',
+      zero: 'These notes were already linked',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get undoFailed => 'Couldn\'t undo that.';
+
+  @override
+  String get chooseGroup => 'Choose a group';
+
+  @override
+  String get newGroup => 'New group';
+
+  @override
+  String get removeFromGroup => 'Remove from group';
+
+  @override
+  String get noGroupsYet => 'No groups in this project yet.';
+
+  @override
+  String subGroupA11y(String group, String parent, String notes) {
+    return '$group, inside $parent, $notes';
+  }
+
+  @override
+  String notesGrouped(String notes, String group) {
+    return 'Added $notes to \"$group\"';
+  }
+
+  @override
+  String groupRemovedFrom(String notes) {
+    return 'Removed the group from $notes';
+  }
+
+  @override
+  String get groupFailed => 'Couldn\'t update the group. Try again.';
+
+  @override
+  String get groupNameHint => 'Group name';
+
+  @override
+  String groupColorLabel(String color) {
+    return 'Color: $color';
+  }
+
+  @override
+  String get colorNone => 'No color';
+
+  @override
+  String get colorBlue => 'Blue';
+
+  @override
+  String get colorGreen => 'Green';
+
+  @override
+  String get colorYellow => 'Yellow';
+
+  @override
+  String get colorGray => 'Gray';
+
+  @override
+  String get groupParentLabel => 'Inside a group (optional)';
+
+  @override
+  String get groupParentNone => 'None';
+
+  @override
+  String moveNotesTitle(String notes, String project) {
+    return 'Move $notes to \"$project\"?';
+  }
+
+  @override
+  String moveNotesBody(int count, String lost) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The notes move with their files. Their $lost to notes that stay here will be removed.',
+      one: 'The note moves with its files. Its $lost to notes that stay here will be removed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String moveNotesBodyNoLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The notes move with their files. No links will be removed.',
+      one: 'The note moves with its files. No links will be removed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notesMoved(String notes, String project) {
+    return 'Moved $notes to \"$project\"';
+  }
+
+  @override
+  String get moveNotesFailed => 'Couldn\'t move the notes. Try again.';
+
+  @override
+  String get moveNotesNoOtherProject => 'There\'s no other project to move these notes to.';
+
+  @override
+  String deleteNotesTitle(String notes) {
+    return 'Delete $notes?';
+  }
+
+  @override
+  String deleteNotesBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'These notes, their files and their links will be deleted. You can\'t undo this.',
+      one: 'The note, its files and its links will be deleted. You can\'t undo this.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notesDeleted(String notes) {
+    return 'Deleted $notes';
+  }
+
+  @override
+  String get deleteNotesFailed => 'Couldn\'t delete all the notes. Try again.';
+
+  @override
+  String get allGroupsFilter => 'All';
+
+  @override
+  String groupOptionsA11y(String group) {
+    return 'Options for the group $group';
+  }
+
+  @override
+  String get groupEmptyTitle => 'This group is empty';
+
+  @override
+  String get groupEmptyBody => 'Long-press a note to select it, then tap Group.';
+
+  @override
+  String noteGroupA11y(String group) {
+    return 'In group $group';
+  }
+
+  @override
+  String get renameGroup => 'Rename';
+
+  @override
+  String get changeGroupColor => 'Change color';
+
+  @override
+  String get putInGroup => 'Put inside another group';
+
+  @override
+  String takeOutOfGroup(String parent) {
+    return 'Take out of \"$parent\"';
+  }
+
+  @override
+  String get deleteGroup => 'Delete group';
+
+  @override
+  String deleteGroupTitle(String group) {
+    return 'Delete the group \"$group\"?';
+  }
+
+  @override
+  String get deleteGroupBody => 'Its notes stay as they are, just without a group. Groups inside it move out.';
+
+  @override
+  String get groupDeleted => 'Group deleted';
+
+  @override
+  String get noParentGroups => 'There\'s no other group to put it in.';
+
+  @override
+  String get groupRuleEmptyName => 'Write a name for the group.';
+
+  @override
+  String get groupRuleInvalidColor => 'That color isn\'t available.';
+
+  @override
+  String get groupRuleMissingProject => 'This project no longer exists.';
+
+  @override
+  String get groupRuleMissingGroup => 'This group no longer exists.';
+
+  @override
+  String get groupRuleInvalidParent => 'A group can only go inside a top-level group, not inside a sub-group.';
+
+  @override
+  String get groupRuleSelfParent => 'A group can\'t go inside itself.';
+
+  @override
+  String get groupRuleHasChildren => 'This group has groups inside it, so it can\'t go inside another group.';
 }

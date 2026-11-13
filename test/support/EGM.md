@@ -13,3 +13,7 @@ The harness accepts optional repository, recorder factory, microphone permission
 `recording_fake.dart` implements the record platform boundary with real small file writes, state streams, native start/cancel gates, failure injection, active-recorder tracking and an event log. Tests retain AudioRecorder serialization, amplitude and editor stop transitions.
 
 `fikraTest` also accepts a `LinksRepository` override (spies and failure injection for the links section and picker), and a `ProjectsRepository` override (`projectsRepository`) used to spy on and gate `deleteImpact`.
+
+`fikraTest` also accepts a `GroupsRepository` override (`groupsRepository`). `selection_fixture.dart` (links phase 5a) holds the notes-list selection helpers: `phone` (tall screen, fatal hit-test warnings), `seedNotes` (Study + Work with per-note files), link/group readers, `card`/`reveal`/`select`/`tapAction` (scroll the lazy list and the sideways bar first), `waitOutToast`, a quiet `AiService`, and spies: `SpyLinks` (fail on a call), `SpyNotes` (moves, impacts, relinks, deletes, a failing delete, a held notes stream) and `SpyGroups`.
+
+`host` (a bare themed app with the text scale applied above the navigator) also lives there. Review fixes: `SpyLinks` now counts `linkNotesForUndo` and has `linkGate` and `undoGate` completers; `SpyGroups.failAssign` makes assignments throw.

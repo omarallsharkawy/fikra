@@ -599,6 +599,103 @@
 - `projectNameHint` في القسم 5 كان بالمثال لكل الخانات. UX-17 بيحصر المثال في أول مشروع بس (`firstProjectNameHint`)، و"مشروع جديد" و"غيّر الاسم" بيرجعوا لـ"اسم المشروع".
 - `sourceMissing` بيغطي الملاحظة اللي اتنقلت لمشروع تاني واللي اتحذفت: الاتنين مابقوش في المشروع ده، والصف مابيتفتحش.
 
+### 18. وضع الاختيار والمجموعات (المرحلة 5أ من خطة الروابط) — `lib/features/notes/` و`lib/features/shared/` و`lib/core/widgets/toasts.dart`
+
+ضغطة طويلة على كارت في قائمة الملاحظات بتفتح وضع الاختيار. تحت فيه شريط: «اربطهم ببعض» (من ملاحظتين لحد 6)، «مجموعة»، «انقل»، «احذف». فوق القائمة فلتر بالمجموعات، ومنه خيارات المجموعة. المفاتيح الموجودة اللي القسم ده بيستخدمها زي ما هي: `moveConfirm` (زرار «انقل» في الشريط وفي رسالة النقل)، `delete` (زرار «احذف»)، `moveToProject` (عنوان شيت اختيار المشروع)، `create`، `save`، `cancel`، `notesCount` و`linksCount` و`suggestionsCount` (للأرقام جوه الجمل)، `listTwo`. ولو المتختار ملاحظة واحدة بس، النقل والحذف بيستخدموا نصوص الملاحظة الواحدة زي ما هي: `moveNoteTitle`، `moveNoteBody`، `moveNoteBodyNoLinks`، `noteMoved`، `moveNoteFailed`، `deleteNoteTitle`، `deleteNoteBody`، `noteDeleted`.
+
+| المفتاح | لفين | المقترح | English |
+|---|---|---|---|
+| `selectedCount` | عنوان وضع الاختيار في قائمة الملاحظات | جمع (تحت) | جمع (تحت) |
+| `closeSelection` | قارئ الشاشة: زرار ✕ اللي بيقفل وضع الاختيار | اقفل الاختيار | Close selection |
+| `linkTogether` | زرار في شريط الاختيار: بيربط كل ملاحظة متختارة بكل واحدة تانية | اربطهم ببعض | Link together |
+| `groupAction` | زرار في شريط الاختيار | مجموعة | Group |
+| `linkTogetherLimit` | سطر فوق الشريط لما المتختار أكتر من {max}، والزرار مقفول | تقدر تربط لحد {max} ملاحظات ببعض. لو أكتر، حطهم في مجموعة. | You can link up to {max} notes together. For more, use a group. |
+| `linkTogetherNeedsTwo` | قارئ الشاشة: ليه زرار الربط مقفول لما ملاحظة واحدة بس متختارة | اختار ملاحظتين على الأقل عشان تربطهم. | Select at least 2 notes to link them. |
+| `linksAdded` | toast بعد «اربطهم ببعض»، ومعاه زرار تراجع | جمع (تحت) | جمع (تحت) |
+| `undo` | زرار في الـtoast بعد الربط والتجميع | تراجع | Undo |
+| `undoFailed` | toast لما التراجع يفشل | مقدرناش نتراجع عن اللي اتعمل. | Couldn't undo that. |
+| `chooseGroup` | عنوان شيت المجموعات | اختار مجموعة | Choose a group |
+| `newGroup` | صف في شيت المجموعات، وعنوان شيت المجموعة الجديدة | مجموعة جديدة | New group |
+| `removeFromGroup` | صف في شيت المجموعات، بيظهر بس لو ملاحظة متختارة في مجموعة | شيل من المجموعة | Remove from group |
+| `noGroupsYet` | شيت المجموعات لما المشروع مفيهوش مجموعات | لسه مفيش مجموعات في المشروع ده. | No groups in this project yet. |
+| `subGroupA11y` | قارئ الشاشة: صف مجموعة فرعية في الشيت (الإزاحة مش بتتقري). `{notes}` = `notesCount` | {group}، جوه «{parent}»، {notes} | {group}, inside {parent}, {notes} |
+| `notesGrouped` | toast بعد الحط في مجموعة، ومعاه زرار تراجع. `{notes}` = `notesCount` | اتحط {notes} في «{group}» | Added {notes} to "{group}" |
+| `groupRemovedFrom` | toast بعد «شيل من المجموعة»، ومعاه زرار تراجع | اتشالت المجموعة من {notes} | Removed the group from {notes} |
+| `groupFailed` | toast لما تعديل مجموعة أو الحط فيها يفشل | مقدرناش نعدّل المجموعة. جرّب تاني. | Couldn't update the group. Try again. |
+| `groupNameHint` | خانة الاسم في المجموعة الجديدة وفي «غيّر الاسم» | اسم المجموعة | Group name |
+| `groupColorLabel` | عنوان اختيار اللون، ومعاه اسم اللون المختار | اللون: {color} | Color: {color} |
+| `colorNone` | اختيار اللون | من غير لون | No color |
+| `colorBlue` | اختيار اللون | أزرق | Blue |
+| `colorGreen` | اختيار اللون | أخضر | Green |
+| `colorYellow` | اختيار اللون | أصفر | Yellow |
+| `colorGray` | اختيار اللون | رمادي | Gray |
+| `groupParentLabel` | عنوان اختيار المجموعة الأم في المجموعة الجديدة | جوه مجموعة (اختياري) | Inside a group (optional) |
+| `groupParentNone` | أول اختيار تحت `groupParentLabel` | ولا واحدة | None |
+| `moveNotesTitle` | عنوان رسالة نقل أكتر من ملاحظة. `{notes}` = `notesCount` | تنقل {notes} لـ«{project}»؟ | Move {notes} to "{project}"? |
+| `moveNotesBody` | رسالة نقل أكتر من ملاحظة لما روابط هتتشال. `{lost}` زي `moveNoteBody` | جمع (تحت) | جمع (تحت) |
+| `moveNotesBodyNoLinks` | رسالة نقل أكتر من ملاحظة لما مفيش حاجة هتتشال | جمع (تحت) | جمع (تحت) |
+| `notesMoved` | toast بعد نقل أكتر من ملاحظة | اتنقل {notes} لـ«{project}» | Moved {notes} to "{project}" |
+| `moveNotesFailed` | toast لما نقل أكتر من ملاحظة يفشل | مقدرناش ننقل الملاحظات. جرّب تاني. | Couldn't move the notes. Try again. |
+| `moveNotesNoOtherProject` | شيت اختيار المشروع من وضع الاختيار لو مفيش مشروع تاني | مفيش مشروع تاني تنقل له الملاحظات. | There's no other project to move these notes to. |
+| `deleteNotesTitle` | عنوان رسالة حذف أكتر من ملاحظة. `{notes}` = `notesCount` | تحذف {notes}؟ | Delete {notes}? |
+| `deleteNotesBody` | رسالة حذف أكتر من ملاحظة | جمع (تحت) | جمع (تحت) |
+| `notesDeleted` | toast بعد حذف أكتر من ملاحظة | اتحذف {notes} | Deleted {notes} |
+| `deleteNotesFailed` | toast لما حذف أكتر من ملاحظة يفشل (اللي اتحذف بيفضل محذوف) | مقدرناش نحذف كل الملاحظات. جرّب تاني. | Couldn't delete all the notes. Try again. |
+| `allGroupsFilter` | أول اختيار في فلتر المجموعات فوق القائمة | الكل | All |
+| `groupOptionsA11y` | قارئ الشاشة: زرار خيارات المجموعة المختارة في الفلتر | خيارات المجموعة «{group}» | Options for the group {group} |
+| `groupEmptyTitle` | القائمة لما المجموعة المختارة في الفلتر فاضية | المجموعة دي فاضية | This group is empty |
+| `groupEmptyBody` | تحت `groupEmptyTitle` | دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة». | Long-press a note to select it, then tap Group. |
+| `noteGroupA11y` | قارئ الشاشة: تاج المجموعة على كارت الملاحظة | في مجموعة «{group}» | In group {group} |
+| `renameGroup` | خيار في شيت خيارات المجموعة، وعنوان شيت الاسم | غيّر الاسم | Rename |
+| `changeGroupColor` | خيار في شيت خيارات المجموعة، وعنوان شيت اللون | غيّر اللون | Change color |
+| `putInGroup` | خيار في شيت خيارات المجموعة، وعنوان شيت اختيار المجموعة الأم | حطها جوه مجموعة تانية | Put inside another group |
+| `takeOutOfGroup` | خيار في شيت خيارات مجموعة فرعية | طلّعها برة «{parent}» | Take out of "{parent}" |
+| `deleteGroup` | خيار في شيت خيارات المجموعة | احذف المجموعة | Delete group |
+| `deleteGroupTitle` | عنوان رسالة حذف المجموعة | تحذف المجموعة «{group}»؟ | Delete the group "{group}"? |
+| `deleteGroupBody` | رسالة حذف المجموعة (التأكيد عادي مش أحمر، لأن مفيش ملاحظة بتضيع) | الملاحظات اللي فيها هتفضل زي ما هي، بس من غير مجموعة. والمجموعات اللي جواها هتطلع برة. | Its notes stay as they are, just without a group. Groups inside it move out. |
+| `groupDeleted` | toast بعد حذف المجموعة | المجموعة اتحذفت | Group deleted |
+| `noParentGroups` | شيت اختيار المجموعة الأم لو مفيش مجموعة رئيسية تانية | مفيش مجموعة تانية تحطها جواها. | There's no other group to put it in. |
+| `groupRuleEmptyName` | رسالة: الاسم فاضي | اكتب اسم للمجموعة. | Write a name for the group. |
+| `groupRuleInvalidColor` | رسالة: لون مش من الأربعة | اللون ده مش متاح. | That color isn't available. |
+| `groupRuleMissingProject` | رسالة: المشروع اتحذف | المشروع ده مابقاش موجود. | This project no longer exists. |
+| `groupRuleMissingGroup` | رسالة: المجموعة اتحذفت | المجموعة دي مابقتش موجودة. | This group no longer exists. |
+| `groupRuleInvalidParent` | رسالة: المجموعة الأم مجموعة فرعية أو مش موجودة | تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية. | A group can only go inside a top-level group, not inside a sub-group. |
+| `groupRuleSelfParent` | رسالة: المجموعة جوه نفسها | مينفعش تحط المجموعة جوه نفسها. | A group can't go inside itself. |
+| `groupRuleHasChildren` | رسالة: مجموعة جواها مجموعات | المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية. | This group has groups inside it, so it can't go inside another group. |
+
+**الجمع بصيغة ICU:**
+
+| المفتاح | zero | one | two | few | many | other |
+|---|---|---|---|---|---|---|
+| `selectedCount` ع | مفيش حاجة متختارة | ملاحظة واحدة متختارة | ملاحظتين متختارين | {count} ملاحظات متختارة | {count} ملاحظة متختارة | {count} ملاحظة متختارة |
+| `selectedCount` En | Nothing selected (`=0`) | 1 selected | — | — | — | {count} selected |
+| `linksAdded` ع | الملاحظات دي مربوطة ببعض أصلاً | اتعمل رابط جديد | اتعمل رابطين جداد | اتعمل {count} روابط جديدة | اتعمل {count} رابط جديد | اتعمل {count} رابط جديد |
+| `linksAdded` En | These notes were already linked (`=0`) | Added 1 link | — | — | — | Added {count} links |
+| `moveNotesBody` ع | الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا. | الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا. | الملاحظتين هيتنقلوا بملفاتهم، وهيتشال {lost} بينهم وبين الملاحظات اللي هتفضل هنا. | الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا. | الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا. | الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا. |
+| `moveNotesBody` En | — | The note moves with its files. Its {lost} to notes that stay here will be removed. | — | — | — | The notes move with their files. Their {lost} to notes that stay here will be removed. |
+| `moveNotesBodyNoLinks` ع | الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال. | الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال. | الملاحظتين هيتنقلوا بملفاتهم، ومفيش روابط هتتشال. | الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال. | الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال. | الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال. |
+| `moveNotesBodyNoLinks` En | — | The note moves with its files. No links will be removed. | — | — | — | The notes move with their files. No links will be removed. |
+| `deleteNotesBody` ع | الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها. | الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها. | الملاحظتين وملفاتهم وروابطهم هيتحذفوا، ومش هتعرف ترجّعهم. | الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها. | الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها. | الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها. |
+| `deleteNotesBody` En | — | The note, its files and its links will be deleted. You can't undo this. | — | — | — | These notes, their files and their links will be deleted. You can't undo this. |
+
+أمثلة بعد التركيب:
+
+- النقل: "تنقل 3 ملاحظات لـ«شغل»؟" ثم "الملاحظات هتتنقل بملفاتها، وهيتشال رابطين واقتراح واحد بينها وبين الملاحظات اللي هتفضل هنا." / "Move 3 notes to "Work"?" then "The notes move with their files. Their 2 links and 1 suggestion to notes that stay here will be removed."
+- الحذف: "تحذف ملاحظتين؟" ثم "الملاحظتين وملفاتهم وروابطهم هيتحذفوا، ومش هتعرف ترجّعهم." / "Delete 2 notes?" then "These notes, their files and their links will be deleted. You can't undo this."
+- المجموعة: "اتحط 3 ملاحظات في «مذاكرة»" / "Added 3 notes to "Study""، و"اتشالت المجموعة من ملاحظتين" / "Removed the group from 2 notes".
+
+ملحوظات:
+
+- «اربطهم ببعض» بيربط كل ملاحظة متختارة بكل واحدة تانية، من غير سبب. الزرار مقفول لملاحظة واحدة (`linkTogetherNeedsTwo` لقارئ الشاشة بس) ولأكتر من 6 (`linkTogetherLimit` بيظهر كسطر فوق الشريط). `{max}` رقم من الكود (6).
+- `linksAdded` بيعد الروابط الجديدة بس. الروابط اللي كانت موجودة قبل كده مابتتعدش، والتراجع مابيشيلهاش. صيغة zero بتظهر لما كل الملاحظات المتختارة مربوطة ببعض أصلاً، ومن غير زرار تراجع.
+- `undo` ("تراجع") بيفضل حوالي 6 ثواني. التراجع في المجموعة بيرجّع كل ملاحظة لمجموعتها اللي كانت فيها. مفيش تراجع للنقل والحذف، عشان كده ليهم رسالة تأكيد.
+- الفعل قبل العدد ("اتحط 3 ملاحظات"، "اتحذف ملاحظتين"، "اتنقل ملاحظة واحدة")، زي القسم 17. و`groupRemovedFrom` بيبدأ بـ"اتشالت المجموعة" عشان الفعل يتطابق مع "المجموعة" مش مع العدد.
+- `moveNotesBody` و`moveNotesBodyNoLinks` و`deleteNotesBody` بالجمع عشان المثنى: "الملاحظتين هيتنقلوا بملفاتهم" مش "الملاحظات". صيغة one موجودة للاكتمال بس، لأن ملاحظة واحدة بتستخدم نصوص القسم 17.
+- اسم المجموعة واسم المشروع جوه الجمل بيتحطوا بين FSI وPDI من الكود (`Fmt.isolate`)، زي القسم 17.
+- ألوان المجموعة أربعة من الألوان الموجودة (أزرق، أخضر، أصفر، رمادي) أو من غير لون. اللون بيظهر كنقطة صغيرة جنب الاسم بس، والاسم دايماً مكتوب، فاللون عمره ما بيبقى العلامة الوحيدة.
+- حذف المجموعة مابيحذفش ملاحظات، فزرار التأكيد عادي مش أحمر، وزراره `delete`.
+- رسايل `groupRule…` بتظهر في toast. `groupRuleSelfParent` و`groupRuleInvalidColor` و`groupRuleMissingProject` الشاشة نفسها بتمنعهم، بس موجودين لو حصلوا.
+
 ---
 
 ## ج) القرارات

@@ -51,7 +51,7 @@ User-facing default strings resolve from `context.l10n`, in
     with `danger: false` drawing the confirm as the primary button (a confirmation that loses nothing),
     pushed through the file-private `_FikraDialogRoute`.
 - `toasts.dart`
-  - `void showToast(context, message)`.
+  - `void showToast(context, message, {String? actionLabel, VoidCallback? onAction})` and `toastActionDuration` (6 s).
   - `Future<bool> runAction(context, action, {success, failure})`.
 - `photo_thumb.dart`
   - `PhotoThumb({required String path})`: square-cropped local photo, decoded at thumbnail size, with an icon when it can't be decoded.
@@ -148,3 +148,8 @@ User-facing default strings resolve from `context.l10n`, in
 
 - `confirmDestructive` takes `danger` (default true, unchanged look). The note move passes `false` when no link would be removed.
 - `SheetOption` wraps its label in `Flexible`, so a long label or large text wraps instead of overflowing the row ("Move to another project" overflowed with the test font).
+
+## Undo toast (links phase 5a)
+
+- `showToast` with both `actionLabel` and `onAction` adds one `SnackBarAction` (Undo) and stays `toastActionDuration` (6 s) instead of 3 s; without them it is unchanged. The messenger reads `persist` once, so the Undo toast is shown with `persist: true` and its text (`_TimedToast`) times it out itself: it follows `MediaQuery.accessibleNavigationOf` while shown, waiting for the next toast while a screen reader is on and leaving 6 s after it is turned off (or after it was shown). The timer does nothing once the button was pressed or a newer `showToast` replaced it. The SnackBar's own live region announces it. A newer toast replaces it (`hideCurrentSnackBar`), so its Undo can no longer be pressed.
+- The action text uses `colors.accentLight`: the default (`inversePrimary`) was invisible on the white light-theme toast. `test/toast_test.dart` checks 4.5:1 contrast in both themes, the timings, the screen reader turned on and off mid-toast, and replacement.

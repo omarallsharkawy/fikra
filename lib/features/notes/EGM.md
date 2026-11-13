@@ -9,7 +9,8 @@ The note list tab, mounted at `/notes` by `lib/app/router.dart`. It shows the se
 - `notes_screen.dart`
   - `NotesScreen`: `ConsumerStatefulWidget` with no parameters.
 - `note_card.dart`
-  - `NoteCard({required Note note, required VoidCallback onTap})`: consumer list card with a single note-opening tap target.
+  - `NoteCard({required Note note, required VoidCallback onTap, VoidCallback? onLongPress, bool? selected, NoteGroup? group})`: consumer list card with a single tap target; `selected` non-null means selection mode, `group` shows its tag.
+- `notes_selection.dart`: `part of notes_screen.dart`, the private `_Selection` mixin (selection state, guards and the action bar).
 - Consumes `selectedNotesProvider` from `lib/app/providers.dart`, `ProjectHeader` from [projects](../projects/EGM.md), and `noteTitle` and `sourceIcons` from [shared](../shared/EGM.md).
 
 ## Invariants
@@ -40,3 +41,10 @@ All list/card labels, unnamed PDF format fallbacks and errors use `context.l10n`
 - `integration_test/stress_test.dart` imports `note_card.dart` directly.
 
 Cards share `projectAttachmentsProvider(projectId)`, one joined attachment query per project, and render one icon per kind with a count only above one. A file-free/text-free note retains its source-icon fallback. `NoteCard` is now a ConsumerWidget; its constructor and row keys are unchanged. Stress seeds six attachments on every fourth note and times the same batched project query.
+
+## Selection and groups (links phase 5a)
+
+- Selection mode: a long press on a card starts it with that note; then a tap (or long press) toggles a card. Cards show a check (`note-check-<id>`, checked/unchecked icon), a 2 dp accent border and `selected` semantics. `SelectionHeader` (shared) replaces `ProjectHeader` with the count (live region) and close (`selection-close`). Back (`PopScope(canPop: selection == null)`), close, deselecting the last note, a project switch (`ref.listen(selectedProjectProvider)`) and leaving the tab (`TickerMode.valuesOf(context).enabled` false in `didChangeDependencies`) all end it. Only listed notes stay selected: after each build `_keepVisible(_rowOf)` drops notes deleted, moved, or hidden by the search or the group filter (while the notes have loaded); an empty result ends selection. Choosing another group filter clears the selection. Starting a selection unfocuses search and hides the current toast, so an old Undo toast never covers the bar.
+- The action bar (`SelectionActionBar`, shared) has `selection-link` (2–6 notes, `maxLinkTogether`; disabled with the `selection-note` explanation and a semantics hint above 6), `selection-group`, `selection-move`, `selection-delete`. `_run` snapshots the selected notes in list order, claims `selectionBusyProvider` (shared with Undo: a second action, or one during a running Undo, does nothing; the bar is disabled meanwhile), hides the current toast (an older Undo can't be pressed during an action) and ends the selection only when the action reports success and the selection is still the one it started from (set identity), so Back plus a new long press during a slow action keeps the new selection. The flows live in `shared/selection_actions.dart`.
+- Groups: `groupsOfProjectProvider` (shared) feeds `GroupFilterRow` (hidden with no groups) and the card tags. The filter (`_filter`) shows the group with all its sub-groups, combines with search, resets on project switch and when its group is deleted (only once groups have loaded). A filter with no notes and no query shows the `group-empty` state. `_rebuildRows` also keys on the groups list identity and the filter.
+- Verification: `test/selection_mode_test.dart`, `test/selection_actions_test.dart`, `test/note_groups_list_test.dart`; screenshots `45`–`56` in `test/screenshots/selection_test.dart`.

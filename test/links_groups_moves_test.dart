@@ -124,6 +124,69 @@ void main() {
     expect(await allLinks(), rows);
   });
 
+  group('undoLinks', () {
+    test('puts each pair back: no row, its suggestions, its rejection', () async {
+      final a = await note();
+      final b = await note();
+      final c = await note();
+      final d = await note();
+      final suggestion = await edge(b, a);
+      final duplicate = await edge(a, b);
+      final rejected = await edge(a, c, dismissed: true);
+      final already = await edge(a, d, origin: LinkOrigin.user);
+      final before = await allLinks();
+      final changes = await links.linkNotesForUndo(a.id, [b.id, c.id, d.id]);
+      expect(changes.map((ch) => ch.linkId), hasLength(2)); // a–d was already yours
+      expect(changes.every((ch) => ch.projectId == p.id), isTrue);
+      final e = await note();
+      final fresh = await links.linkNotesForUndo(e.id, [a.id]);
+      expect(fresh.single.before, isEmpty);
+
+      await links.undoLinks([...changes, ...fresh]);
+      expect(await allLinks(), unorderedEquals(before));
+      expect((await allLinks()).where((l) => l.id == suggestion.id || l.id == duplicate.id), hasLength(2));
+      expect((await allLinks()).singleWhere((l) => l.id == rejected.id).dismissed, isTrue);
+      expect((await allLinks()).singleWhere((l) => l.id == already.id).origin, LinkOrigin.user);
+      // Undoing again changes nothing.
+      await links.undoLinks([...changes, ...fresh]);
+      expect(await allLinks(), unorderedEquals(before));
+    });
+
+    test('leaves pairs removed, moved or deleted since alone', () async {
+      final a = await note();
+      final b = await note();
+      final c = await note();
+      final d = await note();
+      final e = await note();
+      final changes = await links.linkNotesForUndo(a.id, [b.id, c.id, d.id, e.id]);
+      final cd = await links.linkNotesForUndo(c.id, [d.id]);
+      await links.removeLink(changes.last.linkId); // a–e removed by hand: stays removed
+      final removed = (await allLinks()).singleWhere((l) => l.id == changes.last.linkId);
+      await notes.moveNotes([c.id, d.id], q.id); // c–d moves with them
+      await notes.delete(b.id);
+      await links.undoLinks([...changes, ...cd]);
+      final rows = await allLinks();
+      expect(rows, unorderedEquals([removed, ...rows.where((l) => l.id == cd.single.linkId)]));
+      expect(rows.singleWhere((l) => l.id == cd.single.linkId).projectId, q.id);
+      expect(rows.singleWhere((l) => l.id == cd.single.linkId).origin, LinkOrigin.user);
+    });
+
+    test('rolls back as one transaction', () async {
+      final a = await note();
+      final b = await note();
+      final c = await note();
+      final suggestion = await edge(a, b);
+      final changes = await links.linkNotesForUndo(a.id, [b.id, c.id]);
+      final broken = LinkChange(
+        linkId: changes.last.linkId,
+        projectId: p.id,
+        before: [suggestion.copyWith(sourceId: 'missing-note')], // breaks the foreign key
+      );
+      await expectLater(links.undoLinks([changes.first, broken]), throwsA(anything));
+      expect((await allLinks()).where((l) => l.origin == LinkOrigin.user), hasLength(2));
+    });
+  });
+
   test('a sole reverse suggestion keeps its id when converted', () async {
     final a = await note();
     final b = await note();

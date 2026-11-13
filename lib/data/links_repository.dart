@@ -4,9 +4,27 @@ import 'ids.dart';
 import 'link_label.dart';
 import 'local/database.dart';
 
+/// One link made by [LinksRepository.linkNotesForUndo]: its row id, its
+/// project, and the rows its pair had before (empty when it had none).
+class LinkChange {
+  const LinkChange({required this.linkId, required this.projectId, required this.before});
+  final String linkId;
+  final String projectId;
+  final List<NoteLink> before;
+}
+
 abstract interface class LinksRepository {
   Stream<List<NoteLink>> watchLinks(String projectId);
   Future<List<String>> linkNotes(String sourceId, Iterable<String> targetIds, {String? label});
+
+  /// [linkNotes] with no label that also returns, for each link it made, the
+  /// rows the pair had before, so [undoLinks] can put the pair back.
+  Future<List<LinkChange>> linkNotesForUndo(String sourceId, Iterable<String> targetIds);
+
+  /// Puts each pair of [changes] back as it was before [linkNotesForUndo], in
+  /// one transaction: no row, its suggestion, or its rejection. Skips a pair
+  /// whose link was removed, or whose notes were deleted or moved, meanwhile.
+  Future<void> undoLinks(Iterable<LinkChange> changes);
   Future<void> updateLabel(String linkId, String? label);
   Future<void> removeLink(String linkId);
   Future<void> acceptSuggestion(String linkId);
@@ -37,6 +55,33 @@ class LocalLinksRepository implements LinksRepository {
 
   @override
   Future<List<String>> linkNotes(String sourceId, Iterable<String> targetIds, {String? label}) =>
+      _link(sourceId, targetIds, label: label);
+
+  @override
+  Future<List<LinkChange>> linkNotesForUndo(String sourceId, Iterable<String> targetIds) async {
+    final changes = <LinkChange>[];
+    await _link(sourceId, targetIds, changes: changes);
+    return changes;
+  }
+
+  @override
+  Future<void> undoLinks(Iterable<LinkChange> changes) => db.transaction(() async {
+    for (final change in changes) {
+      final row = await _read(change.linkId);
+      // Removed (or turned back) meanwhile: leave it.
+      if (row == null || row.origin != LinkOrigin.user || row.dismissed) continue;
+      // A note deleted, or moved to another project (the link moves with
+      // the notes): leave it too.
+      final notes = await (db.select(db.notes)..where((n) => n.id.isIn([row.sourceId, row.targetId]))).get();
+      if (notes.length != 2 || notes.any((n) => n.projectId != change.projectId)) continue;
+      await (db.delete(db.noteLinks)..where((l) => _pair(l, row.sourceId, row.targetId))).go();
+      for (final before in change.before) {
+        await db.into(db.noteLinks).insertOnConflictUpdate(before);
+      }
+    }
+  });
+
+  Future<List<String>> _link(String sourceId, Iterable<String> targetIds, {String? label, List<LinkChange>? changes}) =>
       db.transaction(() async {
         final source = await (db.select(db.notes)..where((n) => n.id.equals(sourceId))).getSingleOrNull();
         if (source == null) return [];
@@ -67,6 +112,7 @@ class LocalLinksRepository implements LinksRepository {
                   ),
                 );
             result.add(id);
+            changes?.add(LinkChange(linkId: id, projectId: source.projectId, before: rows));
           }
           final redundant = rows.where((l) => l.id != existing?.id && (l.origin == LinkOrigin.ai || l.dismissed));
           await (db.delete(db.noteLinks)..where((l) => l.id.isIn(redundant.map((r) => r.id)))).go();

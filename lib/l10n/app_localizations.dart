@@ -1645,6 +1645,348 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.'**
   String get deleteProjectEmptyChatBody;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{مفيش حاجة متختارة} one{ملاحظة واحدة متختارة} two{ملاحظتين متختارين} few{{count} ملاحظات متختارة} many{{count} ملاحظة متختارة} other{{count} ملاحظة متختارة}}'**
+  String selectedCount(int count);
+
+  /// No description provided for @closeSelection.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقفل الاختيار'**
+  String get closeSelection;
+
+  /// No description provided for @linkTogether.
+  ///
+  /// In ar, this message translates to:
+  /// **'اربطهم ببعض'**
+  String get linkTogether;
+
+  /// No description provided for @groupAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموعة'**
+  String get groupAction;
+
+  /// No description provided for @linkTogetherLimit.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقدر تربط لحد {max} ملاحظات ببعض. لو أكتر، حطهم في مجموعة.'**
+  String linkTogetherLimit(int max);
+
+  /// No description provided for @linkTogetherNeedsTwo.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختار ملاحظتين على الأقل عشان تربطهم.'**
+  String get linkTogetherNeedsTwo;
+
+  /// No description provided for @linksAdded.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{الملاحظات دي مربوطة ببعض أصلاً} one{اتعمل رابط جديد} two{اتعمل رابطين جداد} few{اتعمل {count} روابط جديدة} many{اتعمل {count} رابط جديد} other{اتعمل {count} رابط جديد}}'**
+  String linksAdded(int count);
+
+  /// No description provided for @undo.
+  ///
+  /// In ar, this message translates to:
+  /// **'تراجع'**
+  String get undo;
+
+  /// No description provided for @undoFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نتراجع عن اللي اتعمل.'**
+  String get undoFailed;
+
+  /// No description provided for @chooseGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختار مجموعة'**
+  String get chooseGroup;
+
+  /// No description provided for @newGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموعة جديدة'**
+  String get newGroup;
+
+  /// No description provided for @removeFromGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'شيل من المجموعة'**
+  String get removeFromGroup;
+
+  /// No description provided for @noGroupsYet.
+  ///
+  /// In ar, this message translates to:
+  /// **'لسه مفيش مجموعات في المشروع ده.'**
+  String get noGroupsYet;
+
+  /// No description provided for @subGroupA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'{group}، جوه «{parent}»، {notes}'**
+  String subGroupA11y(String group, String parent, String notes);
+
+  /// No description provided for @notesGrouped.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتحط {notes} في «{group}»'**
+  String notesGrouped(String notes, String group);
+
+  /// No description provided for @groupRemovedFrom.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتشالت المجموعة من {notes}'**
+  String groupRemovedFrom(String notes);
+
+  /// No description provided for @groupFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نعدّل المجموعة. جرّب تاني.'**
+  String get groupFailed;
+
+  /// No description provided for @groupNameHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم المجموعة'**
+  String get groupNameHint;
+
+  /// No description provided for @groupColorLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللون: {color}'**
+  String groupColorLabel(String color);
+
+  /// No description provided for @colorNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'من غير لون'**
+  String get colorNone;
+
+  /// No description provided for @colorBlue.
+  ///
+  /// In ar, this message translates to:
+  /// **'أزرق'**
+  String get colorBlue;
+
+  /// No description provided for @colorGreen.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخضر'**
+  String get colorGreen;
+
+  /// No description provided for @colorYellow.
+  ///
+  /// In ar, this message translates to:
+  /// **'أصفر'**
+  String get colorYellow;
+
+  /// No description provided for @colorGray.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمادي'**
+  String get colorGray;
+
+  /// No description provided for @groupParentLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'جوه مجموعة (اختياري)'**
+  String get groupParentLabel;
+
+  /// No description provided for @groupParentNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'ولا واحدة'**
+  String get groupParentNone;
+
+  /// No description provided for @moveNotesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنقل {notes} لـ«{project}»؟'**
+  String moveNotesTitle(String notes, String project);
+
+  /// No description provided for @moveNotesBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} one{الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} two{الملاحظتين هيتنقلوا بملفاتهم، وهيتشال {lost} بينهم وبين الملاحظات اللي هتفضل هنا.} few{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} many{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} other{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.}}'**
+  String moveNotesBody(int count, String lost);
+
+  /// No description provided for @moveNotesBodyNoLinks.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} one{الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.} two{الملاحظتين هيتنقلوا بملفاتهم، ومفيش روابط هتتشال.} few{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} many{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} other{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.}}'**
+  String moveNotesBodyNoLinks(int count);
+
+  /// No description provided for @notesMoved.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتنقل {notes} لـ«{project}»'**
+  String notesMoved(String notes, String project);
+
+  /// No description provided for @moveNotesFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش ننقل الملاحظات. جرّب تاني.'**
+  String get moveNotesFailed;
+
+  /// No description provided for @moveNotesNoOtherProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش مشروع تاني تنقل له الملاحظات.'**
+  String get moveNotesNoOtherProject;
+
+  /// No description provided for @deleteNotesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحذف {notes}؟'**
+  String deleteNotesTitle(String notes);
+
+  /// No description provided for @deleteNotesBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} one{الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} two{الملاحظتين وملفاتهم وروابطهم هيتحذفوا، ومش هتعرف ترجّعهم.} few{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} many{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} other{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.}}'**
+  String deleteNotesBody(int count);
+
+  /// No description provided for @notesDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتحذف {notes}'**
+  String notesDeleted(String notes);
+
+  /// No description provided for @deleteNotesFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نحذف كل الملاحظات. جرّب تاني.'**
+  String get deleteNotesFailed;
+
+  /// No description provided for @allGroupsFilter.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get allGroupsFilter;
+
+  /// No description provided for @groupOptionsA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات المجموعة «{group}»'**
+  String groupOptionsA11y(String group);
+
+  /// No description provided for @groupEmptyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المجموعة دي فاضية'**
+  String get groupEmptyTitle;
+
+  /// No description provided for @groupEmptyBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة».'**
+  String get groupEmptyBody;
+
+  /// No description provided for @noteGroupA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'في مجموعة «{group}»'**
+  String noteGroupA11y(String group);
+
+  /// No description provided for @renameGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'غيّر الاسم'**
+  String get renameGroup;
+
+  /// No description provided for @changeGroupColor.
+  ///
+  /// In ar, this message translates to:
+  /// **'غيّر اللون'**
+  String get changeGroupColor;
+
+  /// No description provided for @putInGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'حطها جوه مجموعة تانية'**
+  String get putInGroup;
+
+  /// No description provided for @takeOutOfGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلّعها برة «{parent}»'**
+  String takeOutOfGroup(String parent);
+
+  /// No description provided for @deleteGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'احذف المجموعة'**
+  String get deleteGroup;
+
+  /// No description provided for @deleteGroupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحذف المجموعة «{group}»؟'**
+  String deleteGroupTitle(String group);
+
+  /// No description provided for @deleteGroupBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظات اللي فيها هتفضل زي ما هي، بس من غير مجموعة. والمجموعات اللي جواها هتطلع برة.'**
+  String get deleteGroupBody;
+
+  /// No description provided for @groupDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'المجموعة اتحذفت'**
+  String get groupDeleted;
+
+  /// No description provided for @noParentGroups.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش مجموعة تانية تحطها جواها.'**
+  String get noParentGroups;
+
+  /// No description provided for @groupRuleEmptyName.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب اسم للمجموعة.'**
+  String get groupRuleEmptyName;
+
+  /// No description provided for @groupRuleInvalidColor.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللون ده مش متاح.'**
+  String get groupRuleInvalidColor;
+
+  /// No description provided for @groupRuleMissingProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشروع ده مابقاش موجود.'**
+  String get groupRuleMissingProject;
+
+  /// No description provided for @groupRuleMissingGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'المجموعة دي مابقتش موجودة.'**
+  String get groupRuleMissingGroup;
+
+  /// No description provided for @groupRuleInvalidParent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.'**
+  String get groupRuleInvalidParent;
+
+  /// No description provided for @groupRuleSelfParent.
+  ///
+  /// In ar, this message translates to:
+  /// **'مينفعش تحط المجموعة جوه نفسها.'**
+  String get groupRuleSelfParent;
+
+  /// No description provided for @groupRuleHasChildren.
+  ///
+  /// In ar, this message translates to:
+  /// **'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.'**
+  String get groupRuleHasChildren;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

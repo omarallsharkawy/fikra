@@ -13,7 +13,14 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
+import '../shared/group_filter.dart';
+import '../shared/group_options.dart';
+import '../shared/note_groups.dart';
+import '../shared/selection_actions.dart';
+import '../shared/selection_bar.dart';
 import 'note_card.dart';
+
+part 'notes_selection.dart';
 
 class NotesScreen extends ConsumerStatefulWidget {
   const NotesScreen({super.key});
@@ -22,23 +29,29 @@ class NotesScreen extends ConsumerStatefulWidget {
   ConsumerState<NotesScreen> createState() => _NotesScreenState();
 }
 
-class _NotesScreenState extends ConsumerState<NotesScreen> {
+class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
   final _search = TextEditingController();
   String _query = '';
   Timer? _debounce;
+
+  /// The group filter: a group id (with its sub-groups), or null for all.
+  String? _filter;
 
   // Lower-cased search text per note, rebuilt only when the note changes, so
   // a keystroke doesn't re-lowercase thousands of notes.
   final _haystacks = <String, (String, String, String, String)>{};
 
-  // The filtered + grouped list, recomputed only when the notes or the query
-  // change (not on every rebuild).
+  // The filtered + grouped list, recomputed only when the notes, the groups,
+  // the filter or the query change (not on every rebuild).
   List<Note>? _lastAll;
+  List<NoteGroup>? _lastGroups;
+  String? _lastFilter;
   String? _lastQuery;
   DateTime? _lastDay;
   String? _lastLocale;
   List<_Row> _rows = const [];
   Map<String, int> _rowOf = const {};
+  Map<String, NoteGroup> _groupsById = const {};
   int _matchCount = 0;
 
   @override
@@ -73,26 +86,33 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     return h;
   }
 
-  void _rebuildRows(List<Note> all) {
+  void _rebuildRows(List<Note> all, List<NoteGroup> groups) {
     // Rebuild date labels when the locale or calendar day changes.
     final now = ref.read(appClockProvider)();
     final today = DateTime(now.year, now.month, now.day);
     if (identical(all, _lastAll) &&
+        identical(groups, _lastGroups) &&
+        _filter == _lastFilter &&
         _query == _lastQuery &&
         today == _lastDay &&
         _lastLocale == context.l10n.localeName) {
       return;
     }
     _lastAll = all;
+    _lastGroups = groups;
+    _lastFilter = _filter;
     _lastQuery = _query;
     _lastDay = today;
     _lastLocale = context.l10n.localeName;
+    _groupsById = {for (final g in groups) g.id: g};
     final q = _query.toLowerCase();
-    final notes = q.isEmpty
+    final filter = _filter;
+    final inGroup = filter == null ? null : groupWithChildren(groups, filter);
+    final notes = q.isEmpty && inGroup == null
         ? all
         : [
             for (final n in all)
-              if (_haystack(n).contains(q)) n,
+              if ((inGroup == null || inGroup.contains(n.groupId)) && (q.isEmpty || _haystack(n).contains(q))) n,
           ];
     if (_haystacks.length > all.length * 2) {
       final live = {for (final n in all) n.id};
@@ -116,98 +136,148 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final project = ref.watch(selectedProjectProvider);
+    // Another project: its own filter, and no selection carried over.
+    ref.listen(selectedProjectProvider, (previous, next) {
+      if (previous?.id == next?.id) return;
+      setState(() {
+        _filter = null;
+        _selection = null;
+      });
+    });
     final notesAsync = ref.watch(selectedNotesProvider);
     final all = notesAsync.value ?? const <Note>[];
-    _rebuildRows(all);
+    final groupsAsync = project == null
+        ? const AsyncData(<NoteGroup>[])
+        : ref.watch(groupsOfProjectProvider(project.id));
+    final groups = groupsAsync.value ?? const <NoteGroup>[];
+    // The filtered group was deleted: back to all notes.
+    if (_filter != null && groupsAsync.hasValue && !groups.any((g) => g.id == _filter)) _filter = null;
+    _rebuildRows(all, groups);
+    if (notesAsync.hasValue) _keepVisible(_rowOf);
     final rows = _rows;
+    final selection = _selection;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ProjectHeader(title: context.l10n.notesTitle),
-        if (all.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
-            child: FikraField(
-              controller: _search,
-              hint: context.l10n.searchNotesHint,
-              icon: Icons.search_rounded,
-              textInputAction: TextInputAction.search,
-              onChanged: _onSearch,
-            ),
-          ),
-        Expanded(
-          child: FikraSwitcher(
-            child: KeyedSubtree(
-              key: ValueKey(
-                notesAsync.hasError && !notesAsync.hasValue
-                    ? 'error'
-                    : !notesAsync.hasValue
-                    ? 'loading'
-                    : all.isEmpty
-                    ? 'empty'
-                    : _matchCount == 0
-                    ? 'no-results'
-                    : 'list',
+    return PopScope(
+      // Back ends a selection first and stays on the screen.
+      canPop: selection == null,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _endSelection();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (selection == null)
+            ProjectHeader(title: context.l10n.notesTitle)
+          else
+            SelectionHeader(count: selection.length, onClose: _endSelection),
+          if (all.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+              child: FikraField(
+                controller: _search,
+                hint: context.l10n.searchNotesHint,
+                icon: Icons.search_rounded,
+                textInputAction: TextInputAction.search,
+                onChanged: _onSearch,
               ),
-              child: notesAsync.hasError && !notesAsync.hasValue
-                  ? LoadErrorView(onRetry: () => ref.invalidate(selectedNotesProvider))
-                  : !notesAsync.hasValue
-                  ? const SizedBox.shrink()
-                  : all.isEmpty
-                  ? FillScroll(
-                      child: EmptyState(
-                        icon: Icons.sticky_note_2_outlined,
-                        title: context.l10n.notesEmptyTitle,
-                        description: context.l10n.notesEmptyBody,
-                        action: FikraButton(
-                          label: context.l10n.addFirstNote,
-                          icon: Icons.add_rounded,
-                          expand: false,
-                          onPressed: () => context.go('/add'),
+            ),
+          if (groups.isNotEmpty)
+            GroupFilterRow(
+              groups: groups,
+              selectedId: _filter,
+              // Another filter starts with no selection.
+              onSelect: (id) => setState(() {
+                _filter = id;
+                _selection = null;
+              }),
+              onOptions: (group) => showGroupOptions(context, ref, group),
+            ),
+          Expanded(
+            child: FikraSwitcher(
+              child: KeyedSubtree(
+                key: ValueKey(
+                  notesAsync.hasError && !notesAsync.hasValue
+                      ? 'error'
+                      : !notesAsync.hasValue
+                      ? 'loading'
+                      : all.isEmpty
+                      ? 'empty'
+                      : _matchCount == 0
+                      ? (_query.isEmpty ? 'group-empty' : 'no-results')
+                      : 'list',
+                ),
+                child: notesAsync.hasError && !notesAsync.hasValue
+                    ? LoadErrorView(onRetry: () => ref.invalidate(selectedNotesProvider))
+                    : !notesAsync.hasValue
+                    ? const SizedBox.shrink()
+                    : all.isEmpty
+                    ? FillScroll(
+                        child: EmptyState(
+                          icon: Icons.sticky_note_2_outlined,
+                          title: context.l10n.notesEmptyTitle,
+                          description: context.l10n.notesEmptyBody,
+                          action: FikraButton(
+                            label: context.l10n.addFirstNote,
+                            icon: Icons.add_rounded,
+                            expand: false,
+                            onPressed: () => context.go('/add'),
+                          ),
                         ),
-                      ),
-                    )
-                  : _matchCount == 0
-                  ? FillScroll(
-                      child: EmptyState(
-                        icon: Icons.search_off_rounded,
-                        title: context.l10n.noResultsTitle,
-                        description: context.l10n.noResultsBody(_query),
-                      ),
-                    )
-                  // Built lazily: only the visible rows exist, whatever the size.
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      itemCount: rows.length,
-                      findChildIndexCallback: (key) => key is ValueKey<String> ? _rowOf[key.value] : null,
-                      itemBuilder: (context, i) {
-                        final row = rows[i];
-                        final n = row.note;
-                        if (n == null) {
+                      )
+                    : _matchCount == 0
+                    ? FillScroll(
+                        child: _query.isEmpty
+                            ? EmptyState(
+                                icon: Icons.folder_copy_outlined,
+                                title: context.l10n.groupEmptyTitle,
+                                description: context.l10n.groupEmptyBody,
+                              )
+                            : EmptyState(
+                                icon: Icons.search_off_rounded,
+                                title: context.l10n.noResultsTitle,
+                                description: context.l10n.noResultsBody(_query),
+                              ),
+                      )
+                    // Built lazily: only the visible rows exist, whatever the size.
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        itemCount: rows.length,
+                        findChildIndexCallback: (key) => key is ValueKey<String> ? _rowOf[key.value] : null,
+                        itemBuilder: (context, i) {
+                          final row = rows[i];
+                          final n = row.note;
+                          if (n == null) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 10, bottom: 10),
+                              child: Text(
+                                row.header!,
+                                style: context.text.section.copyWith(color: context.colors.textSecondary),
+                              ),
+                            );
+                          }
                           return Padding(
-                            padding: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: Text(
-                              row.header!,
-                              style: context.text.section.copyWith(color: context.colors.textSecondary),
+                            key: ValueKey(n.id),
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: NoteCard(
+                              note: n,
+                              group: _groupsById[n.groupId],
+                              selected: selection?.contains(n.id),
+                              onTap: selection != null
+                                  ? () => _toggle(n.id)
+                                  : () => context.push('/note/${n.id}', extra: n),
+                              onLongPress: () => selection != null ? _toggle(n.id) : _startSelection(n.id),
                             ),
                           );
-                        }
-                        return Padding(
-                          key: ValueKey(n.id),
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: NoteCard(
-                            note: n,
-                            onTap: () => context.push('/note/${n.id}', extra: n),
-                          ),
-                        );
-                      },
-                    ),
+                        },
+                      ),
+              ),
             ),
           ),
-        ),
-      ],
+          if (selection != null) _actionBar(context, selection.length),
+        ],
+      ),
     );
   }
 }

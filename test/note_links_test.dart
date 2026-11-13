@@ -720,6 +720,13 @@ class _SpyLinks implements LinksRepository {
   }
 
   @override
+  Future<List<LinkChange>> linkNotesForUndo(String sourceId, Iterable<String> targetIds) =>
+      _inner.linkNotesForUndo(sourceId, targetIds);
+
+  @override
+  Future<void> undoLinks(Iterable<LinkChange> changes) => _inner.undoLinks(changes);
+
+  @override
   Future<void> updateLabel(String linkId, String? label) async {
     calls.add('label');
     await gate?.future;

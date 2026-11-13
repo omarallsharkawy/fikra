@@ -551,5 +551,206 @@
       }
     }
   },
-  "deleteProjectEmptyChatBody": "This project has no notes, but its chat will be deleted. You can't undo this."
+  "deleteProjectEmptyChatBody": "This project has no notes, but its chat will be deleted. You can't undo this.",
+  "selectedCount": "{count, plural, =0{Nothing selected} one{1 selected} other{{count} selected}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSelection": "Close selection",
+  "linkTogether": "Link together",
+  "groupAction": "Group",
+  "linkTogetherLimit": "You can link up to {max} notes together. For more, use a group.",
+  "@linkTogetherLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "linkTogetherNeedsTwo": "Select at least 2 notes to link them.",
+  "linksAdded": "{count, plural, =0{These notes were already linked} one{Added 1 link} other{Added {count} links}}",
+  "@linksAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "undo": "Undo",
+  "undoFailed": "Couldn't undo that.",
+  "chooseGroup": "Choose a group",
+  "newGroup": "New group",
+  "removeFromGroup": "Remove from group",
+  "noGroupsYet": "No groups in this project yet.",
+  "subGroupA11y": "{group}, inside {parent}, {notes}",
+  "@subGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "parent": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "notesGrouped": "Added {notes} to \"{group}\"",
+  "@notesGrouped": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupRemovedFrom": "Removed the group from {notes}",
+  "@groupRemovedFrom": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "groupFailed": "Couldn't update the group. Try again.",
+  "groupNameHint": "Group name",
+  "groupColorLabel": "Color: {color}",
+  "@groupColorLabel": {
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "colorNone": "No color",
+  "colorBlue": "Blue",
+  "colorGreen": "Green",
+  "colorYellow": "Yellow",
+  "colorGray": "Gray",
+  "groupParentLabel": "Inside a group (optional)",
+  "groupParentNone": "None",
+  "moveNotesTitle": "Move {notes} to \"{project}\"?",
+  "@moveNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBody": "{count, plural, one{The note moves with its files. Its {lost} to notes that stay here will be removed.} other{The notes move with their files. Their {lost} to notes that stay here will be removed.}}",
+  "@moveNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBodyNoLinks": "{count, plural, one{The note moves with its files. No links will be removed.} other{The notes move with their files. No links will be removed.}}",
+  "@moveNotesBodyNoLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesMoved": "Moved {notes} to \"{project}\"",
+  "@notesMoved": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesFailed": "Couldn't move the notes. Try again.",
+  "moveNotesNoOtherProject": "There's no other project to move these notes to.",
+  "deleteNotesTitle": "Delete {notes}?",
+  "@deleteNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesBody": "{count, plural, one{The note, its files and its links will be deleted. You can't undo this.} other{These notes, their files and their links will be deleted. You can't undo this.}}",
+  "@deleteNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesDeleted": "Deleted {notes}",
+  "@notesDeleted": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesFailed": "Couldn't delete all the notes. Try again.",
+  "allGroupsFilter": "All",
+  "groupOptionsA11y": "Options for the group {group}",
+  "@groupOptionsA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupEmptyTitle": "This group is empty",
+  "groupEmptyBody": "Long-press a note to select it, then tap Group.",
+  "noteGroupA11y": "In group {group}",
+  "@noteGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "renameGroup": "Rename",
+  "changeGroupColor": "Change color",
+  "putInGroup": "Put inside another group",
+  "takeOutOfGroup": "Take out of \"{parent}\"",
+  "@takeOutOfGroup": {
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroup": "Delete group",
+  "deleteGroupTitle": "Delete the group \"{group}\"?",
+  "@deleteGroupTitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroupBody": "Its notes stay as they are, just without a group. Groups inside it move out.",
+  "groupDeleted": "Group deleted",
+  "noParentGroups": "There's no other group to put it in.",
+  "groupRuleEmptyName": "Write a name for the group.",
+  "groupRuleInvalidColor": "That color isn't available.",
+  "groupRuleMissingProject": "This project no longer exists.",
+  "groupRuleMissingGroup": "This group no longer exists.",
+  "groupRuleInvalidParent": "A group can only go inside a top-level group, not inside a sub-group.",
+  "groupRuleSelfParent": "A group can't go inside itself.",
+  "groupRuleHasChildren": "This group has groups inside it, so it can't go inside another group."
 }

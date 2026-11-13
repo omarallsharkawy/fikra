@@ -573,5 +573,206 @@
       }
     }
   },
-  "deleteProjectEmptyChatBody": "المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها."
+  "deleteProjectEmptyChatBody": "المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.",
+  "selectedCount": "{count, plural, zero{مفيش حاجة متختارة} one{ملاحظة واحدة متختارة} two{ملاحظتين متختارين} few{{count} ملاحظات متختارة} many{{count} ملاحظة متختارة} other{{count} ملاحظة متختارة}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSelection": "اقفل الاختيار",
+  "linkTogether": "اربطهم ببعض",
+  "groupAction": "مجموعة",
+  "linkTogetherLimit": "تقدر تربط لحد {max} ملاحظات ببعض. لو أكتر، حطهم في مجموعة.",
+  "@linkTogetherLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "linkTogetherNeedsTwo": "اختار ملاحظتين على الأقل عشان تربطهم.",
+  "linksAdded": "{count, plural, zero{الملاحظات دي مربوطة ببعض أصلاً} one{اتعمل رابط جديد} two{اتعمل رابطين جداد} few{اتعمل {count} روابط جديدة} many{اتعمل {count} رابط جديد} other{اتعمل {count} رابط جديد}}",
+  "@linksAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "undo": "تراجع",
+  "undoFailed": "مقدرناش نتراجع عن اللي اتعمل.",
+  "chooseGroup": "اختار مجموعة",
+  "newGroup": "مجموعة جديدة",
+  "removeFromGroup": "شيل من المجموعة",
+  "noGroupsYet": "لسه مفيش مجموعات في المشروع ده.",
+  "subGroupA11y": "{group}، جوه «{parent}»، {notes}",
+  "@subGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "parent": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "notesGrouped": "اتحط {notes} في «{group}»",
+  "@notesGrouped": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupRemovedFrom": "اتشالت المجموعة من {notes}",
+  "@groupRemovedFrom": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "groupFailed": "مقدرناش نعدّل المجموعة. جرّب تاني.",
+  "groupNameHint": "اسم المجموعة",
+  "groupColorLabel": "اللون: {color}",
+  "@groupColorLabel": {
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "colorNone": "من غير لون",
+  "colorBlue": "أزرق",
+  "colorGreen": "أخضر",
+  "colorYellow": "أصفر",
+  "colorGray": "رمادي",
+  "groupParentLabel": "جوه مجموعة (اختياري)",
+  "groupParentNone": "ولا واحدة",
+  "moveNotesTitle": "تنقل {notes} لـ«{project}»؟",
+  "@moveNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBody": "{count, plural, zero{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} one{الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} two{الملاحظتين هيتنقلوا بملفاتهم، وهيتشال {lost} بينهم وبين الملاحظات اللي هتفضل هنا.} few{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} many{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} other{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.}}",
+  "@moveNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBodyNoLinks": "{count, plural, zero{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} one{الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.} two{الملاحظتين هيتنقلوا بملفاتهم، ومفيش روابط هتتشال.} few{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} many{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} other{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.}}",
+  "@moveNotesBodyNoLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesMoved": "اتنقل {notes} لـ«{project}»",
+  "@notesMoved": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesFailed": "مقدرناش ننقل الملاحظات. جرّب تاني.",
+  "moveNotesNoOtherProject": "مفيش مشروع تاني تنقل له الملاحظات.",
+  "deleteNotesTitle": "تحذف {notes}؟",
+  "@deleteNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesBody": "{count, plural, zero{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} one{الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} two{الملاحظتين وملفاتهم وروابطهم هيتحذفوا، ومش هتعرف ترجّعهم.} few{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} many{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} other{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.}}",
+  "@deleteNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesDeleted": "اتحذف {notes}",
+  "@notesDeleted": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesFailed": "مقدرناش نحذف كل الملاحظات. جرّب تاني.",
+  "allGroupsFilter": "الكل",
+  "groupOptionsA11y": "خيارات المجموعة «{group}»",
+  "@groupOptionsA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupEmptyTitle": "المجموعة دي فاضية",
+  "groupEmptyBody": "دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة».",
+  "noteGroupA11y": "في مجموعة «{group}»",
+  "@noteGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "renameGroup": "غيّر الاسم",
+  "changeGroupColor": "غيّر اللون",
+  "putInGroup": "حطها جوه مجموعة تانية",
+  "takeOutOfGroup": "طلّعها برة «{parent}»",
+  "@takeOutOfGroup": {
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroup": "احذف المجموعة",
+  "deleteGroupTitle": "تحذف المجموعة «{group}»؟",
+  "@deleteGroupTitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroupBody": "الملاحظات اللي فيها هتفضل زي ما هي، بس من غير مجموعة. والمجموعات اللي جواها هتطلع برة.",
+  "groupDeleted": "المجموعة اتحذفت",
+  "noParentGroups": "مفيش مجموعة تانية تحطها جواها.",
+  "groupRuleEmptyName": "اكتب اسم للمجموعة.",
+  "groupRuleInvalidColor": "اللون ده مش متاح.",
+  "groupRuleMissingProject": "المشروع ده مابقاش موجود.",
+  "groupRuleMissingGroup": "المجموعة دي مابقتش موجودة.",
+  "groupRuleInvalidParent": "تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.",
+  "groupRuleSelfParent": "مينفعش تحط المجموعة جوه نفسها.",
+  "groupRuleHasChildren": "المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية."
 }

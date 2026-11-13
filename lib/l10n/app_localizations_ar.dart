@@ -948,4 +948,262 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteProjectEmptyChatBody => 'المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة متختارة',
+      many: '$count ملاحظة متختارة',
+      few: '$count ملاحظات متختارة',
+      two: 'ملاحظتين متختارين',
+      one: 'ملاحظة واحدة متختارة',
+      zero: 'مفيش حاجة متختارة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeSelection => 'اقفل الاختيار';
+
+  @override
+  String get linkTogether => 'اربطهم ببعض';
+
+  @override
+  String get groupAction => 'مجموعة';
+
+  @override
+  String linkTogetherLimit(int max) {
+    return 'تقدر تربط لحد $max ملاحظات ببعض. لو أكتر، حطهم في مجموعة.';
+  }
+
+  @override
+  String get linkTogetherNeedsTwo => 'اختار ملاحظتين على الأقل عشان تربطهم.';
+
+  @override
+  String linksAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اتعمل $count رابط جديد',
+      many: 'اتعمل $count رابط جديد',
+      few: 'اتعمل $count روابط جديدة',
+      two: 'اتعمل رابطين جداد',
+      one: 'اتعمل رابط جديد',
+      zero: 'الملاحظات دي مربوطة ببعض أصلاً',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get undo => 'تراجع';
+
+  @override
+  String get undoFailed => 'مقدرناش نتراجع عن اللي اتعمل.';
+
+  @override
+  String get chooseGroup => 'اختار مجموعة';
+
+  @override
+  String get newGroup => 'مجموعة جديدة';
+
+  @override
+  String get removeFromGroup => 'شيل من المجموعة';
+
+  @override
+  String get noGroupsYet => 'لسه مفيش مجموعات في المشروع ده.';
+
+  @override
+  String subGroupA11y(String group, String parent, String notes) {
+    return '$group، جوه «$parent»، $notes';
+  }
+
+  @override
+  String notesGrouped(String notes, String group) {
+    return 'اتحط $notes في «$group»';
+  }
+
+  @override
+  String groupRemovedFrom(String notes) {
+    return 'اتشالت المجموعة من $notes';
+  }
+
+  @override
+  String get groupFailed => 'مقدرناش نعدّل المجموعة. جرّب تاني.';
+
+  @override
+  String get groupNameHint => 'اسم المجموعة';
+
+  @override
+  String groupColorLabel(String color) {
+    return 'اللون: $color';
+  }
+
+  @override
+  String get colorNone => 'من غير لون';
+
+  @override
+  String get colorBlue => 'أزرق';
+
+  @override
+  String get colorGreen => 'أخضر';
+
+  @override
+  String get colorYellow => 'أصفر';
+
+  @override
+  String get colorGray => 'رمادي';
+
+  @override
+  String get groupParentLabel => 'جوه مجموعة (اختياري)';
+
+  @override
+  String get groupParentNone => 'ولا واحدة';
+
+  @override
+  String moveNotesTitle(String notes, String project) {
+    return 'تنقل $notes لـ«$project»؟';
+  }
+
+  @override
+  String moveNotesBody(int count, String lost) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      many: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      few: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      two: 'الملاحظتين هيتنقلوا بملفاتهم، وهيتشال $lost بينهم وبين الملاحظات اللي هتفضل هنا.',
+      one: 'الملاحظة هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      zero: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String moveNotesBodyNoLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.',
+      many: 'الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.',
+      few: 'الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.',
+      two: 'الملاحظتين هيتنقلوا بملفاتهم، ومفيش روابط هتتشال.',
+      one: 'الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.',
+      zero: 'الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notesMoved(String notes, String project) {
+    return 'اتنقل $notes لـ«$project»';
+  }
+
+  @override
+  String get moveNotesFailed => 'مقدرناش ننقل الملاحظات. جرّب تاني.';
+
+  @override
+  String get moveNotesNoOtherProject => 'مفيش مشروع تاني تنقل له الملاحظات.';
+
+  @override
+  String deleteNotesTitle(String notes) {
+    return 'تحذف $notes؟';
+  }
+
+  @override
+  String deleteNotesBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.',
+      many: 'الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.',
+      few: 'الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.',
+      two: 'الملاحظتين وملفاتهم وروابطهم هيتحذفوا، ومش هتعرف ترجّعهم.',
+      one: 'الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.',
+      zero: 'الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notesDeleted(String notes) {
+    return 'اتحذف $notes';
+  }
+
+  @override
+  String get deleteNotesFailed => 'مقدرناش نحذف كل الملاحظات. جرّب تاني.';
+
+  @override
+  String get allGroupsFilter => 'الكل';
+
+  @override
+  String groupOptionsA11y(String group) {
+    return 'خيارات المجموعة «$group»';
+  }
+
+  @override
+  String get groupEmptyTitle => 'المجموعة دي فاضية';
+
+  @override
+  String get groupEmptyBody => 'دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة».';
+
+  @override
+  String noteGroupA11y(String group) {
+    return 'في مجموعة «$group»';
+  }
+
+  @override
+  String get renameGroup => 'غيّر الاسم';
+
+  @override
+  String get changeGroupColor => 'غيّر اللون';
+
+  @override
+  String get putInGroup => 'حطها جوه مجموعة تانية';
+
+  @override
+  String takeOutOfGroup(String parent) {
+    return 'طلّعها برة «$parent»';
+  }
+
+  @override
+  String get deleteGroup => 'احذف المجموعة';
+
+  @override
+  String deleteGroupTitle(String group) {
+    return 'تحذف المجموعة «$group»؟';
+  }
+
+  @override
+  String get deleteGroupBody =>
+      'الملاحظات اللي فيها هتفضل زي ما هي، بس من غير مجموعة. والمجموعات اللي جواها هتطلع برة.';
+
+  @override
+  String get groupDeleted => 'المجموعة اتحذفت';
+
+  @override
+  String get noParentGroups => 'مفيش مجموعة تانية تحطها جواها.';
+
+  @override
+  String get groupRuleEmptyName => 'اكتب اسم للمجموعة.';
+
+  @override
+  String get groupRuleInvalidColor => 'اللون ده مش متاح.';
+
+  @override
+  String get groupRuleMissingProject => 'المشروع ده مابقاش موجود.';
+
+  @override
+  String get groupRuleMissingGroup => 'المجموعة دي مابقتش موجودة.';
+
+  @override
+  String get groupRuleInvalidParent => 'تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.';
+
+  @override
+  String get groupRuleSelfParent => 'مينفعش تحط المجموعة جوه نفسها.';
+
+  @override
+  String get groupRuleHasChildren => 'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.';
 }

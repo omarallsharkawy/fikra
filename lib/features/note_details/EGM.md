@@ -95,3 +95,7 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 ## Shared link actions (links phase 4)
 
 The former `note_link_actions.dart` part moved to `features/shared/note_link_actions.dart`. Details imports `showLinkOptions` without changing its user-link appearance, callbacks, keys, confirmation or editor lifecycle. Inline suggestion actions call shared `changeLinkPair` inside the existing per-pair busy guard. The graph uses those same sheets and pair operations. Existing `test/note_links_test.dart` remains the note-page regression suite.
+
+## Shared move confirmation (links phase 5a)
+
+`_move` now calls `confirmMove` from `shared/move_confirm.dart` (the same re-ask loop and danger flag, moved out unchanged). `moveNoteMessage(l10n, impact)` keeps its name and delegates to `moveMessage`. Behaviour, strings and keys are unchanged; `test/project_moves_test.dart` still covers them.

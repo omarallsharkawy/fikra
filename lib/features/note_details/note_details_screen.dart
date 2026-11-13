@@ -16,6 +16,7 @@ import '../../core/widgets/voice_player.dart';
 import '../../data/links_repository.dart';
 import '../../data/local/database.dart';
 import '../shared/link_picker.dart';
+import '../shared/move_confirm.dart';
 import '../shared/note_links.dart';
 import '../shared/note_link_actions.dart';
 import '../shared/note_presentation.dart';
@@ -47,15 +48,7 @@ const _improvedView = 0, _originalView = 1;
 /// The move confirmation: the files go along; links to notes left behind are
 /// counted, and counts at zero are left out.
 @visibleForTesting
-String moveNoteMessage(AppLocalizations l10n, ({int userLinks, int suggestions}) impact) {
-  if (impact.userLinks + impact.suggestions == 0) return l10n.moveNoteBodyNoLinks;
-  return l10n.moveNoteBody(
-    Fmt.list(l10n, [
-      if (impact.userLinks > 0) Fmt.links(l10n, impact.userLinks),
-      if (impact.suggestions > 0) Fmt.suggestions(l10n, impact.suggestions),
-    ]),
-  );
-}
+String moveNoteMessage(AppLocalizations l10n, MoveImpact impact) => moveMessage(l10n, impact);
 
 class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
   int _view = _improvedView;
@@ -142,33 +135,15 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
       final repo = ref.read(notesRepoProvider);
       final processor = ref.read(noteProcessorProvider);
       final route = ModalRoute.of(context);
-      Future<({int userLinks, int suggestions})?> count() async {
-        try {
-          return await repo.moveImpact([note.id], target.id);
-        } catch (_) {
-          if (mounted) showToast(context, l10n.moveNoteFailed);
-          return null;
-        }
-      }
-
-      var shown = await count();
-      while (true) {
-        if (shown == null || !mounted) return;
-        final ok = await confirmDestructive(
-          context,
-          title: l10n.moveNoteTitle(Fmt.isolate(target.name)),
-          message: moveNoteMessage(l10n, shown),
-          confirmLabel: l10n.moveConfirm,
-          danger: shown.userLinks + shown.suggestions > 0,
-        );
-        if (!ok || !mounted) return;
-        // The numbers changed while the dialog was open (an analysis added
-        // suggestions, say): ask again with the new ones instead of moving.
-        final now = await count();
-        if (now == shown) break;
-        shown = now;
-      }
-      if (!mounted) return;
+      // Asks again if the numbers change while the dialog is open.
+      final confirmed = await confirmMove(
+        context,
+        impact: () => repo.moveImpact([note.id], target.id),
+        title: l10n.moveNoteTitle(Fmt.isolate(target.name)),
+        message: (impact) => moveNoteMessage(l10n, impact),
+        failure: l10n.moveNoteFailed,
+      );
+      if (!confirmed || !mounted) return;
       var moved = const <String>[];
       final done = await runAction(
         context,
