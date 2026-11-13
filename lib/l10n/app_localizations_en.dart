@@ -175,14 +175,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteProjectBody =>
-      'All notes, files and chats in this project will be deleted. You can\'t undo this.';
+  String deleteProjectBody(String items) {
+    return 'This deletes $items, plus the chat. You can\'t undo this.';
+  }
 
   @override
   String get projectDeleted => 'Project deleted';
 
   @override
-  String get projectNameHint => 'Project name, e.g. Study';
+  String get projectNameHint => 'Project name';
 
   @override
   String get recordStartFailed => 'Couldn\'t start recording. Try again.';
@@ -541,14 +542,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String sourceDeletedA11y(int index) {
-    return 'Source $index: deleted note';
-  }
-
-  @override
-  String get deletedNote => 'Deleted note';
-
-  @override
   String get eraseAllTitle => 'Erase all data?';
 
   @override
@@ -879,4 +872,89 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get moveToProject => 'Move to another project';
+
+  @override
+  String get moveNoOtherProject =>
+      'There\'s no other project to move this note to.';
+
+  @override
+  String moveNoteTitle(String project) {
+    return 'Move this note to \"$project\"?';
+  }
+
+  @override
+  String moveNoteBody(String lost) {
+    return 'The note moves with its files. Its $lost to notes that stay here will be removed.';
+  }
+
+  @override
+  String get moveNoteBodyNoLinks =>
+      'The note moves with its files. No links will be removed.';
+
+  @override
+  String get moveConfirm => 'Move';
+
+  @override
+  String noteMoved(String project) {
+    return 'Note moved to \"$project\"';
+  }
+
+  @override
+  String get moveNoteFailed => 'Couldn\'t move the note. Try again.';
+
+  @override
+  String suggestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count suggestions',
+      one: '1 suggestion',
+      zero: 'No suggestions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+      zero: 'No files',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String listTwo(String first, String second) {
+    return '$first and $second';
+  }
+
+  @override
+  String listThree(String first, String second, String third) {
+    return '$first, $second and $third';
+  }
+
+  @override
+  String get deleteProjectEmptyBody =>
+      'This project is empty. It has no notes.';
+
+  @override
+  String get firstProjectNameHint => 'Project name, e.g. Study';
+
+  @override
+  String get sourceMissing => 'Note no longer in this project';
+
+  @override
+  String sourceMissingA11y(int index) {
+    return 'Source $index: note no longer in this project';
+  }
+
+  @override
+  String get deleteProjectEmptyChatBody =>
+      'This project has no notes, but its chat will be deleted. You can\'t undo this.';
 }

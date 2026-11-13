@@ -17,7 +17,7 @@ From `ids.dart`:
 From `repositories.dart`:
 
 - `typedef ProjectSummary = ({Project project, int noteCount})`
-- `abstract interface class ProjectsRepository`, implemented by `LocalProjectsRepository(FikraDatabase db)`: `watchProjects`, `create`, `rename`, `delete`, `watchCurrentId`, `setCurrent`.
+- `abstract interface class ProjectsRepository`, implemented by `LocalProjectsRepository(FikraDatabase db)`: `watchProjects`, `create`, `rename`, `delete`, `deleteImpact`, `watchCurrentId`, `setCurrent`.
 - `abstract interface class NotesRepository`, implemented by `LocalNotesRepository(FikraDatabase db, {deleteFiles})`: `watchNotes`, `watchNote`, `watchAttachments`, `watchProjectAttachments`, `notesOf`, `notesWithStatus`, `create`, `markProcessing`, `markReady`, `markFailed`, `applyInsights`, `attachmentPaths`, `acceptRewrite`, `rejectRewrite`, `edit`, `restoreOriginal`, `delete`, `watchLinks`.
 - `abstract interface class ChatRepository`, implemented by `LocalChatRepository(FikraDatabase db)`: `watch`, `add`, `clear`.
 
@@ -57,6 +57,8 @@ Notes:
 - A note owns its outgoing live AI suggestions only: user links, tombstones and incoming links are retained.
 
 Projects and settings:
+
+- `deleteImpact(id)` is read-only and returns `ProjectDeleteImpact` (`({int notes, int files, int links, bool chat})`) from one statement with four aggregates (`chat` is an `EXISTS` over `chat_entries` for the project, so a project with no notes still reports its chat): the project's notes, their `note_attachments` rows, and distinct unordered note pairs among non-dismissed `note_links` rows that the delete cascade removes (`project_id` is the project, or either end is one of its notes). User links and suggestions on the same pair count once; rejected rows are not counted (they are still deleted). An unknown id counts zeros.
 
 - `ProjectsRepository.create` trims the name and makes the new project current.
 - Deleting the current project selects the oldest remaining project, or clears the selection if none remain. This happens in the same transaction as the delete.

@@ -185,6 +185,115 @@ void main() {
     await dir.delete(recursive: true);
   });
 
+  test('deleting a project deletes only its own files from disk', () async {
+    final dir = await Directory.systemTemp.createTemp('fikra');
+    addTearDown(() => dir.delete(recursive: true));
+    final p = await projects.create('p');
+    final q = await projects.create('q');
+    Future<List<File>> filesFor(Project project) async {
+      final files = [
+        for (final name in ['${project.name}.pdf', '${project.name}.m4a', '${project.name}.jpg'])
+          await File('${dir.path}/$name').writeAsString('x'),
+      ];
+      await notes.create(
+        projectId: project.id,
+        title: 't',
+        text: '',
+        source: NoteSource.pdf,
+        attachments: [
+          AttachmentDraft(kind: AttachmentKind.pdf, path: files[0].path),
+          AttachmentDraft(kind: AttachmentKind.voice, path: files[1].path),
+          AttachmentDraft(kind: AttachmentKind.image, path: files[2].path),
+        ],
+      );
+      return files;
+    }
+
+    final mine = await filesFor(p);
+    final others = await filesFor(q);
+    await projects.delete(p.id);
+    for (final f in mine) {
+      expect(await f.exists(), isFalse, reason: f.path);
+    }
+    for (final f in others) {
+      expect(await f.exists(), isTrue, reason: f.path);
+    }
+    expect(await notes.attachmentPaths(), {for (final f in others) f.path});
+  });
+
+  group('deleteImpact', () {
+    var edges = 0;
+    Future<void> edge(Note a, Note b, {LinkOrigin origin = LinkOrigin.ai, bool dismissed = false}) => db
+        .into(db.noteLinks)
+        .insert(
+          NoteLink(
+            id: 'edge-${edges++}',
+            projectId: a.projectId,
+            sourceId: a.id,
+            targetId: b.id,
+            label: '',
+            strength: 0.5,
+            origin: origin,
+            dismissed: dismissed,
+          ),
+        );
+    Future<Note> note(Project p, {int files = 0}) => notes.create(
+      projectId: p.id,
+      title: 't',
+      text: 'x',
+      source: NoteSource.text,
+      attachments: [for (var i = 0; i < files; i++) AttachmentDraft(kind: AttachmentKind.pdf, path: '/p/$i.pdf')],
+    );
+    Future<List<int>> sizes() async => [
+      (await db.select(db.notes).get()).length,
+      (await db.select(db.noteAttachments).get()).length,
+      (await db.select(db.noteLinks).get()).length,
+    ];
+
+    test('counts notes, files and links once per pair, without rejected ones, and changes nothing', () async {
+      final p = await projects.create('p');
+      final q = await projects.create('q');
+      final a = await note(p, files: 2);
+      final b = await note(p, files: 1);
+      final c = await note(p);
+      final d = await note(p);
+      final other = await note(q, files: 3);
+      final otherToo = await note(q);
+      await edge(a, b, origin: LinkOrigin.user);
+      await edge(b, a); // the same pair as a suggestion
+      await edge(b, a, origin: LinkOrigin.user); // a legacy reverse duplicate
+      await edge(a, c);
+      await edge(c, a, dismissed: true); // rejected reverse of a live pair
+      await edge(b, d, dismissed: true); // rejected only: not counted
+      await edge(c, d, origin: LinkOrigin.user, dismissed: true);
+      await edge(other, otherToo, origin: LinkOrigin.user); // another project
+      final before = await sizes();
+      await LocalChatRepository(db).add(projectId: q.id, role: 'user', body: 'question?');
+      expect(await projects.deleteImpact(p.id), (notes: 4, files: 3, links: 2, chat: false));
+      expect(await projects.deleteImpact(q.id), (notes: 2, files: 3, links: 1, chat: true));
+      expect(await sizes(), before);
+      expect(await notes.notesOf(p.id), hasLength(4));
+
+      // The numbers match what the delete removes (rejected rows go too, uncounted).
+      await projects.delete(p.id);
+      final after = await sizes();
+      expect(before[0] - after[0], 4);
+      expect(before[1] - after[1], 3);
+      expect(after[2], 1);
+    });
+
+    test('an empty project and an unknown id count nothing; a chat alone is reported', () async {
+      final p = await projects.create('p');
+      final q = await projects.create('q');
+      await note(q, files: 1);
+      expect(await projects.deleteImpact(p.id), (notes: 0, files: 0, links: 0, chat: false));
+      expect(await projects.deleteImpact('missing'), (notes: 0, files: 0, links: 0, chat: false));
+      // A project with no notes can still hold an Ask chat.
+      await LocalChatRepository(db).add(projectId: p.id, role: 'user', body: 'question?');
+      expect(await projects.deleteImpact(p.id), (notes: 0, files: 0, links: 0, chat: true));
+    });
+  });
+
   test('a photo is never stored under an extension that breaks the path list', () {
     expect(AttachmentStore.imageExtension('a.JPEG'), 'jpeg');
     expect(AttachmentStore.imageExtension('no-extension'), 'jpg');

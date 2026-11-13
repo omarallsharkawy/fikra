@@ -47,6 +47,7 @@ void fikraTest(
   AttachmentStore? attachmentStore,
   AiService? aiService,
   NotesRepository Function(FikraDatabase)? notesRepository,
+  ProjectsRepository Function(FikraDatabase)? projectsRepository,
   LinksRepository Function(FikraDatabase)? linksRepository,
   AudioRecorder Function()? recorderFactory,
   Future<PermissionStatus> Function()? microphonePermission,
@@ -71,6 +72,7 @@ void fikraTest(
           overrides: [
             databaseProvider.overrideWithValue(db),
             if (notesRepository != null) notesRepoProvider.overrideWithValue(notesRepository(db)),
+            if (projectsRepository != null) projectsRepoProvider.overrideWithValue(projectsRepository(db)),
             if (linksRepository != null) linksRepoProvider.overrideWithValue(linksRepository(db)),
             if (recorderFactory != null) audioRecorderFactoryProvider.overrideWithValue(recorderFactory),
             if (microphonePermission != null) microphonePermissionProvider.overrideWithValue(microphonePermission),

@@ -173,14 +173,15 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get deleteProjectBody =>
-      'كل الملاحظات والملفات والمحادثات اللي في المشروع ده هتتحذف، ومش هتعرف ترجّعها.';
+  String deleteProjectBody(String items) {
+    return 'هيتحذف $items، والمحادثات كمان. مش هتعرف ترجّعهم.';
+  }
 
   @override
   String get projectDeleted => 'المشروع اتحذف';
 
   @override
-  String get projectNameHint => 'اسم المشروع، مثلاً: مذاكرة';
+  String get projectNameHint => 'اسم المشروع';
 
   @override
   String get recordStartFailed => 'مقدرناش نبدأ التسجيل. جرّب تاني.';
@@ -538,14 +539,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String sourceDeletedA11y(int index) {
-    return 'مصدر $index: ملاحظة اتحذفت';
-  }
-
-  @override
-  String get deletedNote => 'ملاحظة اتحذفت';
-
-  @override
   String get eraseAllTitle => 'تمسح كل البيانات؟';
 
   @override
@@ -826,7 +819,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String linkOptionsA11y(String title) {
-    return 'خيارات الرابط بـ«$title»';
+    return 'خيارات الرابط مع «$title»';
   }
 
   @override
@@ -861,7 +854,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get alreadyLinked => 'مربوطة أصلاً';
 
   @override
-  String get linkPickerEmpty => 'مفيش ملاحظات تانية في المشروع ده تربطها بيها.';
+  String get linkPickerEmpty =>
+      'مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي.';
 
   @override
   String get linkFailed => 'مقدرناش نربط الملاحظات. جرّب تاني.';
@@ -895,4 +889,93 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get moveToProject => 'انقل لمشروع تاني';
+
+  @override
+  String get moveNoOtherProject => 'مفيش مشروع تاني تنقل له الملاحظة.';
+
+  @override
+  String moveNoteTitle(String project) {
+    return 'تنقل الملاحظة لـ«$project»؟';
+  }
+
+  @override
+  String moveNoteBody(String lost) {
+    return 'الملاحظة هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.';
+  }
+
+  @override
+  String get moveNoteBodyNoLinks =>
+      'الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.';
+
+  @override
+  String get moveConfirm => 'انقل';
+
+  @override
+  String noteMoved(String project) {
+    return 'الملاحظة اتنقلت لـ«$project»';
+  }
+
+  @override
+  String get moveNoteFailed => 'مقدرناش ننقل الملاحظة. جرّب تاني.';
+
+  @override
+  String suggestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count اقتراح',
+      many: '$count اقتراح',
+      few: '$count اقتراحات',
+      two: 'اقتراحين',
+      one: 'اقتراح واحد',
+      zero: 'مفيش اقتراحات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملف',
+      many: '$count ملف',
+      few: '$count ملفات',
+      two: 'ملفين',
+      one: 'ملف واحد',
+      zero: 'مفيش ملفات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String listTwo(String first, String second) {
+    return '$first و$second';
+  }
+
+  @override
+  String listThree(String first, String second, String third) {
+    return '$first و$second و$third';
+  }
+
+  @override
+  String get deleteProjectEmptyBody => 'المشروع ده فاضي، مفيهوش ملاحظات.';
+
+  @override
+  String get firstProjectNameHint => 'اسم المشروع، مثلاً: مذاكرة';
+
+  @override
+  String get sourceMissing => 'ملاحظة مابقتش في المشروع ده';
+
+  @override
+  String sourceMissingA11y(int index) {
+    return 'مصدر $index: ملاحظة مابقتش في المشروع ده';
+  }
+
+  @override
+  String get deleteProjectEmptyChatBody =>
+      'المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.';
 }

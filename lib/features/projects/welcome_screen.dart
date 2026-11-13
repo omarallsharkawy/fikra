@@ -19,7 +19,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   bool _seeding = false;
 
   Future<void> _create() async {
-    final name = await askProjectName(context, title: context.l10n.firstProjectTitle, action: context.l10n.create);
+    final name = await askProjectName(
+      context,
+      title: context.l10n.firstProjectTitle,
+      action: context.l10n.create,
+      hint: context.l10n.firstProjectNameHint,
+    );
     if (name == null || !mounted) return;
     await runAction(
       context,

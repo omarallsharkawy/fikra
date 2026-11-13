@@ -118,7 +118,10 @@ class SheetOption extends StatelessWidget {
             children: [
               Icon(icon, color: fg, size: 20),
               const SizedBox(width: 12),
-              Text(label, style: context.text.section.copyWith(color: fg)),
+              // A long label (or large text) wraps instead of overflowing.
+              Flexible(
+                child: Text(label, style: context.text.section.copyWith(color: fg)),
+              ),
             ],
           ),
         ),

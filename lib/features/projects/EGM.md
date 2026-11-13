@@ -9,7 +9,8 @@ Project selection and creation. It holds the header used by every tab, the proje
 - `project_header.dart`
   - `ProjectHeader({required String title, Widget? trailing})`: `ConsumerWidget`.
   - `Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref)`.
-  - `Future<String?> askProjectName(BuildContext context, {required String title, required String action, String initial = ''})`.
+  - `Future<String?> askProjectName(BuildContext context, {required String title, required String action, String initial = '', String? hint})`. `hint` defaults to `projectNameHint`.
+  - `String deleteProjectMessage(AppLocalizations, ProjectDeleteImpact)` (`({int notes, int files, int links, bool chat})` from `repositories.dart`), `@visibleForTesting`.
 - `welcome_screen.dart`
   - `WelcomeScreen`: `ConsumerStatefulWidget` with no parameters.
 - Consumes `selectedProjectProvider`, `projectsProvider`, `projectsRepoProvider`, and `notesRepoProvider` from `lib/app/providers.dart`, and `seedDemoProject` from `lib/data/demo/demo_seed.dart`.
@@ -42,3 +43,14 @@ Header, sheets and welcome copy use `context.l10n`; project names remain stored 
 
 - `test/project_header_test.dart` loads the actual fonts and covers Arabic Add title regression plus every tab header in both directions at 320/390 dp and text scales 1/1.3, including Ask’s trailing action.
 - `test/screenshots/headers_test.dart` renders eight dark header galleries under `build/screenshots/headers/{ar,en}/`, covering the same width/text-scale matrix.
+
+## Links phase 3
+
+- UX-16: "New project" (key `new-project`) closes the projects sheet first, then asks for the name from the caller's context (the header, which outlives the sheet) and creates with the caller's `ref`. Cancelling changes nothing. The sheet's own `Consumer` context and ref are named `sheetInner`/`sheetRef` so they are never used after the sheet closes. Rename and delete still open on top of the projects sheet (unchanged).
+- UX-17: the welcome screen passes `firstProjectTitle` and `firstProjectNameHint` ("Project name, e.g. Study"); "New project" and "Rename" keep `projectNameHint` ("Project name").
+- Delete reads `ProjectsRepository.deleteImpact` before confirming. `deleteProjectMessage` returns, for a project with no notes, `deleteProjectEmptyChatBody` when it has an Ask chat (the chat is deleted with it) or `deleteProjectEmptyBody` when it has none; otherwise `deleteProjectBody` with the non-zero counts (notes, files, links) joined by `Fmt.list`. If the count fails, a `genericError` toast and no dialog.
+- Delete guards: a per-sheet `deleting` flag lets one delete flow run at a time (a second tap while counting does nothing) and is reset in `finally`, so cancelling allows another try. Before each dialog the flow checks the action sheet is still mounted and its route is current; a count that returns after the sheet was dismissed opens nothing.
+- Stale numbers: after confirm, `deleteImpact` is read again. If the numbers changed while the dialog was open, the dialog is shown again with the new numbers instead of deleting. No transaction or schema change.
+- The title `deleteProjectTitle` gets the name through `Fmt.isolate` (FSI/PDI) so a mixed name such as "2026 Work" keeps its order inside Arabic.
+- Project rows come from `ProjectRow` in [shared](../shared/EGM.md).
+- Verification: `test/project_moves_test.dart` (UX-16, UX-17, delete numbers, chat-only empty project, double tap and cancel reset, dismissed sheet, re-shown changed numbers, mixed-name bidi) and `test/repositories_test.dart` (`deleteImpact`, only the deleted project's files leave the disk); screenshots `39`–`41` in `test/screenshots/projects_test.dart`.

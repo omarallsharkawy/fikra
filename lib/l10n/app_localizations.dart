@@ -401,8 +401,8 @@ abstract class AppLocalizations {
   /// No description provided for @deleteProjectBody.
   ///
   /// In ar, this message translates to:
-  /// **'كل الملاحظات والملفات والمحادثات اللي في المشروع ده هتتحذف، ومش هتعرف ترجّعها.'**
-  String get deleteProjectBody;
+  /// **'هيتحذف {items}، والمحادثات كمان. مش هتعرف ترجّعهم.'**
+  String deleteProjectBody(String items);
 
   /// No description provided for @projectDeleted.
   ///
@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// No description provided for @projectNameHint.
   ///
   /// In ar, this message translates to:
-  /// **'اسم المشروع، مثلاً: مذاكرة'**
+  /// **'اسم المشروع'**
   String get projectNameHint;
 
   /// No description provided for @recordStartFailed.
@@ -1058,18 +1058,6 @@ abstract class AppLocalizations {
   /// **'مصدر {index}: {title}'**
   String sourceA11y(int index, String title);
 
-  /// No description provided for @sourceDeletedA11y.
-  ///
-  /// In ar, this message translates to:
-  /// **'مصدر {index}: ملاحظة اتحذفت'**
-  String sourceDeletedA11y(int index);
-
-  /// No description provided for @deletedNote.
-  ///
-  /// In ar, this message translates to:
-  /// **'ملاحظة اتحذفت'**
-  String get deletedNote;
-
   /// No description provided for @eraseAllTitle.
   ///
   /// In ar, this message translates to:
@@ -1475,7 +1463,7 @@ abstract class AppLocalizations {
   /// No description provided for @linkOptionsA11y.
   ///
   /// In ar, this message translates to:
-  /// **'خيارات الرابط بـ«{title}»'**
+  /// **'خيارات الرابط مع «{title}»'**
   String linkOptionsA11y(String title);
 
   /// No description provided for @linkOptionsTitle.
@@ -1541,7 +1529,7 @@ abstract class AppLocalizations {
   /// No description provided for @linkPickerEmpty.
   ///
   /// In ar, this message translates to:
-  /// **'مفيش ملاحظات تانية في المشروع ده تربطها بيها.'**
+  /// **'مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي.'**
   String get linkPickerEmpty;
 
   /// No description provided for @linkFailed.
@@ -1561,6 +1549,108 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{count, plural, zero{مفيش ملاحظات اتربطت} one{الملاحظة اتربطت بملاحظة واحدة} two{الملاحظة اتربطت بملاحظتين} few{الملاحظة اتربطت بـ{count} ملاحظات} many{الملاحظة اتربطت بـ{count} ملاحظة} other{الملاحظة اتربطت بـ{count} ملاحظة}}'**
   String notesLinked(int count);
+
+  /// No description provided for @moveToProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'انقل لمشروع تاني'**
+  String get moveToProject;
+
+  /// No description provided for @moveNoOtherProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش مشروع تاني تنقل له الملاحظة.'**
+  String get moveNoOtherProject;
+
+  /// No description provided for @moveNoteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنقل الملاحظة لـ«{project}»؟'**
+  String moveNoteTitle(String project);
+
+  /// No description provided for @moveNoteBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.'**
+  String moveNoteBody(String lost);
+
+  /// No description provided for @moveNoteBodyNoLinks.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.'**
+  String get moveNoteBodyNoLinks;
+
+  /// No description provided for @moveConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'انقل'**
+  String get moveConfirm;
+
+  /// No description provided for @noteMoved.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظة اتنقلت لـ«{project}»'**
+  String noteMoved(String project);
+
+  /// No description provided for @moveNoteFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش ننقل الملاحظة. جرّب تاني.'**
+  String get moveNoteFailed;
+
+  /// No description provided for @suggestionsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{مفيش اقتراحات} one{اقتراح واحد} two{اقتراحين} few{{count} اقتراحات} many{{count} اقتراح} other{{count} اقتراح}}'**
+  String suggestionsCount(int count);
+
+  /// No description provided for @filesCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{مفيش ملفات} one{ملف واحد} two{ملفين} few{{count} ملفات} many{{count} ملف} other{{count} ملف}}'**
+  String filesCount(int count);
+
+  /// No description provided for @listTwo.
+  ///
+  /// In ar, this message translates to:
+  /// **'{first} و{second}'**
+  String listTwo(String first, String second);
+
+  /// No description provided for @listThree.
+  ///
+  /// In ar, this message translates to:
+  /// **'{first} و{second} و{third}'**
+  String listThree(String first, String second, String third);
+
+  /// No description provided for @deleteProjectEmptyBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشروع ده فاضي، مفيهوش ملاحظات.'**
+  String get deleteProjectEmptyBody;
+
+  /// No description provided for @firstProjectNameHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم المشروع، مثلاً: مذاكرة'**
+  String get firstProjectNameHint;
+
+  /// No description provided for @sourceMissing.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة مابقتش في المشروع ده'**
+  String get sourceMissing;
+
+  /// No description provided for @sourceMissingA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'مصدر {index}: ملاحظة مابقتش في المشروع ده'**
+  String sourceMissingA11y(int index);
+
+  /// No description provided for @deleteProjectEmptyChatBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.'**
+  String get deleteProjectEmptyChatBody;
 }
 
 class _AppLocalizationsDelegate

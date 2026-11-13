@@ -47,7 +47,8 @@ User-facing default strings resolve from `context.l10n`, in
   - `Future<T?> showFikraSheet<T>(context, {required title, required builder, tall = false})`.
   - `SheetOption({label, icon, onTap, danger = false})`.
 - `dialogs.dart`
-  - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel})`,
+  - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel, danger = true})`,
+    with `danger: false` drawing the confirm as the primary button (a confirmation that loses nothing),
     pushed through the file-private `_FikraDialogRoute`.
 - `toasts.dart`
   - `void showToast(context, message)`.
@@ -142,3 +143,8 @@ User-facing default strings resolve from `context.l10n`, in
 ## Multi-recording arbitration
 
 `VoicePlaybackCoordinator.start` serializes playback requests and awaits pausing the previous player before starting another. VoicePlayer uses the shared coordinator in Add, Edit and details, releases ownership on disposal and ignores queued starts after disposal. Late plugin disposal errors are caught during cleanup; no user action is performed from disposal. Playback widgets retain the public constructor and existing style. The public singleton `voicePlaybackCoordinator` exposes awaited `stop()` for recording. Loading is serialized with playback changes so a pending player cannot start after the mic. Idle queues are cleared. Unit tests verify queued starts; widget tests verify actual players, lazy allocation and disposal.
+
+## Links phase 3
+
+- `confirmDestructive` takes `danger` (default true, unchanged look). The note move passes `false` when no link would be removed.
+- `SheetOption` wraps its label in `Flexible`, so a long label or large text wraps instead of overflowing the row ("Move to another project" overflowed with the test font).

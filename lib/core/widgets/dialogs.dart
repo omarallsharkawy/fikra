@@ -7,12 +7,14 @@ import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'glass.dart';
 
-/// Destructive confirmation. Returns true when confirmed.
+/// Destructive confirmation. Returns true when confirmed. With [danger] false
+/// the confirm button is the primary one, for a confirmation that loses nothing.
 Future<bool> confirmDestructive(
   BuildContext context, {
   required String title,
   required String message,
   String? confirmLabel,
+  bool danger = true,
 }) async {
   final label = confirmLabel ?? context.l10n.delete;
   final navigator = Navigator.of(context, rootNavigator: true);
@@ -39,7 +41,9 @@ Future<bool> confirmDestructive(
               Row(
                 children: [
                   Expanded(
-                    child: FikraButton.danger(label: label, onPressed: () => Navigator.pop(context, true)),
+                    child: danger
+                        ? FikraButton.danger(label: label, onPressed: () => Navigator.pop(context, true))
+                        : FikraButton(label: label, onPressed: () => Navigator.pop(context, true)),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

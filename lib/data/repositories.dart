@@ -10,12 +10,21 @@ import 'links_repository.dart';
 
 typedef ProjectSummary = ({Project project, int noteCount});
 
+/// What deleting a project removes; see [ProjectsRepository.deleteImpact].
+typedef ProjectDeleteImpact = ({int notes, int files, int links, bool chat});
+
 /// Projects + the "current project" selection.
 abstract interface class ProjectsRepository {
   Stream<List<ProjectSummary>> watchProjects();
   Future<Project> create(String name);
   Future<void> rename(String id, String name);
   Future<void> delete(String id);
+
+  /// What [delete] would remove, read-only: the project's notes, their files
+  /// (attachment rows), links counted once per note pair (your links and
+  /// suggestions together, rejected ones not counted), and whether it has an
+  /// Ask chat (a project with no notes can still have one).
+  Future<ProjectDeleteImpact> deleteImpact(String id);
   Stream<String?> watchCurrentId();
   Future<void> setCurrent(String? id);
 }
@@ -116,6 +125,32 @@ class LocalProjectsRepository implements ProjectsRepository {
     });
     // Anything missed here (crash, I/O error) is swept by AttachmentStore.sweepOrphans.
     await AttachmentStore.deleteQuietly(files);
+  }
+
+  @override
+  Future<ProjectDeleteImpact> deleteImpact(String id) async {
+    // Four aggregates in one statement, so the numbers agree with each other.
+    // Links include every row the cascade removes: either end in the project.
+    const inProject = 'SELECT id FROM notes WHERE project_id = ?';
+    final row = await db
+        .customSelect(
+          'SELECT '
+          '(SELECT COUNT(*) FROM notes WHERE project_id = ?) AS notes, '
+          '(SELECT COUNT(*) FROM note_attachments a JOIN notes n ON n.id = a.note_id WHERE n.project_id = ?) AS files, '
+          '(SELECT COUNT(*) FROM (SELECT DISTINCT MIN(l.source_id, l.target_id), MAX(l.source_id, l.target_id) '
+          'FROM note_links l WHERE l.dismissed = 0 '
+          'AND (l.project_id = ? OR l.source_id IN ($inProject) OR l.target_id IN ($inProject)))) AS links, '
+          'EXISTS (SELECT 1 FROM chat_entries WHERE project_id = ?) AS chat',
+          variables: [for (var i = 0; i < 6; i++) Variable.withString(id)],
+          readsFrom: {db.notes, db.noteAttachments, db.noteLinks, db.chatEntries},
+        )
+        .getSingle();
+    return (
+      notes: row.read<int>('notes'),
+      files: row.read<int>('files'),
+      links: row.read<int>('links'),
+      chat: row.read<int>('chat') != 0,
+    );
   }
 
   Future<String?> _readCurrent() async =>

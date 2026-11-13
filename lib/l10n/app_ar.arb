@@ -50,9 +50,9 @@
   "save": "احفظ",
   "deleteProject": "احذف المشروع",
   "deleteProjectTitle": "تحذف «{name}»؟",
-  "deleteProjectBody": "كل الملاحظات والملفات والمحادثات اللي في المشروع ده هتتحذف، ومش هتعرف ترجّعها.",
+  "deleteProjectBody": "هيتحذف {items}، والمحادثات كمان. مش هتعرف ترجّعهم.",
   "projectDeleted": "المشروع اتحذف",
-  "projectNameHint": "اسم المشروع، مثلاً: مذاكرة",
+  "projectNameHint": "اسم المشروع",
   "recordStartFailed": "مقدرناش نبدأ التسجيل. جرّب تاني.",
   "recordInterrupted": "التسجيل اتقطع. سجّل تاني.",
   "pdfOnly": "الملف ده مش PDF. اختار ملف PDF.",
@@ -160,8 +160,6 @@
   "notFoundInNotes": "ملقيناش إجابة في ملاحظاتك",
   "sources": "المصادر",
   "sourceA11y": "مصدر {index}: {title}",
-  "sourceDeletedA11y": "مصدر {index}: ملاحظة اتحذفت",
-  "deletedNote": "ملاحظة اتحذفت",
   "eraseAllTitle": "تمسح كل البيانات؟",
   "eraseAllBody": "كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هتعرف ترجّعها.",
   "eraseAllConfirm": "امسح كل حاجة",
@@ -338,13 +336,6 @@
       }
     }
   },
-  "@sourceDeletedA11y": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
   "@demoLinkReason": {
     "placeholders": {
       "concept": {
@@ -458,7 +449,7 @@
       }
     }
   },
-  "linkOptionsA11y": "خيارات الرابط بـ«{title}»",
+  "linkOptionsA11y": "خيارات الرابط مع «{title}»",
   "@linkOptionsA11y": {
     "placeholders": {
       "title": {
@@ -476,7 +467,7 @@
   "linkUpdateFailed": "مقدرناش نعدّل الرابط. جرّب تاني.",
   "linkReasonHint": "السبب (اختياري)",
   "alreadyLinked": "مربوطة أصلاً",
-  "linkPickerEmpty": "مفيش ملاحظات تانية في المشروع ده تربطها بيها.",
+  "linkPickerEmpty": "مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي.",
   "linkFailed": "مقدرناش نربط الملاحظات. جرّب تاني.",
   "linkSelected": "{count, plural, zero{اربط} one{اربط ملاحظة واحدة} two{اربط ملاحظتين} few{اربط {count} ملاحظات} many{اربط {count} ملاحظة} other{اربط {count} ملاحظة}}",
   "@linkSelected": {
@@ -493,5 +484,94 @@
         "type": "int"
       }
     }
-  }
+  },
+  "moveToProject": "انقل لمشروع تاني",
+  "moveNoOtherProject": "مفيش مشروع تاني تنقل له الملاحظة.",
+  "moveNoteTitle": "تنقل الملاحظة لـ«{project}»؟",
+  "moveNoteBody": "الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.",
+  "moveNoteBodyNoLinks": "الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.",
+  "moveConfirm": "انقل",
+  "noteMoved": "الملاحظة اتنقلت لـ«{project}»",
+  "moveNoteFailed": "مقدرناش ننقل الملاحظة. جرّب تاني.",
+  "suggestionsCount": "{count, plural, zero{مفيش اقتراحات} one{اقتراح واحد} two{اقتراحين} few{{count} اقتراحات} many{{count} اقتراح} other{{count} اقتراح}}",
+  "filesCount": "{count, plural, zero{مفيش ملفات} one{ملف واحد} two{ملفين} few{{count} ملفات} many{{count} ملف} other{{count} ملف}}",
+  "listTwo": "{first} و{second}",
+  "listThree": "{first} و{second} و{third}",
+  "deleteProjectEmptyBody": "المشروع ده فاضي، مفيهوش ملاحظات.",
+  "firstProjectNameHint": "اسم المشروع، مثلاً: مذاكرة",
+  "sourceMissing": "ملاحظة مابقتش في المشروع ده",
+  "sourceMissingA11y": "مصدر {index}: ملاحظة مابقتش في المشروع ده",
+  "@moveNoteTitle": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@moveNoteBody": {
+    "placeholders": {
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "@noteMoved": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@suggestionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@filesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@listTwo": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "@listThree": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      },
+      "third": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectBody": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceMissingA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteProjectEmptyChatBody": "المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها."
 }

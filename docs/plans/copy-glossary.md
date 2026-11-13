@@ -514,7 +514,7 @@
 | `acceptLinkA11y` | قارئ الشاشة: زرار القبول | اقبل الربط بـ«{title}» | Accept link to {title} |
 | `rejectLink` | زرار على الاقتراح | ارفض | Reject |
 | `rejectLinkA11y` | قارئ الشاشة: زرار الرفض | ارفض الربط بـ«{title}» | Reject link to {title} |
-| `linkOptionsA11y` | قارئ الشاشة: زرار الخيارات على رابطك | خيارات الرابط بـ«{title}» | Link options for {title} |
+| `linkOptionsA11y` | قارئ الشاشة: زرار الخيارات على رابطك | خيارات الرابط مع «{title}» | Link options for {title} |
 | `linkOptionsTitle` | عنوان شيت خيارات الرابط | خيارات الرابط | Link options |
 | `editLinkReason` | خيار في الشيت، وعنوان شيت تعديل السبب | عدّل السبب | Edit reason |
 | `removeLink` | خيار في الشيت | شيل الرابط | Remove link |
@@ -525,7 +525,7 @@
 | `linkUpdateFailed` | toast لما القبول أو الرفض أو الشيل يفشل، ورسالة في شيت تعديل السبب | مقدرناش نعدّل الرابط. جرّب تاني. | Couldn't update the link. Try again. |
 | `linkReasonHint` | خانة السبب في شيت الاختيار وشيت التعديل | السبب (اختياري) | Reason (optional) |
 | `alreadyLinked` | جنب الملاحظة اللي مربوطة بإيدك في شيت الاختيار | مربوطة أصلاً | Already linked |
-| `linkPickerEmpty` | شيت الاختيار لما مفيش ملاحظات تانية في المشروع | مفيش ملاحظات تانية في المشروع ده تربطها بيها. | There are no other notes in this project to link. |
+| `linkPickerEmpty` | شيت الاختيار لما مفيش ملاحظات تانية في المشروع | مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي. | There are no other notes in this project to link. |
 | `linkFailed` | رسالة في شيت الاختيار لما الربط يفشل | مقدرناش نربط الملاحظات. جرّب تاني. | Couldn't link the notes. Try again. |
 | `linkSelected` | زرار التأكيد في شيت الاختيار | جمع (تحت) | جمع (تحت) |
 | `notesLinked` | toast بعد الربط | جمع (تحت) | جمع (تحت) |
@@ -546,6 +546,58 @@
 - `linkSelected` بصيغة zero بيظهر بس والزرار مقفول (مفيش حاجة متختارة).
 - `notesLinked` بصيغة zero بيظهر بس لو كل الملاحظات اللي اتختارت اتحذفت قبل التأكيد.
 - عداد السبب (`12/80`) أرقام بس، من غير نص، وبيتكتب من الشمال لليمين في اللغتين زي حجم الملف.
+
+### 17. النقل بين المشاريع ورسايل المسح (المرحلة 3 من خطة الروابط) — `lib/features/note_details/` و`lib/features/shared/project_picker.dart` و`lib/features/projects/` و`lib/features/ask/`
+
+"انقل لمشروع تاني" بقى في خيارات الملاحظة، ورسالة مسح المشروع بقت بتقول بالأرقام إيه اللي هيتحذف. المفاتيح الموجودة اللي القسم ده بيستخدمها زي ما هي: `notesCount` و`linksCount` (للأرقام جوه الجمل، وبيظهروا بس لو الرقم أكبر من صفر)، `deleteProjectTitle`، `projectDeleted`، `cancel`، `firstProjectTitle` ("سمّي أول مشروع"، موجود أصلاً). `deletedNote` و`sourceDeletedA11y` (القسم 11) اتشالوا من ملفات الـARB، و`sourceMissing` و`sourceMissingA11y` بيحلوا محلهم.
+
+| المفتاح | لفين | المقترح | English |
+|---|---|---|---|
+| `moveToProject` | خيار في شيت خيارات الملاحظة، وعنوان شيت اختيار المشروع | انقل لمشروع تاني | Move to another project |
+| `moveNoOtherProject` | شيت اختيار المشروع لو مفضلش مشروع تاني | مفيش مشروع تاني تنقل له الملاحظة. | There's no other project to move this note to. |
+| `moveNoteTitle` | عنوان رسالة التأكيد | تنقل الملاحظة لـ«{project}»؟ | Move this note to "{project}"? |
+| `moveNoteBody` | رسالة التأكيد لما روابط هتتشال. `{lost}` = `linksCount` و/أو `suggestionsCount`، متوصّلين بـ`listTwo` | الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا. | The note moves with its files. Its {lost} to notes that stay here will be removed. |
+| `moveNoteBodyNoLinks` | رسالة التأكيد لما مفيش حاجة هتتشال | الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال. | The note moves with its files. No links will be removed. |
+| `moveConfirm` | زرار التأكيد | انقل | Move |
+| `noteMoved` | toast بعد النقل | الملاحظة اتنقلت لـ«{project}» | Note moved to "{project}" |
+| `moveNoteFailed` | toast لما النقل يفشل | مقدرناش ننقل الملاحظة. جرّب تاني. | Couldn't move the note. Try again. |
+| `suggestionsCount` | عدد الاقتراحات جوه `moveNoteBody` | جمع (تحت) | جمع (تحت) |
+| `filesCount` | عدد الملفات جوه `deleteProjectBody` | جمع (تحت) | جمع (تحت) |
+| `listTwo` | بيوصّل حاجتين في جملة | {first} و{second} | {first} and {second} |
+| `listThree` | بيوصّل تلات حاجات في جملة | {first} و{second} و{third} | {first}, {second} and {third} |
+| `deleteProjectBody` | رسالة مسح المشروع (اتغيرت، القسم 5). `{items}` = `notesCount` و`filesCount` و`linksCount`، اللي أكبر من صفر بس، متوصّلين بـ`listTwo` أو `listThree` | هيتحذف {items}، والمحادثات كمان. مش هتعرف ترجّعهم. | This deletes {items}, plus the chat. You can't undo this. |
+| `deleteProjectEmptyBody` | رسالة مسح مشروع مفيهوش ملاحظات ولا محادثة | المشروع ده فاضي، مفيهوش ملاحظات. | This project is empty. It has no notes. |
+| `deleteProjectEmptyChatBody` | رسالة مسح مشروع مفيهوش ملاحظات بس فيه محادثة «اسأل» | المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها. | This project has no notes, but its chat will be deleted. You can't undo this. |
+| `firstProjectNameHint` | خانة الاسم في "سمّي أول مشروع" بس (UX-17) | اسم المشروع، مثلاً: مذاكرة | Project name, e.g. Study |
+| `projectNameHint` | خانة الاسم في "مشروع جديد" و"غيّر الاسم" (اتغير، القسم 5) | اسم المشروع | Project name |
+| `sourceMissing` | مصدر في إجابة "اسأل" لملاحظة اتنقلت أو اتحذفت (بدل `deletedNote`) | ملاحظة مابقتش في المشروع ده | Note no longer in this project |
+| `sourceMissingA11y` | قارئ الشاشة: نفس المصدر (بدل `sourceDeletedA11y`) | مصدر {index}: ملاحظة مابقتش في المشروع ده | Source {index}: note no longer in this project |
+
+**الجمع بصيغة ICU:**
+
+| المفتاح | zero | one | two | few | many | other |
+|---|---|---|---|---|---|---|
+| `suggestionsCount` ع | مفيش اقتراحات | اقتراح واحد | اقتراحين | {count} اقتراحات | {count} اقتراح | {count} اقتراح |
+| `suggestionsCount` En | No suggestions (`=0`) | 1 suggestion | — | — | — | {count} suggestions |
+| `filesCount` ع | مفيش ملفات | ملف واحد | ملفين | {count} ملفات | {count} ملف | {count} ملف |
+| `filesCount` En | No files (`=0`) | 1 file | — | — | — | {count} files |
+
+أمثلة بعد التركيب:
+
+- النقل: "الملاحظة هتتنقل بملفاتها، وهيتشال رابطين و3 اقتراحات بينها وبين الملاحظات اللي هتفضل هنا." / "The note moves with its files. Its 2 links and 3 suggestions to notes that stay here will be removed."
+- المسح: "هيتحذف 3 ملاحظات وملفين و11 رابط، والمحادثات كمان. مش هتعرف ترجّعهم." / "This deletes 3 notes, 2 files and 11 links, plus the chat. You can't undo this."
+
+ملحوظات:
+
+- "رابط" في رسالة النقل معناها روابطك اللي عملتها بإيدك، و"اقتراح" هي اقتراحات التحليل، زي التاج في القسم 16. الرابط بيتعد مرة واحدة لكل ملاحظتين، والاقتراح اللي اترفض مش بيتعد.
+- "هيتشال" للروابط (زي `removeLink`)، و"هيتحذف" للملاحظات والملفات (زي `deleteNote`). في رسالة المسح كله بيتحذف مع المشروع، فالفعل واحد.
+- الفعل قبل العدد ("هيتشال رابطين"، "هيتحذف 3 ملاحظات") عشان مايحتاجش يتطابق مع المفرد والمتنى والجمع.
+- الأعداد اللي بصفر مش بتتكتب في الجملة. لو مفيش روابط هتتشال، الرسالة بتبقى `moveNoteBodyNoLinks`. ولو المشروع مفيهوش ملاحظات، `deleteProjectEmptyBody`، إلا لو فيه محادثة «اسأل» فبتبقى `deleteProjectEmptyChatBody`، عشان المحادثة بتتحذف مع المشروع.
+- اسم المشروع جوه `moveNoteTitle` و`noteMoved` و`deleteProjectTitle` بيتحط بين علامتين مخفيتين (FSI وPDI) من الكود، مش في ملفات الـARB، عشان اسم زي «2026 Work» مايتقلبش لـ«Work 2026» جوه جملة عربي. النص نفسه زي ما هو.
+- لو الأرقام اتغيرت والرسالة مفتوحة (تحليل زوّد اقتراحات، أو ملاحظة اتضافت)، الرسالة بتظهر تاني بالأرقام الجديدة قبل النقل أو المسح.
+- زرار `moveConfirm` أحمر لما روابط هتتشال، وعادي لما مفيش حاجة هتضيع.
+- `projectNameHint` في القسم 5 كان بالمثال لكل الخانات. UX-17 بيحصر المثال في أول مشروع بس (`firstProjectNameHint`)، و"مشروع جديد" و"غيّر الاسم" بيرجعوا لـ"اسم المشروع".
+- `sourceMissing` بيغطي الملاحظة اللي اتنقلت لمشروع تاني واللي اتحذفت: الاتنين مابقوش في المشروع ده، والصف مابيتفتحش.
 
 ---
 

@@ -12,7 +12,8 @@ holds no domain, storage or network logic.
   - `time(AppLocalizations, DateTime)`: locale-specific 12-hour clock.
   - `dayHeader(AppLocalizations, DateTime, {DateTime? now})`: today, yesterday, or weekday/date.
   - `relative(AppLocalizations, DateTime, {DateTime? now})`: localized ICU minutes/hours or day header.
-  - `notes(AppLocalizations, int)` and `links(AppLocalizations, int)`: ICU plural messages, including zero.
+  - `notes(AppLocalizations, int)`, `links(AppLocalizations, int)`, `files(AppLocalizations, int)` and `suggestions(AppLocalizations, int)`: ICU plural messages, including zero.
+  - `list(AppLocalizations, List<String>)`: joins one to three phrases with `listTwo`/`listThree` ("a and b", "a, b and c"); throws for any other length.
   - `duration(int ms)`: numeric `m:ss`.
   - `bytes(AppLocalizations, int)`: localized bytes/KB/MB using `NumberFormat`.
 - Subpackages:
@@ -54,3 +55,5 @@ holds no domain, storage or network logic.
 - `test/localization_test.dart` covers plural forms, date/time and size formatting.
 
 VoicePlayer now arbitrates local recording playback through `VoicePlaybackCoordinator`; all previews and saved-note players share one active owner. File size direction is handled by explicit LTR Text at attachment render sites, leaving `Fmt.bytes` and localized units unchanged.
+
+`Fmt.isolate(s)` wraps a user-entered name in FSI/PDI (U+2068/U+2069) for interpolation inside a sentence (project names in `moveNoteTitle`, `noteMoved`, `deleteProjectTitle`). It is applied in Dart, not in the ARB, because gen-l10n copies raw isolate code points into generated Dart, which the analyzer flags. `Fmt.list` joins one to three phrases with `listTwo`/`listThree`.

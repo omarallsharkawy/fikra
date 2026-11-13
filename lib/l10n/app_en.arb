@@ -50,9 +50,9 @@
   "save": "Save",
   "deleteProject": "Delete project",
   "deleteProjectTitle": "Delete \"{name}\"?",
-  "deleteProjectBody": "All notes, files and chats in this project will be deleted. You can't undo this.",
+  "deleteProjectBody": "This deletes {items}, plus the chat. You can't undo this.",
   "projectDeleted": "Project deleted",
-  "projectNameHint": "Project name, e.g. Study",
+  "projectNameHint": "Project name",
   "recordStartFailed": "Couldn't start recording. Try again.",
   "recordInterrupted": "The recording stopped. Record again.",
   "pdfOnly": "That file isn't a PDF. Choose a PDF.",
@@ -160,8 +160,6 @@
   "notFoundInNotes": "No answer found in your notes",
   "sources": "Sources",
   "sourceA11y": "Source {index}: {title}",
-  "sourceDeletedA11y": "Source {index}: deleted note",
-  "deletedNote": "Deleted note",
   "eraseAllTitle": "Erase all data?",
   "eraseAllBody": "All projects, notes, recordings, files and chats will be erased from this phone. You can't undo this.",
   "eraseAllConfirm": "Erase everything",
@@ -338,13 +336,6 @@
       }
     }
   },
-  "@sourceDeletedA11y": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
   "@demoLinkReason": {
     "placeholders": {
       "concept": {
@@ -471,5 +462,94 @@
         "type": "int"
       }
     }
-  }
+  },
+  "moveToProject": "Move to another project",
+  "moveNoOtherProject": "There's no other project to move this note to.",
+  "moveNoteTitle": "Move this note to \"{project}\"?",
+  "moveNoteBody": "The note moves with its files. Its {lost} to notes that stay here will be removed.",
+  "moveNoteBodyNoLinks": "The note moves with its files. No links will be removed.",
+  "moveConfirm": "Move",
+  "noteMoved": "Note moved to \"{project}\"",
+  "moveNoteFailed": "Couldn't move the note. Try again.",
+  "suggestionsCount": "{count, plural, =0{No suggestions} one{1 suggestion} other{{count} suggestions}}",
+  "filesCount": "{count, plural, =0{No files} one{1 file} other{{count} files}}",
+  "listTwo": "{first} and {second}",
+  "listThree": "{first}, {second} and {third}",
+  "deleteProjectEmptyBody": "This project is empty. It has no notes.",
+  "firstProjectNameHint": "Project name, e.g. Study",
+  "sourceMissing": "Note no longer in this project",
+  "sourceMissingA11y": "Source {index}: note no longer in this project",
+  "@moveNoteTitle": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@moveNoteBody": {
+    "placeholders": {
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "@noteMoved": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@suggestionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@filesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@listTwo": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "@listThree": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      },
+      "third": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectBody": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceMissingA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteProjectEmptyChatBody": "This project has no notes, but its chat will be deleted. You can't undo this."
 }

@@ -320,6 +320,9 @@ class _AnswerBubble extends StatelessWidget {
   }
 }
 
+/// One cited note. [note] is null when it is no longer in this project (moved
+/// to another one, or deleted): the row says so and can't be opened, so a moved
+/// note never opens from the old project's chat.
 class _SourceRow extends StatelessWidget {
   const _SourceRow({required this.index, required this.note});
   final int index;
@@ -332,7 +335,7 @@ class _SourceRow extends StatelessWidget {
       pressedScale: 0.98,
       onTap: n == null ? null : () => context.push('/note/${n.id}'),
       semanticLabel: n == null
-          ? context.l10n.sourceDeletedA11y(index)
+          ? context.l10n.sourceMissingA11y(index)
           : context.l10n.sourceA11y(index, noteTitle(context, n)),
       child: Container(
         constraints: const BoxConstraints(minHeight: Pressable.minTargetSize),
@@ -353,7 +356,7 @@ class _SourceRow extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                n == null ? context.l10n.deletedNote : noteTitle(context, n),
+                n == null ? context.l10n.sourceMissing : noteTitle(context, n),
                 style: context.text.chip.copyWith(color: n == null ? context.colors.textMeta : context.colors.textLink),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

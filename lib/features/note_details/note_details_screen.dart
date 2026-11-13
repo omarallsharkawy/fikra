@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +19,7 @@ import '../shared/link_picker.dart';
 import '../shared/note_links.dart';
 import '../shared/note_presentation.dart';
 import '../shared/open_attachment.dart';
+import '../shared/project_picker.dart';
 
 part 'note_details_body.dart';
 part 'note_details_cards.dart';
@@ -41,11 +44,31 @@ class NoteDetailsScreen extends ConsumerStatefulWidget {
 
 const _improvedView = 0, _originalView = 1;
 
+/// The move confirmation: the files go along; links to notes left behind are
+/// counted, and counts at zero are left out.
+@visibleForTesting
+String moveNoteMessage(AppLocalizations l10n, ({int userLinks, int suggestions}) impact) {
+  if (impact.userLinks + impact.suggestions == 0) return l10n.moveNoteBodyNoLinks;
+  return l10n.moveNoteBody(
+    Fmt.list(l10n, [
+      if (impact.userLinks > 0) Fmt.links(l10n, impact.userLinks),
+      if (impact.suggestions > 0) Fmt.suggestions(l10n, impact.suggestions),
+    ]),
+  );
+}
+
 class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
   int _view = _improvedView;
 
-  Future<void> _showOptions(Note note) {
+  /// A move is between its picker and its result; a second one can't start,
+  /// and the options (so Edit) stay shut until it ends.
+  bool _moving = false;
+
+  Future<void> _showOptions(Note note) async {
+    if (_moving) return;
     final repo = ref.read(notesRepoProvider);
+    // Hidden, like "restore original", when there is nowhere to move to.
+    final canMove = (ref.read(projectsProvider).value ?? const []).any((p) => p.project.id != note.projectId);
     return showFikraSheet<void>(
       context,
       title: context.l10n.noteOptions,
@@ -59,6 +82,17 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
               context.push('/note/${note.id}/edit');
             },
           ),
+          if (canMove)
+            SheetOption(
+              key: const ValueKey('note-move'),
+              label: context.l10n.moveToProject,
+              icon: Icons.drive_file_move_outline,
+              onTap: () {
+                // Close this sheet, then open the picker from the page.
+                Navigator.pop(sheet);
+                _move(note);
+              },
+            ),
           if (note.hasImprovedVersion)
             SheetOption(
               label: context.l10n.restoreOriginal,
@@ -88,6 +122,70 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
         ],
       ),
     );
+  }
+
+  /// Picks another project, says what the move loses, then moves the note,
+  /// re-links it there in the background and leaves for the notes list. Any
+  /// failure (the target deleted meanwhile, too) keeps the page as it was.
+  Future<void> _move(Note note) async {
+    if (_moving) return;
+    _moving = true;
+    try {
+      final l10n = context.l10n;
+      final target = await showProjectPicker(
+        context,
+        title: l10n.moveToProject,
+        excludeProjectId: note.projectId,
+        empty: l10n.moveNoOtherProject,
+      );
+      if (target == null || !mounted) return;
+      final repo = ref.read(notesRepoProvider);
+      final processor = ref.read(noteProcessorProvider);
+      final route = ModalRoute.of(context);
+      Future<({int userLinks, int suggestions})?> count() async {
+        try {
+          return await repo.moveImpact([note.id], target.id);
+        } catch (_) {
+          if (mounted) showToast(context, l10n.moveNoteFailed);
+          return null;
+        }
+      }
+
+      var shown = await count();
+      while (true) {
+        if (shown == null || !mounted) return;
+        final ok = await confirmDestructive(
+          context,
+          title: l10n.moveNoteTitle(Fmt.isolate(target.name)),
+          message: moveNoteMessage(l10n, shown),
+          confirmLabel: l10n.moveConfirm,
+          danger: shown.userLinks + shown.suggestions > 0,
+        );
+        if (!ok || !mounted) return;
+        // The numbers changed while the dialog was open (an analysis added
+        // suggestions, say): ask again with the new ones instead of moving.
+        final now = await count();
+        if (now == shown) break;
+        shown = now;
+      }
+      if (!mounted) return;
+      var moved = const <String>[];
+      final done = await runAction(
+        context,
+        () async => moved = await repo.moveNotes([note.id], target.id),
+        failure: l10n.moveNoteFailed,
+      );
+      // Nothing moved: the note was deleted meanwhile and the page says so.
+      if (!done || moved.isEmpty) return;
+      unawaited(processor.relink(moved));
+      if (!mounted) return;
+      showToast(context, l10n.noteMoved(Fmt.isolate(target.name)));
+      // Only from this page: a page opened on top of it (another note, its
+      // editor) stays, so nothing unsaved is thrown away.
+      if (route?.isCurrent ?? false) context.go('/notes');
+    } finally {
+      _moving = false;
+    }
   }
 
   @override

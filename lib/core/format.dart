@@ -28,6 +28,21 @@ abstract final class Fmt {
 
   static String notes(AppLocalizations l10n, int n) => _ascii(l10n.notesCount(n));
   static String links(AppLocalizations l10n, int n) => _ascii(l10n.linksCount(n));
+  static String files(AppLocalizations l10n, int n) => _ascii(l10n.filesCount(n));
+  static String suggestions(AppLocalizations l10n, int n) => _ascii(l10n.suggestionsCount(n));
+
+  /// Wraps user text (a project or note name) in a first-strong isolate, so
+  /// a mixed name keeps its own order inside a sentence of the other
+  /// direction: "2026 Work" stays "2026 Work" in Arabic.
+  static String isolate(String s) => '\u2068$s\u2069';
+
+  /// Joins one to three phrases for a sentence: "a and b", "a, b and c".
+  static String list(AppLocalizations l10n, List<String> parts) => switch (parts) {
+    [final a] => a,
+    [final a, final b] => l10n.listTwo(a, b),
+    [final a, final b, final c] => l10n.listThree(a, b, c),
+    _ => throw ArgumentError.value(parts, 'parts', 'must hold one to three phrases'),
+  };
 
   static String duration(int ms) {
     final s = (ms / 1000).round();
