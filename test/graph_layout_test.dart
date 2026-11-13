@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 GraphNote note(int id, {String? cluster = 'cluster', int status = 1, String? title, int? createdAt}) =>
     (id: '$id', title: title ?? 'note $id', cluster: cluster, createdAt: createdAt ?? id, status: status);
 
-GraphLink link(int source, int target, {double strength = 0.5, String label = 'related'}) =>
-    (sourceId: '$source', targetId: '$target', label: label, strength: strength);
+GraphLink link(int source, int target, {double strength = 0.5, String label = 'related', bool isUser = false}) =>
+    (id: '$source-$target', sourceId: '$source', targetId: '$target', label: label, strength: strength, isUser: isUser);
 
 void main() {
   test('caps rows and nodes, accounts for every overflow note and cluster', () {
@@ -110,8 +110,8 @@ void main() {
 
   test('dense large graphs bound painting work, retaining strongest edges', () {
     final layout = GraphLayout.compute(
-      [for (var i = 0; i < 100; i++) note(i)],
-      [for (var i = 0; i < 2000; i++) link(0, 1, strength: i / 2000)],
+      [for (var i = 0; i < 240; i++) note(i, cluster: 'c${i ~/ 12}')],
+      [for (var i = 0; i < 2000; i++) link(i ~/ 200, 40 + i % 200, strength: i / 2000)],
     );
     expect(layout.links, hasLength(1000));
     expect(layout.links.first.strength, 1999 / 2000);
@@ -124,7 +124,7 @@ void main() {
     final layout = GraphLayout.compute(notes, links);
     expect(layout.nodes.keys, [for (var i = 0; i < 60; i++) '$i']);
     expect(layout.rows.single.hiddenCount, 0);
-    expect(layout.links, links);
+    expect(layout.links, [links.first]);
     expect(layout.width, 10226);
     expect(layout.height, 180);
     expect(layout.positions['0']!.left, 10054);
@@ -170,6 +170,7 @@ void main() {
       GraphInput([note(1), note(2)], [link(2, 1)]),
       GraphInput([note(1), note(2)], [link(1, 2, label: 'edited')]),
       GraphInput([note(1), note(2)], [link(1, 2, strength: 0.9)]),
+      GraphInput([note(1), note(2)], [link(1, 2, isUser: true)]),
       GraphInput([note(1)], []),
     ];
     for (final input in changed) {

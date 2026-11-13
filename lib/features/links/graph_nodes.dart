@@ -4,12 +4,24 @@ Rect _rect(GraphPosition position) => Rect.fromLTWH(position.left, position.top,
 
 String _graphTitle(BuildContext context, GraphNote note) => noteTitleText(context, note.title);
 
+// Opaque composited token colours: subdued controls remain readable without
+// allocating a compositing layer per card. Contrast is tested in both themes.
+Color _mutedGraphText(BuildContext context) =>
+    Color.alphaBlend(context.colors.textMeta.withValues(alpha: context.colors.textMeta.a * 0.8), context.colors.screen);
+
 class _OverflowNode extends StatelessWidget {
-  const _OverflowNode({required this.label, required this.onTap, this.semanticLabel, this.numbersOnly = false});
+  const _OverflowNode({
+    required this.label,
+    required this.onTap,
+    this.semanticLabel,
+    this.numbersOnly = false,
+    this.dimmed = false,
+  });
 
   final String label;
   final String? semanticLabel;
   final bool numbersOnly;
+  final bool dimmed;
   final VoidCallback onTap;
 
   @override
@@ -18,11 +30,13 @@ class _OverflowNode extends StatelessWidget {
     semanticLabel: semanticLabel ?? label,
     child: Glass(
       radius: FikraRadius.sm,
+      color: dimmed ? context.colors.screen : null,
+      gradient: dimmed ? null : context.colors.glassGradient,
       child: Center(
         child: Text(
           label,
           textDirection: numbersOnly ? TextDirection.ltr : Directionality.of(context),
-          style: context.text.chip,
+          style: context.text.chip.copyWith(color: dimmed ? _mutedGraphText(context) : context.colors.textPrimary),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -89,9 +103,10 @@ class _NodePreview extends StatelessWidget {
 }
 
 class _Node extends StatelessWidget {
-  const _Node({super.key, required this.note, required this.selected, required this.onTap});
+  const _Node({super.key, required this.note, required this.selected, required this.onTap, this.dimmed = false});
   final GraphNote note;
   final bool selected;
+  final bool dimmed;
   final VoidCallback onTap;
 
   @override
@@ -104,18 +119,34 @@ class _Node extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         alignment: AlignmentDirectional.centerStart,
         decoration: BoxDecoration(
-          gradient: selected ? context.colors.selectedGradient : context.colors.glassGradient,
-          color: selected ? null : context.colors.glass,
+          gradient: selected
+              ? context.colors.selectedGradient
+              : dimmed
+              ? null
+              : context.colors.glassGradient,
+          color: selected
+              ? null
+              : dimmed
+              ? context.colors.screen
+              : context.colors.glass,
           borderRadius: BorderRadius.circular(FikraRadius.sm),
           border: Border.all(
-            color: selected ? context.colors.accentLight : context.colors.borderGraph,
+            color: selected
+                ? context.colors.accentLight
+                : dimmed
+                ? context.colors.border
+                : context.colors.borderGraph,
             width: selected ? 1.2 : FikraSpace.hairline,
           ),
         ),
         child: Text(
           _graphTitle(context, note),
           style: context.text.chip.copyWith(
-            color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+            color: selected
+                ? context.colors.textOnSelected
+                : dimmed
+                ? _mutedGraphText(context)
+                : context.colors.textPrimary,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

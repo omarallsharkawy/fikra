@@ -73,7 +73,7 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 
 ## Links section (links phase 2)
 
-`note_details_screen.dart` is a library split into parts, each under 300 lines: `note_details_body.dart` (`_Body`, `_ProcessingCard`), `note_details_cards.dart` (`_ProposalCard`, `_Attachment`, `_Photos`), `note_links_section.dart` (`_NoteLinks`), `note_link_row.dart` (`_LinkRow`, `_InlineAction`, `_DashedOutline`) and `note_link_actions.dart` (`_showLinkOptions`, `_LinkReasonSheet`). Everything outside the links section is moved unchanged.
+`note_details_screen.dart` is a library split into parts, each under 300 lines: `note_details_body.dart` (`_Body`, `_ProcessingCard`), `note_details_cards.dart` (`_ProposalCard`, `_Attachment`, `_Photos`), `note_links_section.dart` (`_NoteLinks`), `note_link_row.dart` (`_LinkRow`, `_InlineAction`, `_DashedOutline`); shared `note_link_actions.dart` now owns `showLinkOptions` and the private reason editor. Everything outside the links section is moved unchanged.
 
 - Header `noteLinksHeader`, then the "Link to a note" secondary button (key `link-to-note`, always shown), then the empty text, the load failure or the rows inside a `FikraSwitcher`.
 - Your link: solid glass card, accent link icon, reason in `textLink`, options control (`link-options-<otherId>`). Suggestion: no fill, dashed `borderGraph` outline, sparkle icon in `textMeta`, outlined "Suggested" tag, inline accept (`link-accept-<otherId>`, primary pill) and reject (`link-reject-<otherId>`, secondary pill). The open area is `open-link-<otherId>`; row key `note-link-<otherId>`.
@@ -91,3 +91,7 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 - Failure (target project deleted meanwhile included) changes nothing and keeps the page. A note deleted meanwhile moves nothing (empty result): no toast, the page already shows "Note not found".
 - `_moving` covers the whole flow from picker to result, so a second move can't start while one is saving, and `_showOptions` returns early while it is set: the options sheet (and so Edit) stays shut until the move ends, so no edit can be opened and then discarded by the move's navigation. Same-frame double taps on the option, a project row or the confirm never reach a popped route (the Navigator absorbs pointers after a pop), so they need no extra guard; `test/project_moves_test.dart` checks the outcome.
 - Verification: `test/project_moves_test.dart`; screenshots `35`–`38` in `test/screenshots/projects_test.dart`.
+
+## Shared link actions (links phase 4)
+
+The former `note_link_actions.dart` part moved to `features/shared/note_link_actions.dart`. Details imports `showLinkOptions` without changing its user-link appearance, callbacks, keys, confirmation or editor lifecycle. Inline suggestion actions call shared `changeLinkPair` inside the existing per-pair busy guard. The graph uses those same sheets and pair operations. Existing `test/note_links_test.dart` remains the note-page regression suite.

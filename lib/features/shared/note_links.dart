@@ -5,6 +5,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/link_label.dart';
 import '../../data/local/database.dart';
+import 'link_pairs.dart';
 
 /// Longest reason a link keeps, in characters (grapheme clusters), the same
 /// unit the repository caps at.
@@ -21,15 +22,20 @@ typedef NoteLinkEntry = ({Note other, NoteLink link});
 /// missing from [notesById] are skipped. Your links come first (newest first),
 /// then suggestions in stored order.
 List<NoteLinkEntry> linksOfNote(String noteId, Iterable<NoteLink> links, Map<String, Note> notesById) {
-  final chosen = <String, NoteLink>{};
-  for (final l in links) {
-    if (l.dismissed || (l.sourceId != noteId && l.targetId != noteId)) continue;
-    final otherId = l.sourceId == noteId ? l.targetId : l.sourceId;
-    if (otherId == noteId || !notesById.containsKey(otherId)) continue;
-    final current = chosen[otherId];
-    if (current == null || (current.origin != LinkOrigin.user && l.origin == LinkOrigin.user)) chosen[otherId] = l;
-  }
-  final entries = [for (final e in chosen.entries) (other: notesById[e.key]!, link: e.value)];
+  final chosen = uniqueLinkPairs(
+    links.where(
+      (l) =>
+          !l.dismissed &&
+          (l.sourceId == noteId || l.targetId == noteId) &&
+          notesById.containsKey(l.sourceId == noteId ? l.targetId : l.sourceId),
+    ),
+    source: (l) => l.sourceId,
+    target: (l) => l.targetId,
+    isUser: (l) => l.origin == LinkOrigin.user,
+  );
+  final entries = [
+    for (final l in chosen) (other: notesById[l.sourceId == noteId ? l.targetId : l.sourceId]!, link: l),
+  ];
   final order = {for (final (i, e) in entries.indexed) e.link.id: i};
   int rank(NoteLinkEntry e) => e.link.origin == LinkOrigin.user ? 0 : 1;
   entries.sort((a, b) {

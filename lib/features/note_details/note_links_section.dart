@@ -54,7 +54,7 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
     final repo = _linksRepo;
     final linkId = entry.link.id;
     _leave(
-      () => _showLinkOptions(
+      () => showLinkOptions(
         context,
         entry,
         remove: (sheet) => _run(sheet, pair, () => repo.removeLink(linkId), success: sheet.l10n.linkRemoved),
@@ -96,9 +96,9 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
                     onOpen: () => _open(entry.other),
                     onOptions: () => _options(entry),
                     onAccept: () =>
-                        _run(context, _pair(entry.other), () => _linksRepo.acceptPair(note.id, entry.other.id)),
+                        _run(context, _pair(entry.other), () => changeLinkPair(_linksRepo, entry.link, accept: true)),
                     onReject: () =>
-                        _run(context, _pair(entry.other), () => _linksRepo.dismissPair(note.id, entry.other.id)),
+                        _run(context, _pair(entry.other), () => changeLinkPair(_linksRepo, entry.link, accept: false)),
                   ),
               ],
             );

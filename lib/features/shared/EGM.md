@@ -52,3 +52,9 @@ The toolbar keeps its keys and styling; Edit hides its round Save and uses the e
 
 - `project_picker.dart`: `showProjectPicker(context, {required title, required excludeProjectId, required empty})` opens a `showFikraSheet` that watches `projectsProvider`, lists every other project as a `ProjectRow` (key `project-pick-<id>`) with its note count, and pops with the picked `Project` (null when dismissed). With no other project it shows `empty` (key `project-picker-empty`). Built for one note now; a later phase reuses it for moving several notes.
 - `ProjectRow({project, count, onTap, selected = false, onMore})`: the project row that used to be private in `project_header.dart` (`_ProjectRow`), now shared. The options control appears only with `onMore`; without it the start padding is 16 instead of 8.
+
+## Shared link choices (links phase 4)
+
+`link_pairs.dart` exposes pure generic `uniqueLinkPairs`: skip self pairs, retain first row for each unordered pair, replace a suggestion only with the first user row. Both `linksOfNote` and the isolate-safe graph use it; existing note-page ordering/filtering stays the same.
+
+`note_link_actions.dart` moved from note_details and exports `showLinkOptions` and `changeLinkPair`. The existing user options, private reason editor, update/error behavior and keys are retained. Optional source note makes graph options name both endpoints. Suggestions use the same sheet with the shared Suggested tag and accept/reject pair operations, safe if analysis replaced the row. A one-choice guard prevents repeated sheet actions; operations capture their repository and live toast context before closing. User removal still requires confirmation and the caller's removal callback. No schema, new copy, colours or motion tokens.

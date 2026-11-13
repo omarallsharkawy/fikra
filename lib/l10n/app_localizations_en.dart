@@ -113,15 +113,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createProjectFailed => 'Couldn\'t create the project. Try again.';
 
   @override
-  String get sampleProjectFailed =>
-      'Couldn\'t open the sample project. Try again.';
+  String get sampleProjectFailed => 'Couldn\'t open the sample project. Try again.';
 
   @override
   String get tagline => 'Write. Connect. Ask.';
 
   @override
-  String get welcomeCapture =>
-      'Type, record your voice, or add a PDF or photos';
+  String get welcomeCapture => 'Type, record your voice, or add a PDF or photos';
 
   @override
   String get welcomeLinks => 'Fikra links related notes for you';
@@ -219,8 +217,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get titleOptionalHint => 'Title (optional)';
 
   @override
-  String get bodyHintWithFileLinks =>
-      'Add a few lines about the file so Fikra can link it (optional)';
+  String get bodyHintWithFileLinks => 'Add a few lines about the file so Fikra can link it (optional)';
 
   @override
   String get bodyHint => 'Write your idea…';
@@ -259,12 +256,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
-  String get micBlockedBody =>
-      'Microphone access is off. Open app settings and allow the microphone.';
+  String get micBlockedBody => 'Microphone access is off. Open app settings and allow the microphone.';
 
   @override
-  String get micAskBody =>
-      'To record your voice, let Fikra use the microphone.';
+  String get micAskBody => 'To record your voice, let Fikra use the microphone.';
 
   @override
   String get openSettings => 'Open settings';
@@ -317,8 +312,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get untitledNote => 'New note';
 
   @override
-  String get openFileFailed =>
-      'Couldn\'t open the file. Make sure you have an app that can open it.';
+  String get openFileFailed => 'Couldn\'t open the file. Make sure you have an app that can open it.';
 
   @override
   String get noteOptions => 'Note options';
@@ -339,8 +333,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteNoteTitle => 'Delete this note?';
 
   @override
-  String get deleteNoteBody =>
-      'The note, its files and its links will be deleted. You can\'t undo this.';
+  String get deleteNoteBody => 'The note, its files and its links will be deleted. You can\'t undo this.';
 
   @override
   String get noteDeleted => 'Note deleted';
@@ -358,8 +351,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteNotFoundBody => 'It may have been deleted.';
 
   @override
-  String get analysisFailedBanner =>
-      'Couldn\'t analyze this note, but it\'s saved as is.';
+  String get analysisFailedBanner => 'Couldn\'t analyze this note, but it\'s saved as is.';
 
   @override
   String get analyzeAgain => 'Analyze again';
@@ -428,8 +420,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteTextA11y => 'Note text';
 
   @override
-  String get originalKeptHint =>
-      'Your original text is kept. You can restore it from the note\'s options.';
+  String get originalKeptHint => 'Your original text is kept. You can restore it from the note\'s options.';
 
   @override
   String get clusterGeneral => 'General';
@@ -444,8 +435,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linksEmptyTitle => 'Links show up here';
 
   @override
-  String get linksEmptyBody =>
-      'Add two or more notes on related topics, and Fikra will link them.';
+  String get linksEmptyBody => 'Add two or more notes on related topics, and Fikra will link them.';
 
   @override
   String get addNote => 'Add a note';
@@ -475,8 +465,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noLinksYet =>
-      'No links yet. Notes on the same topics get linked automatically.';
+  String get noLinksYet => 'No links yet. Notes on the same topics get linked automatically.';
 
   @override
   String nodeMeta(String cluster, String linksCount) {
@@ -493,8 +482,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearChatTitle => 'Clear this chat?';
 
   @override
-  String get clearChatBody =>
-      'Questions and answers will be cleared. Your notes stay as they are.';
+  String get clearChatBody => 'Questions and answers will be cleared. Your notes stay as they are.';
 
   @override
   String get clear => 'Clear';
@@ -521,8 +509,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add some notes first, then ask about them here. Answers come only from your notes, with sources.';
 
   @override
-  String get askEmptyBody =>
-      'Answers come only from this project\'s notes, with sources.';
+  String get askEmptyBody => 'Answers come only from this project\'s notes, with sources.';
 
   @override
   String get askHint => 'Ask anything about your notes';
@@ -577,15 +564,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get themeHint =>
-      '\"System\" follows your phone\'s light or dark mode.';
+  String get themeHint => '\"System\" follows your phone\'s light or dark mode.';
 
   @override
   String get dataSection => 'Data';
 
   @override
-  String get dataStaysLocal =>
-      'Your notes and files are stored only on this phone and are never sent anywhere.';
+  String get dataStaysLocal => 'Your notes and files are stored only on this phone and are never sent anywhere.';
 
   @override
   String get eraseAll => 'Erase all data';
@@ -636,8 +621,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sample1Title => 'Project idea';
 
   @override
-  String get sample1Body =>
-      'A notes app that uses AI to connect ideas and answer my questions from my own notes only.';
+  String get sample1Body => 'A notes app that uses AI to connect ideas and answer my questions from my own notes only.';
 
   @override
   String get sample2Title => 'How RAG works';
@@ -657,8 +641,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sample4Title => 'State management in Flutter';
 
   @override
-  String get sample4Body =>
-      'I\'ll use riverpod for state management in flutter, with a local database for the demo.';
+  String get sample4Body => 'I\'ll use riverpod for state management in flutter, with a local database for the demo.';
 
   @override
   String get sample5Title => 'Backend';
@@ -678,15 +661,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sample7Title => 'Networks lecture';
 
   @override
-  String get sample7Body =>
-      'Today\'s networks lecture was about TCP and UDP. I need to review it before the exam.';
+  String get sample7Body => 'Today\'s networks lecture was about TCP and UDP. I need to review it before the exam.';
 
   @override
   String get clearSearch => 'Clear search';
 
   @override
-  String get noteSavedNoText =>
-      'Note saved. Add a few lines so it can be linked.';
+  String get noteSavedNoText => 'Note saved. Add a few lines so it can be linked.';
 
   @override
   String get noTextNoLinks => 'This note has no text, so Fikra can\'t link it.';
@@ -700,8 +681,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pdfLoadFailed =>
-      'Couldn\'t open this file. It may be damaged or missing.';
+  String get pdfLoadFailed => 'Couldn\'t open this file. It may be damaged or missing.';
 
   @override
   String notesCount(int count) {
@@ -741,12 +721,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String hoursAgo(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count hours ago',
-      one: '1 hour ago',
-    );
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count hours ago', one: '1 hour ago');
     return '$_temp0';
   }
 
@@ -761,8 +736,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyNoteBlocked => 'A note can\'t be empty. Add text or a file.';
 
   @override
-  String get pdfPasswordProtected =>
-      'This PDF is password-protected. Open it in another app.';
+  String get pdfPasswordProtected => 'This PDF is password-protected. Open it in another app.';
 
   @override
   String get noteLinksHeader => 'Links';
@@ -771,8 +745,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkToNote => 'Link to a note';
 
   @override
-  String get noteLinksEmpty =>
-      'No links yet. Tap \"Link to a note\" to connect this note to others.';
+  String get noteLinksEmpty => 'No links yet. Tap \"Link to a note\" to connect this note to others.';
 
   @override
   String get noteLinksLoadFailed => 'Couldn\'t load links right now.';
@@ -824,8 +797,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeLinkTitle => 'Remove this link?';
 
   @override
-  String get removeLinkBody =>
-      'Both notes stay as they are, but Fikra won\'t suggest linking them again.';
+  String get removeLinkBody => 'Both notes stay as they are, but Fikra won\'t suggest linking them again.';
 
   @override
   String get removeLinkConfirm => 'Remove';
@@ -843,8 +815,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyLinked => 'Already linked';
 
   @override
-  String get linkPickerEmpty =>
-      'There are no other notes in this project to link.';
+  String get linkPickerEmpty => 'There are no other notes in this project to link.';
 
   @override
   String get linkFailed => 'Couldn\'t link the notes. Try again.';
@@ -877,8 +848,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moveToProject => 'Move to another project';
 
   @override
-  String get moveNoOtherProject =>
-      'There\'s no other project to move this note to.';
+  String get moveNoOtherProject => 'There\'s no other project to move this note to.';
 
   @override
   String moveNoteTitle(String project) {
@@ -891,8 +861,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get moveNoteBodyNoLinks =>
-      'The note moves with its files. No links will be removed.';
+  String get moveNoteBodyNoLinks => 'The note moves with its files. No links will be removed.';
 
   @override
   String get moveConfirm => 'Move';
@@ -940,8 +909,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteProjectEmptyBody =>
-      'This project is empty. It has no notes.';
+  String get deleteProjectEmptyBody => 'This project is empty. It has no notes.';
 
   @override
   String get firstProjectNameHint => 'Project name, e.g. Study';

@@ -1,8 +1,12 @@
 import 'dart:math' as math;
 
+import '../shared/link_pairs.dart';
+
+part 'graph_geometry.dart';
+
 /// Small, isolate-safe projections. Never include note bodies or attachments.
 typedef GraphNote = ({String id, String title, String? cluster, int createdAt, int status});
-typedef GraphLink = ({String sourceId, String targetId, String label, double strength});
+typedef GraphLink = ({String id, String sourceId, String targetId, String label, double strength, bool isUser});
 typedef GraphPosition = ({double left, double top, double width, double height});
 
 class GraphInput {
@@ -84,6 +88,7 @@ class GraphLayout {
     required this.positions,
     required this.links,
     required this.readyCount,
+    required this.linkCount,
     required this.width,
     required this.height,
   });
@@ -101,7 +106,9 @@ class GraphLayout {
   final Map<String, GraphNote> nodes;
   final Map<String, GraphPosition> positions;
   final List<GraphLink> links;
+  late final List<GraphEdge> edges;
   final int readyCount;
+  final int linkCount;
   final double width;
   final double height;
 
@@ -181,7 +188,14 @@ class GraphLayout {
         nodes[note.id] = note;
       }
     }
-    final visibleLinks = links.where((l) => nodes.containsKey(l.sourceId) && nodes.containsKey(l.targetId)).toList();
+    final noteIds = notes.map((n) => n.id).toSet();
+    final pairs = uniqueLinkPairs(
+      links.where((l) => noteIds.contains(l.sourceId) && noteIds.contains(l.targetId)),
+      source: (l) => l.sourceId,
+      target: (l) => l.targetId,
+      isUser: (l) => l.isUser,
+    );
+    final visibleLinks = pairs.where((l) => nodes.containsKey(l.sourceId) && nodes.containsKey(l.targetId)).toList();
     // A dense or duplicate-heavy link set can still be expensive with 240 nodes.
     // Keep the strongest edges, preserving every edge for small projects.
     if (!small && visibleLinks.length > maxEdges) {
@@ -196,6 +210,7 @@ class GraphLayout {
       positions: {},
       links: visibleLinks,
       readyCount: ready.length,
+      linkCount: pairs.length,
       width: math.max(360.0, padding * 2 + columns * nodeWidth + (columns - 1) * gapX),
       height: padding * 2 + (rows.length + (hiddenRows.isNotEmpty ? 1 : 0)) * rowHeight,
     );
@@ -204,6 +219,7 @@ class GraphLayout {
         layout.positions[row.visible[i].id] = layout.positionInRow(row.index, i);
       }
     }
+    layout.edges = buildGraphEdges(layout);
     return layout;
   }
 }

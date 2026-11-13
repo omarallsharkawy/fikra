@@ -11,6 +11,7 @@ extension _LinksGraphData on _LinksScreenState {
       _input = null;
       _pending = null;
       _layout = null;
+      _edgePaths = null;
       _layoutError = false;
       _selected = null;
       _fittedFor = null;
@@ -41,7 +42,18 @@ extension _LinksGraphData on _LinksScreenState {
             ]
           : _input!.notes,
       linksChanged
-          ? [for (final l in links) (sourceId: l.sourceId, targetId: l.targetId, label: l.label, strength: l.strength)]
+          ? [
+              for (final l in links)
+                if (!l.dismissed)
+                  (
+                    id: l.id,
+                    sourceId: l.sourceId,
+                    targetId: l.targetId,
+                    label: l.label,
+                    strength: l.strength,
+                    isUser: l.origin == LinkOrigin.user,
+                  ),
+            ]
           : _input!.links,
       rtl: rtl,
       generalLabel: generalLabel,
@@ -63,6 +75,7 @@ extension _LinksGraphData on _LinksScreenState {
 
   void _acceptLayout(GraphLayout layout) {
     _layout = layout;
+    _edgePaths = GraphEdgePaths(layout, previous: _edgePaths);
     if (!layout.nodes.containsKey(_selected)) _selected = null;
   }
 

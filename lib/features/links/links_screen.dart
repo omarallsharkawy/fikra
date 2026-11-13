@@ -2,9 +2,11 @@ import 'package:fikra/l10n/localizations.dart';
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' show PointMode;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,6 +19,10 @@ import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../projects/project_header.dart';
 import '../shared/note_presentation.dart';
+import '../shared/note_link_actions.dart';
+import '../shared/link_pairs.dart';
+import 'graph_capsules.dart';
+import 'graph_edge_paths.dart';
 import 'graph_layout.dart';
 
 part 'edges_painter.dart';
@@ -46,6 +52,8 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
   GraphInput? _input;
   GraphInput? _pending;
   GraphLayout? _layout;
+  GraphEdgePaths? _edgePaths;
+  bool _linkOptionsOpen = false;
   bool _workerRunning = false;
   bool _layoutError = false;
 
@@ -78,7 +86,12 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
       for (final l in layout.links) {
         if (l.sourceId != selected.id && l.targetId != selected.id) continue;
         final other = layout.nodes[l.sourceId == selected.id ? l.targetId : l.sourceId];
-        if (other != null) reasons.putIfAbsent(other.id, () => '${_graphTitle(context, other)} · ${l.label}');
+        if (other != null) {
+          reasons.putIfAbsent(
+            other.id,
+            () => l.label.trim().isEmpty ? _graphTitle(context, other) : '${_graphTitle(context, other)} · ${l.label}',
+          );
+        }
       }
     }
 
@@ -144,7 +157,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
                                 child: Text(
                                   context.l10n.linksSummary(
                                     Fmt.notes(context.l10n, notes.length),
-                                    Fmt.links(context.l10n, links.length),
+                                    Fmt.links(context.l10n, layout.linkCount),
                                   ),
                                   style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
                                   overflow: TextOverflow.ellipsis,

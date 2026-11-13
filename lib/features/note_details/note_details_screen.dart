@@ -17,13 +17,13 @@ import '../../data/links_repository.dart';
 import '../../data/local/database.dart';
 import '../shared/link_picker.dart';
 import '../shared/note_links.dart';
+import '../shared/note_link_actions.dart';
 import '../shared/note_presentation.dart';
 import '../shared/open_attachment.dart';
 import '../shared/project_picker.dart';
 
 part 'note_details_body.dart';
 part 'note_details_cards.dart';
-part 'note_link_actions.dart';
 part 'note_link_row.dart';
 part 'note_links_section.dart';
 
