@@ -170,14 +170,17 @@ void main() {
     expect(labelColumn.read<int>('notnull'), 1);
   });
 
-  test('label caps preserve emoji pairs at the boundary for creation, edits and AI', () async {
+  test('label caps count whole characters (emoji included) for creation, edits and AI', () async {
     final a = await note();
     final b = await note();
     final c = await note();
     for (final (input, expected) in [
-      ('${'x' * 79}😀tail', 'x' * 79),
-      ('${'x' * 78}😀tail', '${'x' * 78}😀'),
+      ('${'x' * 79}😀tail', '${'x' * 79}😀'),
+      ('${'x' * 78}😀tail', '${'x' * 78}😀t'),
       ('${'x' * 80}😀tail', 'x' * 80),
+      // A joined family emoji is one character: kept whole, never split.
+      ('${'x' * 79}👨‍👩‍👧tail', '${'x' * 79}👨‍👩‍👧'),
+      ('${'x' * 80}👨‍👩‍👧', 'x' * 80),
     ]) {
       final userId = (await links.linkNotes(a.id, [b.id], label: '  $input  ')).firstOrNull;
       if (userId == null) {
@@ -198,6 +201,110 @@ void main() {
       );
       expect((await allLinks()).singleWhere((l) => l.origin == LinkOrigin.ai).label, expected);
     }
+  });
+
+  test('editing the label of a link removed meanwhile is a no-op', () async {
+    final a = await note();
+    final b = await note();
+    final id = (await links.linkNotes(a.id, [b.id], label: 'kept')).single;
+    await links.removeLink(id);
+    final before = await allLinks();
+    await links.updateLabel(id, 'too late');
+    expect(await allLinks(), before);
+    await links.updateLabel('missing', 'too late');
+    expect(await allLinks(), before);
+  });
+
+  NoteInsights suggesting(String target) => NoteInsights(
+    title: 'AI',
+    concepts: const [],
+    cluster: 'cluster',
+    links: [ProposedLink(targetId: target, label: 'again', strength: 0.5)],
+  );
+
+  test('acceptPair accepts the live suggestion even after a re-analysis replaced its id', () async {
+    final a = await note();
+    final b = await note();
+    await notes.applyInsights(a.id, suggesting(b.id));
+    final shown = (await allLinks()).single;
+    await notes.applyInsights(a.id, suggesting(b.id));
+    final replaced = (await allLinks()).single;
+    expect(replaced.id, isNot(shown.id));
+    // The id-based accept the screen held is now a silent no-op ...
+    await links.acceptSuggestion(shown.id);
+    expect((await allLinks()).single.origin, LinkOrigin.ai);
+    // ... while the pair-based one finds the new row, from either end.
+    await links.acceptPair(b.id, a.id);
+    final accepted = (await allLinks()).single;
+    expect(accepted.id, replaced.id);
+    expect(accepted.origin, LinkOrigin.user);
+    expect(accepted.dismissed, isFalse);
+    // Accepting again changes nothing.
+    await links.acceptPair(a.id, b.id);
+    expect(await allLinks(), [accepted]);
+  });
+
+  test('acceptPair never revives a rejected or removed pair and ignores pairs with no suggestion', () async {
+    final a = await note();
+    final b = await note();
+    final c = await note();
+    final d = await note();
+    await notes.applyInsights(a.id, suggesting(b.id));
+    await links.dismissPair(a.id, b.id);
+    var before = await allLinks();
+    await links.acceptPair(a.id, b.id);
+    expect(await allLinks(), before);
+    // A legacy live reverse suggestion next to a tombstone stays a suggestion.
+    await edge(b, a);
+    before = await allLinks();
+    await links.acceptPair(a.id, b.id);
+    expect(await allLinks(), before);
+
+    final removed = (await links.linkNotes(a.id, [c.id])).single;
+    await links.removeLink(removed);
+    before = await allLinks();
+    await links.acceptPair(c.id, a.id);
+    expect(await allLinks(), before);
+
+    await links.acceptPair(a.id, d.id);
+    expect(await allLinks(), before);
+    expect(await links.watchLinks(p.id).first, [isA<NoteLink>().having((l) => l.sourceId, 'source', b.id)]);
+  });
+
+  test('dismissPair rejects replaced, reverse and vanished suggestions for good, never your link', () async {
+    final a = await note();
+    final b = await note();
+    final c = await note();
+    final d = await note();
+    final other = await note(project: q.id);
+    // Replaced id, plus a legacy reverse row.
+    await notes.applyInsights(a.id, suggesting(b.id));
+    await notes.applyInsights(a.id, suggesting(b.id));
+    await edge(b, a);
+    await links.dismissPair(a.id, b.id);
+    expect((await allLinks()).every((l) => l.dismissed && l.origin == LinkOrigin.ai), isTrue);
+    expect(await links.watchLinks(p.id).first, isEmpty);
+    await notes.applyInsights(a.id, suggesting(b.id));
+    await notes.applyInsights(b.id, suggesting(a.id));
+    expect(await links.watchLinks(p.id).first, isEmpty);
+
+    // The suggestion vanished before the reject landed: a tombstone remembers it.
+    await links.dismissPair(c.id, a.id);
+    final tombstone = (await allLinks()).singleWhere((l) => {l.sourceId, l.targetId}.containsAll({a.id, c.id}));
+    expect((tombstone.origin, tombstone.dismissed, tombstone.projectId), (LinkOrigin.ai, true, p.id));
+    await notes.applyInsights(a.id, suggesting(c.id));
+    await notes.applyInsights(c.id, suggesting(a.id));
+    expect(await links.watchLinks(p.id).first, isEmpty);
+
+    // Your link stays; unknown, cross-project and self pairs change nothing.
+    final mine = (await links.linkNotes(a.id, [d.id], label: 'mine')).single;
+    final before = await allLinks();
+    await links.dismissPair(d.id, a.id);
+    await links.dismissPair(a.id, 'missing');
+    await links.dismissPair(a.id, other.id);
+    await links.dismissPair(a.id, a.id);
+    expect(await allLinks(), before);
+    expect((await links.watchLinks(p.id).first).single.id, mine);
   });
 
   test('late accept after dismissal leaves every row untouched', () async {

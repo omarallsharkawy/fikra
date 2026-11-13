@@ -112,7 +112,6 @@
   "viewOriginal": "الأصلية",
   "originalTextLabel": "النص الأصلي",
   "topicsHeader": "المواضيع",
-  "relatedNotesHeader": "ملاحظات مرتبطة",
   "analyzingBody": "فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.",
   "suggestedRewrite": "صياغة مقترحة",
   "demoBadge": "تجريبي",
@@ -120,9 +119,6 @@
   "keepOriginal": "خلّي النص الأصلي",
   "pdfFile": "ملف PDF",
   "openPhotoA11y": "افتح الصورة {n}",
-  "relatedLoadFailed": "مقدرناش نجيب الملاحظات المرتبطة دلوقتي.",
-  "relatedEmpty": "لسه مفيش ملاحظات مرتبطة بيها في المشروع ده.",
-  "relatedRowA11y": "{title}، {reason}",
   "changesSaved": "التعديل اتحفظ",
   "changesSaveFailed": "مقدرناش نحفظ التعديل. جرّب تاني.",
   "unsavedTitle": "عندك تعديلات مش محفوظة",
@@ -288,16 +284,6 @@
       }
     }
   },
-  "@relatedRowA11y": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "reason": {
-        "type": "String"
-      }
-    }
-  },
   "@linksSummary": {
     "placeholders": {
       "notesCount": {
@@ -429,5 +415,83 @@
   },
   "removeAttachmentBody": "الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.",
   "emptyNoteBlocked": "الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.",
-  "pdfPasswordProtected": "الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني."
+  "pdfPasswordProtected": "الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.",
+  "noteLinksHeader": "الروابط",
+  "linkToNote": "اربط بملاحظة",
+  "noteLinksEmpty": "لسه مفيش روابط للملاحظة دي. دوس «اربط بملاحظة» عشان تربطها بملاحظات تانية.",
+  "noteLinksLoadFailed": "مقدرناش نجيب الروابط دلوقتي.",
+  "linkSuggestedTag": "اقتراح",
+  "linkRowA11y": "{title}، {detail}",
+  "@linkRowA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestedLinkA11y": "اقتراح: {title}",
+  "@suggestedLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "acceptLink": "اقبل",
+  "acceptLinkA11y": "اقبل الربط بـ«{title}»",
+  "@acceptLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectLink": "ارفض",
+  "rejectLinkA11y": "ارفض الربط بـ«{title}»",
+  "@rejectLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsA11y": "خيارات الرابط بـ«{title}»",
+  "@linkOptionsA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsTitle": "خيارات الرابط",
+  "editLinkReason": "عدّل السبب",
+  "removeLink": "شيل الرابط",
+  "removeLinkTitle": "تشيل الرابط ده؟",
+  "removeLinkBody": "الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.",
+  "removeLinkConfirm": "شيل",
+  "linkRemoved": "الرابط اتشال",
+  "linkUpdateFailed": "مقدرناش نعدّل الرابط. جرّب تاني.",
+  "linkReasonHint": "السبب (اختياري)",
+  "alreadyLinked": "مربوطة أصلاً",
+  "linkPickerEmpty": "مفيش ملاحظات تانية في المشروع ده تربطها بيها.",
+  "linkFailed": "مقدرناش نربط الملاحظات. جرّب تاني.",
+  "linkSelected": "{count, plural, zero{اربط} one{اربط ملاحظة واحدة} two{اربط ملاحظتين} few{اربط {count} ملاحظات} many{اربط {count} ملاحظة} other{اربط {count} ملاحظة}}",
+  "@linkSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesLinked": "{count, plural, zero{مفيش ملاحظات اتربطت} one{الملاحظة اتربطت بملاحظة واحدة} two{الملاحظة اتربطت بملاحظتين} few{الملاحظة اتربطت بـ{count} ملاحظات} many{الملاحظة اتربطت بـ{count} ملاحظة} other{الملاحظة اتربطت بـ{count} ملاحظة}}",
+  "@notesLinked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

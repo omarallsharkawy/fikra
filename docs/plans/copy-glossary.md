@@ -497,6 +497,56 @@
 
 252 سطر في جداول القسم (ب): 228 نص في الجداول العادية، و17 موضوع و5 مجموعات من الـdemo AI، وصيغتين للوقت واليوم. ده من غير جدول الجمع (هو تفصيل لأربع سطور موجودة أصلاً)، ومن غير المفاتيح الأربعة الجديدة للغة، ومن غير الـ6 نصوص الجديدة في القسم 15. يعني المجموع 262 سطر نص (252 + 4 + 6). (`bodyHintWithFileLinks` بيتعد مرة واحدة، في القسم 6.) فيه 23 ملف جواهم حروف عربي، و22 منهم فيهم نص بيظهر للمستخدم. الملف الوحيد اللي مفيهوش هو lib/app/app_config.dart، لأن العربي اللي فيه كومنت بس.
 
+### 16. روابط الملاحظة (المرحلة 2 من خطة الروابط) — `lib/features/note_details/` و`lib/features/shared/link_picker.dart`
+
+قسم "ملاحظات مرتبطة" في صفحة الملاحظة بقى قسم "الروابط": المستخدم بيربط بإيده، وبيقبل أو يرفض اقتراحات التحليل. العنوان بقى نفس اسم تاب الروابط (`navLinks`). المفاتيح الأربعة القديمة في القسم 8 (`relatedNotesHeader`، `relatedLoadFailed`، `relatedEmpty`، `relatedRowA11y`) اتشالت من ملفات الـARB، والمفاتيح اللي تحت بتحل محلها. المفاتيح الموجودة اللي القسم ده بيستخدمها زي ما هي: `searchNotesHint`، `noResultsTitle`، `noResultsBody`، `save`، `cancel`.
+
+| المفتاح | لفين | المقترح | English |
+|---|---|---|---|
+| `noteLinksHeader` | عنوان القسم في صفحة الملاحظة (بدل `relatedNotesHeader`) | الروابط | Links |
+| `linkToNote` | الزرار اللي فوق القسم، وعنوان شيت الاختيار | اربط بملاحظة | Link to a note |
+| `noteLinksEmpty` | القسم لما يكون فاضي (بدل `relatedEmpty`) | لسه مفيش روابط للملاحظة دي. دوس «اربط بملاحظة» عشان تربطها بملاحظات تانية. | No links yet. Tap "Link to a note" to connect this note to others. |
+| `noteLinksLoadFailed` | القسم لما الروابط ماتتحملش (بدل `relatedLoadFailed`) | مقدرناش نجيب الروابط دلوقتي. | Couldn't load links right now. |
+| `linkSuggestedTag` | تاج على الرابط اللي التحليل اقترحه، وعلى الملاحظة المقترحة في شيت الاختيار | اقتراح | Suggested |
+| `linkRowA11y` | قارئ الشاشة: صف فيه عنوان وتفصيلة (السبب، أو "مربوطة أصلاً"، أو "اقتراح") (بدل `relatedRowA11y`) | {title}، {detail} | {title}, {detail} |
+| `suggestedLinkA11y` | قارئ الشاشة: صف الاقتراح في القسم | اقتراح: {title} | Suggested: {title} |
+| `acceptLink` | زرار على الاقتراح | اقبل | Accept |
+| `acceptLinkA11y` | قارئ الشاشة: زرار القبول | اقبل الربط بـ«{title}» | Accept link to {title} |
+| `rejectLink` | زرار على الاقتراح | ارفض | Reject |
+| `rejectLinkA11y` | قارئ الشاشة: زرار الرفض | ارفض الربط بـ«{title}» | Reject link to {title} |
+| `linkOptionsA11y` | قارئ الشاشة: زرار الخيارات على رابطك | خيارات الرابط بـ«{title}» | Link options for {title} |
+| `linkOptionsTitle` | عنوان شيت خيارات الرابط | خيارات الرابط | Link options |
+| `editLinkReason` | خيار في الشيت، وعنوان شيت تعديل السبب | عدّل السبب | Edit reason |
+| `removeLink` | خيار في الشيت | شيل الرابط | Remove link |
+| `removeLinkTitle` | رسالة التأكيد | تشيل الرابط ده؟ | Remove this link? |
+| `removeLinkBody` | رسالة التأكيد | الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني. | Both notes stay as they are, but Fikra won't suggest linking them again. |
+| `removeLinkConfirm` | زرار التأكيد | شيل | Remove |
+| `linkRemoved` | toast بعد الشيل | الرابط اتشال | Link removed |
+| `linkUpdateFailed` | toast لما القبول أو الرفض أو الشيل يفشل، ورسالة في شيت تعديل السبب | مقدرناش نعدّل الرابط. جرّب تاني. | Couldn't update the link. Try again. |
+| `linkReasonHint` | خانة السبب في شيت الاختيار وشيت التعديل | السبب (اختياري) | Reason (optional) |
+| `alreadyLinked` | جنب الملاحظة اللي مربوطة بإيدك في شيت الاختيار | مربوطة أصلاً | Already linked |
+| `linkPickerEmpty` | شيت الاختيار لما مفيش ملاحظات تانية في المشروع | مفيش ملاحظات تانية في المشروع ده تربطها بيها. | There are no other notes in this project to link. |
+| `linkFailed` | رسالة في شيت الاختيار لما الربط يفشل | مقدرناش نربط الملاحظات. جرّب تاني. | Couldn't link the notes. Try again. |
+| `linkSelected` | زرار التأكيد في شيت الاختيار | جمع (تحت) | جمع (تحت) |
+| `notesLinked` | toast بعد الربط | جمع (تحت) | جمع (تحت) |
+
+**الجمع بصيغة ICU:**
+
+| المفتاح | zero | one | two | few | many | other |
+|---|---|---|---|---|---|---|
+| `linkSelected` ع | اربط | اربط ملاحظة واحدة | اربط ملاحظتين | اربط {count} ملاحظات | اربط {count} ملاحظة | اربط {count} ملاحظة |
+| `linkSelected` En | Link (`=0`) | Link 1 note | — | — | — | Link {count} notes |
+| `notesLinked` ع | مفيش ملاحظات اتربطت | الملاحظة اتربطت بملاحظة واحدة | الملاحظة اتربطت بملاحظتين | الملاحظة اتربطت بـ{count} ملاحظات | الملاحظة اتربطت بـ{count} ملاحظة | الملاحظة اتربطت بـ{count} ملاحظة |
+| `notesLinked` En | No notes were linked (`=0`) | Linked to 1 note | — | — | — | Linked to {count} notes |
+
+ملحوظات:
+
+- "شيل الرابط" مش "احذف الرابط": الرابط مش حاجة ليها اسم زي الملاحظة والملف، والملاحظتين نفسهم مابيتحذفوش. نفس فعل `removeFile` و`removePhoto`.
+- "اقتراح" (اسم) بدل "مقترح" أو "مقترحة"، عشان التاج بيتحط على رابط (مذكر) وعلى ملاحظة (مؤنث).
+- `linkSelected` بصيغة zero بيظهر بس والزرار مقفول (مفيش حاجة متختارة).
+- `notesLinked` بصيغة zero بيظهر بس لو كل الملاحظات اللي اتختارت اتحذفت قبل التأكيد.
+- عداد السبب (`12/80`) أرقام بس، من غير نص، وبيتكتب من الشمال لليمين في اللغتين زي حجم الملف.
+
 ---
 
 ## ج) القرارات

@@ -11,6 +11,17 @@ abstract interface class LinksRepository {
   Future<void> removeLink(String linkId);
   Future<void> acceptSuggestion(String linkId);
   Future<void> dismissSuggestion(String linkId);
+
+  /// Accepts the live suggestion between notes [a] and [b], whatever its row
+  /// id is now (a re-analysis replaces suggestion rows with new ids). Does
+  /// nothing when the pair is already yours, was rejected or removed, or has no
+  /// live suggestion.
+  Future<void> acceptPair(String a, String b);
+
+  /// Rejects the pair [a]–[b] so the analysis never suggests it again, even if
+  /// its suggestion row was replaced or dropped meanwhile. Does nothing when
+  /// the pair became your link.
+  Future<void> dismissPair(String a, String b);
 }
 
 class LocalLinksRepository implements LinksRepository {
@@ -66,7 +77,8 @@ class LocalLinksRepository implements LinksRepository {
   @override
   Future<void> updateLabel(String linkId, String? label) => db.transaction(() async {
     final row = await _read(linkId);
-    if (row == null) return;
+    // Gone, or removed meanwhile (a removed link is kept as a dismissed row).
+    if (row == null || row.dismissed) return;
     if (row.origin != LinkOrigin.user) throw StateError('Accept the suggestion before editing its label');
     await (db.update(
       db.noteLinks,
@@ -113,6 +125,46 @@ class LocalLinksRepository implements LinksRepository {
     await (db.update(db.noteLinks)
           ..where((l) => _pair(l, row.sourceId, row.targetId) & l.origin.equalsValue(LinkOrigin.ai)))
         .write(const NoteLinksCompanion(dismissed: Value(true)));
+  });
+
+  @override
+  Future<void> acceptPair(String a, String b) => db.transaction(() async {
+    final rows = await (db.select(db.noteLinks)..where((l) => _pair(l, a, b))).get();
+    // Already yours, or rejected/removed: a stale accept never revives the pair.
+    if (rows.any((l) => l.origin == LinkOrigin.user || l.dismissed)) return;
+    final live = rows.where((l) => l.origin == LinkOrigin.ai).firstOrNull;
+    if (live != null) await acceptSuggestion(live.id);
+  });
+
+  @override
+  Future<void> dismissPair(String a, String b) => db.transaction(() async {
+    if (a == b) return;
+    final rows = await (db.select(db.noteLinks)..where((l) => _pair(l, a, b))).get();
+    if (rows.any((l) => l.origin == LinkOrigin.user)) return;
+    if (rows.isNotEmpty) {
+      await (db.update(db.noteLinks)..where((l) => _pair(l, a, b) & l.origin.equalsValue(LinkOrigin.ai))).write(
+        const NoteLinksCompanion(dismissed: Value(true)),
+      );
+      return;
+    }
+    // The suggestion was dropped by a newer analysis: remember the rejection.
+    final notes = await (db.select(db.notes)..where((n) => n.id.isIn([a, b]))).get();
+    if (notes.length != 2 || notes.first.projectId != notes.last.projectId) return;
+    await db
+        .into(db.noteLinks)
+        .insert(
+          NoteLink(
+            id: newId(),
+            projectId: notes.first.projectId,
+            sourceId: a,
+            targetId: b,
+            label: '',
+            strength: 0,
+            origin: LinkOrigin.ai,
+            dismissed: true,
+            createdAt: DateTime.now(),
+          ),
+        );
   });
 
   Future<NoteLink?> _read(String id) => (db.select(db.noteLinks)..where((l) => l.id.equals(id))).getSingleOrNull();

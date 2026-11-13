@@ -9,3 +9,5 @@ Multi-file fixtures render two PDFs, recordings and photos in both locales/theme
 `phone_fixes_test.dart` captures `26_pdf_password` (specific message, external action, no retry) and `27_proposal_scale_{1,2,3}` in both locales/themes. The default-scale labels must occupy one line; larger labels wrap in growing stacked buttons. These are widget renders, not device audio/PDFium verification.
 
 The multi-file note fixture uses the restored PDF auto-title without its extension. Review captures include the shared Add/Edit recording controls with the app-wide busy state.
+
+Links phase 2 captures in `screens_test.dart`: `28_link_picker` (two picks, reason, counter), `29_link_picker_keyboard` (336 dp fake keyboard inset), `30_details_links` (with the linked toast), `31_details_links_bottom` (your links and a suggestion), `32_link_options`, `33_link_reason`, `34_link_remove_confirm`. These add user links to the sample RAG note, so later graph captures include them.

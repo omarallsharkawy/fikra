@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../motion/motion.dart';
@@ -7,7 +9,17 @@ import '../theme/tokens.dart';
 import 'glass.dart';
 
 /// Bottom sheet shell: top radius 38, handle, title, fit to content.
-Future<T?> showFikraSheet<T>(BuildContext context, {required String title, required WidgetBuilder builder}) {
+///
+/// A [tall] sheet takes up to 90 % of the height above the bottom safe area
+/// (less while the keyboard is open), keeps its content above that safe area,
+/// and gives [builder] the bounded height instead of a scroll view, so the
+/// content can hold its own lazy list and keep a footer in view.
+Future<T?> showFikraSheet<T>(
+  BuildContext context, {
+  required String title,
+  required WidgetBuilder builder,
+  bool tall = false,
+}) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
@@ -20,38 +32,66 @@ Future<T?> showFikraSheet<T>(BuildContext context, {required String title, requi
             curve: FikraMotion.sheetCurve,
             reverseCurve: FikraMotion.sheetCurve,
           ),
-    builder: (context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: context.colors.screenGradient,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
-          border: Border(
-            top: BorderSide(color: context.colors.border, width: FikraSpace.hairline),
+    builder: (context) {
+      final head = [
+        Center(
+          child: Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(color: context.colors.borderGraph, borderRadius: BorderRadius.circular(2)),
           ),
         ),
-        padding: const EdgeInsets.fromLTRB(22, 12, 22, 28),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(color: context.colors.borderGraph, borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(title, style: context.text.cardTitle),
-              const SizedBox(height: 16),
-              builder(context),
-            ],
+        const SizedBox(height: 16),
+        Text(title, style: context.text.cardTitle),
+        const SizedBox(height: 16),
+      ];
+      Widget shell(Widget content, {double? height, double safeBottom = 0}) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            gradient: context.colors.screenGradient,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
+            border: Border(
+              top: BorderSide(color: context.colors.border, width: FikraSpace.hairline),
+            ),
           ),
+          padding: EdgeInsets.fromLTRB(22, 12, 22, 28 + safeBottom),
+          child: content,
         ),
-      ),
-    ),
+      );
+      if (!tall) {
+        return shell(
+          SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [...head, builder(context)],
+            ),
+          ),
+        );
+      }
+      return LayoutBuilder(
+        builder: (context, box) {
+          final inset = MediaQuery.viewInsetsOf(context).bottom;
+          // The footer stays above the gesture bar; the keyboard covers it.
+          final safe = math.max(0.0, MediaQuery.paddingOf(context).bottom - inset);
+          final cap = (box.maxHeight - safe) * 0.9 + safe;
+          final height = (box.maxHeight - inset).clamp(0.0, cap);
+          return shell(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...head,
+                Expanded(child: builder(context)),
+              ],
+            ),
+            height: height,
+            safeBottom: safe,
+          );
+        },
+      );
+    },
   );
 }
 

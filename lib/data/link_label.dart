@@ -1,11 +1,13 @@
-/// Caps a label at 80 UTF-16 code units without splitting a surrogate pair.
+import 'package:characters/characters.dart';
+
+/// Longest link reason, counted in user-perceived characters (grapheme
+/// clusters): the same unit as the reason field's limit and its counter.
+const linkLabelMaxLength = 80;
+
+/// Caps a label at [linkLabelMaxLength] grapheme clusters, so an emoji (even a
+/// joined sequence) is kept or dropped whole and never split.
 String capLinkLabel(String label) {
-  if (label.length <= 80) return label;
-  var end = 80;
-  final before = label.codeUnitAt(end - 1);
-  final after = label.codeUnitAt(end);
-  if (before >= 0xd800 && before <= 0xdbff && after >= 0xdc00 && after <= 0xdfff) {
-    end--;
-  }
-  return label.substring(0, end);
+  final characters = label.characters;
+  if (characters.length <= linkLabelMaxLength) return label;
+  return characters.take(linkLabelMaxLength).toString();
 }

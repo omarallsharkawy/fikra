@@ -44,7 +44,7 @@ User-facing default strings resolve from `context.l10n`, in
   - `LoadErrorView({onRetry, description})`: optional localized feature-specific description, with the existing error title and retry presentation.
   - `AsyncBody<T>({value, data, onRetry})`: renders a Riverpod `AsyncValue<T>`.
 - `sheets.dart`
-  - `Future<T?> showFikraSheet<T>(context, {required title, required builder})`.
+  - `Future<T?> showFikraSheet<T>(context, {required title, required builder, tall = false})`.
   - `SheetOption({label, icon, onTap, danger = false})`.
 - `dialogs.dart`
   - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel})`,
@@ -93,6 +93,11 @@ User-facing default strings resolve from `context.l10n`, in
   `reducedFade` with a plain fade under Reduce Motion.
 - `showFikraSheet` resolves to the value popped by the sheet, or null. It uses no
   animation under Reduce Motion, and applies the keyboard inset as bottom padding.
+  The default sheet fits its content in a scroll view. A `tall` sheet is 90 % of
+  the height above the bottom safe area (less the keyboard inset when that is
+  smaller), pads its footer above that safe area (not while the keyboard covers
+  it), and gives `builder` that bounded height with no scroll view, for lazy
+  lists with a footer. Non-tall sheets are unchanged.
 - `confirmDestructive` resolves the default confirm label before pushing its route. `runAction` resolves its default failure message before awaiting.
 - `runAction` catches every exception and error thrown by `action`. It returns
   true only after `action` completes, and shows `success` only then. It captures

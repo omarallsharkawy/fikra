@@ -62,7 +62,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,15 +84,19 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('ar'), Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
+    Locale('en'),
+  ];
 
   /// Proper app name; retain the approved brand spelling.
   ///
@@ -764,12 +770,6 @@ abstract class AppLocalizations {
   /// **'المواضيع'**
   String get topicsHeader;
 
-  /// No description provided for @relatedNotesHeader.
-  ///
-  /// In ar, this message translates to:
-  /// **'ملاحظات مرتبطة'**
-  String get relatedNotesHeader;
-
   /// No description provided for @analyzingBody.
   ///
   /// In ar, this message translates to:
@@ -811,24 +811,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'افتح الصورة {n}'**
   String openPhotoA11y(int n);
-
-  /// No description provided for @relatedLoadFailed.
-  ///
-  /// In ar, this message translates to:
-  /// **'مقدرناش نجيب الملاحظات المرتبطة دلوقتي.'**
-  String get relatedLoadFailed;
-
-  /// No description provided for @relatedEmpty.
-  ///
-  /// In ar, this message translates to:
-  /// **'لسه مفيش ملاحظات مرتبطة بيها في المشروع ده.'**
-  String get relatedEmpty;
-
-  /// No description provided for @relatedRowA11y.
-  ///
-  /// In ar, this message translates to:
-  /// **'{title}، {reason}'**
-  String relatedRowA11y(String title, String reason);
 
   /// No description provided for @changesSaved.
   ///
@@ -1423,9 +1405,166 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.'**
   String get pdfPasswordProtected;
+
+  /// No description provided for @noteLinksHeader.
+  ///
+  /// In ar, this message translates to:
+  /// **'الروابط'**
+  String get noteLinksHeader;
+
+  /// No description provided for @linkToNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'اربط بملاحظة'**
+  String get linkToNote;
+
+  /// No description provided for @noteLinksEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لسه مفيش روابط للملاحظة دي. دوس «اربط بملاحظة» عشان تربطها بملاحظات تانية.'**
+  String get noteLinksEmpty;
+
+  /// No description provided for @noteLinksLoadFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نجيب الروابط دلوقتي.'**
+  String get noteLinksLoadFailed;
+
+  /// No description provided for @linkSuggestedTag.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراح'**
+  String get linkSuggestedTag;
+
+  /// No description provided for @linkRowA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'{title}، {detail}'**
+  String linkRowA11y(String title, String detail);
+
+  /// No description provided for @suggestedLinkA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراح: {title}'**
+  String suggestedLinkA11y(String title);
+
+  /// No description provided for @acceptLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقبل'**
+  String get acceptLink;
+
+  /// No description provided for @acceptLinkA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقبل الربط بـ«{title}»'**
+  String acceptLinkA11y(String title);
+
+  /// No description provided for @rejectLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'ارفض'**
+  String get rejectLink;
+
+  /// No description provided for @rejectLinkA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'ارفض الربط بـ«{title}»'**
+  String rejectLinkA11y(String title);
+
+  /// No description provided for @linkOptionsA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات الرابط بـ«{title}»'**
+  String linkOptionsA11y(String title);
+
+  /// No description provided for @linkOptionsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات الرابط'**
+  String get linkOptionsTitle;
+
+  /// No description provided for @editLinkReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدّل السبب'**
+  String get editLinkReason;
+
+  /// No description provided for @removeLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'شيل الرابط'**
+  String get removeLink;
+
+  /// No description provided for @removeLinkTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشيل الرابط ده؟'**
+  String get removeLinkTitle;
+
+  /// No description provided for @removeLinkBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.'**
+  String get removeLinkBody;
+
+  /// No description provided for @removeLinkConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'شيل'**
+  String get removeLinkConfirm;
+
+  /// No description provided for @linkRemoved.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرابط اتشال'**
+  String get linkRemoved;
+
+  /// No description provided for @linkUpdateFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نعدّل الرابط. جرّب تاني.'**
+  String get linkUpdateFailed;
+
+  /// No description provided for @linkReasonHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'السبب (اختياري)'**
+  String get linkReasonHint;
+
+  /// No description provided for @alreadyLinked.
+  ///
+  /// In ar, this message translates to:
+  /// **'مربوطة أصلاً'**
+  String get alreadyLinked;
+
+  /// No description provided for @linkPickerEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات تانية في المشروع ده تربطها بيها.'**
+  String get linkPickerEmpty;
+
+  /// No description provided for @linkFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نربط الملاحظات. جرّب تاني.'**
+  String get linkFailed;
+
+  /// No description provided for @linkSelected.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{اربط} one{اربط ملاحظة واحدة} two{اربط ملاحظتين} few{اربط {count} ملاحظات} many{اربط {count} ملاحظة} other{اربط {count} ملاحظة}}'**
+  String linkSelected(int count);
+
+  /// No description provided for @notesLinked.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{مفيش ملاحظات اتربطت} one{الملاحظة اتربطت بملاحظة واحدة} two{الملاحظة اتربطت بملاحظتين} few{الملاحظة اتربطت بـ{count} ملاحظات} many{الملاحظة اتربطت بـ{count} ملاحظة} other{الملاحظة اتربطت بـ{count} ملاحظة}}'**
+  String notesLinked(int count);
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1434,7 +1573,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

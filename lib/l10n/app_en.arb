@@ -112,7 +112,6 @@
   "viewOriginal": "Original",
   "originalTextLabel": "Original text",
   "topicsHeader": "Topics",
-  "relatedNotesHeader": "Related notes",
   "analyzingBody": "Fikra is analyzing this note to find its topics and related notes. The note itself is saved.",
   "suggestedRewrite": "Suggested rewrite",
   "demoBadge": "Demo",
@@ -120,9 +119,6 @@
   "keepOriginal": "Keep original text",
   "pdfFile": "PDF file",
   "openPhotoA11y": "Open photo {n}",
-  "relatedLoadFailed": "Couldn't load related notes right now.",
-  "relatedEmpty": "No related notes in this project yet.",
-  "relatedRowA11y": "{title}, {reason}",
   "changesSaved": "Changes saved",
   "changesSaveFailed": "Couldn't save your changes. Try again.",
   "unsavedTitle": "You have unsaved changes",
@@ -288,16 +284,6 @@
       }
     }
   },
-  "@relatedRowA11y": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "reason": {
-        "type": "String"
-      }
-    }
-  },
   "@linksSummary": {
     "placeholders": {
       "notesCount": {
@@ -407,5 +393,83 @@
   "pdfFormat": "PDF",
   "removeAttachmentBody": "The file will be deleted from this note when you save changes. You can't undo this.",
   "emptyNoteBlocked": "A note can't be empty. Add text or a file.",
-  "pdfPasswordProtected": "This PDF is password-protected. Open it in another app."
+  "pdfPasswordProtected": "This PDF is password-protected. Open it in another app.",
+  "noteLinksHeader": "Links",
+  "linkToNote": "Link to a note",
+  "noteLinksEmpty": "No links yet. Tap \"Link to a note\" to connect this note to others.",
+  "noteLinksLoadFailed": "Couldn't load links right now.",
+  "linkSuggestedTag": "Suggested",
+  "linkRowA11y": "{title}, {detail}",
+  "@linkRowA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestedLinkA11y": "Suggested: {title}",
+  "@suggestedLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "acceptLink": "Accept",
+  "acceptLinkA11y": "Accept link to {title}",
+  "@acceptLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectLink": "Reject",
+  "rejectLinkA11y": "Reject link to {title}",
+  "@rejectLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsA11y": "Link options for {title}",
+  "@linkOptionsA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsTitle": "Link options",
+  "editLinkReason": "Edit reason",
+  "removeLink": "Remove link",
+  "removeLinkTitle": "Remove this link?",
+  "removeLinkBody": "Both notes stay as they are, but Fikra won't suggest linking them again.",
+  "removeLinkConfirm": "Remove",
+  "linkRemoved": "Link removed",
+  "linkUpdateFailed": "Couldn't update the link. Try again.",
+  "linkReasonHint": "Reason (optional)",
+  "alreadyLinked": "Already linked",
+  "linkPickerEmpty": "There are no other notes in this project to link.",
+  "linkFailed": "Couldn't link the notes. Try again.",
+  "linkSelected": "{count, plural, =0{Link} one{Link 1 note} other{Link {count} notes}}",
+  "@linkSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesLinked": "{count, plural, =0{No notes were linked} one{Linked to 1 note} other{Linked to {count} notes}}",
+  "@notesLinked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

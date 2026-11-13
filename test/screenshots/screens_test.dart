@@ -152,8 +152,74 @@ void main() {
           }
           await capture('03_details_top');
           await tester.drag(find.byType(ListView).last, const Offset(0, -600));
-          await pumpUntil(tester, find.text(l10n.relatedNotesHeader));
+          await pumpUntil(tester, find.text(l10n.noteLinksHeader));
           await capture('04_details_bottom');
+
+          // Links section: the picker (with and without the keyboard), your
+          // links next to the analysis suggestions, and the link options.
+          Future<void> settle(Finder finder) async {
+            await pumpUntil(tester, finder);
+            await tester.pump(const Duration(milliseconds: 500));
+          }
+
+          Finder textField(String key) =>
+              find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(TextField));
+          await tester.ensureVisible(find.byKey(const ValueKey('link-to-note')));
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.tap(find.byKey(const ValueKey('link-to-note')));
+          await settle(find.byKey(const ValueKey('link-confirm')));
+          for (final title in [l10n.sample7Title, l10n.sample4Title]) {
+            await tester.tap(
+              find.descendant(of: find.byKey(const ValueKey('link-picker-list')), matching: find.text(title)),
+            );
+            await tester.pump();
+          }
+          await tester.enterText(
+            textField('link-reason'),
+            locale.languageCode == 'ar' ? 'نفس المحاضرة' : 'Same lecture',
+          );
+          await tester.pump();
+          await capture('28_link_picker');
+          tester.view.viewInsets = const FakeViewPadding(bottom: 336 * 3);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 400));
+          await capture('29_link_picker_keyboard');
+          tester.view.resetViewInsets();
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.tap(find.byKey(const ValueKey('link-confirm')));
+          await settle(find.text(l10n.notesLinked(2)));
+          final networks = await pumpFuture(
+            tester,
+            () => (db.select(db.notes)..where((n) => n.title.equals(l10n.sample7Title))).getSingle(),
+          );
+          final options = find.byKey(ValueKey('link-options-${networks.id}'));
+          await tester.ensureVisible(find.text(l10n.noteLinksHeader));
+          await tester.pump(const Duration(milliseconds: 400));
+          await capture('30_details_links');
+          // Let the toast go, so nothing covers the suggestion's actions.
+          await tester.pump(const Duration(seconds: 4));
+          await tester.drag(find.byType(ListView).last, const Offset(0, -600));
+          await tester.pump(const Duration(milliseconds: 400));
+          await capture('31_details_links_bottom');
+          await tester.ensureVisible(options);
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.tap(options);
+          await settle(find.text(l10n.linkOptionsTitle));
+          await capture('32_link_options');
+          await tester.tap(find.text(l10n.editLinkReason));
+          await settle(find.byKey(const ValueKey('link-reason-save')));
+          await capture('33_link_reason');
+          await tester.tap(find.byKey(const ValueKey('link-reason-save')));
+          await tester.pump(const Duration(milliseconds: 600));
+          await tester.tap(options);
+          await settle(find.text(l10n.removeLink));
+          await tester.tap(find.text(l10n.removeLink));
+          await settle(find.text(l10n.removeLinkTitle));
+          await capture('34_link_remove_confirm');
+          await tester.tap(find.text(l10n.cancel).last);
+          await tester.pump(const Duration(milliseconds: 500));
+          Navigator.of(tester.element(find.text(l10n.linkOptionsTitle))).pop();
+          await tester.pump(const Duration(milliseconds: 600));
 
           await tester.tap(find.bySemanticsLabel(l10n.options));
           await pumpUntil(tester, find.text(l10n.noteOptions));

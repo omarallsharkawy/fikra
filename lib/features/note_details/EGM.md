@@ -2,7 +2,7 @@
 
 ## Overview
 
-The pushed screens for one note: the read view at `/note/:id`, editor at `/note/:id/edit`, and local PDF viewer at `/note/:id/pdf/:attachmentId`, mounted by `lib/app/router.dart`. The read view shows content, the AI rewrite proposal, attachments (PDFs open in-app; photos open externally), concepts, and related notes.
+The pushed screens for one note: the read view at `/note/:id`, editor at `/note/:id/edit`, and local PDF viewer at `/note/:id/pdf/:attachmentId`, mounted by `lib/app/router.dart`. The read view shows content, the AI rewrite proposal, attachments (PDFs open in-app; photos open externally), topics, and the links section.
 
 ## Interface
 
@@ -10,13 +10,13 @@ The pushed screens for one note: the read view at `/note/:id`, editor at `/note/
   - `NoteDetailsScreen({required String noteId, Note? initial})`: `ConsumerStatefulWidget`. `initial` is the note the caller already has.
 - `edit_note_screen.dart`
   - `EditNoteScreen({required String noteId})`: `ConsumerStatefulWidget`.
-- Consumes `noteProvider`, `linksOfProjectProvider`, `notesOfProjectProvider`, `notesRepoProvider`, and `noteProcessorProvider` from `lib/app/providers.dart`, `noteTitle` and `sourceIcons` from [shared](../shared/EGM.md), and `VoicePlayer` from `lib/core/widgets/voice_player.dart`.
+- Consumes `noteProvider`, `linksOfProjectProvider`, `notesOfProjectProvider`, `notesRepoProvider`, `linksRepoProvider`, and `noteProcessorProvider` from `lib/app/providers.dart`, `noteTitle` and `sourceIcons` from [shared](../shared/EGM.md), and `VoicePlayer` from `lib/core/widgets/voice_player.dart`.
 
 ## Invariants
 
 - `initial` is displayed only until `noteProvider` has a value or an error.
-- Related notes are read with the note's own `projectId`, never the `selected*` providers, so the screen works when the note is outside the selected project.
-- Related notes render only when the note's status is `ProcessingStatus.ready`, with one row per other note (the first matching link wins).
+- Links are read with the note's own `projectId`, never the `selected*` providers, so the screen works when the note is outside the selected project.
+- The links section renders for every status, with one row per other note (`linksOfNote`: the user row wins, otherwise the first suggestion).
 - The improved/original toggle appears only when `Note.hasImprovedVersion` is true.
 - The proposal card appears only when `rewrite == RewriteStatus.pending` and `proposedText` is non-null. `_busy` locks its buttons during a decision.
 - After a delete, the screen pops only if the delete succeeded. Delete requires `confirmDestructive`.
@@ -70,3 +70,14 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 ## Phone regression checks
 
 `phone_regressions_test.dart` checks PDF row taps during incoming and return-route transitions in both languages; no intermittent navigation cause was found and gesture/routing code is unchanged. File-size glyph-order tests cover Add, Edit and details; both render sites already explicitly use LTR. Proposal tests use real fonts at scales 1, 1.5, 2 and 3 and verify full rendered label height and unchanged text scaling. `pdf_viewer_test.dart` distinguishes password failures, verifies no retry and external opening, and tests disposal of encrypted documents accepting an empty password.
+
+## Links section (links phase 2)
+
+`note_details_screen.dart` is a library split into parts, each under 300 lines: `note_details_body.dart` (`_Body`, `_ProcessingCard`), `note_details_cards.dart` (`_ProposalCard`, `_Attachment`, `_Photos`), `note_links_section.dart` (`_NoteLinks`), `note_link_row.dart` (`_LinkRow`, `_InlineAction`, `_DashedOutline`) and `note_link_actions.dart` (`_showLinkOptions`, `_LinkReasonSheet`). Everything outside the links section is moved unchanged.
+
+- Header `noteLinksHeader`, then the "Link to a note" secondary button (key `link-to-note`, always shown), then the empty text, the load failure or the rows inside a `FikraSwitcher`.
+- Your link: solid glass card, accent link icon, reason in `textLink`, options control (`link-options-<otherId>`). Suggestion: no fill, dashed `borderGraph` outline, sparkle icon in `textMeta`, outlined "Suggested" tag, inline accept (`link-accept-<otherId>`, primary pill) and reject (`link-reject-<otherId>`, secondary pill). The open area is `open-link-<otherId>`; row key `note-link-<otherId>`.
+- Options sheet: edit reason (closes, then opens `_LinkReasonSheet` from the page if it is still mounted) and remove (`confirmDestructive` with `removeLinkConfirm`, then `removeLink` and the `linkRemoved` toast). Reject has no confirmation. Accept and reject call `acceptPair`/`dismissPair` with the two note ids, not the row id, so they still work after a re-analysis replaced the suggestion. The options sheet builds its content from its own context, and `_options` captures the repository and link id before opening it; the confirmed removal runs with the sheet's context and only touches `_busy`/`setState` when the section is still mounted, so a page disposed under the sheet (note deleted) is never used.
+- Guards: `_busy` holds unordered note-pair keys (`_pairKey`) with an accept, reject or remove in flight; `_away` blocks a second open/sheet tap until the pushed route or sheet closes (also in the same frame, before go_router pushes). Failures use `runAction` with `linkUpdateFailed`. `_LinkReasonSheet` just closes for a link removed meanwhile (`updateLabel` is a no-op then); failures show an inline error banner and keep the sheet. It pops only if its route is still current, so dismissing it while saving never closes the page.
+- All controls are 48 dp targets with semantics labels (the open area has a 48 dp minimum height, which matters for a suggestion without a reason); insets are directional. No new colours or motion: sheets and the switcher use the existing reduced-motion handling.
+- Verification: `test/note_links_test.dart`; screenshots `28`–`34` in `test/screenshots/screens_test.dart`.

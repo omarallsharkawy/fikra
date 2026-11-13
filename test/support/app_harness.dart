@@ -11,6 +11,7 @@ import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/files/file_opener.dart';
+import 'package:fikra/data/links_repository.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -46,6 +47,7 @@ void fikraTest(
   AttachmentStore? attachmentStore,
   AiService? aiService,
   NotesRepository Function(FikraDatabase)? notesRepository,
+  LinksRepository Function(FikraDatabase)? linksRepository,
   AudioRecorder Function()? recorderFactory,
   Future<PermissionStatus> Function()? microphonePermission,
   List<String>? audioEvents,
@@ -69,6 +71,7 @@ void fikraTest(
           overrides: [
             databaseProvider.overrideWithValue(db),
             if (notesRepository != null) notesRepoProvider.overrideWithValue(notesRepository(db)),
+            if (linksRepository != null) linksRepoProvider.overrideWithValue(linksRepository(db)),
             if (recorderFactory != null) audioRecorderFactoryProvider.overrideWithValue(recorderFactory),
             if (microphonePermission != null) microphonePermissionProvider.overrideWithValue(microphonePermission),
             if (aiService != null) aiServiceProvider.overrideWithValue(aiService),

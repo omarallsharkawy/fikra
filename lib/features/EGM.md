@@ -15,7 +15,7 @@ Shared feature boundaries: `add`, `ask`, `links`, and `notes` use `ProjectHeader
 - notes: [./notes/EGM.md](./notes/EGM.md) - List tab at `/notes`: day-grouped lazy list with cached client-side search.
 - projects: [./projects/EGM.md](./projects/EGM.md) - Shared header, project switcher, name prompt, and the `/welcome` screen.
 - settings: [./settings/EGM.md](./settings/EGM.md) - Pushed screen at `/settings`: theme/language selection and full local data wipe.
-- shared: [./shared/EGM.md](./shared/EGM.md) - Pure note display helpers for titles and source icons.
+- shared: [./shared/EGM.md](./shared/EGM.md) - Note display helpers, shared attachment editing, and the multi-select link picker.
 
 ## Copy and direction
 

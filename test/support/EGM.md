@@ -11,3 +11,5 @@ The harness accepts optional repository, recorder factory, microphone permission
 `proposal_fixture.dart` renders the actual note-details screen with a pending proposal and stream-provider fixtures. It isolates large-text button layout from the covered tab shell and supports locale, theme, width and text scale while retaining real app typography. Its keyed scope can replace the app harness without changing an existing container’s override count.
 
 `recording_fake.dart` implements the record platform boundary with real small file writes, state streams, native start/cancel gates, failure injection, active-recorder tracking and an event log. Tests retain AudioRecorder serialization, amplitude and editor stop transitions.
+
+`fikraTest` also accepts a `LinksRepository` override (spies and failure injection for the links section and picker).
