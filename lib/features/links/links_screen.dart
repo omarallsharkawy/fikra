@@ -2,7 +2,7 @@ import 'package:fikra/l10n/localizations.dart';
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' show PointMode;
+import 'dart:ui' show ImageFilter, PointMode;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

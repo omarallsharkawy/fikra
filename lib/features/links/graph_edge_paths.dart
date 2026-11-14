@@ -40,6 +40,7 @@ class CachedGraphEdge {
   final GraphEdgeInk ink;
   Path get path => ink.path;
   Float32List get dashPoints => ink.dashPoints;
+  List<Vertices> dashVertices(int capDivisions) => ink.dashVertices(capDivisions);
 
   static bool _sameShape(GraphEdge a, GraphEdge b) =>
       a.link.id == b.link.id &&
@@ -103,4 +104,88 @@ class GraphEdgeInk {
 
   late final Path path;
   late final Float32List dashPoints;
+
+  final _dashVertices = <int, List<Vertices>>{};
+
+  /// Built on first Impeller paint at each cap resolution a zoom level needs
+  /// (at most a few), then kept with the ink across layouts.
+  List<Vertices> dashVertices(int capDivisions) =>
+      _dashVertices[capDivisions] ??= graphDashCapsules(dashPoints, divisions: capDivisions);
+}
+
+/// Stroke width of a suggestion's dashes, shared by the painter and the capsules.
+const graphSuggestionStroke = 1.2;
+
+/// Impeller has no raster cache, so the canvas picture is replayed on every pan
+/// frame, and it expands `drawRawPoints(PointMode.lines)` into one draw with its
+/// own round-cap tessellation per dash. These triangle strips are tessellated
+/// once and replayed as one draw per [extent]-sized run of dashes, which the
+/// picture's spatial index can skip off screen. Each capsule is the polygon
+/// Impeller tessellates for a round-capped line at the current device scale
+/// ([divisions] steps per quarter turn, see [graphCapDivisions]). Strips
+/// are joined by zero-area triangles, so nothing is drawn twice that separate
+/// lines would not also draw twice.
+List<Vertices> graphDashCapsules(Float32List dashes, {required int divisions, double extent = 256}) {
+  final n = divisions;
+  const r = graphSuggestionStroke / 2;
+  final cos = [for (var k = 0; k <= n; k++) math.cos(k * math.pi / (2 * n)) * r];
+  final sin = [for (var k = 0; k <= n; k++) math.sin(k * math.pi / (2 * n)) * r];
+  final buffer = Float32List(dashes.length ~/ 4 * (4 * n + 4) * 2);
+  final out = <Vertices>[];
+  var written = 0, start = 0;
+  var left = 0.0, top = 0.0, right = 0.0, bottom = 0.0;
+  void put(double x, double y) {
+    buffer[written++] = x;
+    buffer[written++] = y;
+  }
+
+  void flush() {
+    if (written > start) {
+      out.add(Vertices.raw(VertexMode.triangleStrip, Float32List.sublistView(buffer, start, written)));
+    }
+    start = written;
+  }
+
+  for (var i = 0; i + 3 < dashes.length; i += 4) {
+    final x0 = dashes[i], y0 = dashes[i + 1], x1 = dashes[i + 2], y1 = dashes[i + 3];
+    final l = math.min(x0, x1), t = math.min(y0, y1), rt = math.max(x0, x1), b = math.max(y0, y1);
+    if (written > start &&
+        (math.max(right, rt) - math.min(left, l) > extent || math.max(bottom, b) - math.min(top, t) > extent)) {
+      flush();
+    }
+    if (written == start) {
+      (left, top, right, bottom) = (l, t, rt, b);
+    } else {
+      (left, top, right, bottom) = (math.min(left, l), math.min(top, t), math.max(right, rt), math.max(bottom, b));
+    }
+    final length = math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+    // A zero-length dash is a dot, as a round-capped line of length 0 is.
+    final ux = length == 0 ? 1.0 : (x1 - x0) / length, uy = length == 0 ? 0.0 : (y1 - y0) / length;
+    final vx = -uy, vy = ux;
+    if (written > start) {
+      put(buffer[written - 2], buffer[written - 1]);
+      put(x0 - r * ux, y0 - r * uy);
+    }
+    put(x0 - r * ux, y0 - r * uy);
+    for (var k = 1; k <= n; k++) {
+      put(x0 - cos[k] * ux + sin[k] * vx, y0 - cos[k] * uy + sin[k] * vy);
+      put(x0 - cos[k] * ux - sin[k] * vx, y0 - cos[k] * uy - sin[k] * vy);
+    }
+    for (var k = n; k >= 1; k--) {
+      put(x1 + cos[k] * ux + sin[k] * vx, y1 + cos[k] * uy + sin[k] * vy);
+      put(x1 + cos[k] * ux - sin[k] * vx, y1 + cos[k] * uy - sin[k] * vy);
+    }
+    put(x1 + r * ux, y1 + r * uy);
+  }
+  flush();
+  return out;
+}
+
+/// Impeller's quarter-circle steps for a round cap of [pixelRadius] device
+/// pixels (`kPrecomputedDivisions` in impeller/tessellator/tessellator.cc), so
+/// the capsules match the lines Impeller would draw at the same zoom.
+int graphCapDivisions(double pixelRadius) {
+  const steps = [1, 2, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7];
+  if (pixelRadius <= 0) return 1;
+  return steps[math.min(pixelRadius.ceil(), steps.length - 1)];
 }

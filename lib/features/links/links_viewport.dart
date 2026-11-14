@@ -96,13 +96,17 @@ extension _LinksViewport on _LinksScreenState {
                           child: RepaintBoundary(
                             key: const ValueKey('graph-edges-layer'),
                             child: IgnorePointer(
-                              child: CustomPaint(
-                                key: const ValueKey('graph-edges'),
-                                painter: _EdgesPainter(
-                                  paths: paths,
-                                  selected: _selected,
-                                  accent: context.colors.accent,
-                                  suggestionColor: context.colors.graphEdge,
+                              child: _CapResolution(
+                                controller: _tc,
+                                builder: (capDivisions) => CustomPaint(
+                                  key: const ValueKey('graph-edges'),
+                                  painter: _EdgesPainter(
+                                    paths: paths,
+                                    selected: _selected,
+                                    accent: context.colors.accent,
+                                    suggestionColor: context.colors.graphEdge,
+                                    capDivisions: capDivisions,
+                                  ),
                                 ),
                               ),
                             ),
