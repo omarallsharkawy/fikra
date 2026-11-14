@@ -42,7 +42,7 @@ abstract final class FikraMotion {
 /// Content swap: the old child fades out (120 ms), then the new one fades and
 /// scales in (0.96 → 1, 250 ms). Give each state a distinct [Key].
 /// With [animateSize] the height change between states is eased too.
-class FikraSwitcher extends StatelessWidget {
+class FikraSwitcher extends StatefulWidget {
   const FikraSwitcher({super.key, required this.child, this.animateSize = false, this.alignment = Alignment.topCenter});
 
   final Widget child;
@@ -50,11 +50,22 @@ class FikraSwitcher extends StatelessWidget {
   final AlignmentGeometry alignment;
 
   @override
+  State<FikraSwitcher> createState() => _FikraSwitcherState();
+}
+
+class _FikraSwitcherState extends State<FikraSwitcher> {
+  // Moves the switcher in and out of the AnimatedSize wrapper without
+  // remounting it when Reduce Motion is toggled.
+  final _switcherKey = GlobalKey();
+
+  @override
   Widget build(BuildContext context) {
+    final alignment = widget.alignment;
     final reduced = FikraMotion.reduced(context);
     final exitMs = FikraMotion.exit.inMilliseconds;
     final total = exitMs + FikraMotion.enter.inMilliseconds;
-    Widget switcher = AnimatedSwitcher(
+    final switcher = AnimatedSwitcher(
+      key: _switcherKey,
       duration: reduced ? FikraMotion.reducedFade : Duration(milliseconds: total),
       reverseDuration: reduced ? FikraMotion.reducedFade : FikraMotion.exit,
       switchInCurve: reduced ? Curves.linear : Interval(exitMs / total, 1, curve: FikraMotion.enterCurve),
@@ -71,17 +82,17 @@ class FikraSwitcher extends StatelessWidget {
           child: FadeTransition(opacity: animation, child: child),
         ),
       ),
-      child: child,
+      child: widget.child,
     );
-    if (animateSize) {
-      switcher = AnimatedSize(
-        duration: reduced ? Duration.zero : FikraMotion.expand,
-        curve: FikraMotion.expandCurve,
-        alignment: alignment,
-        child: switcher,
-      );
-    }
-    return switcher;
+    // A zero-duration AnimatedSize re-dirties itself inside its own layout (a
+    // debug assertion), so Reduce Motion drops the wrapper and resizes at once.
+    if (!widget.animateSize || reduced) return switcher;
+    return AnimatedSize(
+      duration: FikraMotion.expand,
+      curve: FikraMotion.expandCurve,
+      alignment: alignment,
+      child: switcher,
+    );
   }
 }
 

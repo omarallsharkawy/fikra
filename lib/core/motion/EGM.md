@@ -45,10 +45,12 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
 - Give each state passed to `FikraSwitcher` a distinct `Key`. Without one, two
   states of the same widget type do not transition, because `AnimatedSwitcher`
   treats them as the same child.
-- `FikraSwitcher` builds the same widget hierarchy with and without Reduce
-  Motion, so toggling it never remounts content. A focused field would otherwise
-  lose its IME state. Keep the `ScaleTransition` in place under Reduce Motion,
-  driven by a stopped animation at 1.0.
+- Toggling Reduce Motion never remounts `FikraSwitcher` content. A focused
+  field would otherwise lose its IME state. Inside the `AnimatedSwitcher` the
+  hierarchy is the same in both modes: keep the `ScaleTransition` in place under
+  Reduce Motion, driven by a stopped animation at 1.0. With `animateSize`, the
+  `AnimatedSwitcher` carries a `GlobalKey` owned by `_FikraSwitcherState`, so it
+  moves in and out of the `AnimatedSize` wrapper without being rebuilt.
 - The outgoing child of a `FikraSwitcher` stays visible but takes no pointer
   input, focus or semantics (`_ExitGuard`, active while the animation status is
   `reverse` or `dismissed`), so a replaced control cannot fire.
@@ -56,7 +58,10 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
   duration is `exit + enter`, and `switchInCurve` is delayed by an `Interval`
   starting at `exit / (exit + enter)`. Exit is faster than enter.
 - Under Reduce Motion, `FikraSwitcher` uses `FikraMotion.reducedFade` with no
-  scale, and `animateSize` resolves to `Duration.zero`.
+  scale, and `animateSize` drops the `AnimatedSize` wrapper so the size changes
+  at once. Never pass `Duration.zero` to an `AnimatedSize`: it jumps its
+  controller to the end inside its own layout and re-dirties itself, which
+  fails a debug assertion ("mutated in its own performLayout").
 - `Pressable` is enabled when `onTap` or `onLongPress` is set. Under Reduce
   Motion its scale stays at 1.
 - `Pressable.semanticLabel` replaces the child's semantics. A labelled
@@ -105,6 +110,8 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
 
 - Run: `flutter analyze && flutter test`
 - `test/motion_test.dart` covers `Pressable` semantics, the `FikraSwitcher` exit
-  guard, push direction and duration, plain pop fades and route removal within
-  the pop budget (including Reduce Motion), and predictive back progress,
-  cancellation and continuous commit at multiple gesture positions.
+  guard, `animateSize` swaps under Reduce Motion without a layout assertion,
+  content and focus kept across a Reduce Motion toggle, push direction and
+  duration, plain pop fades and route removal within the pop budget (including
+  Reduce Motion), and predictive back progress, cancellation and continuous
+  commit at multiple gesture positions.

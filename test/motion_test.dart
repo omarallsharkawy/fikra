@@ -57,6 +57,75 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('switcher: animateSize swaps states under Reduce Motion without a layout assertion', (tester) async {
+    final tall = ValueNotifier(false);
+    addTearDown(tall.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: ValueListenableBuilder(
+            valueListenable: tall,
+            builder: (context, isTall, _) => Align(
+              alignment: Alignment.topCenter,
+              child: FikraSwitcher(
+                animateSize: true,
+                child: isTall
+                    ? const SizedBox(key: ValueKey('tall'), width: 10, height: 200)
+                    : const SizedBox(key: ValueKey('short'), width: 10, height: 20),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    tall.value = true;
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(FikraSwitcher)).height, 200);
+    tall.value = false;
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(FikraSwitcher)).height, 20);
+  });
+
+  testWidgets('switcher: toggling Reduce Motion keeps animateSize content and focus', (tester) async {
+    final reduced = ValueNotifier(false);
+    addTearDown(reduced.dispose);
+    final focus = FocusNode();
+    addTearDown(focus.dispose);
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: ValueListenableBuilder(
+            valueListenable: reduced,
+            builder: (context, isReduced, _) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: isReduced),
+              child: FikraSwitcher(
+                animateSize: true,
+                child: TextField(key: const ValueKey('field'), focusNode: focus, controller: controller),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    focus.requestFocus();
+    await tester.pump();
+    final state = tester.state(find.byType(EditableText));
+    for (final value in [true, false]) {
+      reduced.value = value;
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(tester.state(find.byType(EditableText)), same(state));
+      expect(focus.hasFocus, isTrue);
+    }
+  });
+
   testWidgets('branches preserve state and hide inactive text, focus, semantics and tickers', (tester) async {
     final index = ValueNotifier(0);
     addTearDown(index.dispose);
