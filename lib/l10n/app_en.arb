@@ -834,5 +834,208 @@
       }
     }
   },
-  "graphMinimap": "Graph minimap. Tap or drag to move"
+  "graphMinimap": "Graph minimap. Tap or drag to move",
+  "vtTitle": "Voice to text",
+  "vtExperimental": "Experimental",
+  "vtIntro": "The model runs on your phone. Nothing is uploaded. It needs a one-time download.",
+  "vtModel": "Model",
+  "vtTiny": "Tiny",
+  "vtBase": "Medium",
+  "vtSmall": "More accurate",
+  "vtFullName": "{name} · uncompressed",
+  "@vtFullName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTinyHint": "Smallest and fastest, with more mistakes.",
+  "vtBaseHint": "Balances size and accuracy.",
+  "vtSmallHint": "May be more accurate, but slower and larger.",
+  "vtFullHint": "Larger, uncompressed version. Compare its accuracy with the smaller version.",
+  "vtOnPhone": "On your phone",
+  "vtNotDownloaded": "Not downloaded",
+  "vtUsed": "Model storage used: {size}",
+  "@vtUsed": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownload": "Download · {size}",
+  "@vtDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadTitle": "Download this model?",
+  "vtDownloadBody": "The download is {size}. Wi-Fi is better. You only need to download it once.",
+  "@vtDownloadBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadConfirm": "Download",
+  "vtDeleteModel": "Delete model",
+  "vtDeleteModelTitle": "Delete this model?",
+  "vtDeleteModelBody": "You will need to download it again to use it.",
+  "vtProgress": "{received} of {total}",
+  "@vtProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "vtLanguage": "Speech language",
+  "vtAutomatic": "Automatic",
+  "vtAdvanced": "Advanced",
+  "vtThreads": "CPU threads: {count}",
+  "@vtThreads": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFormat": "Recording format",
+  "vtWav": "Test format (WAV)",
+  "vtAac": "The app's normal format (AAC)",
+  "vtClips": "Recent recordings",
+  "vtNoRecordings": "Record a few words to try transcription. Your last 10 recordings stay here.",
+  "vtClip": "Recording {number} · {format}",
+  "@vtClip": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDeleteRecordingBody": "This recording will be deleted from the experiment.",
+  "vtTranscribe": "Transcribe",
+  "vtWorking": "Transcribing…",
+  "vtCannotCancel": "Once transcription starts, wait for it to finish.",
+  "vtWait": "Wait for the operation to finish, or stop recording first.",
+  "vtResult": "Transcript",
+  "vtNoSpeech": "No clear speech was found. Try again.",
+  "vtNumbers": "Numbers",
+  "vtAudioLength": "Audio length: {seconds} s",
+  "@vtAudioLength": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtWall": "Time taken: {seconds} s",
+  "@vtWall": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFaster": "{times} times faster than speech",
+  "@vtFaster": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtSlower": "{times} times slower than speech",
+  "@vtSlower": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFactor": "Real-time factor: {factor}",
+  "@vtFactor": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "vtMs": "{ms} ms",
+  "@vtMs": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtMemory": "Memory before: {before}, after: {after}",
+  "@vtMemory": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "vtPeak": "Peak memory: {size}",
+  "@vtPeak": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtConversion": "Audio conversion: {ms}",
+  "@vtConversion": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtEstimate": "Transcription and model load, approximately: {ms}",
+  "@vtEstimate": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtModelLoad": "Model startup: {ms}",
+  "@vtModelLoad": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTimingHint": "Time includes audio conversion and model loading. Memory is for the whole app.",
+  "vtHistory": "Recent runs",
+  "vtLive": "Text while you speak",
+  "vtLiveHint": "Text updates while you speak. Stopping may take a little time.",
+  "vtLiveStart": "Start live transcription",
+  "vtLiveTiming": "Live session time includes speaking, so it does not measure transcription speed.",
+  "vtNetworkError": "Couldn't download the model. Check your connection and try again.",
+  "vtInterruptedError": "The download or recording was interrupted. Try again.",
+  "vtCorruptError": "Couldn't read the model. Delete it and download it again.",
+  "vtEmptyError": "The recording is empty or invalid. Record a few words and try again.",
+  "vtTranscriptionError": "Couldn't transcribe the audio. Try a shorter recording or a smaller model.",
+  "vtStorageError": "There is not enough storage. Free some space or choose a smaller model, then try again.",
+  "vtStorageCheckError": "Couldn't check free storage. Reopen this screen and try again.",
+  "vtCancelled": "Download cancelled. You can start it again.",
+  "vtEgyptian": "Egyptian · experimental",
+  "vtEgyptianHint": "Trained on Egyptian Arabic mixed with English."
 }

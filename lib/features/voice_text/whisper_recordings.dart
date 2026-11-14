@@ -64,6 +64,16 @@ class RecordingStore {
     return kept;
   }
 
+  Future<List<SpikeRecording>> remove(SpikeRecording clip, List<SpikeRecording> previous) async {
+    final kept = previous.where((c) => c.path != clip.path).toList();
+    final temporary = File('${_index.path}.part');
+    await temporary.writeAsString(jsonEncode(kept.map((c) => c.toJson()).toList()), flush: true);
+    await temporary.rename(_index.path);
+    final file = File(clip.path);
+    if (await file.exists()) await file.delete();
+    return kept;
+  }
+
   Future<void> appendRun(String line) async {
     await directory.create(recursive: true);
     await File('${directory.path}/runs.jsonl').writeAsString('$line\n', mode: FileMode.append, flush: true);

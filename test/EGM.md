@@ -76,3 +76,7 @@ Phase 6 independent review regressions: `graph_route_assertions.dart` independen
 The production worker remains `compute`; `graphLayoutWorkerProvider` only makes delayed completion deterministic in tests. No package configuration or dependency changes are required.
 
 Before/after performance was also checked against a temporary copy of HEAD (`2b87dc1`) using the existing 240/1000 fixture, complete geometry + ink creation, six warm-up pairs and 21 timed pairs in alternating order in the same engine process: no groups 24.668/25.530 ms (+3.5%), expanded 19.947/21.650 ms (+8.5%), folded 9.351/10.226 ms (+9.4%). Temporary baseline code is not part of the repository.
+
+## Voice to text experiment
+
+`voice_text/` contains the fake backend, themed fixture, pure/file/controller tests and screen state/error/accessibility tests. `screenshots/voice_text_test.dart` covers the real Settings route and experiment in AR/EN and dark/light. The retained spike tests now import used logic in lib/features/voice_text; lib/spike and its standalone main are removed.

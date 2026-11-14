@@ -2089,6 +2089,414 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'خريطة الرسم، دوس أو اسحب عشان تتحرك'**
   String get graphMinimap;
+
+  /// No description provided for @vtTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحويل الصوت لنص'**
+  String get vtTitle;
+
+  /// No description provided for @vtExperimental.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجريبي'**
+  String get vtExperimental;
+
+  /// No description provided for @vtIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'النموذج بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.'**
+  String get vtIntro;
+
+  /// No description provided for @vtModel.
+  ///
+  /// In ar, this message translates to:
+  /// **'النموذج'**
+  String get vtModel;
+
+  /// No description provided for @vtTiny.
+  ///
+  /// In ar, this message translates to:
+  /// **'صغير جدًا'**
+  String get vtTiny;
+
+  /// No description provided for @vtBase.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوسط'**
+  String get vtBase;
+
+  /// No description provided for @vtSmall.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدق'**
+  String get vtSmall;
+
+  /// No description provided for @vtFullName.
+  ///
+  /// In ar, this message translates to:
+  /// **'{name} · من غير ضغط'**
+  String vtFullName(String name);
+
+  /// No description provided for @vtTinyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أصغر وأسرع، بس ممكن يغلط أكتر.'**
+  String get vtTinyHint;
+
+  /// No description provided for @vtBaseHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'توازن بين الحجم والدقة.'**
+  String get vtBaseHint;
+
+  /// No description provided for @vtSmallHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'دقة أعلى متوقعة، بس أبطأ وحجمه أكبر.'**
+  String get vtSmallHint;
+
+  /// No description provided for @vtFullHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.'**
+  String get vtFullHint;
+
+  /// No description provided for @vtOnPhone.
+  ///
+  /// In ar, this message translates to:
+  /// **'موجود على الموبايل'**
+  String get vtOnPhone;
+
+  /// No description provided for @vtNotDownloaded.
+  ///
+  /// In ar, this message translates to:
+  /// **'لسه متحمّلش'**
+  String get vtNotDownloaded;
+
+  /// No description provided for @vtUsed.
+  ///
+  /// In ar, this message translates to:
+  /// **'المساحة المستخدمة للنماذج: {size}'**
+  String vtUsed(String size);
+
+  /// No description provided for @vtDownload.
+  ///
+  /// In ar, this message translates to:
+  /// **'حمّل · {size}'**
+  String vtDownload(String size);
+
+  /// No description provided for @vtDownloadTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحمّل النموذج؟'**
+  String get vtDownloadTitle;
+
+  /// No description provided for @vtDownloadBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'حجمه {size}. الأفضل تحمّله على واي فاي. التحميل مرة واحدة.'**
+  String vtDownloadBody(String size);
+
+  /// No description provided for @vtDownloadConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'حمّل'**
+  String get vtDownloadConfirm;
+
+  /// No description provided for @vtDeleteModel.
+  ///
+  /// In ar, this message translates to:
+  /// **'احذف النموذج'**
+  String get vtDeleteModel;
+
+  /// No description provided for @vtDeleteModelTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحذف النموذج؟'**
+  String get vtDeleteModelTitle;
+
+  /// No description provided for @vtDeleteModelBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'هتحتاج تحمّله تاني عشان تستخدمه.'**
+  String get vtDeleteModelBody;
+
+  /// No description provided for @vtProgress.
+  ///
+  /// In ar, this message translates to:
+  /// **'{received} من {total}'**
+  String vtProgress(String received, String total);
+
+  /// No description provided for @vtLanguage.
+  ///
+  /// In ar, this message translates to:
+  /// **'لغة الكلام'**
+  String get vtLanguage;
+
+  /// No description provided for @vtAutomatic.
+  ///
+  /// In ar, this message translates to:
+  /// **'تلقائي'**
+  String get vtAutomatic;
+
+  /// No description provided for @vtAdvanced.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات متقدمة'**
+  String get vtAdvanced;
+
+  /// No description provided for @vtThreads.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسارات المعالجة: {count}'**
+  String vtThreads(String count);
+
+  /// No description provided for @vtFormat.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيغة التسجيل'**
+  String get vtFormat;
+
+  /// No description provided for @vtWav.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيغة الاختبار (WAV)'**
+  String get vtWav;
+
+  /// No description provided for @vtAac.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيغة التطبيق العادية (AAC)'**
+  String get vtAac;
+
+  /// No description provided for @vtClips.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر تسجيلاتك'**
+  String get vtClips;
+
+  /// No description provided for @vtNoRecordings.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل كام كلمة عشان تجرّب التحويل. آخر 10 تسجيلات بيفضلوا هنا.'**
+  String get vtNoRecordings;
+
+  /// No description provided for @vtClip.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل {number} · {format}'**
+  String vtClip(String number, String format);
+
+  /// No description provided for @vtDeleteRecordingBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيل ده هيتحذف من التجربة.'**
+  String get vtDeleteRecordingBody;
+
+  /// No description provided for @vtTranscribe.
+  ///
+  /// In ar, this message translates to:
+  /// **'حوّل لنص'**
+  String get vtTranscribe;
+
+  /// No description provided for @vtWorking.
+  ///
+  /// In ar, this message translates to:
+  /// **'بنحوّل الصوت لنص…'**
+  String get vtWorking;
+
+  /// No description provided for @vtCannotCancel.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد ما التحويل يبدأ، لازم نستنى لحد ما يخلص.'**
+  String get vtCannotCancel;
+
+  /// No description provided for @vtWait.
+  ///
+  /// In ar, this message translates to:
+  /// **'استنى لحد ما العملية تخلص، أو وقّف التسجيل الأول.'**
+  String get vtWait;
+
+  /// No description provided for @vtResult.
+  ///
+  /// In ar, this message translates to:
+  /// **'النص'**
+  String get vtResult;
+
+  /// No description provided for @vtNoSpeech.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش كلام واضح في التسجيل. جرّب تاني.'**
+  String get vtNoSpeech;
+
+  /// No description provided for @vtNumbers.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأرقام'**
+  String get vtNumbers;
+
+  /// No description provided for @vtAudioLength.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدة التسجيل: {seconds} ثانية'**
+  String vtAudioLength(String seconds);
+
+  /// No description provided for @vtWall.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوقت: {seconds} ثانية'**
+  String vtWall(String seconds);
+
+  /// No description provided for @vtFaster.
+  ///
+  /// In ar, this message translates to:
+  /// **'أسرع من الكلام {times} مرات'**
+  String vtFaster(String times);
+
+  /// No description provided for @vtSlower.
+  ///
+  /// In ar, this message translates to:
+  /// **'أبطأ من الكلام {times} مرات'**
+  String vtSlower(String times);
+
+  /// No description provided for @vtFactor.
+  ///
+  /// In ar, this message translates to:
+  /// **'عامل الوقت: {factor}'**
+  String vtFactor(String factor);
+
+  /// No description provided for @vtMs.
+  ///
+  /// In ar, this message translates to:
+  /// **'{ms} ms'**
+  String vtMs(String ms);
+
+  /// No description provided for @vtMemory.
+  ///
+  /// In ar, this message translates to:
+  /// **'الذاكرة قبل: {before}، بعد: {after}'**
+  String vtMemory(String before, String after);
+
+  /// No description provided for @vtPeak.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعلى ذاكرة: {size}'**
+  String vtPeak(String size);
+
+  /// No description provided for @vtConversion.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجهيز الصوت: {ms}'**
+  String vtConversion(String ms);
+
+  /// No description provided for @vtEstimate.
+  ///
+  /// In ar, this message translates to:
+  /// **'النص وتحميل النموذج، تقريبًا: {ms}'**
+  String vtEstimate(String ms);
+
+  /// No description provided for @vtModelLoad.
+  ///
+  /// In ar, this message translates to:
+  /// **'بداية النموذج: {ms}'**
+  String vtModelLoad(String ms);
+
+  /// No description provided for @vtTimingHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوقت بيشمل تجهيز الصوت وتحميل النموذج. الذاكرة للتطبيق كله.'**
+  String get vtTimingHint;
+
+  /// No description provided for @vtHistory.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجارب قبل كده'**
+  String get vtHistory;
+
+  /// No description provided for @vtLive.
+  ///
+  /// In ar, this message translates to:
+  /// **'نص وإنت بتتكلم'**
+  String get vtLive;
+
+  /// No description provided for @vtLiveHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'النص بيتعدّل وإنت بتتكلم. الوقف ممكن ياخد شوية وقت.'**
+  String get vtLiveHint;
+
+  /// No description provided for @vtLiveStart.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ التحويل المباشر'**
+  String get vtLiveStart;
+
+  /// No description provided for @vtLiveTiming.
+  ///
+  /// In ar, this message translates to:
+  /// **'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التحويل.'**
+  String get vtLiveTiming;
+
+  /// No description provided for @vtNetworkError.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.'**
+  String get vtNetworkError;
+
+  /// No description provided for @vtInterruptedError.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحميل أو التسجيل اتقطع. جرّب تاني.'**
+  String get vtInterruptedError;
+
+  /// No description provided for @vtCorruptError.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نقرا النموذج. احذفه وحمّله تاني.'**
+  String get vtCorruptError;
+
+  /// No description provided for @vtEmptyError.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.'**
+  String get vtEmptyError;
+
+  /// No description provided for @vtTranscriptionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نحوّل الصوت لنص. جرّب تسجيل أقصر أو نموذج أصغر.'**
+  String get vtTranscriptionError;
+
+  /// No description provided for @vtStorageError.
+  ///
+  /// In ar, this message translates to:
+  /// **'المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.'**
+  String get vtStorageError;
+
+  /// No description provided for @vtStorageCheckError.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.'**
+  String get vtStorageCheckError;
+
+  /// No description provided for @vtCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحميل اتلغى. تقدر تبدأه تاني.'**
+  String get vtCancelled;
+
+  /// No description provided for @vtEgyptian.
+  ///
+  /// In ar, this message translates to:
+  /// **'مصري · تجريبي'**
+  String get vtEgyptian;
+
+  /// No description provided for @vtEgyptianHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'متدرّب على العامية المصرية والإنجليزي مع بعض.'**
+  String get vtEgyptianHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -856,5 +856,208 @@
       }
     }
   },
-  "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك"
+  "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك",
+  "vtTitle": "تحويل الصوت لنص",
+  "vtExperimental": "تجريبي",
+  "vtIntro": "النموذج بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.",
+  "vtModel": "النموذج",
+  "vtTiny": "صغير جدًا",
+  "vtBase": "متوسط",
+  "vtSmall": "أدق",
+  "vtFullName": "{name} · من غير ضغط",
+  "@vtFullName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTinyHint": "أصغر وأسرع، بس ممكن يغلط أكتر.",
+  "vtBaseHint": "توازن بين الحجم والدقة.",
+  "vtSmallHint": "دقة أعلى متوقعة، بس أبطأ وحجمه أكبر.",
+  "vtFullHint": "نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.",
+  "vtOnPhone": "موجود على الموبايل",
+  "vtNotDownloaded": "لسه متحمّلش",
+  "vtUsed": "المساحة المستخدمة للنماذج: {size}",
+  "@vtUsed": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownload": "حمّل · {size}",
+  "@vtDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadTitle": "تحمّل النموذج؟",
+  "vtDownloadBody": "حجمه {size}. الأفضل تحمّله على واي فاي. التحميل مرة واحدة.",
+  "@vtDownloadBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadConfirm": "حمّل",
+  "vtDeleteModel": "احذف النموذج",
+  "vtDeleteModelTitle": "تحذف النموذج؟",
+  "vtDeleteModelBody": "هتحتاج تحمّله تاني عشان تستخدمه.",
+  "vtProgress": "{received} من {total}",
+  "@vtProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "vtLanguage": "لغة الكلام",
+  "vtAutomatic": "تلقائي",
+  "vtAdvanced": "خيارات متقدمة",
+  "vtThreads": "مسارات المعالجة: {count}",
+  "@vtThreads": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFormat": "صيغة التسجيل",
+  "vtWav": "صيغة الاختبار (WAV)",
+  "vtAac": "صيغة التطبيق العادية (AAC)",
+  "vtClips": "آخر تسجيلاتك",
+  "vtNoRecordings": "سجّل كام كلمة عشان تجرّب التحويل. آخر 10 تسجيلات بيفضلوا هنا.",
+  "vtClip": "تسجيل {number} · {format}",
+  "@vtClip": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDeleteRecordingBody": "التسجيل ده هيتحذف من التجربة.",
+  "vtTranscribe": "حوّل لنص",
+  "vtWorking": "بنحوّل الصوت لنص…",
+  "vtCannotCancel": "بعد ما التحويل يبدأ، لازم نستنى لحد ما يخلص.",
+  "vtWait": "استنى لحد ما العملية تخلص، أو وقّف التسجيل الأول.",
+  "vtResult": "النص",
+  "vtNoSpeech": "مفيش كلام واضح في التسجيل. جرّب تاني.",
+  "vtNumbers": "الأرقام",
+  "vtAudioLength": "مدة التسجيل: {seconds} ثانية",
+  "@vtAudioLength": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtWall": "الوقت: {seconds} ثانية",
+  "@vtWall": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFaster": "أسرع من الكلام {times} مرات",
+  "@vtFaster": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtSlower": "أبطأ من الكلام {times} مرات",
+  "@vtSlower": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFactor": "عامل الوقت: {factor}",
+  "@vtFactor": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "vtMs": "{ms} ms",
+  "@vtMs": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtMemory": "الذاكرة قبل: {before}، بعد: {after}",
+  "@vtMemory": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "vtPeak": "أعلى ذاكرة: {size}",
+  "@vtPeak": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtConversion": "تجهيز الصوت: {ms}",
+  "@vtConversion": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtEstimate": "النص وتحميل النموذج، تقريبًا: {ms}",
+  "@vtEstimate": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtModelLoad": "بداية النموذج: {ms}",
+  "@vtModelLoad": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTimingHint": "الوقت بيشمل تجهيز الصوت وتحميل النموذج. الذاكرة للتطبيق كله.",
+  "vtHistory": "تجارب قبل كده",
+  "vtLive": "نص وإنت بتتكلم",
+  "vtLiveHint": "النص بيتعدّل وإنت بتتكلم. الوقف ممكن ياخد شوية وقت.",
+  "vtLiveStart": "ابدأ التحويل المباشر",
+  "vtLiveTiming": "وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التحويل.",
+  "vtNetworkError": "مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.",
+  "vtInterruptedError": "التحميل أو التسجيل اتقطع. جرّب تاني.",
+  "vtCorruptError": "مقدرناش نقرا النموذج. احذفه وحمّله تاني.",
+  "vtEmptyError": "التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.",
+  "vtTranscriptionError": "مقدرناش نحوّل الصوت لنص. جرّب تسجيل أقصر أو نموذج أصغر.",
+  "vtStorageError": "المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.",
+  "vtStorageCheckError": "مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.",
+  "vtCancelled": "التحميل اتلغى. تقدر تبدأه تاني.",
+  "vtEgyptian": "مصري · تجريبي",
+  "vtEgyptianHint": "متدرّب على العامية المصرية والإنجليزي مع بعض."
 }

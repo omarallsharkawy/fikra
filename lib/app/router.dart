@@ -13,6 +13,7 @@ import '../features/note_details/pdf_viewer_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/projects/welcome_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/voice_text/voice_text_screen.dart';
 import 'providers.dart';
 import 'shell.dart';
 import 'storage_error_screen.dart';
@@ -79,6 +80,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/settings', pageBuilder: (_, s) => _pushed(s, const SettingsScreen())),
+      GoRoute(path: '/settings/voice-text', pageBuilder: (_, s) => _pushed(s, const VoiceTextScreen())),
       GoRoute(
         path: '/note/:id',
         // `extra` is the note the caller already has, so the screen draws it on

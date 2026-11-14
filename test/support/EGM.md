@@ -17,3 +17,5 @@ The harness accepts optional repository, recorder factory, microphone permission
 `fikraTest` also accepts a `GroupsRepository` override (`groupsRepository`). `selection_fixture.dart` (links phase 5a) holds the notes-list selection helpers: `phone` (tall screen, fatal hit-test warnings), `seedNotes` (Study + Work with per-note files), link/group readers, `card`/`reveal`/`select`/`tapAction` (scroll the lazy list and the sideways bar first), `waitOutToast`, a quiet `AiService`, and spies: `SpyLinks` (fail on a call), `SpyNotes` (moves, impacts, relinks, deletes, a failing delete, a held notes stream) and `SpyGroups`.
 
 `host` (a bare themed app with the text scale applied above the navigator) also lives there. Review fixes: `SpyLinks` now counts `linkNotesForUndo` and has `linkGate` and `undoGate` completers; `SpyGroups.failAssign` makes assignments throw.
+
+`fikraTest` accepts a VoiceTextBackend override for the Settings-only experiment's real-router screenshot fixtures. Existing tests and native audio mocks are unchanged.

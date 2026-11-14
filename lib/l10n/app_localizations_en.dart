@@ -1237,4 +1237,245 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get graphMinimap => 'Graph minimap. Tap or drag to move';
+
+  @override
+  String get vtTitle => 'Voice to text';
+
+  @override
+  String get vtExperimental => 'Experimental';
+
+  @override
+  String get vtIntro => 'The model runs on your phone. Nothing is uploaded. It needs a one-time download.';
+
+  @override
+  String get vtModel => 'Model';
+
+  @override
+  String get vtTiny => 'Tiny';
+
+  @override
+  String get vtBase => 'Medium';
+
+  @override
+  String get vtSmall => 'More accurate';
+
+  @override
+  String vtFullName(String name) {
+    return '$name · uncompressed';
+  }
+
+  @override
+  String get vtTinyHint => 'Smallest and fastest, with more mistakes.';
+
+  @override
+  String get vtBaseHint => 'Balances size and accuracy.';
+
+  @override
+  String get vtSmallHint => 'May be more accurate, but slower and larger.';
+
+  @override
+  String get vtFullHint => 'Larger, uncompressed version. Compare its accuracy with the smaller version.';
+
+  @override
+  String get vtOnPhone => 'On your phone';
+
+  @override
+  String get vtNotDownloaded => 'Not downloaded';
+
+  @override
+  String vtUsed(String size) {
+    return 'Model storage used: $size';
+  }
+
+  @override
+  String vtDownload(String size) {
+    return 'Download · $size';
+  }
+
+  @override
+  String get vtDownloadTitle => 'Download this model?';
+
+  @override
+  String vtDownloadBody(String size) {
+    return 'The download is $size. Wi-Fi is better. You only need to download it once.';
+  }
+
+  @override
+  String get vtDownloadConfirm => 'Download';
+
+  @override
+  String get vtDeleteModel => 'Delete model';
+
+  @override
+  String get vtDeleteModelTitle => 'Delete this model?';
+
+  @override
+  String get vtDeleteModelBody => 'You will need to download it again to use it.';
+
+  @override
+  String vtProgress(String received, String total) {
+    return '$received of $total';
+  }
+
+  @override
+  String get vtLanguage => 'Speech language';
+
+  @override
+  String get vtAutomatic => 'Automatic';
+
+  @override
+  String get vtAdvanced => 'Advanced';
+
+  @override
+  String vtThreads(String count) {
+    return 'CPU threads: $count';
+  }
+
+  @override
+  String get vtFormat => 'Recording format';
+
+  @override
+  String get vtWav => 'Test format (WAV)';
+
+  @override
+  String get vtAac => 'The app\'s normal format (AAC)';
+
+  @override
+  String get vtClips => 'Recent recordings';
+
+  @override
+  String get vtNoRecordings => 'Record a few words to try transcription. Your last 10 recordings stay here.';
+
+  @override
+  String vtClip(String number, String format) {
+    return 'Recording $number · $format';
+  }
+
+  @override
+  String get vtDeleteRecordingBody => 'This recording will be deleted from the experiment.';
+
+  @override
+  String get vtTranscribe => 'Transcribe';
+
+  @override
+  String get vtWorking => 'Transcribing…';
+
+  @override
+  String get vtCannotCancel => 'Once transcription starts, wait for it to finish.';
+
+  @override
+  String get vtWait => 'Wait for the operation to finish, or stop recording first.';
+
+  @override
+  String get vtResult => 'Transcript';
+
+  @override
+  String get vtNoSpeech => 'No clear speech was found. Try again.';
+
+  @override
+  String get vtNumbers => 'Numbers';
+
+  @override
+  String vtAudioLength(String seconds) {
+    return 'Audio length: $seconds s';
+  }
+
+  @override
+  String vtWall(String seconds) {
+    return 'Time taken: $seconds s';
+  }
+
+  @override
+  String vtFaster(String times) {
+    return '$times times faster than speech';
+  }
+
+  @override
+  String vtSlower(String times) {
+    return '$times times slower than speech';
+  }
+
+  @override
+  String vtFactor(String factor) {
+    return 'Real-time factor: $factor';
+  }
+
+  @override
+  String vtMs(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String vtMemory(String before, String after) {
+    return 'Memory before: $before, after: $after';
+  }
+
+  @override
+  String vtPeak(String size) {
+    return 'Peak memory: $size';
+  }
+
+  @override
+  String vtConversion(String ms) {
+    return 'Audio conversion: $ms';
+  }
+
+  @override
+  String vtEstimate(String ms) {
+    return 'Transcription and model load, approximately: $ms';
+  }
+
+  @override
+  String vtModelLoad(String ms) {
+    return 'Model startup: $ms';
+  }
+
+  @override
+  String get vtTimingHint => 'Time includes audio conversion and model loading. Memory is for the whole app.';
+
+  @override
+  String get vtHistory => 'Recent runs';
+
+  @override
+  String get vtLive => 'Text while you speak';
+
+  @override
+  String get vtLiveHint => 'Text updates while you speak. Stopping may take a little time.';
+
+  @override
+  String get vtLiveStart => 'Start live transcription';
+
+  @override
+  String get vtLiveTiming => 'Live session time includes speaking, so it does not measure transcription speed.';
+
+  @override
+  String get vtNetworkError => 'Couldn\'t download the model. Check your connection and try again.';
+
+  @override
+  String get vtInterruptedError => 'The download or recording was interrupted. Try again.';
+
+  @override
+  String get vtCorruptError => 'Couldn\'t read the model. Delete it and download it again.';
+
+  @override
+  String get vtEmptyError => 'The recording is empty or invalid. Record a few words and try again.';
+
+  @override
+  String get vtTranscriptionError => 'Couldn\'t transcribe the audio. Try a shorter recording or a smaller model.';
+
+  @override
+  String get vtStorageError =>
+      'There is not enough storage. Free some space or choose a smaller model, then try again.';
+
+  @override
+  String get vtStorageCheckError => 'Couldn\'t check free storage. Reopen this screen and try again.';
+
+  @override
+  String get vtCancelled => 'Download cancelled. You can start it again.';
+
+  @override
+  String get vtEgyptian => 'Egyptian · experimental';
+
+  @override
+  String get vtEgyptianHint => 'Trained on Egyptian Arabic mixed with English.';
 }

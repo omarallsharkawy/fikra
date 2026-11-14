@@ -7,6 +7,8 @@ import 'dart:ui' show ImageByteFormat;
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
+import 'package:fikra/features/voice_text/voice_text_backend.dart';
+import 'package:fikra/features/voice_text/voice_text_providers.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/ai/ai_service.dart';
@@ -55,6 +57,7 @@ void fikraTest(
   Future<PermissionStatus> Function()? microphonePermission,
   List<String>? audioEvents,
   Future<void> Function(String path)? pauseAudio,
+  VoiceTextBackend? voiceTextBackend,
 }) {
   testWidgets(description, (tester) async {
     tester.platformDispatcher.localeTestValue = locale;
@@ -73,6 +76,7 @@ void fikraTest(
         child: ProviderScope(
           overrides: [
             databaseProvider.overrideWithValue(db),
+            if (voiceTextBackend != null) voiceTextBackendProvider.overrideWithValue(voiceTextBackend),
             if (notesRepository != null) notesRepoProvider.overrideWithValue(notesRepository(db)),
             if (projectsRepository != null) projectsRepoProvider.overrideWithValue(projectsRepository(db)),
             if (linksRepository != null) linksRepoProvider.overrideWithValue(linksRepository(db)),

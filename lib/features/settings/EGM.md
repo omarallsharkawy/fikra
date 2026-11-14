@@ -33,3 +33,7 @@ Language uses the same `SegmentedPill` and persisted-stream pattern as appearanc
 
 - Run: `flutter analyze && flutter test`
 - `test/app_flow_test.dart` imports `settings_screen.dart` directly.
+
+## Voice to text experiment
+
+A SheetOption after language and before local data opens `/settings/voice-text`; its label includes the localized Experimental tag. It uses the existing row treatment. The feature is independent of note-saving and data wipe behavior; see ../voice_text/EGM.md.

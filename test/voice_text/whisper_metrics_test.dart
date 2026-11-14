@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:fikra/spike/whisper_metrics.dart';
-import 'package:fikra/spike/whisper_models.dart';
+import 'package:fikra/features/voice_text/whisper_metrics.dart';
+import 'package:fikra/features/voice_text/whisper_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Uint8List wavHeader({int dataBytes = 64000, int sampleRate = 16000}) {

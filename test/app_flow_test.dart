@@ -72,6 +72,12 @@ void main() {
     }
     expect(Theme.of(tester.element(find.text(l10n.appearance))).brightness, Brightness.light);
 
+    // The voice to text row pushes erase-all below the 800x600 test viewport.
+    await tester.scrollUntilVisible(
+      find.text(l10n.eraseAll),
+      200,
+      scrollable: find.descendant(of: find.byType(SettingsScreen), matching: find.byType(Scrollable)).first,
+    );
     await tester.tap(find.text(l10n.eraseAll));
     await pumpUntil(tester, find.text(l10n.eraseAllConfirm));
     await tester.tap(find.text(l10n.eraseAllConfirm));

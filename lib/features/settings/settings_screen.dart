@@ -83,6 +83,13 @@ class SettingsScreen extends ConsumerWidget {
                   selected: _languages.indexOf(language),
                   onChanged: (i) => runAction(context, () => ref.read(settingsRepoProvider).setLanguage(_languages[i])),
                 ),
+                const SizedBox(height: FikraSpace.s24),
+                SheetOption(
+                  key: const ValueKey('settings-voice-text'),
+                  label: '${context.l10n.vtTitle} · ${context.l10n.vtExperimental}',
+                  icon: Icons.record_voice_over_outlined,
+                  onTap: () => context.push('/settings/voice-text'),
+                ),
                 section(context.l10n.dataSection),
                 Glass(
                   radius: FikraRadius.md,

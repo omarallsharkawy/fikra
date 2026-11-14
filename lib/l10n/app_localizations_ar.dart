@@ -1283,4 +1283,244 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get graphMinimap => 'خريطة الرسم، دوس أو اسحب عشان تتحرك';
+
+  @override
+  String get vtTitle => 'تحويل الصوت لنص';
+
+  @override
+  String get vtExperimental => 'تجريبي';
+
+  @override
+  String get vtIntro => 'النموذج بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.';
+
+  @override
+  String get vtModel => 'النموذج';
+
+  @override
+  String get vtTiny => 'صغير جدًا';
+
+  @override
+  String get vtBase => 'متوسط';
+
+  @override
+  String get vtSmall => 'أدق';
+
+  @override
+  String vtFullName(String name) {
+    return '$name · من غير ضغط';
+  }
+
+  @override
+  String get vtTinyHint => 'أصغر وأسرع، بس ممكن يغلط أكتر.';
+
+  @override
+  String get vtBaseHint => 'توازن بين الحجم والدقة.';
+
+  @override
+  String get vtSmallHint => 'دقة أعلى متوقعة، بس أبطأ وحجمه أكبر.';
+
+  @override
+  String get vtFullHint => 'نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.';
+
+  @override
+  String get vtOnPhone => 'موجود على الموبايل';
+
+  @override
+  String get vtNotDownloaded => 'لسه متحمّلش';
+
+  @override
+  String vtUsed(String size) {
+    return 'المساحة المستخدمة للنماذج: $size';
+  }
+
+  @override
+  String vtDownload(String size) {
+    return 'حمّل · $size';
+  }
+
+  @override
+  String get vtDownloadTitle => 'تحمّل النموذج؟';
+
+  @override
+  String vtDownloadBody(String size) {
+    return 'حجمه $size. الأفضل تحمّله على واي فاي. التحميل مرة واحدة.';
+  }
+
+  @override
+  String get vtDownloadConfirm => 'حمّل';
+
+  @override
+  String get vtDeleteModel => 'احذف النموذج';
+
+  @override
+  String get vtDeleteModelTitle => 'تحذف النموذج؟';
+
+  @override
+  String get vtDeleteModelBody => 'هتحتاج تحمّله تاني عشان تستخدمه.';
+
+  @override
+  String vtProgress(String received, String total) {
+    return '$received من $total';
+  }
+
+  @override
+  String get vtLanguage => 'لغة الكلام';
+
+  @override
+  String get vtAutomatic => 'تلقائي';
+
+  @override
+  String get vtAdvanced => 'خيارات متقدمة';
+
+  @override
+  String vtThreads(String count) {
+    return 'مسارات المعالجة: $count';
+  }
+
+  @override
+  String get vtFormat => 'صيغة التسجيل';
+
+  @override
+  String get vtWav => 'صيغة الاختبار (WAV)';
+
+  @override
+  String get vtAac => 'صيغة التطبيق العادية (AAC)';
+
+  @override
+  String get vtClips => 'آخر تسجيلاتك';
+
+  @override
+  String get vtNoRecordings => 'سجّل كام كلمة عشان تجرّب التحويل. آخر 10 تسجيلات بيفضلوا هنا.';
+
+  @override
+  String vtClip(String number, String format) {
+    return 'تسجيل $number · $format';
+  }
+
+  @override
+  String get vtDeleteRecordingBody => 'التسجيل ده هيتحذف من التجربة.';
+
+  @override
+  String get vtTranscribe => 'حوّل لنص';
+
+  @override
+  String get vtWorking => 'بنحوّل الصوت لنص…';
+
+  @override
+  String get vtCannotCancel => 'بعد ما التحويل يبدأ، لازم نستنى لحد ما يخلص.';
+
+  @override
+  String get vtWait => 'استنى لحد ما العملية تخلص، أو وقّف التسجيل الأول.';
+
+  @override
+  String get vtResult => 'النص';
+
+  @override
+  String get vtNoSpeech => 'مفيش كلام واضح في التسجيل. جرّب تاني.';
+
+  @override
+  String get vtNumbers => 'الأرقام';
+
+  @override
+  String vtAudioLength(String seconds) {
+    return 'مدة التسجيل: $seconds ثانية';
+  }
+
+  @override
+  String vtWall(String seconds) {
+    return 'الوقت: $seconds ثانية';
+  }
+
+  @override
+  String vtFaster(String times) {
+    return 'أسرع من الكلام $times مرات';
+  }
+
+  @override
+  String vtSlower(String times) {
+    return 'أبطأ من الكلام $times مرات';
+  }
+
+  @override
+  String vtFactor(String factor) {
+    return 'عامل الوقت: $factor';
+  }
+
+  @override
+  String vtMs(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String vtMemory(String before, String after) {
+    return 'الذاكرة قبل: $before، بعد: $after';
+  }
+
+  @override
+  String vtPeak(String size) {
+    return 'أعلى ذاكرة: $size';
+  }
+
+  @override
+  String vtConversion(String ms) {
+    return 'تجهيز الصوت: $ms';
+  }
+
+  @override
+  String vtEstimate(String ms) {
+    return 'النص وتحميل النموذج، تقريبًا: $ms';
+  }
+
+  @override
+  String vtModelLoad(String ms) {
+    return 'بداية النموذج: $ms';
+  }
+
+  @override
+  String get vtTimingHint => 'الوقت بيشمل تجهيز الصوت وتحميل النموذج. الذاكرة للتطبيق كله.';
+
+  @override
+  String get vtHistory => 'تجارب قبل كده';
+
+  @override
+  String get vtLive => 'نص وإنت بتتكلم';
+
+  @override
+  String get vtLiveHint => 'النص بيتعدّل وإنت بتتكلم. الوقف ممكن ياخد شوية وقت.';
+
+  @override
+  String get vtLiveStart => 'ابدأ التحويل المباشر';
+
+  @override
+  String get vtLiveTiming => 'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التحويل.';
+
+  @override
+  String get vtNetworkError => 'مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.';
+
+  @override
+  String get vtInterruptedError => 'التحميل أو التسجيل اتقطع. جرّب تاني.';
+
+  @override
+  String get vtCorruptError => 'مقدرناش نقرا النموذج. احذفه وحمّله تاني.';
+
+  @override
+  String get vtEmptyError => 'التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.';
+
+  @override
+  String get vtTranscriptionError => 'مقدرناش نحوّل الصوت لنص. جرّب تسجيل أقصر أو نموذج أصغر.';
+
+  @override
+  String get vtStorageError => 'المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.';
+
+  @override
+  String get vtStorageCheckError => 'مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.';
+
+  @override
+  String get vtCancelled => 'التحميل اتلغى. تقدر تبدأه تاني.';
+
+  @override
+  String get vtEgyptian => 'مصري · تجريبي';
+
+  @override
+  String get vtEgyptianHint => 'متدرّب على العامية المصرية والإنجليزي مع بعض.';
 }

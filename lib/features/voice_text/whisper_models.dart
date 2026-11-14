@@ -4,24 +4,45 @@ import 'dart:io';
 import 'dart:typed_data';
 
 class SpikeModel {
-  const SpikeModel(this.family, this.quantized);
+  const SpikeModel(this.family, this.quantized, {this.localOnly = false});
   final String family;
   final bool quantized;
-  String get modelName => '$family${quantized ? '-q5_1' : ''}';
+  final bool localOnly;
+  String get modelName => localOnly ? 'small-egy-cs-q5_1' : '$family${quantized ? '-q5_1' : ''}';
+
+  /// Owner-supplied download labels; do not round these in the picker.
+  String get downloadMb => localOnly
+      ? throw StateError('Local-only models use their disk size')
+      : switch ((family, quantized)) {
+          ('tiny', true) => '30.7',
+          ('base', true) => '56.9',
+          ('small', true) => '181.3',
+          ('tiny', false) => '74.1',
+          ('base', false) => '141.1',
+          _ => '465.0',
+        };
+  // The labels use the same binary MB convention as Fmt.bytes. Reserve extra
+  // headroom, including while replacing an existing file atomically.
+  int get requiredFreeBytes => (double.parse(downloadMb) * 1024 * 1024 * 1.1).ceil() + 16 * 1024 * 1024;
   String get filename => 'ggml-$modelName.bin';
 }
 
 const spikeModels = [
   SpikeModel('tiny', true),
-  SpikeModel('tiny', false),
   SpikeModel('base', true),
-  SpikeModel('base', false),
   SpikeModel('small', true),
+  SpikeModel('tiny', false),
+  SpikeModel('base', false),
   SpikeModel('small', false),
 ];
 
-String modelUrl(SpikeModel model) =>
-    'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model.modelName}.bin';
+const egyptianModel = SpikeModel('small', true, localOnly: true);
+const allSpikeModels = [...spikeModels, egyptianModel];
+
+String modelUrl(SpikeModel model) {
+  if (model.localOnly) throw ArgumentError('Local-only model has no download URL');
+  return 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/${model.filename}';
+}
 
 /// A separate downloader supplies cancellation, idle timeout and length checks
 /// missing from the package downloader. Inference uses whisper_ggml with modelPath.
@@ -33,6 +54,15 @@ class SpikeModelStore {
   bool _cancelled = false;
 
   File file(SpikeModel model) => File('${directory.path}/${model.filename}');
+
+  /// Optional adb-supplied model: apply exactly the normal small Q5_1 checks.
+  Future<int?> validatedEgyptianBytes() async {
+    final local = file(egyptianModel);
+    if (!await local.exists()) return null;
+    await validate(egyptianModel);
+    return local.length();
+  }
+
   File _receipt(SpikeModel model) => File('${file(model).path}.json');
 
   void cancelDownload() {
@@ -105,6 +135,7 @@ class SpikeModelStore {
   }
 
   Future<void> download(SpikeModel model, void Function(int, int) progress) async {
+    if (model.localOnly) throw ArgumentError('Local-only model cannot be downloaded');
     _cancelled = false;
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 30);
     _client = client;
