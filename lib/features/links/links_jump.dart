@@ -58,7 +58,7 @@ extension _LinksJump on _LinksScreenState {
   /// stays anchored at the reading start instead of jumping sideways.
   void _keepReadingStart(GraphLayout? previous, GraphLayout next) {
     if (previous == null || !next.rtl || !previous.rtl || previous.width == next.width) return;
-    if (previous.frames.isEmpty || next.frames.isEmpty) return; // Those re-home on width change.
+    if (previous.frames.isEmpty && next.frames.isEmpty) return; // Legacy, frameless width changes re-home.
     _travel.stop();
     final dx = (previous.width - next.width) * _scaleOf(_tc.value);
     _tc.value = Matrix4.translationValues(dx, 0, 0)..multiply(_tc.value);

@@ -4,22 +4,11 @@ import 'package:fikra/features/links/graph_layout.dart';
 import 'package:fikra/features/links/graph_edge_paths.dart';
 import 'package:flutter_test/flutter_test.dart' hide group;
 
+import 'graph_route_assertions.dart';
 import 'graph_layout_test.dart' show note, link;
 import 'graph_frames_layout_test.dart' show group;
 
-void clearInk(GraphLayout l) {
-  for (final e in l.edges) {
-    for (final r in l.obstacles) {
-      for (var i = 1; i < e.points.length; i++) {
-        expect(
-          graphSegmentIntersectsRect(e.points[i - 1], e.points[i], r),
-          isFalse,
-          reason: '${e.link.id} crosses $r at ${e.points[i - 1]} → ${e.points[i]}',
-        );
-      }
-    }
-  }
-}
+void clearInk(GraphLayout l) => expectClearGraphInk(l);
 
 void main() {
   for (final rtl in [false, true]) {
@@ -92,14 +81,14 @@ void main() {
       for (final metric in e.path.computeMetrics()) {
         for (var d = 0.0; d < metric.length; d += 2) {
           final p = metric.getTangentForOffset(d)!.position;
-          for (final r in l.obstacles) {
+          for (final r in graphRouteObstacles(l, e.geometry)) {
             expect(p.dx > r.left && p.dx < r.left + r.width && p.dy > r.top && p.dy < r.top + r.height, isFalse);
           }
         }
       }
       final ink = e.dashPoints;
       for (var i = 0; i < ink.length; i += 4) {
-        for (final r in l.obstacles) {
+        for (final r in graphRouteObstacles(l, e.geometry)) {
           expect(graphSegmentIntersectsRect((x: ink[i], y: ink[i + 1]), (x: ink[i + 2], y: ink[i + 3]), r), isFalse);
         }
       }

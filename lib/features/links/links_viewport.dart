@@ -41,8 +41,7 @@ extension _LinksViewport on _LinksScreenState {
             if (mounted) _finishJump();
           });
         }
-        final key =
-            '${ref.read(selectedProjectProvider)?.id}|${layout.frames.isEmpty ? width : ''}|${box.maxWidth}|${layout.rtl}';
+        final key = '${ref.read(selectedProjectProvider)?.id}|${box.maxWidth}|${layout.rtl}';
         _canvasW = width;
         if (key != _fittedFor) {
           _fittedFor = key;

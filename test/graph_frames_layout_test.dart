@@ -6,6 +6,7 @@ import 'package:fikra/features/links/graph_edge_paths.dart';
 import 'package:fikra/features/links/graph_layout.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'graph_route_assertions.dart';
 import 'graph_layout_test.dart' show note, link;
 
 GraphGroup group(String id, {String? parent, String? name, int position = 0}) =>
@@ -62,11 +63,7 @@ void main() {
     expect(l.edges.single.points, old.points);
     final label = l.labels.single;
     expect(label.control!.left, label.bounds.left + label.bounds.width + 8);
-    for (final r in l.obstacles) {
-      for (var i = 1; i < old.points.length; i++) {
-        expect(graphSegmentIntersectsRect(old.points[i - 1], old.points[i], r), isFalse);
-      }
-    }
+    expectClearGraphInk(l);
   });
 
   test('equal-sized suggested topics retain legacy chronology with reversed stream input', () {

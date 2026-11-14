@@ -2,7 +2,7 @@ part of 'graph_layout.dart';
 
 /// Keep the ranked border ports. A short exit below the label/control line
 /// reaches a free arc span instead of merging or moving crowded port slots.
-GraphEdge? _skirtArc(GraphLayout layout, GraphEdge e, List<GraphPosition> boxes) {
+GraphEdge? _skirtArc(GraphLayout layout, GraphEdge e, _RouteBoxes boxes) {
   double logical(double x) => layout.rtl ? layout.width - x : x;
   double physical(double x) => layout.rtl ? layout.width - x : x;
   final a = e.start, b = e.end, ax = logical(a.x), bx = logical(b.x);

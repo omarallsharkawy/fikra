@@ -54,7 +54,7 @@ void main() {
                         viewport.width / 2 - p.dx * s,
                         viewport.height / 2 - p.dy * s,
                         0,
-                      )..scaleByDouble(s, s, 1, 1);
+                      )..scaleByDouble(s, s, s, 1);
                     },
                   ),
                 ),
@@ -88,35 +88,46 @@ void main() {
       }
 
       check();
-      for (final s in [0.8, 1.7]) {
-        tc.value = Matrix4.translationValues(-130, -240, 0)..scaleByDouble(s, s, 1, 1);
+      for (final s in [0.5, 2.5]) {
+        tc.value = Matrix4.translationValues(-130, -240, 0)..scaleByDouble(s, s, s, 1);
         await t.pump();
         check();
         expect(identical(t.widget<CustomPaint>(navKey('graph-minimap-content')).painter, content), isTrue);
         expect((content as dynamic).paintCount, paints);
       }
-      final tap = r.topLeft + const Offset(52, 40);
-      final target = Offset(
-        ((52 - origin.dx) / scale).clamp(0, layout.width),
-        ((40 - origin.dy) / scale).clamp(0, layout.height),
-      );
-      await t.tapAt(tap);
-      await t.pump();
-      final centre = graphViewportRect(tc.value, viewport).center;
-      expect(centre.dx, closeTo(target.dx, 0.01));
-      expect(centre.dy, closeTo(target.dy, 0.01));
-      final gesture = await t.startGesture(tap);
-      await gesture.moveBy(const Offset(22, 12));
-      await t.pump();
-      await gesture.moveBy(const Offset(10, 4));
-      await gesture.up();
-      await t.pump();
-      final moved = graphViewportRect(tc.value, viewport).center;
-      expect(moved.dx, greaterThan(centre.dx));
-      expect(moved.dy, greaterThan(centre.dy));
-      expect(underneath, 0);
-      expect((content as dynamic).paintCount, paints);
-      check();
+      // Aim at actual painted card centres. Expected scene points come from
+      // layout data, not from the production inverse mapping or border box.
+      Offset centreOf(String id) {
+        final p = layout.positions[id]!;
+        return Offset(p.left + p.width / 2, p.top + p.height / 2);
+      }
+
+      final target = centreOf('20'), next = centreOf('75');
+      for (final zoom in [0.5, 2.5]) {
+        tc.value = Matrix4.diagonal3Values(zoom, zoom, zoom);
+        await t.pump();
+        final ink = t.getTopLeft(navKey('graph-minimap-content'));
+        final tap = ink + origin + target * scale;
+        final end = ink + origin + next * scale;
+        await t.tapAt(tap);
+        await t.pump();
+        var centre = graphViewportRect(tc.value, viewport).center;
+        expect(centre.dx, closeTo(target.dx, 0.01));
+        expect(centre.dy, closeTo(target.dy, 0.01));
+        final gesture = await t.startGesture(tap);
+        await gesture.moveTo(Offset.lerp(tap, end, 0.7)!);
+        await t.pump();
+        await gesture.moveTo(end);
+        await gesture.up();
+        await t.pump();
+        centre = graphViewportRect(tc.value, viewport).center;
+        expect(centre.dx, closeTo(next.dx, 0.01));
+        expect(centre.dy, closeTo(next.dy, 0.01));
+        expect(tc.value.entry(0, 0), zoom);
+        expect(underneath, 0);
+        expect((content as dynamic).paintCount, paints);
+        check();
+      }
       // A shorter viewport without any pan redraws the rectangle.
       viewport = const Size(390, 300);
       size.value = viewport;

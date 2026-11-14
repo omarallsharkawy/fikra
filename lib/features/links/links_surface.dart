@@ -1,6 +1,55 @@
 part of 'links_screen.dart';
 
 extension _LinksSurface on _LinksScreenState {
+  Widget _navigationHeader(List<NoteGroup> groups) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Keep the normal header's measured height, including its wrapped form.
+      Stack(
+        children: [
+          Visibility(
+            visible: _selection == null,
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            child: ProjectHeader(
+              title: context.l10n.linksTitle,
+              trailing: FikraIconButton(
+                key: _selection == null ? const ValueKey('graph-search-open') : null,
+                icon: Icons.search_rounded,
+                label: context.l10n.graphSearchHint,
+                onTap: () => _setState(() {
+                  _searchOpen = true;
+                  _cancelHold?.call();
+                }),
+              ),
+            ),
+          ),
+          if (_selection != null)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SelectionHeader(count: _selection!.length, onClose: _endSelection),
+              ),
+            ),
+        ],
+      ),
+      if (groups.isNotEmpty && !_searchOpen)
+        GroupFilterRow(
+          groups: groups,
+          selectedId: _chipGroup,
+          navigation: true,
+          enabled: _selection == null && _navigationReady,
+          onOptions: (g) => _groupOptions(g.id),
+          onSelect: (id) {
+            if (id == null || !_navigationReady) return;
+            _chipGroup = id;
+            _pickSearch(GraphSearchResult(GraphSearchKind.group, id, ''));
+          },
+        ),
+    ],
+  );
+
   Widget _surface(
     GraphLayout layout,
     List<Note> notes,

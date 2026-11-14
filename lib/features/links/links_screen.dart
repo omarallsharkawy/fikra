@@ -192,35 +192,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> with SingleTickerProv
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (_selection == null)
-            ProjectHeader(
-              title: context.l10n.linksTitle,
-              trailing: FikraIconButton(
-                key: const ValueKey('graph-search-open'),
-                icon: Icons.search_rounded,
-                label: context.l10n.graphSearchHint,
-                onTap: () => setState(() {
-                  _searchOpen = true;
-                  _cancelHold?.call();
-                }),
-              ),
-            )
-          else
-            SelectionHeader(count: _selection!.length, onClose: _endSelection),
-          // Kept (dimmed) in selection mode so the graph never moves under the finger.
-          if (groups.isNotEmpty && !_searchOpen)
-            GroupFilterRow(
-              groups: groups,
-              selectedId: _chipGroup,
-              navigation: true,
-              enabled: _selection == null,
-              onOptions: (g) => _groupOptions(g.id),
-              onSelect: (id) {
-                if (id == null) return;
-                _chipGroup = id;
-                _pickSearch(GraphSearchResult(GraphSearchKind.group, id, ''));
-              },
-            ),
+          _navigationHeader(groups),
           Expanded(
             key: const ValueKey('links-content'),
             child: Stack(
@@ -285,6 +257,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> with SingleTickerProv
                       child: _GraphSearchPanel(
                         controller: _search,
                         index: _searchIndex,
+                        enabled: _navigationReady,
                         onPick: _pickSearch,
                         onClose: _closeSearch,
                       ),

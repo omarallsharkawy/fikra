@@ -3,6 +3,14 @@ import 'graph_layout.dart';
 
 enum GraphSearchKind { note, link, group }
 
+/// Row IDs can change during analysis; the unordered pair is the search target.
+GraphLink? resolveGraphSearchLink(GraphInput input, GraphSearchResult result) => uniqueLinkPairs(
+  input.links.where((l) => result.noteIds.contains(l.sourceId) && result.noteIds.contains(l.targetId)),
+  source: (l) => l.sourceId,
+  target: (l) => l.targetId,
+  isUser: (l) => l.isUser,
+).firstOrNull;
+
 /// Indexed once per accepted data projection, independent of layout caps/folds.
 class GraphSearchResult {
   const GraphSearchResult(

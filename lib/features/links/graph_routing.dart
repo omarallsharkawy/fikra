@@ -27,29 +27,57 @@ bool graphSegmentIntersectsRect(GraphPoint a, GraphPoint b, GraphPosition r) {
   return hi - lo > 1e-8;
 }
 
-bool _edgeHits(GraphEdge e, List<GraphPosition> boxes) {
-  for (final r in boxes) {
-    if (e.right < r.left || e.left > r.left + r.width || e.bottom < r.top || e.top > r.top + r.height) continue;
-    if (math.min(e.start.y, e.end.y) < r.top &&
-        math.max(e.start.y, e.end.y) > r.top + r.height &&
-        e.left >= r.left &&
-        e.right <= r.left + r.width) {
-      return true;
+bool _edgeHits(GraphEdge e, _RouteBoxes boxes) {
+  if (!boxes.index.framed &&
+      e.curves.length == 1 &&
+      e.end.y - e.start.y > GraphLayout.rowHeight &&
+      boxes.sampleHitsCards(e)) {
+    return true;
+  }
+  if (e.curves.length > 1) {
+    // A gutter's overall hull covers intervening headers, although each of
+    // its three pieces is outside them. Cull pieces before scanning points.
+    for (final c in e.curves) {
+      final left = math.min(math.min(c.start.x, c.end.x), math.min(c.control1.x, c.control2.x));
+      final right = math.max(math.max(c.start.x, c.end.x), math.max(c.control1.x, c.control2.x));
+      final top = math.min(math.min(c.start.y, c.end.y), math.min(c.control1.y, c.control2.y));
+      final bottom = math.max(math.max(c.start.y, c.end.y), math.max(c.control1.y, c.control2.y));
+      for (final r in boxes.index.reserved) {
+        if (right <= r.left || left >= r.left + r.width || bottom <= r.top || top >= r.top + r.height) continue;
+        final points = e.points;
+        for (var i = 1; i < points.length; i++) {
+          if (graphSegmentIntersectsRect(points[i - 1], points[i], r)) return true;
+        }
+      }
     }
-    for (var i = 1; i < e.points.length; i++) {
-      if (graphSegmentIntersectsRect(e.points[i - 1], e.points[i], r)) return true;
+  } else {
+    // Headers reject most long direct curves without flattening them at all.
+    for (final r in boxes.index.reserved) {
+      if (e.right < r.left || e.left > r.left + r.width || e.bottom < r.top || e.top > r.top + r.height) continue;
+      if (math.min(e.start.y, e.end.y) < r.top &&
+          math.max(e.start.y, e.end.y) > r.top + r.height &&
+          e.left >= r.left &&
+          e.right <= r.left + r.width) {
+        return true;
+      }
+      final points = e.points;
+      for (var i = 1; i < points.length; i++) {
+        if (graphSegmentIntersectsRect(points[i - 1], points[i], r)) return true;
+      }
     }
   }
-  return false;
+  return boxes.hitsCards(e);
 }
 
 List<GraphEdge> _routeGraphEdges(GraphLayout layout, List<GraphEdge> edges) {
-  final boxes = layout.obstacles.map((p) => _inflateBox(p, 2)).toList();
-  final safe = _safeTopPorts(layout, edges, boxes);
+  final reserved = layout.obstacles.map((p) => _inflateBox(p, 2)).toList();
+  final index = _RouteIndex(layout, reserved);
+  final safe = _safeTopPorts(layout, edges, reserved);
   GraphPoint topPort(GraphPoint p, GraphLink link) => (x: safe[(_endpointId(layout, p, link), p.x)] ?? p.x, y: p.y);
   return [
     for (final original in edges)
       (() {
+        final boxes = _RouteBoxes(index, original.link);
         final same = original.start.y == original.end.y;
         final a = same ? topPort(original.start, original.link) : original.start;
         final b = topPort(original.end, original.link);
@@ -72,7 +100,7 @@ List<GraphEdge> _routeGraphEdges(GraphLayout layout, List<GraphEdge> edges) {
   ];
 }
 
-GraphEdge? _gutterRoute(GraphLayout layout, GraphEdge edge, bool same, List<GraphPosition> boxes) {
+GraphEdge? _gutterRoute(GraphLayout layout, GraphEdge edge, bool same, _RouteBoxes boxes) {
   final a = edge.start, b = edge.end;
   final ap = (x: a.x, y: a.y + (same ? -4 : 4)), bp = (x: b.x, y: b.y - 4);
   final inset = 4.0 + edge.link.id.codeUnits.fold<int>(0, (a, c) => (a * 31 + c) % 6) * 2;
@@ -87,7 +115,7 @@ GraphEdge? _gutterRoute(GraphLayout layout, GraphEdge edge, bool same, List<Grap
       ? [home.bounds.left + home.bounds.width - inset, home.bounds.left + inset]
       : [home.bounds.left + inset, home.bounds.left + home.bounds.width - inset];
   final lanes = [...frameLanes, ...canvasLanes];
-  bool clear(GraphPoint x, GraphPoint y) => !boxes.any((r) => graphSegmentIntersectsRect(x, y, r));
+  bool clear(GraphPoint x, GraphPoint y) => !boxes.intersects(x, y);
   var top = math.min(a.y, b.y) - 6;
   if (same) {
     for (final r in boxes) {

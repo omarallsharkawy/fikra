@@ -7,6 +7,7 @@ part 'graph_frames_layout.dart';
 part 'graph_input.dart';
 part 'graph_labels.dart';
 part 'graph_routing.dart';
+part 'graph_route_obstacles.dart';
 part 'graph_compact.dart';
 part 'graph_ports.dart';
 part 'graph_arc_route.dart';

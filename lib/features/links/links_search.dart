@@ -1,6 +1,8 @@
 part of 'links_screen.dart';
 
 extension _LinksSearch on _LinksScreenState {
+  bool get _navigationReady => _layout != null && _installedInput != null && identical(_installedInput, _input);
+
   void _closeSearch() {
     FocusManager.instance.primaryFocus?.unfocus();
     _setState(() {
@@ -10,6 +12,7 @@ extension _LinksSearch on _LinksScreenState {
   }
 
   void _pickSearch(GraphSearchResult result) {
+    if (!_navigationReady) return;
     _closeSearch();
     _setState(() {
       final groups = _groupsSource ?? const <NoteGroup>[];
@@ -34,10 +37,7 @@ extension _LinksSearch on _LinksScreenState {
   }
 
   void _finishJump() {
-    if (_pendingJump == null ||
-        !identical(_installedInput, _input) ||
-        _searchOpen ||
-        View.of(context).viewInsets.bottom > 0) {
+    if (_pendingJump == null || !_navigationReady || _searchOpen || View.of(context).viewInsets.bottom > 0) {
       return;
     }
     final result = _pendingJump!;
@@ -48,6 +48,23 @@ extension _LinksSearch on _LinksScreenState {
       if (frame != null) _fitFrame(frame);
       return;
     }
+    final input = _installedInput!;
+    final link = result.kind == GraphSearchKind.link ? resolveGraphSearchLink(input, result) : null;
+    if (result.kind == GraphSearchKind.link && link == null) {
+      showToast(context, context.l10n.linkRemoved);
+      return;
+    }
+    // A changed/deleted note is not evidence of a layout cap.
+    if (!result.noteIds.every((id) => input.notes.any((n) => n.id == id && n.status == 1))) return;
+    if (result.noteIds.any(layout.foldedNotes.containsKey)) {
+      // A membership can change while the keyboard or worker is finishing.
+      _pickSearch(result);
+      return;
+    }
+    if (layout.readyCount < 2 && input.groups.isEmpty) {
+      _openNote(result.noteIds.first);
+      return;
+    }
     final missing = result.noteIds.where((id) => !layout.nodes.containsKey(id)).firstOrNull;
     if (missing != null) {
       // Layout caps are intentional; take the existing direct note route.
@@ -56,9 +73,7 @@ extension _LinksSearch on _LinksScreenState {
       return;
     }
     final note = layout.positions[result.noteIds.first]!;
-    final edge = result.kind == GraphSearchKind.link
-        ? layout.edges.where((e) => e.link.id == result.id).firstOrNull
-        : null;
+    final edge = link != null ? layout.edges.where((e) => e.link.id == link.id).firstOrNull : null;
     if (result.kind == GraphSearchKind.link && edge == null) {
       showToast(context, context.l10n.graphSearchLimited);
       _openNote(result.noteIds.first);
@@ -72,9 +87,16 @@ extension _LinksSearch on _LinksScreenState {
 /// Search field and results. Listens to its own controller, so a keystroke
 /// rebuilds only this panel, never the graph under it.
 class _GraphSearchPanel extends StatelessWidget {
-  const _GraphSearchPanel({required this.controller, required this.index, required this.onPick, required this.onClose});
+  const _GraphSearchPanel({
+    required this.controller,
+    required this.index,
+    required this.enabled,
+    required this.onPick,
+    required this.onClose,
+  });
   final TextEditingController controller;
   final GraphSearchIndex? index;
+  final bool enabled;
   final ValueChanged<GraphSearchResult> onPick;
   final VoidCallback onClose;
 
@@ -150,7 +172,8 @@ class _GraphSearchPanel extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    onTap: () => onPick(r),
+                    enabled: enabled,
+                    onTap: enabled ? () => onPick(r) : null,
                   );
                 },
               );

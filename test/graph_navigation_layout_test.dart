@@ -6,6 +6,7 @@ import 'package:fikra/features/links/graph_layout.dart';
 import 'package:fikra/features/links/graph_search.dart';
 import 'package:flutter_test/flutter_test.dart' hide group;
 
+import 'graph_route_assertions.dart';
 import 'graph_frames_layout_test.dart' show group, rect;
 import 'graph_layout_test.dart' show note, link;
 
@@ -75,17 +76,7 @@ void main() {
         }
       }
       expect(rect(folded.frames[0].bounds).overlaps(rect(folded.frames[1].bounds)), isFalse);
-      for (final e in folded.edges) {
-        for (final obstacle in folded.obstacles) {
-          for (var i = 1; i < e.points.length; i++) {
-            expect(
-              graphSegmentIntersectsRect(e.points[i - 1], e.points[i], obstacle),
-              isFalse,
-              reason: '${e.link.id} must clear text and controls',
-            );
-          }
-        }
-      }
+      expectClearGraphInk(folded);
     });
   }
 
@@ -140,11 +131,7 @@ void main() {
       // The lane runs in the parent's padding strip, outside the child frame.
       final lane = edge.points.map((p) => p.x).reduce(rtl ? math.max : math.min);
       expect(rtl ? lane > child.right : lane < child.left, isTrue);
-      for (final obstacle in l.obstacles) {
-        for (var i = 1; i < edge.points.length; i++) {
-          expect(graphSegmentIntersectsRect(edge.points[i - 1], edge.points[i], obstacle), isFalse);
-        }
-      }
+      expectClearGraphInk(l);
     });
   }
 

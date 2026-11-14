@@ -130,6 +130,9 @@ extension _LinksGraphData on _LinksScreenState {
   }
 
   void _acceptLayout(GraphLayout layout) {
+    if (_layout case final previous?) {
+      if (previous.frames.isEmpty && layout.frames.isEmpty && previous.width != layout.width) _fittedFor = null;
+    }
     _keepReadingStart(_layout, layout);
     _installedInput = _input;
     _layout = layout;
@@ -144,7 +147,7 @@ extension _LinksGraphData on _LinksScreenState {
         final input = _pending!;
         _pending = null;
         try {
-          final layout = await compute(GraphLayout.fromInput, input, debugLabel: 'links-layout');
+          final layout = await ref.read(graphLayoutWorkerProvider)(input);
           if (!mounted) return;
           // Never install an obsolete layout, including after a project switch.
           if (identical(input, _input)) _setState(() => _acceptLayout(layout));

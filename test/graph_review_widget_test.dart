@@ -6,12 +6,12 @@ import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/data/groups_repository.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/features/shared/selection_bar.dart';
-import 'package:fikra/features/links/graph_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'graph_fixture.dart';
+import 'graph_route_assertions.dart';
 import 'support/app_harness.dart';
 import 'support/selection_fixture.dart';
 
@@ -123,13 +123,7 @@ void main() {
       });
       await settle(t, k('graph-frame-${gs.last.id}'));
       final layout = graphPaths(t).layout;
-      for (final edge in layout.edges) {
-        for (final rect in layout.obstacles) {
-          for (var i = 1; i < edge.points.length; i++) {
-            expect(graphSegmentIntersectsRect(edge.points[i - 1], edge.points[i], rect), isFalse);
-          }
-        }
-      }
+      expectClearGraphInk(layout);
 
       expect(t.getSemantics(card(notes[0].id)).label, enL10n.graphNoteInGroup(notes[0].title, 'Parent'));
       expect(t.getSemantics(card(notes[1].id)).label, enL10n.graphNoteInGroup(notes[1].title, 'Child'));

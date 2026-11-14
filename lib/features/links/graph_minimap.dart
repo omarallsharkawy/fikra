@@ -70,20 +70,20 @@ class _GraphMinimapState extends State<GraphMinimap> {
           label: context.l10n.graphMinimap,
           button: true,
           onTap: () => widget.onMove(Offset(layout.width / 2, layout.height / 2)),
-          child: GestureDetector(
+          child: Container(
             key: const ValueKey('graph-minimap'),
-            behavior: HitTestBehavior.opaque,
-            excludeFromSemantics: true,
-            onTapDown: (d) => move(d.localPosition),
-            onPanStart: (d) => move(d.localPosition),
-            onPanUpdate: (d) => move(d.localPosition),
-            child: Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                color: colors.screen,
-                border: Border.all(color: colors.borderGraph),
-                borderRadius: BorderRadius.circular(FikraRadius.sm),
-              ),
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              color: colors.screen,
+              border: Border.all(color: colors.borderGraph),
+              borderRadius: BorderRadius.circular(FikraRadius.sm),
+            ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              excludeFromSemantics: true,
+              onTapDown: (d) => move(d.localPosition),
+              onPanStart: (d) => move(d.localPosition),
+              onPanUpdate: (d) => move(d.localPosition),
               child: SizedBox.fromSize(
                 size: GraphMinimap.mapSize,
                 child: Stack(
