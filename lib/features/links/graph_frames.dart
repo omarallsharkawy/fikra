@@ -58,7 +58,7 @@ extension _GraphFrames on _LinksScreenState {
   }
 
   Widget _frame(GraphLayout layout, GraphFrame frame, Set<String> focus) {
-    final dim = _selected != null && !frame.noteIds.any(focus.contains);
+    final dim = _selected != null && !frame.noteIds.any(focus.contains) && !focus.contains(frame.endpointId);
     final colors = context.colors;
     final border = groupColor(context, frame.group.color) ?? colors.borderGraph;
     final text = dim ? _mutedGraphText(context) : colors.textSecondary;
@@ -67,15 +67,17 @@ extension _GraphFrames on _LinksScreenState {
       container: true,
       sortKey: _graphSort(layout, frame.header),
       explicitChildNodes: true,
-      label: context.l10n.graphGroupA11y(frame.group.name, Fmt.notes(context.l10n, frame.count)),
+      label: frame.collapsed
+          ? context.l10n.graphCollapsedGroup(Fmt.isolate(frame.group.name), Fmt.notes(context.l10n, frame.count))
+          : context.l10n.graphGroupA11y(frame.group.name, Fmt.notes(context.l10n, frame.count)),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(FikraRadius.lg),
+          borderRadius: BorderRadius.circular(frame.collapsed ? FikraRadius.full : FikraRadius.lg),
           border: Border.all(color: dim ? Color.alphaBlend(border.withValues(alpha: 0.16), colors.screen) : border),
         ),
         alignment: Alignment.topCenter,
         child: SizedBox(
-          height: frame.header.height,
+          height: frame.collapsed ? frame.bounds.height : frame.header.height,
           child: Padding(
             padding: const EdgeInsetsDirectional.only(start: 16, end: 4),
             child: Row(
@@ -102,16 +104,37 @@ extension _GraphFrames on _LinksScreenState {
                     ),
                   ),
                 ),
+                // Both header controls share the selection-mode dimming and the
+                // focus-fade icon colour.
                 Opacity(
                   opacity: _selection == null ? 1 : 0.4,
                   child: IconTheme.merge(
                     data: IconThemeData(color: text),
-                    child: FikraIconButton(
-                      key: ValueKey('graph-group-options-${frame.group.id}'),
-                      icon: Icons.more_horiz_rounded,
-                      label: context.l10n.groupOptionsA11y(frame.group.name),
-                      size: 48,
-                      onTap: _selection == null ? () => _groupOptions(frame.group.id) : null,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FikraIconButton(
+                          key: ValueKey('graph-group-collapse-${frame.group.id}'),
+                          icon: frame.collapsed ? Icons.unfold_more_rounded : Icons.unfold_less_rounded,
+                          label: frame.collapsed
+                              ? context.l10n.graphExpandGroup(Fmt.isolate(frame.group.name))
+                              : context.l10n.graphCollapseGroup(Fmt.isolate(frame.group.name)),
+                          size: 48,
+                          onTap: _selection == null
+                              ? () => _setState(() {
+                                  _travel.stop();
+                                  if (!_collapsed.remove(frame.group.id)) _collapsed.add(frame.group.id);
+                                })
+                              : null,
+                        ),
+                        FikraIconButton(
+                          key: ValueKey('graph-group-options-${frame.group.id}'),
+                          icon: Icons.more_horiz_rounded,
+                          label: context.l10n.groupOptionsA11y(frame.group.name),
+                          size: 48,
+                          onTap: _selection == null ? () => _groupOptions(frame.group.id) : null,
+                        ),
+                      ],
                     ),
                   ),
                 ),

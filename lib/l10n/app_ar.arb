@@ -50,7 +50,7 @@
   "save": "احفظ",
   "deleteProject": "احذف المشروع",
   "deleteProjectTitle": "تحذف «{name}»؟",
-  "deleteProjectBody": "هيتحذف {items}، والمحادثات كمان. مش هتعرف ترجّعهم.",
+  "deleteProjectBody": "هيتحذف {items}، والمحادثة كمان. مش هتعرف ترجّعهم.",
   "projectDeleted": "المشروع اتحذف",
   "projectNameHint": "اسم المشروع",
   "recordStartFailed": "مقدرناش نبدأ التسجيل. جرّب تاني.",
@@ -814,5 +814,47 @@
         "type": "String"
       }
     }
-  }
+  },
+  "graphSearchHint": "دوّر في الرسم",
+  "graphSearchEmpty": "مفيش نتايج",
+  "graphSearchNote": "ملاحظة",
+  "graphSearchLink": "رابط",
+  "graphSearchGroup": "مجموعة",
+  "graphSearchLimited": "مش ظاهرة في الرسم، هنفتح الملاحظة",
+  "graphNavigateGroup": "روح لمجموعة «{group}» في الرسم، من غير فلترة",
+  "@graphNavigateGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapseGroup": "اقفل مجموعة «{group}»",
+  "@graphCollapseGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphExpandGroup": "افتح مجموعة «{group}»",
+  "@graphExpandGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapsedGroup": "مجموعة «{group}»، {notes}، مقفولة",
+  "@graphCollapsedGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك"
 }

@@ -3,7 +3,12 @@ part of 'links_screen.dart';
 /// Leaving the graph: open a note, or pick one from a cluster sheet.
 extension _LinksNavigation on _LinksScreenState {
   Future<void> _openLink(GraphLink edge) async {
-    if (_selection != null || _linkOptionsOpen || !(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    if ((_layout?.isFoldedLink(edge) ?? true) ||
+        _selection != null ||
+        _linkOptionsOpen ||
+        !(ModalRoute.of(context)?.isCurrent ?? true)) {
+      return;
+    }
     final notes = {for (final n in _notesSource ?? const <Note>[]) n.id: n};
     NoteLink? link;
     for (final l in _linksSource ?? const <NoteLink>[]) {

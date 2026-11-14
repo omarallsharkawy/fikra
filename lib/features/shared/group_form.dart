@@ -201,12 +201,19 @@ class ChoiceTag extends StatelessWidget {
     required this.onTap,
     this.onLongPress,
     this.color,
+    this.semanticLabel,
   });
   final String label;
   final bool selected;
-  final VoidCallback onTap;
+
+  /// Null disables the tag (the caller dims it).
+  final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final int? color;
+
+  /// Replaces the visible name for screen readers; the selected state and the
+  /// long-press action are still exposed.
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +222,7 @@ class ChoiceTag extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       selected: selected,
+      semanticLabel: semanticLabel,
       minTarget: true,
       child: Container(
         constraints: const BoxConstraints(minHeight: 36),

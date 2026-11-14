@@ -3,7 +3,16 @@ part of 'graph_layout.dart';
 typedef GraphGroup = ({String id, String? parentId, String name, int? color, int position});
 
 class GraphFrame {
-  const GraphFrame(this.group, this.bounds, this.count, this.noteIds, {this.headerExtent = GraphLayout.headerHeight});
+  const GraphFrame(
+    this.group,
+    this.bounds,
+    this.count,
+    this.noteIds, {
+    this.headerExtent = GraphLayout.headerHeight,
+    this.collapsed = false,
+  });
+  final bool collapsed;
+  String get endpointId => '\u0000group:${group.id}';
   final GraphGroup group;
   final GraphPosition bounds;
   final int count;
@@ -20,10 +29,12 @@ class GraphInput {
     this.generalLabel = '',
     this.groups = const [],
     this.memberships = const {},
+    this.collapsedGroups = const {},
     this.headerExtent = GraphLayout.headerHeight,
     this.labelSizes = const {},
     this.suggestedSize = (width: 180, height: 24),
   }) : signature = Object.hash(
+         Object.hashAllUnordered(collapsedGroups),
          rtl,
          generalLabel,
          headerExtent,
@@ -41,6 +52,7 @@ class GraphInput {
   final List<GraphLink> links;
   final List<GraphGroup> groups;
   final Map<String, String> memberships;
+  final Set<String> collapsedGroups;
   final bool rtl;
   final String generalLabel;
   final double headerExtent;
@@ -63,6 +75,8 @@ class GraphInput {
       _sameRecords(notes, other.notes) &&
       _sameRecords(links, other.links) &&
       _sameRecords(groups, other.groups) &&
+      collapsedGroups.length == other.collapsedGroups.length &&
+      collapsedGroups.containsAll(other.collapsedGroups) &&
       memberships.length == other.memberships.length &&
       memberships.entries.every((e) => other.memberships[e.key] == e.value);
 

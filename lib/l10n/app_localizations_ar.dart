@@ -173,7 +173,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String deleteProjectBody(String items) {
-    return 'هيتحذف $items، والمحادثات كمان. مش هتعرف ترجّعهم.';
+    return 'هيتحذف $items، والمحادثة كمان. مش هتعرف ترجّعهم.';
   }
 
   @override
@@ -1242,4 +1242,45 @@ class AppLocalizationsAr extends AppLocalizations {
   String graphNoteInGroup(String title, String group) {
     return '$title، في مجموعة «$group»';
   }
+
+  @override
+  String get graphSearchHint => 'دوّر في الرسم';
+
+  @override
+  String get graphSearchEmpty => 'مفيش نتايج';
+
+  @override
+  String get graphSearchNote => 'ملاحظة';
+
+  @override
+  String get graphSearchLink => 'رابط';
+
+  @override
+  String get graphSearchGroup => 'مجموعة';
+
+  @override
+  String get graphSearchLimited => 'مش ظاهرة في الرسم، هنفتح الملاحظة';
+
+  @override
+  String graphNavigateGroup(String group) {
+    return 'روح لمجموعة «$group» في الرسم، من غير فلترة';
+  }
+
+  @override
+  String graphCollapseGroup(String group) {
+    return 'اقفل مجموعة «$group»';
+  }
+
+  @override
+  String graphExpandGroup(String group) {
+    return 'افتح مجموعة «$group»';
+  }
+
+  @override
+  String graphCollapsedGroup(String group, String notes) {
+    return 'مجموعة «$group»، $notes، مقفولة';
+  }
+
+  @override
+  String get graphMinimap => 'خريطة الرسم، دوس أو اسحب عشان تتحرك';
 }

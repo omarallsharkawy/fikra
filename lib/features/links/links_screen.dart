@@ -24,6 +24,7 @@ import '../shared/note_link_actions.dart';
 import '../shared/link_pairs.dart';
 import '../shared/note_groups.dart';
 import '../shared/group_options.dart';
+import '../shared/group_filter.dart';
 import '../shared/group_form.dart';
 import '../shared/selection_bar.dart';
 import '../shared/note_selection_actions.dart';
@@ -31,6 +32,9 @@ import '../shared/selection_actions.dart';
 import 'graph_capsules.dart';
 import 'graph_edge_paths.dart';
 import 'graph_layout.dart';
+import 'graph_search.dart';
+import 'graph_session.dart';
+import 'graph_minimap.dart';
 
 part 'edges_painter.dart';
 part 'graph_nodes.dart';
@@ -42,16 +46,35 @@ part 'graph_selection.dart';
 part 'graph_hold.dart';
 part 'graph_overlays.dart';
 part 'graph_cards.dart';
+part 'links_search.dart';
+part 'links_jump.dart';
+part 'links_surface.dart';
 
 /// Knowledge graph: one row per cluster, notes as nodes, links as curves.
 class LinksScreen extends ConsumerStatefulWidget {
   const LinksScreen({super.key});
 
+  /// Test probes: screen builds, and viewport animation ticks (one per frame,
+  /// however many jumps ran before).
+  @visibleForTesting
+  static int builds = 0;
+  @visibleForTesting
+  static int travelTicks = 0;
+
   @override
   ConsumerState<LinksScreen> createState() => _LinksScreenState();
 }
 
-class _LinksScreenState extends ConsumerState<LinksScreen> {
+class _LinksScreenState extends ConsumerState<LinksScreen> with SingleTickerProviderStateMixin {
+  final _search = TextEditingController();
+  bool _searchOpen = false;
+  String? _chipGroup;
+  Set<String> _collapsed = {};
+  GraphSearchIndex? _searchIndex;
+  GraphSearchResult? _pendingJump;
+  GraphInput? _installedInput;
+  late final _travel = AnimationController(vsync: this, duration: FikraMotion.expand)..addListener(_onTravel);
+  Matrix4Tween? _travelValue;
   final _tc = TransformationController();
   String? _selected;
   Set<String>? _selection;
@@ -87,6 +110,8 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
 
   @override
   void dispose() {
+    _travel.dispose();
+    _search.dispose();
     _tc.dispose();
     super.dispose();
   }
@@ -95,8 +120,18 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
   /// through this forwarder.
   void _setState(VoidCallback fn) => setState(fn);
 
+  // An instance method: extension tear-offs are never equal, so they could not
+  // be removed and would pile up one listener per jump.
+  void _onTravel() {
+    final tween = _travelValue;
+    if (tween == null) return;
+    LinksScreen.travelTicks++;
+    _tc.value = tween.transform(FikraMotion.expandCurve.transform(_travel.value));
+  }
+
   @override
   Widget build(BuildContext context) {
+    LinksScreen.builds++;
     final notesAsync = ref.watch(selectedNotesProvider);
     final linksAsync = ref.watch(selectedLinksProvider);
     final notes = notesAsync.value ?? const <Note>[];
@@ -113,9 +148,12 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
       _selection!.removeWhere((id) => !ids.contains(id) || !(_layout?.nodes.containsKey(id) ?? false));
       if (_selection!.isEmpty) _selection = null;
     }
+    if (_pendingJump != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _finishJump();
+      });
+    }
     final layout = _layout;
-    final width = layout?.width ?? 360.0;
-    final height = layout?.height ?? 0.0;
     final selected = _selection == null ? layout?.nodes[_selected] : null;
     // Why the selected note is connected: "<other title> · <label>".
     final reasons = <String, String>{};
@@ -141,140 +179,118 @@ class _LinksScreenState extends ConsumerState<LinksScreen> {
     final empty = (layout?.readyCount ?? 0) < 2 && groups.isEmpty;
 
     return PopScope(
-      canPop: _selection == null,
+      canPop: _selection == null && !_searchOpen,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _endSelection();
+        if (!didPop) {
+          if (_searchOpen) {
+            _closeSearch();
+          } else {
+            _endSelection();
+          }
+        }
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (_selection == null)
-            ProjectHeader(title: context.l10n.linksTitle)
+            ProjectHeader(
+              title: context.l10n.linksTitle,
+              trailing: FikraIconButton(
+                key: const ValueKey('graph-search-open'),
+                icon: Icons.search_rounded,
+                label: context.l10n.graphSearchHint,
+                onTap: () => setState(() {
+                  _searchOpen = true;
+                  _cancelHold?.call();
+                }),
+              ),
+            )
           else
             SelectionHeader(count: _selection!.length, onClose: _endSelection),
+          // Kept (dimmed) in selection mode so the graph never moves under the finger.
+          if (groups.isNotEmpty && !_searchOpen)
+            GroupFilterRow(
+              groups: groups,
+              selectedId: _chipGroup,
+              navigation: true,
+              enabled: _selection == null,
+              onOptions: (g) => _groupOptions(g.id),
+              onSelect: (id) {
+                if (id == null) return;
+                _chipGroup = id;
+                _pickSearch(GraphSearchResult(GraphSearchKind.group, id, ''));
+              },
+            ),
           Expanded(
             key: const ValueKey('links-content'),
-            child: FikraSwitcher(
-              child: KeyedSubtree(
-                key: ValueKey(
-                  loadError
-                      ? 'error'
-                      : loading
-                      ? 'loading'
-                      : empty
-                      ? 'empty'
-                      : 'graph',
-                ),
-                child: loadError
-                    ? LoadErrorView(
-                        onRetry: () {
-                          setState(() {
-                            _input = null;
-                            _notesSource = null;
-                            _linksSource = null;
-                            _groupsSource = null;
-                            _layoutError = false;
-                          });
-                          ref.invalidate(selectedNotesProvider);
-                          ref.invalidate(selectedLinksProvider);
-                          if (projectId != null) ref.invalidate(groupsOfProjectProvider(projectId));
-                        },
-                      )
-                    : loading
-                    ? const SizedBox.shrink()
-                    : empty
-                    ? FillScroll(
-                        child: EmptyState(
-                          icon: Icons.hub_outlined,
-                          title: context.l10n.linksEmptyTitle,
-                          description: context.l10n.linksEmptyBody,
-                          action: FikraButton(
-                            label: context.l10n.addNote,
-                            icon: Icons.add_rounded,
-                            expand: false,
-                            onPressed: () => context.go('/add'),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ExcludeSemantics(
+                    excluding: _searchOpen,
+                    child: IgnorePointer(
+                      ignoring: _searchOpen,
+                      child: FikraSwitcher(
+                        child: KeyedSubtree(
+                          key: ValueKey(
+                            loadError
+                                ? 'error'
+                                : loading
+                                ? 'loading'
+                                : empty
+                                ? 'empty'
+                                : 'graph',
                           ),
+                          child: loadError
+                              ? LoadErrorView(
+                                  onRetry: () {
+                                    setState(() {
+                                      _input = null;
+                                      _notesSource = null;
+                                      _linksSource = null;
+                                      _groupsSource = null;
+                                      _layoutError = false;
+                                    });
+                                    ref.invalidate(selectedNotesProvider);
+                                    ref.invalidate(selectedLinksProvider);
+                                    if (projectId != null) ref.invalidate(groupsOfProjectProvider(projectId));
+                                  },
+                                )
+                              : loading
+                              ? const SizedBox.shrink()
+                              : empty
+                              ? FillScroll(
+                                  child: EmptyState(
+                                    icon: Icons.hub_outlined,
+                                    title: context.l10n.linksEmptyTitle,
+                                    description: context.l10n.linksEmptyBody,
+                                    action: FikraButton(
+                                      label: context.l10n.addNote,
+                                      icon: Icons.add_rounded,
+                                      expand: false,
+                                      onPressed: () => context.go('/add'),
+                                    ),
+                                  ),
+                                )
+                              : _surface(layout, notes, links, selected, reasons),
                         ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Viewport tools live above the graph, never on top of it.
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    context.l10n.linksSummary(
-                                      Fmt.notes(context.l10n, notes.length),
-                                      Fmt.links(context.l10n, layout.linkCount),
-                                    ),
-                                    style: context.text.meta.copyWith(
-                                      fontSize: 12,
-                                      color: context.colors.textSecondary,
-                                    ),
-                                    softWrap: true,
-                                  ),
-                                ),
-                                FikraIconButton(
-                                  icon: Icons.add_rounded,
-                                  label: context.l10n.zoomIn,
-                                  size: 40,
-                                  onTap: () => _zoom(1.25),
-                                ),
-                                FikraIconButton(
-                                  icon: Icons.remove_rounded,
-                                  label: context.l10n.zoomOut,
-                                  size: 40,
-                                  onTap: () => _zoom(0.8),
-                                ),
-                                FikraIconButton(
-                                  icon: Icons.center_focus_strong_outlined,
-                                  label: context.l10n.resetView,
-                                  size: 40,
-                                  onTap: () => _tc.value = _home(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Stack(
-                              children: [
-                                Positioned.fill(child: _graphCanvas(layout, width, height)),
-                                if (links.isEmpty && selected == null && _selection == null)
-                                  Positioned(
-                                    left: FikraSpace.screen,
-                                    right: FikraSpace.screen,
-                                    bottom: 16,
-                                    child: StatusBanner(kind: BannerKind.info, message: context.l10n.noLinksYet),
-                                  ),
-                                if (_selection == null)
-                                  Positioned(
-                                    left: FikraSpace.screen,
-                                    right: FikraSpace.screen,
-                                    bottom: 12,
-                                    child: FikraSwitcher(
-                                      animateSize: true,
-                                      alignment: Alignment.bottomCenter,
-                                      child: selected == null
-                                          ? const SizedBox.shrink(key: ValueKey('no-preview'))
-                                          : KeyedSubtree(
-                                              key: ValueKey(selected.id),
-                                              child: _NodePreview(
-                                                note: selected,
-                                                reasons: reasons.values.toList(),
-                                                onOpen: () => _openNote(selected.id),
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
-              ),
+                    ),
+                  ),
+                ),
+                if (_searchOpen)
+                  Positioned.fill(
+                    child: Material(
+                      color: context.colors.screen,
+                      child: _GraphSearchPanel(
+                        controller: _search,
+                        index: _searchIndex,
+                        onPick: _pickSearch,
+                        onClose: _closeSearch,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           if (_selection != null) _selectionBar(_selection!.length),

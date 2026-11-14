@@ -565,7 +565,7 @@
 | `filesCount` | عدد الملفات جوه `deleteProjectBody` | جمع (تحت) | جمع (تحت) |
 | `listTwo` | بيوصّل حاجتين في جملة | {first} و{second} | {first} and {second} |
 | `listThree` | بيوصّل تلات حاجات في جملة | {first} و{second} و{third} | {first}, {second} and {third} |
-| `deleteProjectBody` | رسالة مسح المشروع (اتغيرت، القسم 5). `{items}` = `notesCount` و`filesCount` و`linksCount`، اللي أكبر من صفر بس، متوصّلين بـ`listTwo` أو `listThree` | هيتحذف {items}، والمحادثات كمان. مش هتعرف ترجّعهم. | This deletes {items}, plus the chat. You can't undo this. |
+| `deleteProjectBody` | رسالة مسح المشروع (اتغيرت، القسم 5). `{items}` = `notesCount` و`filesCount` و`linksCount`، اللي أكبر من صفر بس، متوصّلين بـ`listTwo` أو `listThree` | هيتحذف {items}، والمحادثة كمان. مش هتعرف ترجّعهم. | This deletes {items}, plus the chat. You can't undo this. |
 | `deleteProjectEmptyBody` | رسالة مسح مشروع مفيهوش ملاحظات ولا محادثة | المشروع ده فاضي، مفيهوش ملاحظات. | This project is empty. It has no notes. |
 | `deleteProjectEmptyChatBody` | رسالة مسح مشروع مفيهوش ملاحظات بس فيه محادثة «اسأل» | المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها. | This project has no notes, but its chat will be deleted. You can't undo this. |
 | `firstProjectNameHint` | خانة الاسم في "سمّي أول مشروع" بس (UX-17) | اسم المشروع، مثلاً: مذاكرة | Project name, e.g. Study |
@@ -585,7 +585,7 @@
 أمثلة بعد التركيب:
 
 - النقل: "الملاحظة هتتنقل بملفاتها، وهيتشال رابطين و3 اقتراحات بينها وبين الملاحظات اللي هتفضل هنا." / "The note moves with its files. Its 2 links and 3 suggestions to notes that stay here will be removed."
-- المسح: "هيتحذف 3 ملاحظات وملفين و11 رابط، والمحادثات كمان. مش هتعرف ترجّعهم." / "This deletes 3 notes, 2 files and 11 links, plus the chat. You can't undo this."
+- المسح: "هيتحذف 3 ملاحظات وملفين و11 رابط، والمحادثة كمان. مش هتعرف ترجّعهم." / "This deletes 3 notes, 2 files and 11 links, plus the chat. You can't undo this."
 
 ملحوظات:
 

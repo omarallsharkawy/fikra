@@ -10,13 +10,17 @@ extension _LinksViewport on _LinksScreenState {
   );
 
   void _zoom(double factor) {
+    _travel.stop();
     if (_viewportSize.isEmpty) return;
     final m = _tc.value.clone();
-    final s = (m.getMaxScaleOnAxis() * factor).clamp(0.5, 2.5) / m.getMaxScaleOnAxis();
+    // Read the x scale: matrices from older builds or tests may leave z at 1,
+    // which made getMaxScaleOnAxis report 1 and lifted the zoom-out floor.
+    final current = _scaleOf(m);
+    final s = (current * factor).clamp(_minScale, _maxScale) / current;
     final c = _viewportSize.center(Offset.zero);
     _tc.value = Matrix4.identity()
       ..translateByDouble(c.dx, c.dy, 0, 1)
-      ..scaleByDouble(s, s, 1, 1)
+      ..scaleByDouble(s, s, s, 1)
       ..translateByDouble(-c.dx, -c.dy, 0, 1)
       ..multiply(m);
   }
@@ -30,7 +34,16 @@ extension _LinksViewport on _LinksScreenState {
       builder: (context, box) {
         // Refresh height even when width (and the reading-start fit) is unchanged.
         _viewportSize = box.biggest;
-        final key = '${ref.read(selectedProjectProvider)?.id}|$width|${box.maxWidth}|${layout.rtl}';
+        // Scaffold consumes the keyboard inset. Its resize can lay out this
+        // builder without rebuilding LinksScreen; finish a waiting jump here.
+        if (_pendingJump != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _finishJump();
+          });
+        }
+        final key =
+            '${ref.read(selectedProjectProvider)?.id}|${layout.frames.isEmpty ? width : ''}|${box.maxWidth}|${layout.rtl}';
+        _canvasW = width;
         if (key != _fittedFor) {
           _fittedFor = key;
           _canvasW = width;
@@ -40,6 +53,7 @@ extension _LinksViewport on _LinksScreenState {
         }
         return Listener(
           onPointerDown: (e) {
+            _travel.stop();
             _pointers.add(e.pointer);
             if (_pointers.length > 1) _cancelHold?.call();
           },
@@ -49,8 +63,8 @@ extension _LinksViewport on _LinksScreenState {
             transformationController: _tc,
             onInteractionStart: (_) => _cancelHold?.call(),
             constrained: false,
-            minScale: 0.5,
-            maxScale: 2.5,
+            minScale: _minScale,
+            maxScale: _maxScale,
             boundaryMargin: const EdgeInsets.all(200),
             // Panning/zooming only moves this layer: the nodes and
             // edges are painted once, not on every frame.
@@ -62,7 +76,7 @@ extension _LinksViewport on _LinksScreenState {
                   if (_selection != null) return;
                   final p = details.localPosition;
                   if (layout.obstacles.any((r) => _rect(r).contains(p))) return;
-                  final edge = hitTestGraphEdge(layout, (x: p.dx, y: p.dy), scale: _tc.value.entry(0, 0).abs());
+                  final edge = hitTestGraphEdge(layout, (x: p.dx, y: p.dy), scale: _scaleOf(_tc.value));
                   if (edge != null) {
                     _openLink(edge.link);
                   } else {

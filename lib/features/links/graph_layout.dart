@@ -10,6 +10,7 @@ part 'graph_routing.dart';
 part 'graph_compact.dart';
 part 'graph_ports.dart';
 part 'graph_arc_route.dart';
+part 'graph_folding.dart';
 
 /// Small, isolate-safe projections. Never include note bodies or attachments.
 typedef GraphNote = ({String id, String title, String? cluster, int createdAt, int status});
@@ -56,6 +57,7 @@ class GraphLayout {
     required this.width,
     required this.height,
     this.frames = const [],
+    this.foldedNotes = const {},
     this.suggestedTop,
     this.labelSizes = const {},
     this.suggestedSize = (width: 180, height: 24),
@@ -72,14 +74,26 @@ class GraphLayout {
   final Map<String, GraphTextSize> labelSizes;
   final GraphTextSize suggestedSize;
   late final List<GraphLabel> labels;
-  List<GraphPosition> get obstacles => [
-    for (final f in frames) f.header,
+
+  /// Text and controls that connectors must clear, shared by routing, the
+  /// painter's mask and tap tests. Cached: the layout is immutable once built.
+  /// A capsule is solid; an open frame reserves its whole header strip.
+  late final List<GraphPosition> obstacles = [
+    for (final f in frames)
+      if (f.collapsed)
+        (left: f.bounds.left, top: f.bounds.top + 6, width: f.bounds.width, height: f.bounds.height - 12)
+      else
+        f.header,
     for (final l in labels) l.bounds,
     for (final l in labels)
       if (l.control != null) l.control!,
   ];
   final bool rtl;
   final List<GraphFrame> frames;
+
+  /// Hidden note ID to a capsule endpoint. Capsules are positions, never nodes.
+  final Map<String, String> foldedNotes;
+  bool isFoldedLink(GraphLink link) => !nodes.containsKey(link.sourceId) || !nodes.containsKey(link.targetId);
   final double? suggestedTop;
   final List<GraphRow> rows;
   final List<GraphRow> hiddenRows;
@@ -114,6 +128,7 @@ class GraphLayout {
     generalLabel: input.generalLabel,
     groups: input.groups,
     memberships: input.memberships,
+    collapsedGroups: input.collapsedGroups,
     headerExtent: input.headerExtent,
     labelSizes: input.labelSizes,
     suggestedSize: input.suggestedSize,
@@ -129,6 +144,7 @@ class GraphLayout {
     GraphTextSize suggestedSize = (width: 180, height: 24),
     List<GraphGroup> groups = const [],
     Map<String, String> memberships = const {},
+    Set<String> collapsedGroups = const {},
     int maxNodesPerRow = 12,
     int maxNodes = 240,
     int maxRows = 20,
@@ -142,6 +158,7 @@ class GraphLayout {
         links,
         groups,
         memberships,
+        collapsedGroups: collapsedGroups,
         rtl: rtl,
         generalLabel: generalLabel,
         headerExtent: headerExtent,

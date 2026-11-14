@@ -7,6 +7,14 @@ extension _LinksGraphData on _LinksScreenState {
     if (_projectId != projectId) {
       _cancelHold?.call();
       _pointers.clear();
+      _travel.stop();
+      _searchOpen = false;
+      _search.clear();
+      _searchIndex = null;
+      _pendingJump = null;
+      _installedInput = null;
+      _chipGroup = null;
+      _collapsed = projectId == null ? {} : ref.read(graphCollapsedGroupsProvider).putIfAbsent(projectId, () => {});
       _projectId = projectId;
       _notesSource = null;
       _linksSource = null;
@@ -25,6 +33,9 @@ extension _LinksGraphData on _LinksScreenState {
   // Project only after a stream emission, not on selection/zoom/theme rebuilds.
   // Content-only writes produce the same projection and retain the layout.
   void _updateGraph(List<Note> notes, List<NoteLink> links, List<NoteGroup> groups) {
+    final groupIds = groups.map((g) => g.id).toSet();
+    _collapsed.removeWhere((id) => !groupIds.contains(id));
+    if (!groupIds.contains(_chipGroup)) _chipGroup = null;
     final notesChanged = !identical(notes, _notesSource);
     final groupsChanged = !identical(groups, _groupsSource);
     final linksChanged = !identical(links, _linksSource);
@@ -50,7 +61,8 @@ extension _LinksGraphData on _LinksScreenState {
         _input?.rtl == rtl &&
         _input?.generalLabel == generalLabel &&
         _input?.headerExtent == headerExtent &&
-        _labelStyle == labelStyle) {
+        _labelStyle == labelStyle &&
+        setEquals(_input?.collapsedGroups, _collapsed)) {
       return;
     }
     _labelStyle = labelStyle;
@@ -87,6 +99,7 @@ extension _LinksGraphData on _LinksScreenState {
       groups: [
         for (final g in groups) (id: g.id, parentId: g.parentId, name: g.name, color: g.color, position: g.position),
       ],
+      collapsedGroups: Set.of(_collapsed),
       memberships: {
         for (final n in notes)
           if (n.groupId != null) n.id: n.groupId!,
@@ -102,6 +115,7 @@ extension _LinksGraphData on _LinksScreenState {
     );
     if (_input?.sameData(input) ?? false) return;
     _input = input;
+    if (_searchOpen || notesChanged || linksChanged || groupsChanged) _searchIndex = GraphSearchIndex(input);
     _layoutError = false;
     if (input.notes.length > 300 || (input.notes.length > GraphLayout.smallProjectLimit && input.links.length > 600)) {
       // An empty layout is not a useful placeholder for the first large graph.
@@ -116,6 +130,8 @@ extension _LinksGraphData on _LinksScreenState {
   }
 
   void _acceptLayout(GraphLayout layout) {
+    _keepReadingStart(_layout, layout);
+    _installedInput = _input;
     _layout = layout;
     _edgePaths = GraphEdgePaths(layout, previous: _edgePaths);
     if (!layout.nodes.containsKey(_selected)) _selected = null;

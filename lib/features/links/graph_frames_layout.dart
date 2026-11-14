@@ -7,6 +7,7 @@ GraphLayout _layoutFrames(
   List<GraphLink> links,
   List<GraphGroup> groups,
   Map<String, String> memberships, {
+  required Set<String> collapsedGroups,
   required double headerExtent,
   required Map<String, GraphTextSize> labelSizes,
   required GraphTextSize suggestedSize,
@@ -96,13 +97,42 @@ GraphLayout _layoutFrames(
   }
 
   final reached = <String>{};
+  final foldedNotes = <String, String>{};
+  // An empty frame's width: name, count and both controls fit; a capsule uses it too.
+  const minFrameWidth = 240.0;
   GraphFrame frame(GraphGroup g, double y, double x, {bool child = false}) {
     reached.add(g.id);
+    if (collapsedGroups.contains(g.id)) {
+      final subtree = <String>{g.id};
+      final queue = [g.id];
+      while (queue.isNotEmpty) {
+        final parent = queue.removeLast();
+        for (final c in ordered.where((c) => c.parentId == parent)) {
+          if (subtree.add(c.id)) queue.add(c.id);
+        }
+      }
+      reached.addAll(subtree);
+      final contained = {for (final id in subtree) ...?allIds[id]};
+      final f = GraphFrame(
+        g,
+        (left: x, top: y, width: minFrameWidth, height: headerExtent + 12),
+        contained.length,
+        contained,
+        collapsed: true,
+        headerExtent: headerExtent,
+      );
+      frames.add(f);
+      for (final id in contained) {
+        foldedNotes[id] = f.endpointId;
+      }
+      canvasEnd = math.max(canvasEnd, x + f.bounds.width);
+      return f;
+    }
     final frameIndex = frames.length;
     // Reserve parent order for painting and semantics, fill after children.
     frames.add(GraphFrame(g, (left: x, top: y, width: 0, height: 0), 0, {}));
     var cursor = y + headerExtent + 8 - 34;
-    var contentWidth = 240.0;
+    var contentWidth = minFrameWidth;
     final own = [...?grouped[g.id]]..sort(rank);
     var offset = 0;
     while (offset < own.length) {
@@ -201,9 +231,12 @@ GraphLayout _layoutFrames(
         f.count,
         f.noteIds,
         headerExtent: headerExtent,
+        collapsed: f.collapsed,
       ),
   ];
-  final visibleLinks = pairs.where((l) => nodes.containsKey(l.sourceId) && nodes.containsKey(l.targetId)).toList();
+  final visibleLinks = foldedNotes.isEmpty
+      ? pairs.where((l) => nodes.containsKey(l.sourceId) && nodes.containsKey(l.targetId)).toList()
+      : _foldGraphLinks(pairs, ready, nodes, foldedNotes);
   if (!small && visibleLinks.length > maxEdges) {
     visibleLinks.sort((a, b) => b.strength.compareTo(a.strength));
     visibleLinks.removeRange(maxEdges, visibleLinks.length);
@@ -222,12 +255,16 @@ GraphLayout _layoutFrames(
     width: width,
     height: y + pad,
     frames: physicalFrames,
+    foldedNotes: foldedNotes,
     suggestedTop: suggestedTop,
   );
   for (final r in rows) {
     for (final (i, n) in r.visible.indexed) {
       layout.positions[n.id] = layout.positionInRow(r.index, i);
     }
+  }
+  for (final f in physicalFrames.where((f) => f.collapsed)) {
+    layout.positions[f.endpointId] = f.bounds;
   }
   return _finishGraph(layout);
 }

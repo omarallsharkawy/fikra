@@ -395,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteProjectBody.
   ///
   /// In ar, this message translates to:
-  /// **'هيتحذف {items}، والمحادثات كمان. مش هتعرف ترجّعهم.'**
+  /// **'هيتحذف {items}، والمحادثة كمان. مش هتعرف ترجّعهم.'**
   String deleteProjectBody(String items);
 
   /// No description provided for @projectDeleted.
@@ -2023,6 +2023,72 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{title}، في مجموعة «{group}»'**
   String graphNoteInGroup(String title, String group);
+
+  /// No description provided for @graphSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوّر في الرسم'**
+  String get graphSearchHint;
+
+  /// No description provided for @graphSearchEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش نتايج'**
+  String get graphSearchEmpty;
+
+  /// No description provided for @graphSearchNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة'**
+  String get graphSearchNote;
+
+  /// No description provided for @graphSearchLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'رابط'**
+  String get graphSearchLink;
+
+  /// No description provided for @graphSearchGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموعة'**
+  String get graphSearchGroup;
+
+  /// No description provided for @graphSearchLimited.
+  ///
+  /// In ar, this message translates to:
+  /// **'مش ظاهرة في الرسم، هنفتح الملاحظة'**
+  String get graphSearchLimited;
+
+  /// No description provided for @graphNavigateGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'روح لمجموعة «{group}» في الرسم، من غير فلترة'**
+  String graphNavigateGroup(String group);
+
+  /// No description provided for @graphCollapseGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقفل مجموعة «{group}»'**
+  String graphCollapseGroup(String group);
+
+  /// No description provided for @graphExpandGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح مجموعة «{group}»'**
+  String graphExpandGroup(String group);
+
+  /// No description provided for @graphCollapsedGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموعة «{group}»، {notes}، مقفولة'**
+  String graphCollapsedGroup(String group, String notes);
+
+  /// No description provided for @graphMinimap.
+  ///
+  /// In ar, this message translates to:
+  /// **'خريطة الرسم، دوس أو اسحب عشان تتحرك'**
+  String get graphMinimap;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

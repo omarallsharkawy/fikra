@@ -76,7 +76,17 @@ GraphEdge? _gutterRoute(GraphLayout layout, GraphEdge edge, bool same, List<Grap
   final a = edge.start, b = edge.end;
   final ap = (x: a.x, y: a.y + (same ? -4 : 4)), bp = (x: b.x, y: b.y - 4);
   final inset = 4.0 + edge.link.id.codeUnits.fold<int>(0, (a, c) => (a * 31 + c) % 6) * 2;
-  final lanes = layout.rtl ? [layout.width - inset, inset] : [inset, layout.width - inset];
+  final canvasLanes = layout.rtl ? [layout.width - inset, inset] : [inset, layout.width - inset];
+  // Prefer the inner padding strip of the smallest open frame holding both
+  // ends: the route stays inside its group instead of crossing every border
+  // on the way to the canvas edge. Child frames and rows start a full padding in.
+  final home = _commonFrame(layout, a, b);
+  final frameLanes = home == null
+      ? const <double>[]
+      : layout.rtl
+      ? [home.bounds.left + home.bounds.width - inset, home.bounds.left + inset]
+      : [home.bounds.left + inset, home.bounds.left + home.bounds.width - inset];
+  final lanes = [...frameLanes, ...canvasLanes];
   bool clear(GraphPoint x, GraphPoint y) => !boxes.any((r) => graphSegmentIntersectsRect(x, y, r));
   var top = math.min(a.y, b.y) - 6;
   if (same) {
@@ -91,8 +101,11 @@ GraphEdge? _gutterRoute(GraphLayout layout, GraphEdge edge, bool same, List<Grap
     top = math.max(2, top);
   }
   if (!same) {
-    final ordered = [...lanes]
-      ..sort((x, y) => ((a.x - x).abs() + (b.x - x).abs()).compareTo((a.x - y).abs() + (b.x - y).abs()));
+    int nearer(double x, double y) => ((a.x - x).abs() + (b.x - x).abs()).compareTo((a.x - y).abs() + (b.x - y).abs());
+    final ordered = [
+      ...[...frameLanes]..sort(nearer),
+      ...[...canvasLanes]..sort(nearer),
+    ];
     for (final lane in ordered) {
       for (final escape in [32.0, 24.0, 12.0, 4.0]) {
         final height = math.min(escape, (b.y - a.y) / 2);
@@ -148,6 +161,17 @@ GraphEdge? _gutterRoute(GraphLayout layout, GraphEdge edge, bool same, List<Grap
     }
   }
   return null;
+}
+
+GraphFrame? _commonFrame(GraphLayout layout, GraphPoint a, GraphPoint b) {
+  GraphFrame? best;
+  bool holds(GraphPosition r, GraphPoint p) =>
+      p.x >= r.left - 0.5 && p.x <= r.left + r.width + 0.5 && p.y >= r.top - 0.5 && p.y <= r.top + r.height + 0.5;
+  for (final f in layout.frames) {
+    if (f.collapsed || !holds(f.bounds, a) || !holds(f.bounds, b)) continue;
+    if (best == null || f.bounds.width * f.bounds.height < best.bounds.width * best.bounds.height) best = f;
+  }
+  return best;
 }
 
 GraphEdge _roundedRoute(GraphLink link, List<GraphPoint> raw, double radius) {

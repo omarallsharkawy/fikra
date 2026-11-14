@@ -2,7 +2,9 @@ part of 'links_screen.dart';
 
 extension _GraphOverlays on _LinksScreenState {
   Map<CustomSemanticsAction, VoidCallback> _linkSemantics(GraphLayout layout, String noteId) {
-    final incident = layout.links.where((e) => e.sourceId == noteId || e.targetId == noteId).toList();
+    final incident = layout.links
+        .where((e) => !layout.isFoldedLink(e) && (e.sourceId == noteId || e.targetId == noteId))
+        .toList();
     final labels = [
       for (final e in incident)
         context.l10n.linkOptionsA11y(

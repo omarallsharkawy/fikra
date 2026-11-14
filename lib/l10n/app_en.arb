@@ -792,5 +792,47 @@
         "type": "String"
       }
     }
-  }
+  },
+  "graphSearchHint": "Search the graph",
+  "graphSearchEmpty": "No results",
+  "graphSearchNote": "Note",
+  "graphSearchLink": "Link",
+  "graphSearchGroup": "Group",
+  "graphSearchLimited": "Hidden by graph limits. Opening the note.",
+  "graphNavigateGroup": "Go to group {group} in the graph, without filtering",
+  "@graphNavigateGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapseGroup": "Collapse group {group}",
+  "@graphCollapseGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphExpandGroup": "Expand group {group}",
+  "@graphExpandGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapsedGroup": "Group {group}, {notes}, collapsed",
+  "@graphCollapsedGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "graphMinimap": "Graph minimap. Tap or drag to move"
 }

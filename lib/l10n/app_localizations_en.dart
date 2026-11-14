@@ -1196,4 +1196,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String graphNoteInGroup(String title, String group) {
     return '$title, in group $group';
   }
+
+  @override
+  String get graphSearchHint => 'Search the graph';
+
+  @override
+  String get graphSearchEmpty => 'No results';
+
+  @override
+  String get graphSearchNote => 'Note';
+
+  @override
+  String get graphSearchLink => 'Link';
+
+  @override
+  String get graphSearchGroup => 'Group';
+
+  @override
+  String get graphSearchLimited => 'Hidden by graph limits. Opening the note.';
+
+  @override
+  String graphNavigateGroup(String group) {
+    return 'Go to group $group in the graph, without filtering';
+  }
+
+  @override
+  String graphCollapseGroup(String group) {
+    return 'Collapse group $group';
+  }
+
+  @override
+  String graphExpandGroup(String group) {
+    return 'Expand group $group';
+  }
+
+  @override
+  String graphCollapsedGroup(String group, String notes) {
+    return 'Group $group, $notes, collapsed';
+  }
+
+  @override
+  String get graphMinimap => 'Graph minimap. Tap or drag to move';
 }

@@ -44,7 +44,7 @@ void main() {
       await tester.tap(key('group-rename-save'));
       await settle(tester, find.text('Renamed'));
       expect(find.text('First'), findsNothing);
-      expect(find.text('Second'), findsOneWidget);
+      expect(find.descendant(of: key('graph-frame-${b.id}'), matching: find.text('Second')), findsOneWidget);
 
       await options(tester, a.id);
       await tester.tap(key('group-color'));
@@ -163,7 +163,15 @@ void main() {
         await (db.update(db.notes)).write(const NotesCompanion(cluster: Value('')));
       });
       await pumpAnimations(tester);
-      expect(find.text('Empty'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byWidgetPredicate(
+            (w) => w.key is ValueKey<String> && (w.key as ValueKey<String>).value.startsWith('graph-frame-'),
+          ),
+          matching: find.text('Empty'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text(en.clusterGeneral), findsOneWidget);
       expect(key('graph-make-group-0'), findsNothing);
       final semantics = tester.getSemantics(key('graph-frame-${(await allGroups(tester, db)).single.id}'));
@@ -171,7 +179,15 @@ void main() {
       expect(semantics.label, en.graphGroupA11y('Empty', Fmt.notes(en, 0)));
       await pumpFuture(tester, () => db.delete(db.notes).go());
       await pumpAnimations(tester);
-      expect(find.text('Empty'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byWidgetPredicate(
+            (w) => w.key is ValueKey<String> && (w.key as ValueKey<String>).value.startsWith('graph-frame-'),
+          ),
+          matching: find.text('Empty'),
+        ),
+        findsOneWidget,
+      );
       expect(graphPaint, findsOneWidget);
     },
   );

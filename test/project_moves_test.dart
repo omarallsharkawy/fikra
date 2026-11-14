@@ -60,7 +60,7 @@ void main() {
           deleteProjectMessage(ar, (notes: n, files: f, links: l, chat: chat));
       String en0(int n, int f, int l, {bool chat = true}) =>
           deleteProjectMessage(en, (notes: n, files: f, links: l, chat: chat));
-      const arTail = '، والمحادثات كمان. مش هتعرف ترجّعهم.';
+      const arTail = '، والمحادثة كمان. مش هتعرف ترجّعهم.';
       // No notes: the chat is mentioned only when there is one.
       expect(ar0(0, 0, 0, chat: false), 'المشروع ده فاضي، مفيهوش ملاحظات.');
       expect(en0(0, 0, 0, chat: false), 'This project is empty. It has no notes.');
@@ -613,7 +613,7 @@ void main() {
     await settle(tester, find.text(ar.deleteProject));
     await tester.tap(find.text(ar.deleteProject));
     await settle(tester, find.text(ar.deleteProjectTitle(Fmt.isolate('Study'))));
-    expect(find.text('هيتحذف 3 ملاحظات وملفين ورابطين، والمحادثات كمان. مش هتعرف ترجّعهم.'), findsOneWidget);
+    expect(find.text('هيتحذف 3 ملاحظات وملفين ورابطين، والمحادثة كمان. مش هتعرف ترجّعهم.'), findsOneWidget);
     await tester.tap(find.text(ar.cancel).last);
     await tester.pump(const Duration(milliseconds: 600));
     expect(await pumpFuture(tester, () => db.select(db.notes).get()), hasLength(4));

@@ -46,6 +46,7 @@ GraphLayout _compactFrames(GraphLayout layout, List<_GraphPort> ports) {
     rows: rows,
     hiddenRows: layout.hiddenRows,
     nodes: layout.nodes,
+    foldedNotes: layout.foldedNotes,
     positions: {for (final e in layout.positions.entries) e.key: move(e.value)},
     links: layout.links,
     readyCount: layout.readyCount,
@@ -72,6 +73,7 @@ GraphLayout _compactFrames(GraphLayout layout, List<_GraphPort> ports) {
           f.count,
           f.noteIds,
           headerExtent: f.headerExtent,
+          collapsed: f.collapsed,
         ),
     ],
   );

@@ -6,6 +6,9 @@ extension _GraphSelection on _LinksScreenState {
     // A toast (an earlier Undo) would sit over the action bar.
     ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
     _setState(() {
+      _searchOpen = false;
+      _search.clear();
+      _pendingJump = null;
       _selected = null;
       _selection = {id};
     });

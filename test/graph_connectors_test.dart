@@ -223,7 +223,11 @@ void main() {
       final edge = cache.layout.edges.firstWhere((e) => e.link.id == 'ef');
       final box = tester.renderObject<RenderBox>(graphPaint);
       expect(controller.value.entry(0, 0), closeTo(0.8, 1e-9));
-      expect(controller.value.entry(2, 2), 1); // deliberately differs from XY
+      // Zoom scales z too, so the viewer's getMaxScaleOnAxis clamp reads 0.8.
+      expect(controller.value.entry(2, 2), closeTo(0.8, 1e-9));
+      // A matrix whose z differs from XY must still hit-test with the XY scale.
+      controller.value = controller.value.clone()..setEntry(2, 2, 1);
+      await tester.pump();
       // 21.5 screen dp = 26.875 logical dp: a wrong Z-based scale misses.
       final point = box.localToGlobal(Offset(edge.middle.x, edge.middle.y)) - const Offset(0, 21.5);
       await tester.tapAt(point);
