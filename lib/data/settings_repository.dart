@@ -7,8 +7,16 @@ enum AppTheme { system, light, dark }
 /// Language preference, independent of Flutter locale types.
 enum AppLanguage { system, ar, en }
 
+/// Narrow preference boundary for the voice experiment, independent of Flutter
+/// and native inference. Future engine/automation settings can be added here.
+abstract interface class VoiceTextSettings {
+  Future<({String? modelName, String? language})> readVoiceTextChoices();
+  Future<void> setVoiceTextModel(String modelName);
+  Future<void> setVoiceTextLanguage(String language);
+}
+
 /// App-wide preferences and the "start over" action.
-abstract interface class SettingsRepository {
+abstract interface class SettingsRepository implements VoiceTextSettings {
   Stream<AppLanguage> watchLanguage();
   Future<void> setLanguage(AppLanguage language);
 
@@ -35,6 +43,8 @@ class LocalSettingsRepository implements SettingsRepository {
   final AttachmentStore files;
 
   static const _themeKey = 'theme';
+  static const voiceTextModelKey = 'voice_text_model';
+  static const voiceTextLanguageKey = 'voice_text_language';
   static const _currentProjectKey = 'current_project';
 
   @override
@@ -63,6 +73,26 @@ class LocalSettingsRepository implements SettingsRepository {
     } else {
       await db.into(db.settings).insertOnConflictUpdate(Setting(key: 'language', value: language.name));
     }
+  }
+
+  @override
+  Future<({String? modelName, String? language})> readVoiceTextChoices() async {
+    final rows = await (db.select(
+      db.settings,
+    )..where((s) => s.key.isIn([voiceTextModelKey, voiceTextLanguageKey]))).get();
+    final values = {for (final row in rows) row.key: row.value};
+    return (modelName: values[voiceTextModelKey], language: values[voiceTextLanguageKey]);
+  }
+
+  @override
+  Future<void> setVoiceTextModel(String modelName) async {
+    await db.into(db.settings).insertOnConflictUpdate(Setting(key: voiceTextModelKey, value: modelName));
+  }
+
+  @override
+  Future<void> setVoiceTextLanguage(String language) async {
+    if (!const ['ar', 'en', 'auto'].contains(language)) throw ArgumentError.value(language, 'language');
+    await db.into(db.settings).insertOnConflictUpdate(Setting(key: voiceTextLanguageKey, value: language));
   }
 
   @override

@@ -80,3 +80,6 @@ Before/after performance was also checked against a temporary copy of HEAD (`2b8
 ## Voice to text experiment
 
 `voice_text/` contains the fake backend, themed fixture, pure/file/controller tests and screen state/error/accessibility tests. `screenshots/voice_text_test.dart` covers the real Settings route and experiment in AR/EN and dark/light. The retained spike tests now import used logic in lib/features/voice_text; lib/spike and its standalone main are removed.
+
+
+Voice layout phase 1 adds voice_text_preferences_test for persisted model/speech language, installed-model fallback and deletion repair. settings_test now verifies the new keys across reopen and wipe. Screen tests cover visible radio rows/per-row actions, testing collapse semantics, everyday versus technical results and errors scrolled into view. Screenshot fixtures include default and Egyptian-present cases in both themes/languages. No future voice-note transcription or external engine behavior is implemented.

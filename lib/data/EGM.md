@@ -25,7 +25,7 @@ From `settings_repository.dart`:
 
 - `enum AppLanguage { system, ar, en }`: persisted language choice, free of Flutter types.
 - `enum AppTheme { system, light, dark }`: free of Flutter types; the app maps it to `ThemeMode`.
-- `abstract interface class SettingsRepository`, implemented by `LocalSettingsRepository(FikraDatabase db, AttachmentStore files)`: `watchTheme`, `setTheme`, `watchLanguage`, `setLanguage`, `wipeAllData`.
+- `abstract interface class SettingsRepository`, implemented by `LocalSettingsRepository(FikraDatabase db, AttachmentStore files)`: `watchTheme`, `setTheme`, `watchLanguage`, `setLanguage`, `readVoiceTextChoices`, `setVoiceTextModel`, `setVoiceTextLanguage`, `wipeAllData`. The three voice methods also form the narrow `VoiceTextSettings` interface.
 - `class WipeFilesException implements Exception`: wraps `cause`.
 
 Subdirectories:
@@ -102,3 +102,7 @@ Files and ordering:
 ## Undoing "link together" (links phase 5a review)
 
 `LinksRepository.linkNotesForUndo(sourceId, targetIds)` is `linkNotes` with no label that also returns a `LinkChange` per link it made: the row id, the project and every row the pair had before (none, suggestions, a rejection). `undoLinks(changes)` puts each pair back in one transaction: it deletes the pair's rows and re-inserts the earlier ones. A pair whose link is gone, no longer a live user link (removed by hand), moved to another project, or whose notes were deleted or moved, is skipped. Covered by `test/links_groups_moves_test.dart` (`undoLinks` group).
+
+## Voice preferences (phase 1)
+
+The existing key/value settings table also stores voice_text_model (modelName) and voice_text_language (ar/en/auto). Reads return a nullable pair so the feature can choose an installed-model fallback; writes use insertOnConflictUpdate. Speech language is independent of app language, and invalid values are rejected. Wipe retains both keys alongside theme/language; only current_project is removed. There is no migration, automatic voice-note transcription or external-engine integration. Tests cover reopening, overwrites, validation and wipe retention in test/settings_test.dart; feature tests use a matching in-memory VoiceTextSettings fake.

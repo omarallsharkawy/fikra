@@ -3,20 +3,29 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../core/widgets/voice_player.dart';
+import '../../data/settings_repository.dart';
 import '../shared/inline_recorder.dart';
 import 'voice_text_backend.dart';
 import 'whisper_live_engine.dart';
+import 'voice_text_preferences.dart';
 
 enum VoiceTextPhase { loading, idle, downloading, starting, recording, stopping, transcribing, live }
 
 class VoiceTextController extends ChangeNotifier {
-  VoiceTextController(this.backend, {required this.claimMicrophone, required this.releaseMicrophone});
+  VoiceTextController(
+    this.backend, {
+    required VoiceTextSettings settings,
+    required this.claimMicrophone,
+    required this.releaseMicrophone,
+  }) : choices = VoiceTextPreferences(settings);
+  final VoiceTextPreferences choices;
   final VoiceTextBackend backend;
   final bool Function() claimMicrophone;
   final VoidCallback releaseMicrophone;
   static const maxRecording = Duration(minutes: 30);
-  SpikeModel model = spikeModels.first;
-  String language = 'ar';
+  SpikeModel get model => choices.model;
+  String get language => choices.language;
+  SpikeModel? downloadingModel;
   int threads = 4;
   bool aac = false;
   VoiceTextPhase phase = VoiceTextPhase.loading;
@@ -55,19 +64,11 @@ class VoiceTextController extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  void chooseModel(SpikeModel value) {
-    if (idle) {
-      model = value;
-      _notify();
-    }
-  }
+  Future<void> chooseModel(SpikeModel value) =>
+      idle ? _perform(VoiceTextPhase.stopping, () => choices.chooseModel(value)) : Future.value();
 
-  void chooseLanguage(String value) {
-    if (idle) {
-      language = value;
-      _notify();
-    }
-  }
+  Future<void> chooseLanguage(String value) =>
+      idle ? _perform(VoiceTextPhase.stopping, () => choices.chooseLanguage(value)) : Future.value();
 
   void chooseThreads(int value) {
     if (idle) {
@@ -91,10 +92,15 @@ class VoiceTextController extends ChangeNotifier {
   }
 
   Future<void> _refresh() async {
+    final wasInstalled = downloaded;
     final inventory = await backend.load();
     sizes = inventory.sizes;
     clips = inventory.recordings;
-    if (model.localOnly && !downloaded) model = spikeModels.first;
+    if (!choices.loaded) {
+      await choices.restore(sizes);
+    } else if (wasInstalled && !downloaded) {
+      await choices.recoverMissing(sizes);
+    }
     selected = clips.where((c) => c.path == selected?.path).firstOrNull ?? clips.firstOrNull;
     issue ??= inventory.warning;
   }
@@ -118,18 +124,21 @@ class VoiceTextController extends ChangeNotifier {
 
   Future<void> initialize() => _perform(VoiceTextPhase.loading, _refresh);
 
-  Future<void> download() {
-    if (!idle || model.localOnly) return Future.value();
+  Future<void> download([SpikeModel? requested]) {
+    final target = requested ?? model;
+    if (!idle || target.localOnly) return Future.value();
     received = 0;
     total = 0;
     progress = null;
     _downloadCancelled = false;
+    downloadingModel = target;
     return _perform(VoiceTextPhase.downloading, () async {
-      await backend.checkSpace(model);
+      await choices.chooseModel(target);
+      await backend.checkSpace(target);
       if (_downloadCancelled) throw const VoiceTextFailure(VoiceTextIssue.cancelled);
       final repaintClock = Stopwatch()..start();
       try {
-        await backend.download(model, (bytes, length) {
+        await backend.download(target, (bytes, length) {
           received = bytes;
           total = length;
           progress = length > 0 ? (bytes / length).clamp(0, 1) : null;
@@ -149,9 +158,9 @@ class VoiceTextController extends ChangeNotifier {
     backend.cancelDownload();
   }
 
-  Future<void> deleteModel() => idle
+  Future<void> deleteModel([SpikeModel? target]) => idle
       ? _perform(VoiceTextPhase.stopping, () async {
-          await backend.deleteModel(model);
+          await backend.deleteModel(target ?? model);
           await _refresh();
         })
       : Future.value();

@@ -1,27 +1,31 @@
-# Voice to text experiment
+# Voice to text experiment — model choice and layout (phase 1)
 
-Settings pushes `/settings/voice-text` through the app router's MaterialPage helper. This experiment has no note, attachment-saving or database integration. It uses FikraScaffold, Glass, SheetOption/showFikraSheet, FikraButton/IconButton, confirmDestructive, StatusBanner/showToast, InlineRecorder and VoicePlayer with existing tokens. UI strings come from vt* ARB keys; content direction follows the transcript.
+Settings' Voice section pushes `/settings/voice-text` through the existing MaterialPage helper. This phase adds persisted model/speech-language choices and reorganizes the experiment. It does not transcribe saved voice notes, add external engines, or add auto-transcription. Only preferences use the database; notes and attachment saving are untouched.
 
-## Boundaries
+## Preferences and selection
 
-- voice_text_backend.dart: small fakeable boundary for files, downloads, recording and Whisper; typed UI errors and inventory.
-- voice_text_controller.dart: serialized operations, five-run history, default tiny-q5_1/four threads/WAV/Arabic; no concurrent captures, downloads or inference. Providers connect the shared recordingActiveProvider lease; playback stops before capture, transcription and recording deletion.
-- native_voice_text_backend.dart: record WAV PCM16 mono/16k or the app's AAC-LC mono/64k config. Application-support storage remains `fikra_whisper_spike/{models,recordings}` to preserve the first spike's files. Last ten recordings and JSONL persist; no automatic note transcription.
-- whisper_file_engine.dart, whisper_live_engine.dart, whisper_run.dart: whisper_ggml modelPath inference and unchanged FIKRA_WHISPER JSON lines, also appended to recordings/runs.jsonl. One-shot conversion duration comes from FFmpeg; transcription-plus-load is explicitly approximate. Live startup/finalization are measured and live RTF includes listening. File inference stays in the package isolate; live uses the package worker.
-- whisper_models.dart/whisper_metrics.dart/whisper_recordings.dart: reused pure/file helpers. Six owner-supplied size labels are exact. Download atomically streams to .part, supports cancellation/timeouts and validates length plus GGML header/quantisation; there is no cryptographic checksum. Stale partial downloads are reported and removed. Models are never automatically downloaded.
+`voice_text_preferences.dart` restores choices through the narrow VoiceTextSettings contract in data/settings_repository.dart. LocalSettingsRepository stores `voice_text_model` (modelName) and `voice_text_language` (ar/en/auto) in the existing settings table. No schema migration is needed. Wiping notes/projects keeps these preferences, just as it keeps theme and app language. UI language and speech language remain independent.
 
-## Safety and lifecycle
+An installed saved model wins. Otherwise choose installed Egyptian, small, base, tiny in that order (quantised first within a family), or tiny-q5_1 if none are installed so its download is offered. The fallback is persisted immediately, replacing stale names. Explicit model/language changes await storage before publishing the new choice; failures remain visible and retain the old choice. Inventory refresh after deletion repairs a disappearing installed selection. No preference write is deferred to screen disposal.
 
-Every download is confirmed with size/Wi-Fi advice, then checks Android free space through the read-only fikra/voice_text_storage channel. Headroom is 10% plus 16 MiB, retaining space for replacing an existing file. Real disk-full errors remain handled because the check cannot reserve space. Deleting a model or clip requires confirmation. Model and recording data are independent of notes and the database.
+## Screen and widgets
 
-The shared microphone lease is claimed before awaiting permission and released after stop/cleanup. Normal recording and live sessions have a 30-minute cap. Pop is blocked during capture, startup/finalization and uncancellable one-shot inference; a download can be cancelled or cancelled on disposal. Dispose waits for in-flight work before recorder teardown and reports cleanup failures to the debug log. No app-wide recording or saving behavior changes.
+- User settings: intro, always-visible primary radio rows (Tiny, validated Egyptian when present, Medium, More accurate), total model storage and speech language. Each model row carries its own size/hint/status and download/delete/cancel actions. Downloads explicitly select and persist the target row before starting. The model sheet is removed.
+- Try it: file recording, explicit transcription of the selected trial clip, live partials, and last transcript with elapsed seconds. Shared InlineRecorder and VoicePlayer behavior is preserved; this is not automatic transcription.
+- For testing: collapsed by default with expanded semantics. It expands through AnimatedSize with FikraMotion.expand; under Reduce Motion it appears at once without AnimatedSize, because a zero-duration AnimatedSize re-dirties itself during its own layout (a debug assertion). Contains format, threads, inventory refresh, uncompressed variants, ten recent playable/deletable recordings, re-run and all five run-history entries with technical numbers. An active uncompressed model is promoted into the main list so no restored selection is hidden; other full variants stay here.
+
+Every surface uses FikraScaffold, Glass, Pressable, SheetOption/showFikraSheet, FikraButton/IconButton, the app confirmation dialog, badges, StatusBanner/showToast and existing tokens. The title/tag gap uses FikraSpace.s8. Error actions and asynchronous capture failures show a toast and scroll to the persistent error banner with existing motion tokens, including a static jump under reduced motion. After a long jump the lazy list corrects its offset by the newly inserted banner's height, so the jump repeats (at most twice) on the following frames until the list rests at the top. Millisecond values and their Latin unit use a non-breaking space and one direction isolate.
+
+## Native/file boundaries
+
+The fakeable VoiceTextBackend owns native recording, models and inference. Models stay in application support `fikra_whisper_spike/models`, recordings/index/JSONL in `fikra_whisper_spike/recordings`. File inference runs through whisper_ggml's isolate; live uses its worker. The shared microphone lease is claimed before permission/playback teardown and released after cleanup. File and live captures retain their 30-minute cap. Pop remains blocked during capture and uncancellable inference; download disposal cancels pending network work.
+
+Six downloadable files retain their exact owner-supplied size labels. Downloads are confirmed with size/Wi-Fi advice, check Android free space with headroom, stream atomically to .part, validate length/header/quantisation and report interruptions. Validation is structural rather than cryptographic. No model is downloaded automatically.
+
+`ggml-small-egy-cs-q5_1.bin` remains an optional local file with the normal small Q5_1 header validation and actual disk size. It has no download/delete controls. `FIKRA_WHISPER_DIR <absolute path>` prints once per native backend initialization. The testing area's refresh action replaces the old sheet's implicit rescan. Disappearing or invalid selected local files fall back and repair the preference.
+
+Every run still prints one `FIKRA_WHISPER {json}` line and appends recordings/runs.jsonl. Local-only model_url is null. FFmpeg conversion duration is separate; transcription-plus-load remains approximate; live startup and finalization are measured, and live RTF includes listening. RSS is whole-process and peak is lifetime maximum.
 
 ## Verification
 
-`flutter analyze`; `flutter test test/voice_text`; screenshot fixtures in test/screenshots/voice_text_test.dart cover the real Settings route plus empty, model picker, confirmation, recording and result in both locales/themes. Native audio, model loading, FFmpeg codec support, storage channel and phone costs require Android. No standalone entrypoint or lib/spike files remain.
-
-## Local Egyptian model
-
-`ggml-small-egy-cs-q5_1.bin` is an optional adb-supplied file in the same models directory. Inventory exposes it only after the existing small multilingual Q5_1 header/length validation passes; invalid files stay hidden and surface the existing corrupt-model warning. It appears directly after the default tiny-q5_1, uses its actual disk byte count through Fmt.bytes, and has no download/delete controls. The downloader rejects local-only models; model_url is null in their otherwise unchanged FIKRA_WHISPER run JSON. Result cards recognize the local filename.
-
-The native backend creates the directory and prints `FIKRA_WHISPER_DIR <absolute models path>` once when the screen/backend initializes. Opening the picker rescans inventory, so an adb push is discoverable without reopening the screen. If a selected local file disappears or becomes invalid, the next inventory refresh restores the default model. Size units keep the app's existing Latin MB in Arabic.
+`flutter analyze`; `flutter test test/voice_text`; `test/settings_test.dart`; AR/EN dark/light fixtures in test/screenshots/voice_text_test.dart. Tests fake preferences and native work, cover saved choices/fallback, row selection semantics, collapse/expand, visible errors, retained capture/re-run/live behavior and non-breaking units. The sandbox cannot run Flutter tests because localhost sockets are blocked. Native accuracy, memory, codecs, thermal costs and actual storage remain phone checks.

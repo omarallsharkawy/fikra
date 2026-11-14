@@ -36,4 +36,4 @@ Language uses the same `SegmentedPill` and persisted-stream pattern as appearanc
 
 ## Voice to text experiment
 
-A SheetOption after language and before local data opens `/settings/voice-text`; its label includes the localized Experimental tag. It uses the existing row treatment. The feature is independent of note-saving and data wipe behavior; see ../voice_text/EGM.md.
+A SheetOption under its own Voice section, after language and before local data, opens `/settings/voice-text`; its label includes the localized Experimental tag. It uses the existing row treatment. The feature is independent of note-saving and data wipe behavior; see ../voice_text/EGM.md.

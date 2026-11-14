@@ -14,15 +14,6 @@ class VoiceTextRecording extends StatelessWidget {
   final VoiceTextController controller;
   final VoiceTextAction act;
 
-  Future<void> _delete(BuildContext context, SpikeRecording clip) async {
-    final ok = await confirmDestructive(
-      context,
-      title: context.l10n.deleteRecording,
-      message: context.l10n.vtDeleteRecordingBody,
-    );
-    if (ok && context.mounted) await act(() => controller.deleteClip(clip));
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = controller;
@@ -50,34 +41,6 @@ class VoiceTextRecording extends StatelessWidget {
             ],
           ),
         ] else ...[
-          IgnorePointer(
-            ignoring: !c.idle,
-            child: ExcludeSemantics(
-              excluding: !c.idle,
-              child: SheetOption(
-                key: const ValueKey('vt-format'),
-                label: '${l.vtFormat}\n${c.aac ? l.vtAac : l.vtWav}',
-                icon: Icons.audio_file_outlined,
-                onTap: () => showFikraSheet<void>(
-                  context,
-                  title: l.vtFormat,
-                  builder: (sheet) => Column(
-                    children: [
-                      for (final aac in [false, true])
-                        VoiceTextChoice(
-                          label: aac ? l.vtAac : l.vtWav,
-                          selected: aac == c.aac,
-                          onTap: () {
-                            c.chooseFormat(aac);
-                            Navigator.pop(sheet);
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
           FikraButton.secondary(
             key: const ValueKey('vt-record'),
             label: l.recordVoice,
@@ -86,6 +49,32 @@ class VoiceTextRecording extends StatelessWidget {
             onPressed: c.idle ? () => act(c.start) : null,
           ),
         ],
+      ],
+    );
+  }
+}
+
+class VoiceTextRecordings extends StatelessWidget {
+  const VoiceTextRecordings({super.key, required this.controller, required this.act});
+  final VoiceTextController controller;
+  final VoiceTextAction act;
+
+  Future<void> _delete(BuildContext context, SpikeRecording clip) async {
+    final ok = await confirmDestructive(
+      context,
+      title: context.l10n.deleteRecording,
+      message: context.l10n.vtDeleteRecordingBody,
+    );
+    if (ok && context.mounted) await act(() => controller.deleteClip(clip));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = controller;
+    final l = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
         const SizedBox(height: FikraSpace.s16),
         Text(l.vtClips, style: context.text.section),
         const SizedBox(height: FikraSpace.s8),

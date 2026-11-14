@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fikra/features/voice_text/voice_text_backend.dart';
+import 'package:fikra/data/settings_repository.dart';
 
 Map<String, Object?> sampleVoiceTextRun({bool arabic = true, bool live = false, VoiceTextIssue? issue}) => {
   'timestamp': '2026-11-14T12:00:00.000Z',
@@ -148,9 +149,12 @@ class FakeVoiceTextBackend implements VoiceTextBackend {
 
   @override
   Future<void> dispose() async {
+    if (disposed) return;
     disposed = true;
-    await amplitudes.close();
-    await live?.close();
+    // Teardown must not await a stream after its widget listener is gone.
+    unawaited(amplitudes.close());
+    final active = live;
+    if (active != null) unawaited(active.close());
   }
 }
 
@@ -161,4 +165,24 @@ class FakeVoiceTextLive implements VoiceTextLive {
   @override
   Future<Map<String, Object?>> stop() async => sampleVoiceTextRun(live: true);
   Future<void> close() => texts.close();
+}
+
+/// Same narrow read/write contract as the database-backed settings repository.
+class FakeVoiceTextSettings implements VoiceTextSettings {
+  FakeVoiceTextSettings({this.modelName, this.language});
+  String? modelName;
+  String? language;
+  @override
+  Future<({String? modelName, String? language})> readVoiceTextChoices() async =>
+      (modelName: modelName, language: language);
+  @override
+  Future<void> setVoiceTextModel(String value) async {
+    modelName = value;
+  }
+
+  @override
+  Future<void> setVoiceTextLanguage(String value) async {
+    if (!const ['ar', 'en', 'auto'].contains(value)) throw ArgumentError.value(value);
+    language = value;
+  }
 }

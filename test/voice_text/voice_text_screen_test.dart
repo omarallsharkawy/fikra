@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:ui' show Tristate;
 
-import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:fikra/core/format.dart';
+import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:fikra/core/widgets/voice_player.dart';
 import 'package:fikra/features/shared/inline_recorder.dart';
 import 'package:fikra/features/voice_text/voice_text_backend.dart';
@@ -19,76 +20,131 @@ import 'voice_text_fixture.dart';
 void main() {
   final l = lookupAppLocalizations(const Locale('en'));
   void reset(WidgetTester tester) => addTearDown(tester.view.reset);
+  VoiceTextController controller(WidgetTester t) =>
+      ProviderScope.containerOf(t.element(find.byKey(const ValueKey('vt-scroll')))).read(voiceTextControllerProvider);
 
-  testWidgets('empty screen offers exact sizes and all six multilingual models', (tester) async {
+  testWidgets('primary model rows need no picker; full variants remain in testing', (tester) async {
     reset(tester);
     await pumpVoiceText(tester, FakeVoiceTextBackend());
-    expect(find.text(l.vtIntro), findsOneWidget);
-    expect(find.textContaining('30.7 MB'), findsWidgets);
-    await tapVoiceText(tester, 'vt-model-picker');
-    for (final model in spikeModels) {
-      await revealVoiceText(tester, 'vt-model-${model.modelName}', sheet: true);
+    expect(find.byType(BottomSheet), findsNothing);
+    for (final model in spikeModels.where((m) => m.quantized)) {
+      expect(find.byKey(ValueKey('vt-model-${model.modelName}')), findsOneWidget);
       expect(find.textContaining('${model.downloadMb} MB'), findsWidgets);
     }
-    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('vt-format')), findsNothing);
+    expect(find.byKey(const ValueKey('vt-testing-content')), findsNothing);
+    await expandVoiceTextTesting(tester);
+    for (final model in spikeModels.where((m) => !m.quantized)) {
+      await revealVoiceText(tester, 'vt-model-${model.modelName}');
+      expect(find.textContaining('${model.downloadMb} MB'), findsWidgets);
+    }
+    expect(find.byKey(const ValueKey('vt-format')), findsOneWidget);
+  });
+
+  testWidgets('radio semantics and model/language choices update and persist', (tester) async {
+    reset(tester);
+    // The handle is checked before tearDowns run, so it is disposed in the body.
+    final semantics = tester.ensureSemantics();
+    final fake = FakeVoiceTextBackend()..seed();
+    fake.sizes['base-q5_1'] = 123;
+    final settings = FakeVoiceTextSettings(modelName: 'tiny-q5_1');
+    await pumpVoiceText(tester, fake, settings: settings);
+    await tapVoiceText(tester, 'vt-model-base-q5_1');
+    expect(controller(tester).model.modelName, 'base-q5_1');
+    expect(settings.modelName, 'base-q5_1');
+    expect(
+      tester.getSemantics(find.byKey(const ValueKey('vt-model-base-q5_1'))).flagsCollection.isSelected,
+      Tristate.isTrue,
+    );
+    await revealVoiceText(tester, 'vt-model-tiny-q5_1');
+    expect(
+      tester.getSemantics(find.byKey(const ValueKey('vt-model-tiny-q5_1'))).flagsCollection.isSelected,
+      Tristate.isFalse,
+    );
+    semantics.dispose();
+    await tapVoiceText(tester, 'vt-language');
+    await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(l.vtAutomatic)));
+    await tester.pumpAndSettle();
+    expect(settings.language, 'auto');
   });
 
   for (final state in ['absent', 'invalid', 'valid']) {
-    testWidgets('Egyptian local model is $state', (tester) async {
+    testWidgets('Egyptian model is $state and selected by default when valid', (tester) async {
       reset(tester);
       final fake = FakeVoiceTextBackend()
         ..seed()
         ..egyptianFilePresent = state != 'absent'
         ..egyptianFileValid = state == 'valid';
       await pumpVoiceText(tester, fake);
-      await tapVoiceText(tester, 'vt-model-picker');
       final row = find.byKey(ValueKey('vt-model-${egyptianModel.modelName}'));
       if (state != 'valid') {
         expect(row, findsNothing);
-        final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('vt-scroll'))));
-        expect(container.read(voiceTextControllerProvider).models, isNot(contains(egyptianModel)));
         return;
       }
-      await revealVoiceText(tester, 'vt-model-${egyptianModel.modelName}', sheet: true);
+      expect(controller(tester).model, egyptianModel);
       expect(find.descendant(of: row, matching: find.textContaining(l.vtEgyptian)), findsOneWidget);
       expect(find.descendant(of: row, matching: find.textContaining(Fmt.bytes(l, fake.egyptianBytes))), findsOneWidget);
-      await tapVoiceText(tester, 'vt-model-${egyptianModel.modelName}', sheet: true);
-      final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('vt-scroll'))));
-      final c = container.read(voiceTextControllerProvider);
-      expect(c.models.take(3), [spikeModels.first, egyptianModel, spikeModels[1]]);
-      expect(c.model, egyptianModel);
-      expect(find.byKey(const ValueKey('vt-download')), findsNothing);
-      expect(find.byKey(const ValueKey('vt-delete-model')), findsNothing);
-      await tapVoiceText(tester, 'vt-transcribe');
+      expect(find.byKey(ValueKey('vt-download-${egyptianModel.modelName}')), findsNothing);
+      expect(find.byKey(ValueKey('vt-delete-${egyptianModel.modelName}')), findsNothing);
+      await tapVoiceText(tester, 'vt-try-transcribe');
       expect(fake.lastModel, 'ggml-small-egy-cs-q5_1.bin');
-      expect(c.history.single['model'], 'ggml-small-egy-cs-q5_1.bin');
     });
   }
 
-  testWidgets('download confirmation, progress, cancellation and retry', (tester) async {
+  testWidgets('a restored uncompressed choice is visible even while testing is collapsed', (tester) async {
+    reset(tester);
+    final fake = FakeVoiceTextBackend()..seed();
+    fake.sizes['small'] = 123;
+    await pumpVoiceText(tester, fake, settings: FakeVoiceTextSettings(modelName: 'small'));
+    expect(controller(tester).model.modelName, 'small');
+    expect(find.byKey(const ValueKey('vt-model-small')), findsOneWidget);
+    expect(find.byKey(const ValueKey('vt-testing-content')), findsNothing);
+  });
+
+  testWidgets('download, progress, cancel, retry and delete stay on the target row', (tester) async {
     reset(tester);
     final fake = FakeVoiceTextBackend()..downloadGate = Completer<void>();
     await pumpVoiceText(tester, fake);
-    await confirmVoiceTextDownload(tester, l);
+    await confirmVoiceTextDownload(tester, l, model: 'base-q5_1');
     expect(fake.downloads, 1);
-    expect(find.byKey(const ValueKey('vt-cancel-download')), findsOneWidget);
-    final progress = tester.widgetList<LinearProgressIndicator>(find.byType(LinearProgressIndicator));
-    expect(progress.any((p) => p.value == .25), isTrue);
-    await tapVoiceText(tester, 'vt-cancel-download');
+    expect(controller(tester).model.modelName, 'base-q5_1');
+    expect(
+      tester.widgetList<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).any((p) => p.value == .25),
+      isTrue,
+    );
+    await tapVoiceText(tester, 'vt-cancel-base-q5_1');
     expect(find.text(l.vtCancelled), findsWidgets);
     fake.downloadGate = null;
-    await confirmVoiceTextDownload(tester, l);
-    // The cancelled banner disappears when the retry starts, shifting the list.
-    await revealVoiceText(tester, 'vt-delete-model');
-    expect(find.text(l.vtDeleteModel), findsOneWidget);
-    expect(fake.sizes, isNotEmpty);
-    await tapVoiceText(tester, 'vt-delete-model');
+    await confirmVoiceTextDownload(tester, l, model: 'base-q5_1');
+    await tapVoiceText(tester, 'vt-delete-base-q5_1');
     await tester.tap(find.descendant(of: find.byType(Dialog), matching: find.text(l.delete)));
     await tester.pumpAndSettle();
-    expect(fake.sizes, isEmpty);
+    expect(fake.sizes['base-q5_1'], isNull);
+    expect(controller(tester).model.modelName, 'tiny-q5_1');
   });
 
-  testWidgets('record, play, select, delete and transcribe one clip with another model', (tester) async {
+  testWidgets('testing starts collapsed and toggle exposes expanded semantics', (tester) async {
+    reset(tester);
+    final semantics = tester.ensureSemantics();
+    await pumpVoiceText(tester, FakeVoiceTextBackend());
+    await revealVoiceText(tester, 'vt-testing-toggle');
+    expect(
+      tester.getSemantics(find.byKey(const ValueKey('vt-testing-toggle'))).flagsCollection.isExpanded,
+      Tristate.isFalse,
+    );
+    await expandVoiceTextTesting(tester);
+    expect(
+      tester.getSemantics(find.byKey(const ValueKey('vt-testing-toggle'))).flagsCollection.isExpanded,
+      Tristate.isTrue,
+    );
+    expect(find.byKey(const ValueKey('vt-testing-content')), findsOneWidget);
+    await tapVoiceText(tester, 'vt-testing-toggle');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('vt-testing-content')), findsNothing);
+    semantics.dispose();
+  });
+
+  testWidgets('record, playback/delete preview and re-run remain available', (tester) async {
     reset(tester);
     final fake = FakeVoiceTextBackend()..seed();
     await pumpVoiceText(tester, fake);
@@ -97,93 +153,67 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(find.byType(InlineRecorder), findsOneWidget);
     await tapVoiceText(tester, 'vt-stop');
+    await tapVoiceText(tester, 'vt-try-transcribe');
     expect(fake.clips, hasLength(2));
-    expect(find.byType(VoicePlayer), findsWidgets);
+    expect(fake.transcriptions, 1);
+    await expandVoiceTextTesting(tester);
     await tapVoiceText(tester, 'vt-clip-0');
     await tapVoiceText(tester, 'vt-transcribe');
-    expect(fake.transcriptions, 1);
-    expect(fake.lastThreads, 4);
-    await tapVoiceText(tester, 'vt-model-picker');
-    await tapVoiceText(tester, 'vt-model-base-q5_1', sheet: true);
-    await tester.pumpAndSettle();
-    await confirmVoiceTextDownload(tester, l);
-    await tapVoiceText(tester, 'vt-transcribe');
-    expect(fake.lastModel, 'ggml-base-q5_1.bin');
-    expect(fake.clips, hasLength(2));
-    // The real player is rendered with its delete affordance; no native call
-    // is made until play is tapped. Its existing tests cover audio channels.
+    expect(fake.transcriptions, 2);
     final newest = fake.clips.first.path;
     await revealVoiceText(tester, newest);
-    final player = tester.widget<VoicePlayer>(find.byKey(ValueKey(newest)));
-    player.onDelete!();
+    tester.widget<VoicePlayer>(find.byKey(ValueKey(newest))).onDelete!();
     await tester.pumpAndSettle();
     await tester.tap(find.descendant(of: find.byType(Dialog), matching: find.text(l.delete)));
     await tester.pumpAndSettle();
     expect(fake.clips.map((c) => c.path), isNot(contains(newest)));
-    expect(fake.clips, hasLength(1));
   });
 
-  testWidgets('AAC, language and advanced CPU choices use app sheets', (tester) async {
+  testWidgets('format and CPU controls move under testing; speech language stays above Try it', (tester) async {
     reset(tester);
     final fake = FakeVoiceTextBackend()..seed();
     await pumpVoiceText(tester, fake);
+    await expandVoiceTextTesting(tester);
     await tapVoiceText(tester, 'vt-format');
     await tester.tap(find.text(l.vtAac));
-    await tester.pumpAndSettle();
-    await tapVoiceText(tester, 'vt-record');
-    expect(fake.aac, isTrue);
-    await tapVoiceText(tester, 'vt-stop');
-    await tapVoiceText(tester, 'vt-language');
-    await tester.tap(find.text(l.vtAutomatic).last);
     await tester.pumpAndSettle();
     await tapVoiceText(tester, 'vt-advanced');
     await tester.tap(find.text(l.vtThreads('2')));
     await tester.pumpAndSettle();
+    await tapVoiceText(tester, 'vt-record');
+    expect(fake.aac, isTrue);
+    await tapVoiceText(tester, 'vt-stop');
     await tapVoiceText(tester, 'vt-transcribe');
-    expect(fake.lastLanguage, 'auto');
     expect(fake.lastThreads, 2);
   });
 
-  testWidgets('inference keeps working state, locks navigation, then shows selectable RTL text and costs', (
-    tester,
-  ) async {
+  testWidgets('main result has text and seconds; testing retains non-breaking units and costs', (tester) async {
     reset(tester);
+    final ar = lookupAppLocalizations(const Locale('ar'));
     final fake = FakeVoiceTextBackend()
       ..seed()
       ..runGate = Completer<Map<String, Object?>>();
-    await pumpVoiceText(tester, fake);
-    await tapVoiceText(tester, 'vt-transcribe');
-    expect(find.byKey(const ValueKey('vt-working')), findsOneWidget);
-    // PopScope is generic (PopScope<Object> here), so byType(PopScope) never matches.
-    expect(find.byWidgetPredicate((w) => w is PopScope && !w.canPop), findsOneWidget);
+    await pumpVoiceText(tester, fake, locale: const Locale('ar'));
+    await tapVoiceText(tester, 'vt-try-transcribe');
+    expect(controller(tester).phase, VoiceTextPhase.transcribing);
     fake.runGate!.complete(sampleVoiceTextRun());
     await tester.pump();
     await tester.pump();
-    await revealVoiceText(tester, 'vt-result-card');
+    await revealVoiceText(tester, 'vt-last-result');
     // find.text matches the EditableText inside SelectableText, not SelectableText.
     final transcript = find.byWidgetPredicate((w) => w is SelectableText && w.data == 'بكرة هكتب أفكاري بعد الشغل.');
     expect(tester.widget<SelectableText>(transcript).textDirection, TextDirection.rtl);
-    // Numbers are wrapped in direction isolates, so match the formatted phrase.
-    expect(find.text(l.vtFaster(Fmt.isolate('3.0'))), findsOneWidget);
-    expect(find.textContaining('84.0'), findsOneWidget);
-    expect(find.textContaining('146.0'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('Arabic result keeps each Latin unit beside its number', (tester) async {
-    reset(tester);
-    final ar = lookupAppLocalizations(const Locale('ar'));
-    await pumpVoiceText(tester, FakeVoiceTextBackend()..seed(), locale: const Locale('ar'));
-    await tapVoiceText(tester, 'vt-transcribe');
-    await revealVoiceText(tester, 'vt-result-card');
-    // Without one isolate around number and unit, RTL lays it out as "MB 84.0".
-    final mb = Fmt.isolate(ar.sizeMb('84.0'));
-    expect(find.text(ar.vtMemory(mb, Fmt.isolate(ar.sizeMb('146.0')))), findsOneWidget);
+    expect(find.text(ar.vtWall(Fmt.isolate('4.00'))), findsOneWidget);
+    expect(find.text(ar.vtNumbers), findsNothing);
+    await expandVoiceTextTesting(tester);
+    await revealVoiceText(tester, 'vt-run-0');
     expect(find.text(ar.vtConversion(Fmt.isolate(ar.vtMs('60')))), findsOneWidget);
+    expect(ar.vtMs('60'), '60\u00a0ms');
+    expect(find.text(ar.vtMemory(Fmt.isolate(ar.sizeMb('84.0')), Fmt.isolate(ar.sizeMb('146.0')))), findsOneWidget);
   });
 
   for (final issue in VoiceTextIssue.values) {
-    testWidgets('visible plain ${issue.name} error', (tester) async {
+    testWidgets('${issue.name} error is brought into view after its action', (tester) async {
       reset(tester);
       final fake = FakeVoiceTextBackend();
       if ([
@@ -208,54 +238,46 @@ void main() {
       await pumpVoiceText(tester, fake);
       if (fake.downloadIssue != null || fake.spaceIssue != null) {
         await confirmVoiceTextDownload(tester, l);
-        if (fake.spaceIssue != null) expect(fake.downloads, 0);
       } else if (fake.recordIssue != null || fake.stopIssue != null) {
         await tapVoiceText(tester, 'vt-record');
         if (fake.stopIssue != null) await tapVoiceText(tester, 'vt-stop');
       } else if (fake.runIssue != null) {
+        await expandVoiceTextTesting(tester);
         await tapVoiceText(tester, 'vt-transcribe');
       }
-      expect(find.text(issueMessage(l, issue)), findsWidgets);
-      // The persistent banner sits above the control that failed; scroll back to it.
-      tester.state<ScrollableState>(voiceTextScrollable()).position.jumpTo(0);
-      await tester.pump();
-      expect(find.widgetWithText(StatusBanner, issueMessage(l, issue)), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 500));
+      final banner = find.byKey(const ValueKey('vt-error'));
+      expect(find.widgetWithText(StatusBanner, issueMessage(l, issue)), findsWidgets);
+      expect(tester.getRect(banner).top, greaterThanOrEqualTo(0));
+      expect(tester.getRect(banner).bottom, lessThanOrEqualTo(844));
+      expect(tester.state<ScrollableState>(voiceTextScrollable()).position.pixels, 0);
     });
   }
 
-  testWidgets('live partials and final numbers; recorder lease is released', (tester) async {
+  testWidgets('live partials finish into the everyday result and release the lease', (tester) async {
     reset(tester);
     final fake = FakeVoiceTextBackend()..seed();
     await pumpVoiceText(tester, fake);
     await tapVoiceText(tester, 'vt-live');
     fake.live!.texts.add('كلام مباشر');
-    // With no frame pending, a bare pump() runs microtasks only after its frame;
-    // elapsing zero time delivers the stream event before the frame is built.
     await tester.pump(Duration.zero);
-    // The partial is shown above the live button the helper scrolled to the top.
-    await tester.ensureVisible(find.text('كلام مباشر', skipOffstage: false));
-    await tester.pump();
+    await revealVoiceText(tester, 'vt-partial');
     expect(find.text('كلام مباشر'), findsOneWidget);
     await tapVoiceText(tester, 'vt-live');
-    final context = tester.element(find.byKey(const ValueKey('vt-scroll')));
-    final container = ProviderScope.containerOf(context);
-    expect(container.read(voiceTextControllerProvider).phase, VoiceTextPhase.idle);
-    expect(container.read(voiceTextControllerProvider).history.first['mode'], 'live');
+    expect(controller(tester).phase, VoiceTextPhase.idle);
+    expect(controller(tester).history.single['mode'], 'live');
   });
 
   for (final locale in [const Locale('ar'), const Locale('en')]) {
     testWidgets('large text and reduced motion (${locale.languageCode})', (tester) async {
       reset(tester);
-      final fake = FakeVoiceTextBackend()..seed();
-      await pumpVoiceText(tester, fake, locale: locale, width: 320, scale: 2);
-      await tapVoiceText(tester, 'vt-model-picker');
+      await pumpVoiceText(tester, FakeVoiceTextBackend()..seed(), locale: locale, width: 320, scale: 2);
+      await tapVoiceText(tester, 'vt-model-base-q5_1');
       expect(tester.takeException(), isNull);
-      await tester.tapAt(const Offset(10, 10));
-      await tester.pumpAndSettle();
-      await tapVoiceText(tester, 'vt-transcribe');
+      await tapVoiceText(tester, 'vt-model-tiny-q5_1');
+      await tapVoiceText(tester, 'vt-try-transcribe');
       expect(tester.takeException(), isNull);
-      final button = tester.getSize(find.byKey(const ValueKey('vt-transcribe')));
-      expect(button.height, greaterThanOrEqualTo(48));
+      expect(tester.getSize(find.byKey(const ValueKey('vt-try-transcribe'))).height, greaterThanOrEqualTo(48));
     });
   }
 }

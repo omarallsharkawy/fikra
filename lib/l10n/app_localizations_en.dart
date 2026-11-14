@@ -1402,7 +1402,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String vtMs(String ms) {
-    return '$ms ms';
+    return '$ms ms';
   }
 
   @override
@@ -1478,4 +1478,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vtEgyptianHint => 'Trained on Egyptian Arabic mixed with English.';
+
+  @override
+  String get vtVoiceSection => 'Voice';
+
+  @override
+  String get vtTry => 'Try it';
+
+  @override
+  String get vtTesting => 'For testing';
+
+  @override
+  String get vtFullModels => 'Uncompressed models';
+
+  @override
+  String get vtRefreshModels => 'Refresh model list';
 }

@@ -72,3 +72,34 @@ class VoiceTextResult extends StatelessWidget {
     );
   }
 }
+
+/// Everyday result: the transcript and elapsed seconds. Raw measurements remain
+/// in the collapsed testing area, using the same run data.
+class VoiceTextTranscript extends StatelessWidget {
+  const VoiceTextTranscript({super.key, required this.run});
+  final Map<String, Object?> run;
+  @override
+  Widget build(BuildContext context) {
+    final text = run['text'] as String? ?? '';
+    final seconds = ((run['wall_ms'] as num) / 1000).toStringAsFixed(2);
+    return Glass(
+      key: const ValueKey('vt-last-result'),
+      radius: FikraRadius.md,
+      padding: const EdgeInsets.all(FikraSpace.s16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (text.isNotEmpty || run['error'] == null)
+            SelectableText(
+              text.isEmpty ? context.l10n.vtNoSpeech : text,
+              style: context.text.bodyLarge,
+              textDirection: containsArabic(text) ? TextDirection.rtl : TextDirection.ltr,
+            ),
+          const SizedBox(height: FikraSpace.s8),
+          Text(context.l10n.vtWall(Fmt.isolate(seconds)), style: context.text.caption),
+          if (run['mode'] == 'live') Text(context.l10n.vtLiveTiming, style: context.text.caption),
+        ],
+      ),
+    );
+  }
+}

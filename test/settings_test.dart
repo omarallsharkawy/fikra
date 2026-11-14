@@ -51,6 +51,19 @@ void main() {
     expect(await reopened.watchLanguage().first, AppLanguage.system);
   });
 
+  test('voice choices persist independently of UI language and survive reopening', () async {
+    expect(await settings.readVoiceTextChoices(), (modelName: null, language: null));
+    await settings.setVoiceTextModel('small-egy-cs-q5_1');
+    await settings.setVoiceTextLanguage('auto');
+    final reopened = LocalSettingsRepository(db, AttachmentStore());
+    expect(await reopened.readVoiceTextChoices(), (modelName: 'small-egy-cs-q5_1', language: 'auto'));
+    expect(await reopened.watchLanguage().first, AppLanguage.system);
+    await settings.setVoiceTextModel('base-q5_1');
+    await settings.setVoiceTextLanguage('en');
+    expect(await reopened.readVoiceTextChoices(), (modelName: 'base-q5_1', language: 'en'));
+    expect(() => settings.setVoiceTextLanguage('unknown'), throwsArgumentError);
+  });
+
   test('wipe removes all data and files but keeps the theme', () async {
     final projects = LocalProjectsRepository(db);
     final notes = LocalNotesRepository(db);
@@ -62,6 +75,8 @@ void main() {
     final unrelated = await File('${temp.path}/other.txt').writeAsString('x');
 
     await settings.setTheme(AppTheme.dark);
+    await settings.setVoiceTextModel('small-egy-cs-q5_1');
+    await settings.setVoiceTextLanguage('ar');
     await settings.setLanguage(AppLanguage.en);
     final p = await projects.create('p');
     await notes.create(
@@ -84,6 +99,7 @@ void main() {
     expect(draft.existsSync(), isFalse);
     expect(unrelated.existsSync(), isTrue);
     expect(await settings.watchTheme().first, AppTheme.dark);
+    expect(await settings.readVoiceTextChoices(), (modelName: 'small-egy-cs-q5_1', language: 'ar'));
     expect(await settings.watchLanguage().first, AppLanguage.en);
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/theme/fikra_theme.dart';
 import 'package:fikra/features/voice_text/voice_text_providers.dart';
@@ -17,7 +19,11 @@ Future<void> pumpVoiceText(
   Brightness brightness = Brightness.dark,
   double width = 390,
   double scale = 1,
+  FakeVoiceTextSettings? settings,
 }) async {
+  addTearDown(() {
+    unawaited(backend.dispose());
+  });
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = Size(width, 844);
   await tester.pumpWidget(
@@ -27,6 +33,7 @@ Future<void> pumpVoiceText(
         key: ObjectKey(backend),
         overrides: [
           voiceTextBackendProvider.overrideWithValue(backend),
+          voiceTextSettingsProvider.overrideWithValue(settings ?? FakeVoiceTextSettings()),
           appThemeProvider.overrideWith((_) => Stream.value(AppTheme.dark)),
           appLanguageProvider.overrideWith((_) => Stream.value(AppLanguage.en)),
         ],
@@ -89,10 +96,15 @@ Future<void> tapVoiceText(WidgetTester tester, String key, {bool sheet = false})
   await tester.pump(const Duration(milliseconds: 500));
 }
 
-Future<void> confirmVoiceTextDownload(WidgetTester tester, AppLocalizations l) async {
-  await tapVoiceText(tester, 'vt-download');
+Future<void> confirmVoiceTextDownload(WidgetTester tester, AppLocalizations l, {String model = 'tiny-q5_1'}) async {
+  await tapVoiceText(tester, 'vt-download-$model');
   final confirm = find.descendant(of: find.byType(Dialog), matching: find.text(l.vtDownloadConfirm));
   await tester.tap(confirm);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
+}
+
+Future<void> expandVoiceTextTesting(WidgetTester tester) async {
+  await tapVoiceText(tester, 'vt-testing-toggle');
+  await tester.pumpAndSettle();
 }

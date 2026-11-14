@@ -94,7 +94,12 @@ void main() {
 
   test('space failure prevents network and transcription history stays bounded', () async {
     final fake = FakeVoiceTextBackend()..spaceIssue = VoiceTextIssue.storage;
-    final c = VoiceTextController(fake, claimMicrophone: () => true, releaseMicrophone: () {});
+    final c = VoiceTextController(
+      fake,
+      settings: FakeVoiceTextSettings(),
+      claimMicrophone: () => true,
+      releaseMicrophone: () {},
+    );
     addTearDown(c.dispose);
     await c.initialize();
     await c.download();
@@ -113,6 +118,7 @@ void main() {
     final fake = FakeVoiceTextBackend()..recordIssue = VoiceTextIssue.permission;
     final c = VoiceTextController(
       fake,
+      settings: FakeVoiceTextSettings(),
       claimMicrophone: () {
         claimed = true;
         return true;

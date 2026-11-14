@@ -2366,10 +2366,10 @@ abstract class AppLocalizations {
   /// **'عامل الوقت: {factor}'**
   String vtFactor(String factor);
 
-  /// No description provided for @vtMs.
+  /// Milliseconds, with a non-breaking space between the number and Latin unit.
   ///
   /// In ar, this message translates to:
-  /// **'{ms} ms'**
+  /// **'{ms} ms'**
   String vtMs(String ms);
 
   /// No description provided for @vtMemory.
@@ -2497,6 +2497,36 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'متدرّب على العامية المصرية والإنجليزي مع بعض.'**
   String get vtEgyptianHint;
+
+  /// Settings section for voice features.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصوت'**
+  String get vtVoiceSection;
+
+  /// Everyday voice-to-text trial section.
+  ///
+  /// In ar, this message translates to:
+  /// **'جرّب'**
+  String get vtTry;
+
+  /// Collapsed section containing measurement controls and technical run history.
+  ///
+  /// In ar, this message translates to:
+  /// **'للقياس'**
+  String get vtTesting;
+
+  /// Measurement-only full-size model variants.
+  ///
+  /// In ar, this message translates to:
+  /// **'نماذج من غير ضغط'**
+  String get vtFullModels;
+
+  /// Rescan model files, including an Egyptian model pushed by adb, from the testing area.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدّث قائمة النماذج'**
+  String get vtRefreshModels;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

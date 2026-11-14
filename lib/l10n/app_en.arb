@@ -971,13 +971,14 @@
       }
     }
   },
-  "vtMs": "{ms} ms",
+  "vtMs": "{ms} ms",
   "@vtMs": {
     "placeholders": {
       "ms": {
         "type": "String"
       }
-    }
+    },
+    "description": "Milliseconds, with a non-breaking space between the number and Latin unit."
   },
   "vtMemory": "Memory before: {before}, after: {after}",
   "@vtMemory": {
@@ -1037,5 +1038,25 @@
   "vtStorageCheckError": "Couldn't check free storage. Reopen this screen and try again.",
   "vtCancelled": "Download cancelled. You can start it again.",
   "vtEgyptian": "Egyptian · experimental",
-  "vtEgyptianHint": "Trained on Egyptian Arabic mixed with English."
+  "vtEgyptianHint": "Trained on Egyptian Arabic mixed with English.",
+  "vtVoiceSection": "Voice",
+  "@vtVoiceSection": {
+    "description": "Settings section for voice features."
+  },
+  "vtTry": "Try it",
+  "@vtTry": {
+    "description": "Everyday voice-to-text trial section."
+  },
+  "vtTesting": "For testing",
+  "@vtTesting": {
+    "description": "Collapsed section containing measurement controls and technical run history."
+  },
+  "vtFullModels": "Uncompressed models",
+  "@vtFullModels": {
+    "description": "Measurement-only full-size model variants."
+  },
+  "vtRefreshModels": "Refresh model list",
+  "@vtRefreshModels": {
+    "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
+  }
 }

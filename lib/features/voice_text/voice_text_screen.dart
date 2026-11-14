@@ -2,32 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../l10n/localizations.dart';
 import '../shared/inline_recorder.dart';
+import 'voice_text_backend.dart';
 import 'voice_text_controller.dart';
 import 'voice_text_copy.dart';
 import 'voice_text_models.dart';
 import 'voice_text_providers.dart';
 import 'voice_text_recording.dart';
 import 'voice_text_result.dart';
+import 'voice_text_testing.dart';
 import 'whisper_metrics.dart';
 
-class VoiceTextScreen extends ConsumerWidget {
+class VoiceTextScreen extends ConsumerStatefulWidget {
   const VoiceTextScreen({super.key});
+  @override
+  ConsumerState<VoiceTextScreen> createState() => _VoiceTextScreenState();
+}
+
+class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
+  final _scroll = ScrollController();
+  bool _testing = false;
+  bool _errorQueued = false;
+  VoiceTextIssue? _lastError;
+
+  void _queueError(VoiceTextController c) {
+    if (_errorQueued) return;
+    _errorQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _errorQueued = false;
+      if (!mounted || c.issue == null) return;
+      showToast(context, issueMessage(context.l10n, c.issue!));
+      if (!_scroll.hasClients) return;
+      // The banner can be unbuilt while a lazy list shows a bottom action.
+      // Return to the banner, rather than relying on a null GlobalKey context.
+      if (!FikraMotion.reduced(context)) {
+        await _scroll.animateTo(0, duration: FikraMotion.expand, curve: FikraMotion.expandCurve);
+        return;
+      }
+      // After a long jump, rows the lazy list skipped still carry offsets from
+      // before the banner was inserted, so the first layout at the top shifts
+      // the offset by the banner's height. Jump again once those rows are measured.
+      // (The animated scroll passes through those rows and ends at the top.)
+      _scroll.jumpTo(0);
+      for (var i = 0; i < 2; i++) {
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted || !_scroll.hasClients || _scroll.offset == 0) return;
+        _scroll.jumpTo(0);
+      }
+    });
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(voiceTextControllerProvider);
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = ref.watch(voiceTextControllerProvider);
     return ListenableBuilder(
-      listenable: controller,
+      listenable: c,
       builder: (context, _) {
-        final c = controller;
         final l = context.l10n;
+        if (c.issue == null) {
+          _lastError = null;
+        } else if (_lastError != c.issue) {
+          _lastError = c.issue;
+          _queueError(c);
+        }
         Future<void> act(Future<void> Function() action) async {
           await action();
-          if (context.mounted && c.issue != null) showToast(context, issueMessage(context.l10n, c.issue!));
+          if (mounted && c.issue != null) _queueError(c);
         }
 
         Widget section(String title) => Padding(
@@ -47,31 +97,15 @@ class VoiceTextScreen extends ConsumerWidget {
                   label: entry.$2,
                   selected: c.language == entry.$1,
                   onTap: () {
-                    c.chooseLanguage(entry.$1);
                     Navigator.pop(sheet);
-                  },
-                ),
-            ],
-          ),
-        );
-        Future<void> advanced() => showFikraSheet<void>(
-          context,
-          title: l.vtAdvanced,
-          builder: (sheet) => Column(
-            children: [
-              for (final threads in [2, 4, 6])
-                VoiceTextChoice(
-                  label: l.vtThreads('$threads'),
-                  selected: c.threads == threads,
-                  onTap: () {
-                    c.chooseThreads(threads);
-                    Navigator.pop(sheet);
+                    act(() => c.chooseLanguage(entry.$1));
                   },
                 ),
             ],
           ),
         );
         final live = c.phase == VoiceTextPhase.live;
+        final testing = _testing ? VoiceTextTesting(controller: c, act: act) : const SizedBox.shrink();
         return PopScope(
           canPop: !c.locked,
           onPopInvokedWithResult: (popped, _) {
@@ -95,6 +129,7 @@ class VoiceTextScreen extends ConsumerWidget {
                 ),
                 Expanded(
                   child: ListView(
+                    controller: _scroll,
                     key: const ValueKey('vt-scroll'),
                     padding: const EdgeInsets.fromLTRB(
                       FikraSpace.screen,
@@ -104,6 +139,7 @@ class VoiceTextScreen extends ConsumerWidget {
                     ),
                     children: [
                       Text(l.vtTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: FikraSpace.s8),
                       Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: FikraBadge(kind: BadgeKind.demo, label: l.vtExperimental),
@@ -115,7 +151,11 @@ class VoiceTextScreen extends ConsumerWidget {
                           padding: const EdgeInsets.only(top: FikraSpace.s12),
                           child: Semantics(
                             liveRegion: true,
-                            child: StatusBanner(kind: BannerKind.error, message: issueMessage(l, c.issue!)),
+                            child: StatusBanner(
+                              key: const ValueKey('vt-error'),
+                              kind: BannerKind.error,
+                              message: issueMessage(l, c.issue!),
+                            ),
                           ),
                         ),
                       if (c.phase == VoiceTextPhase.loading ||
@@ -126,7 +166,11 @@ class VoiceTextScreen extends ConsumerWidget {
                           child: VoiceTextProgress(label: l.vtWait),
                         ),
                       section(l.vtModel),
-                      VoiceTextModels(controller: c, act: act),
+                      VoiceTextModels(
+                        controller: c,
+                        act: act,
+                        models: c.models.where((m) => m.quantized || m == c.model).toList(),
+                      ),
                       section(l.vtLanguage),
                       IgnorePointer(
                         ignoring: !c.idle,
@@ -144,23 +188,18 @@ class VoiceTextScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      section(l.recordVoice),
+                      section(l.vtTry),
                       VoiceTextRecording(controller: c, act: act),
-                      const SizedBox(height: FikraSpace.s16),
+                      const SizedBox(height: FikraSpace.s12),
                       FikraButton(
-                        key: const ValueKey('vt-transcribe'),
-                        label: c.phase == VoiceTextPhase.transcribing ? l.vtWorking : l.vtTranscribe,
+                        key: const ValueKey('vt-try-transcribe'),
                         growForText: true,
-                        icon: Icons.text_fields_rounded,
+                        label: c.phase == VoiceTextPhase.transcribing ? l.vtWorking : l.vtTranscribe,
                         onPressed: c.idle && c.selected != null && c.downloaded ? () => act(c.transcribe) : null,
                       ),
                       const SizedBox(height: FikraSpace.s8),
                       Text(l.vtCannotCancel, style: context.text.caption),
-                      if (c.phase == VoiceTextPhase.transcribing) ...[
-                        const SizedBox(height: FikraSpace.s12),
-                        VoiceTextProgress(key: const ValueKey('vt-working'), label: l.vtWorking),
-                      ],
-                      if (c.history.isNotEmpty) ...[section(l.vtResult), VoiceTextResult(run: c.history.first)],
+                      if (c.phase == VoiceTextPhase.transcribing) VoiceTextProgress(label: l.vtWorking),
                       section(l.vtLive),
                       Text(l.vtLiveHint, style: context.text.caption),
                       if (live) ...[
@@ -171,6 +210,7 @@ class VoiceTextScreen extends ConsumerWidget {
                         ),
                         SelectableText(
                           c.partial,
+                          key: const ValueKey('vt-partial'),
                           style: context.text.bodyLarge,
                           textDirection: containsArabic(c.partial) ? TextDirection.rtl : TextDirection.ltr,
                         ),
@@ -183,29 +223,32 @@ class VoiceTextScreen extends ConsumerWidget {
                         icon: live ? Icons.stop_rounded : Icons.mic_none_rounded,
                         onPressed: live
                             ? () => act(c.stop)
-                            : (c.idle && c.downloaded ? () => act(() => c.start(live: true)) : null),
+                            : c.idle && c.downloaded
+                            ? () => act(() => c.start(live: true))
+                            : null,
                       ),
-                      section(l.vtAdvanced),
-                      IgnorePointer(
-                        ignoring: !c.idle,
-                        child: ExcludeSemantics(
-                          excluding: !c.idle,
-                          child: SheetOption(
-                            key: const ValueKey('vt-advanced'),
-                            label: '${l.vtAdvanced}\n${l.vtThreads('${c.threads}')}',
-                            icon: Icons.tune_rounded,
-                            onTap: advanced,
-                          ),
+                      if (c.history.isNotEmpty) ...[section(l.vtResult), VoiceTextTranscript(run: c.history.first)],
+                      const SizedBox(height: FikraSpace.s24),
+                      Semantics(
+                        expanded: _testing,
+                        child: SheetOption(
+                          key: const ValueKey('vt-testing-toggle'),
+                          label: l.vtTesting,
+                          icon: _testing ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                          onTap: () => setState(() => _testing = !_testing),
                         ),
                       ),
-                      if (c.history.length > 1) ...[
-                        section(l.vtHistory),
-                        for (final run in c.history.skip(1))
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: FikraSpace.s12),
-                            child: VoiceTextResult(run: run),
-                          ),
-                      ],
+                      // A zero-duration AnimatedSize re-dirties itself inside its own layout
+                      // (a debug assertion), so Reduce Motion shows the section at once.
+                      if (FikraMotion.reduced(context))
+                        testing
+                      else
+                        AnimatedSize(
+                          duration: FikraMotion.expand,
+                          curve: FikraMotion.expandCurve,
+                          alignment: Alignment.topCenter,
+                          child: testing,
+                        ),
                     ],
                   ),
                 ),

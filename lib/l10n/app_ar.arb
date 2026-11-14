@@ -993,13 +993,14 @@
       }
     }
   },
-  "vtMs": "{ms} ms",
+  "vtMs": "{ms} ms",
   "@vtMs": {
     "placeholders": {
       "ms": {
         "type": "String"
       }
-    }
+    },
+    "description": "Milliseconds, with a non-breaking space between the number and Latin unit."
   },
   "vtMemory": "الذاكرة قبل: {before}، بعد: {after}",
   "@vtMemory": {
@@ -1059,5 +1060,25 @@
   "vtStorageCheckError": "مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.",
   "vtCancelled": "التحميل اتلغى. تقدر تبدأه تاني.",
   "vtEgyptian": "مصري · تجريبي",
-  "vtEgyptianHint": "متدرّب على العامية المصرية والإنجليزي مع بعض."
+  "vtEgyptianHint": "متدرّب على العامية المصرية والإنجليزي مع بعض.",
+  "vtVoiceSection": "الصوت",
+  "@vtVoiceSection": {
+    "description": "Settings section for voice features."
+  },
+  "vtTry": "جرّب",
+  "@vtTry": {
+    "description": "Everyday voice-to-text trial section."
+  },
+  "vtTesting": "للقياس",
+  "@vtTesting": {
+    "description": "Collapsed section containing measurement controls and technical run history."
+  },
+  "vtFullModels": "نماذج من غير ضغط",
+  "@vtFullModels": {
+    "description": "Measurement-only full-size model variants."
+  },
+  "vtRefreshModels": "حدّث قائمة النماذج",
+  "@vtRefreshModels": {
+    "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
+  }
 }
