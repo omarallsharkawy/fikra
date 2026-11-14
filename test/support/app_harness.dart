@@ -3,6 +3,8 @@ import 'dart:io';
 import 'fake_transcription_engine.dart';
 
 import 'package:fikra/data/processing/transcription_engine.dart';
+import 'package:fikra/data/processing/transcription_keep_alive.dart';
+import 'package:fikra/features/voice_text/transcription_service.dart';
 
 import 'package:fikra/l10n/localizations.dart';
 
@@ -63,6 +65,8 @@ void fikraTest(
   Future<void> Function(String path)? pauseAudio,
   VoiceTextBackend? voiceTextBackend,
   TranscriptionEngine? transcriptionEngine,
+  TranscriptionKeepAlive? keepAlive,
+  TranscriptionNotificationPermission? notificationPermission,
 }) {
   testWidgets(description, (tester) async {
     tester.platformDispatcher.localeTestValue = locale;
@@ -83,6 +87,11 @@ void fikraTest(
             databaseProvider.overrideWithValue(db),
             // No test, including startup recovery, may load a real model.
             transcriptionEngineProvider.overrideWithValue(() async => transcriptionEngine ?? FakeTranscriptionEngine()),
+            // No test touches the foreground-service or permission channels.
+            transcriptionKeepAliveProvider.overrideWithValue(keepAlive ?? FakeTranscriptionKeepAlive()),
+            transcriptionNotificationPermissionProvider.overrideWithValue(
+              notificationPermission ?? FakeNotificationPermission(askable: false),
+            ),
             if (voiceTextBackend != null) voiceTextBackendProvider.overrideWithValue(voiceTextBackend),
             if (notesRepository != null) notesRepoProvider.overrideWithValue(notesRepository(db)),
             if (projectsRepository != null) projectsRepoProvider.overrideWithValue(projectsRepository(db)),

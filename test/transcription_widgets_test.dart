@@ -191,11 +191,11 @@ void main() {
         tester.element(find.text('Voice project')).push('/note/${fixture.note.id}/edit');
         await pumpUntil(tester, find.text(l.editNoteTitle));
         await pumpUntil(tester, find.text('Typed'));
-        // What TranscriptionQueue writes when inference finishes.
+        // What TranscriptionQueue writes when inference finishes (nothing edited yet).
         await pumpFuture(
           tester,
           () => (db.update(db.notes)..where((n) => n.id.equals(fixture.note.id))).write(
-            const NotesCompanion(editedText: Value('Typed\n\nSpoken words.')),
+            const NotesCompanion(originalText: Value('Typed\n\nSpoken words.')),
           ),
         );
         if (typed) {

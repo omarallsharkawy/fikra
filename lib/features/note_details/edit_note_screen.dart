@@ -12,6 +12,7 @@ import '../../data/attachment_draft.dart';
 import '../../data/local/database.dart';
 import '../shared/attachment_editor.dart';
 import '../shared/note_presentation.dart';
+import '../shared/transcription_notifications.dart';
 
 class EditNoteScreen extends ConsumerStatefulWidget {
   const EditNoteScreen({super.key, required this.noteId});
@@ -26,6 +27,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
   TextEditingController? _text;
   String _initialTitle = '';
   String _initialText = '';
+  String _initialOriginal = '';
   List<String>? _initialFiles;
   List<AttachmentDraft> _initialAttachments = [];
   bool _titleEdited = false;
@@ -49,12 +51,15 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
   }
 
   /// A transcript that finished while this screen was open was appended to the
-  /// stored text after the text loaded here. Keep it instead of saving over it.
+  /// stored typed text after this screen loaded. Keep it instead of saving over it.
   String _withNewTranscript(String text) {
-    final live = ref.read(noteProvider(widget.noteId)).value?.displayText;
-    if (live == null || live.length <= _initialText.length || !live.startsWith(_initialText)) return text;
-    if (text == _initialText) return live;
-    final added = live.substring(_initialText.length).trim();
+    final live = ref.read(noteProvider(widget.noteId)).value;
+    if (live == null) return text;
+    final original = live.originalText;
+    if (original.length <= _initialOriginal.length || !original.startsWith(_initialOriginal)) return text;
+    if (text == _initialText) return live.displayText;
+    final added = original.substring(_initialOriginal.length).trim();
+    if (text.contains(added)) return text;
     return [text.trimRight(), added].where((s) => s.isNotEmpty).join('\n\n');
   }
 
@@ -93,6 +98,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
       await cleanDraftRecordings();
       if (!mounted) return;
       showToast(context, context.l10n.changesSaved);
+      if (transcriptionPaths.isNotEmpty) unawaited(askTranscriptionNotificationsOnce(context, ref));
       _exit();
     } catch (_) {
       if (mounted) showToast(context, context.l10n.changesSaveFailed);
@@ -161,6 +167,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
     if (note != null && _title == null) {
       _initialTitle = note.title;
       _initialText = note.displayText;
+      _initialOriginal = note.originalText;
       _title = TextEditingController(text: _initialTitle);
       _text = TextEditingController(text: _initialText);
     }

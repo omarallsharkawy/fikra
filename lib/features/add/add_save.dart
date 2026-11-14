@@ -47,6 +47,7 @@ extension _AddSave on _AddScreenState {
       _text.clear();
       _set(() => draftFiles = []);
       showToast(context, text.trim().isEmpty ? context.l10n.noteSaved : context.l10n.noteSavedAnalyzing);
+      if (transcriptionPaths.isNotEmpty) unawaited(askTranscriptionNotificationsOnce(context, ref));
       context.go('/notes');
     } catch (_) {
       if (mounted) showToast(context, context.l10n.noteSaveFailed);

@@ -14,7 +14,7 @@ directory.
 From `ai_service.dart`:
 
 - `abstract interface class AiService`
-  - `Future<NoteInsights> analyze(Note note, List<Note> projectNotes)`: rewrite, tag and link a saved note from its typed text (`originalText`). `NoteProcessor` appends the note's saved recording transcripts to that field before calling it.
+  - `Future<NoteInsights> analyze(Note note, List<Note> projectNotes)`: rewrite, tag and link a saved note from its typed text (`originalText`), which also holds the note's recording transcripts: `TranscriptionQueue` appends each one there once.
   - `Future<ChatAnswer> ask(String question, List<Note> projectNotes)`: answer using only the notes of one project.
 - `class NoteInsights`: `title`, `concepts`, `cluster`, `links` (required); `proposedText` (nullable).
 - `class ProposedLink`: `targetId`, `label`, `strength`.
@@ -72,4 +72,4 @@ Helpers:
 
 - Run: `flutter analyze && flutter test`
 
-DemoAiService.analyze reads `originalText` only, as before transcription. Edits, accepted rewrites and PDF text are never analyzed; transcripts reach it through `NoteProcessor`, so a voice note with nothing typed still gets a title and topics.
+DemoAiService.analyze reads `originalText` only, as before transcription. Edits, accepted rewrites and PDF text are never analyzed; transcripts are part of `originalText`, so a voice note with nothing typed still gets a title and topics.

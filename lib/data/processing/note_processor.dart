@@ -6,10 +6,10 @@ import '../repositories.dart';
 
 /// Runs the AI pass after a note is saved: processing → ready | failed.
 ///
-/// Analyzes the typed text plus the transcripts saved on the note's
-/// recordings. Edits, accepted rewrites and PDF text are not analyzed, so a note
-/// without a transcript is analyzed exactly as before transcription existed.
-/// A note with neither goes straight to ready.
+/// Only `originalText` is analyzed: what the user typed plus the recording
+/// transcripts appended to it, each once. Edits, accepted rewrites and PDF text
+/// are not analyzed, so a note with nothing in `originalText` goes straight to
+/// ready.
 ///
 /// The note is already stored before this runs, so a failure never loses what
 /// the user wrote. Jobs run one at a time so each analysis sees the concepts
@@ -60,32 +60,13 @@ class NoteProcessor {
     try {
       final basis = await notes.watchNote(id).first;
       if (basis == null) return; // deleted while queued
-      final transcripts = [
-        for (final a in await notes.watchAttachments(id).first)
-          if (a.kind == AttachmentKind.voice && (a.transcript?.trim().isNotEmpty ?? false)) a.transcript!.trim(),
-      ];
-      final typed = basis.originalText.trim();
-      final analyzed = transcripts.isEmpty
-          ? basis
-          : basis.copyWith(originalText: [if (typed.isNotEmpty) typed, ...transcripts].join('\n\n'));
-      if (analyzed.originalText.trim().isEmpty) {
+      if (basis.originalText.trim().isEmpty) {
         if (!linksOnly) await notes.markReady(id);
         return;
       }
       if (!linksOnly) await notes.markProcessing(id);
       final projectNotes = await notes.notesOf(basis.projectId);
-      var insights = await ai.analyze(analyzed, projectNotes).timeout(timeout);
-      if (transcripts.isNotEmpty) {
-        // A rewrite of typed text plus transcripts is not the text the note
-        // shows, and accepting it could bring back a transcript the user removed.
-        insights = NoteInsights(
-          title: insights.title,
-          concepts: insights.concepts,
-          cluster: insights.cluster,
-          links: insights.links,
-        );
-      }
-      // The stored note stays the basis, so edits made meanwhile still win.
+      final insights = await ai.analyze(basis, projectNotes).timeout(timeout);
       await notes.applyInsights(id, insights, basis: basis, linksOnly: linksOnly);
     } catch (_) {
       if (linksOnly) return;

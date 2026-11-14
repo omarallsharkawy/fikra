@@ -4,7 +4,7 @@
 
 FIKRA is a Flutter Android app for Arabic and English notes. Notes, projects, links, and chat history are stored on the device in a Drift SQLite database, and attachment files are stored in the app's private documents directory.
 
-The current build is the demo. `AiService` is the boundary to the backend, and the demo implementation sits behind it. Voice recordings, PDFs, and photos stay on the device and are never uploaded; typed note text plus locally made recording transcripts is analyzed (never edits or PDF text). PDFs are parsed locally by PDFium for display. `FIKRA_MODE=connected` is rejected at startup because no backend implementation exists yet.
+The current build is the demo. `AiService` is the boundary to the backend, and the demo implementation sits behind it. Voice recordings, PDFs, and photos stay on the device and are never uploaded; typed note text, which includes locally made recording transcripts, is analyzed (never edits or PDF text). PDFs are parsed locally by PDFium for display. `FIKRA_MODE=connected` is rejected at startup because no backend implementation exists yet.
 
 ```text
 features -> app/providers -> data repositories -> Drift SQLite
@@ -28,7 +28,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `integratio
 ## Global Invariants
 
 - A note is stored before analysis runs, so an analysis failure never loses it (`lib/features/add`, `lib/data/processing`).
-- A note with no typed text and no recording transcript goes straight to `ready` without calling `AiService` (`lib/data/processing`).
+- A note with no typed text (recording transcripts count as typed text) goes straight to `ready` without calling `AiService` (`lib/data/processing`).
 - `Notes.originalText` is never overwritten (`lib/data/local`).
 - `applyInsights` treats AI output as untrusted and validates link targets (`lib/data`).
 - Every migration step must be atomic and safe to re-run (`lib/data/local`).
@@ -64,4 +64,4 @@ The data layer now supports user links, rejected-pair tombstones, two-level note
 
 ## Saved voice transcription (v7)
 
-Voice recording files remain local. Optional on-device transcription is off by default; Add/Edit persist requests only for new recordings after save, or details queues one manually. A durable attachment FIFO shares a process-wide Whisper lease with the voice experiment. Transcript/engine/status/time live on each attachment, and a transactional append updates the current note body without changing originalText. Search and card previews use that current body; analysis uses typed text plus the stored transcripts. Killed jobs resume at launch, at most twice per request: after a second kill during the same recording's transcription it is marked failed instead of restarting, so a native crash or out-of-memory kill cannot repeat on every launch; no Android background service or external transcription provider is introduced.
+Voice recording files remain local. Optional on-device transcription is off by default; Add/Edit persist requests only for new recordings after save, or details queues one manually. A durable attachment FIFO shares a process-wide Whisper lease with the voice experiment. Transcript/engine/status/time live on each attachment. A transcript counts as text the user wrote: a transactional append adds it once to originalText and, when the note has an edit, to editedText, so restoring the original keeps it and a pending proposal is dropped as for a user edit. Search and card previews use the current body; analysis uses originalText only, so each transcript is analyzed once. Killed jobs resume at launch, at most twice per request: after a second kill during the same recording's transcription it is marked failed instead of restarting, so a native crash or out-of-memory kill cannot repeat on every launch; while jobs run, an Android foreground service (`TranscriptionService`, mediaProcessing on Android 15+, dataSync on 10–14) with a low-importance notification keeps the process alive after the user leaves the app. Notification permission is asked once, the first time a transcription is queued; refusing it never blocks saving. No external transcription provider is introduced.

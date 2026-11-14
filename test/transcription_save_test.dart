@@ -122,6 +122,68 @@ void main() {
     }
   }
 
+  // Saves one voice recording from Add with auto transcription on.
+  Future<void> saveVoiceFromAdd(WidgetTester tester, String path) async {
+    await tester.tap(Tabs.finder(Tabs.add));
+    await pumpUntil(tester, find.byType(AddScreen));
+    final dynamic editor = tester.state(find.byType(AddScreen));
+    editor.updateDraft(() {
+      editor.draftFiles = <AttachmentDraft>[AttachmentDraft(kind: AttachmentKind.voice, path: path, durationMs: 1000)];
+    });
+    await tester.pump();
+    final container = ProviderScope.containerOf(tester.element(find.byType(AddScreen)));
+    await pumpFuture(tester, () => container.read(autoTranscribeProvider.future));
+    await tester.pump();
+    final save = find.byKey(const ValueKey('add-save'));
+    await tester.scrollUntilVisible(save, 160, scrollable: transcriptionScrollable(AddScreen));
+    await Scrollable.ensureVisible(tester.element(save), alignment: 0.5);
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.tap(save);
+    for (var i = 0; i < 600 && find.byType(AddScreen).evaluate().isNotEmpty; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(find.byType(AddScreen), findsNothing);
+    await pumpFuture(tester, () => container.read(transcriptionQueueProvider).drained);
+  }
+
+  for (final askable in [true, false]) {
+    final permission = FakeNotificationPermission(askable: askable);
+    final keepAlive = FakeTranscriptionKeepAlive();
+    fikraTest(
+      'the first queued transcription ${askable ? 'explains and asks for' : 'skips asking for'} notifications, once',
+      locale: const Locale('en'),
+      aiService: FakeTranscriptionAi(),
+      attachmentStore: _Copies(),
+      notificationPermission: permission,
+      keepAlive: keepAlive,
+      (tester, db) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpFuture(tester, () => LocalProjectsRepository(db).create('Save project'));
+        final settings = LocalSettingsRepository(db, _Copies());
+        await pumpFuture(tester, () => settings.setAutoTranscribe(true));
+        await saveVoiceFromAdd(tester, '/first.m4a');
+        expect(permission.requests, askable ? 1 : 0);
+        expect(find.text(l.trNotificationWhy), askable ? findsOneWidget : findsNothing);
+        expect(await pumpFuture(tester, settings.readTranscriptionNotificationsAsked), askable);
+        // Asked or not, the save went through and the recording was transcribed.
+        expect(keepAlive.events, ['start 1', 'stop']);
+        final rows = await pumpFuture(tester, () => db.select(db.noteAttachments).get());
+        expect(rows.single.transcriptionStatus, TranscriptionStatus.done);
+
+        await tester.pump(const Duration(seconds: 4)); // the toast leaves
+        // Even if the system could ask again, the app does not.
+        if (askable) permission.askable = true;
+        await saveVoiceFromAdd(tester, '/second.m4a');
+        expect(permission.requests, askable ? 1 : 0, reason: 'asked at most once');
+        await tester.pump(const Duration(seconds: 4));
+      },
+    );
+  }
+
   test('save policy ignores saved rows; attachment-only edit preserves transcript metadata', () async {
     final db = FikraDatabase(NativeDatabase.memory());
     addTearDown(db.close);

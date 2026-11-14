@@ -1,4 +1,6 @@
 import 'package:fikra/data/processing/transcription_engine.dart';
+import 'package:fikra/data/processing/transcription_keep_alive.dart';
+import 'package:fikra/features/voice_text/transcription_service.dart';
 import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/local/database.dart';
 
@@ -25,4 +27,36 @@ class FakeTranscriptionAi implements AiService {
   @override
   Future<ChatAnswer> ask(String question, List<Note> projectNotes) async =>
       const ChatAnswer(text: '', sourceIds: [], found: false);
+}
+
+/// Records what the queue asks of the Android foreground service.
+class FakeTranscriptionKeepAlive implements TranscriptionKeepAlive {
+  FakeTranscriptionKeepAlive({this.fail = false});
+  final bool fail;
+  final events = <String>[];
+  @override
+  Future<void> start(int remaining) async {
+    events.add('start $remaining');
+    if (fail) throw StateError('service refused');
+  }
+
+  @override
+  Future<void> stop() async {
+    events.add('stop');
+    if (fail) throw StateError('service refused');
+  }
+}
+
+/// Android 13+ notification permission without the plugin channel.
+class FakeNotificationPermission implements TranscriptionNotificationPermission {
+  FakeNotificationPermission({this.askable = true});
+  bool askable;
+  int requests = 0;
+  @override
+  Future<bool> canAsk() async => askable;
+  @override
+  Future<void> request() async {
+    requests++;
+    askable = false;
+  }
 }

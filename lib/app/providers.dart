@@ -15,11 +15,14 @@ import '../data/links_repository.dart';
 import '../data/groups_repository.dart';
 import '../data/processing/note_processor.dart';
 import '../data/processing/transcription_engine.dart';
+import '../data/processing/transcription_keep_alive.dart';
 import '../data/processing/transcription_queue.dart';
+import '../features/voice_text/transcription_service.dart';
 import '../data/processing/whisper_lock.dart';
 import '../features/voice_text/local_transcription_engine.dart';
 import '../data/repositories.dart';
 import '../data/settings_repository.dart';
+import '../l10n/app_localizations.dart';
 import 'app_config.dart';
 
 export 'app_config.dart' show isDemo;
@@ -104,12 +107,21 @@ final transcriptionEngineProvider = Provider<TranscriptionEngineFactory>(
   (ref) =>
       () => LocalTranscriptionEngine.prepare(ref.read(settingsRepoProvider), ref.read(whisperLockProvider)),
 );
+
+/// Android foreground service while the queue has work; tests use a fake.
+final transcriptionKeepAliveProvider = Provider<TranscriptionKeepAlive>(
+  (ref) => AndroidTranscriptionKeepAlive(() => lookupAppLocalizations(ref.read(appLocaleProvider))),
+);
+final transcriptionNotificationPermissionProvider = Provider<TranscriptionNotificationPermission>(
+  (ref) => const PluginNotificationPermission(),
+);
 final transcriptionQueueProvider = Provider<TranscriptionQueue>(
   (ref) => TranscriptionQueue(
     ref.watch(databaseProvider),
     ref.watch(settingsRepoProvider),
     ref.watch(transcriptionEngineProvider),
     processNote: (id) => ref.read(noteProcessorProvider).retry(id),
+    keepAlive: ref.watch(transcriptionKeepAliveProvider),
   ),
 );
 final autoTranscribeProvider = FutureProvider.autoDispose<bool>(

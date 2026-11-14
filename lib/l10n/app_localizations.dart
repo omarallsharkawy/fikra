@@ -2618,6 +2618,24 @@ abstract class AppLocalizations {
   /// **'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.'**
   String get trInterruptedTwice;
 
+  /// Android notification channel name, shown in the system's notification settings, for the low-importance notification while recordings are transcribed in the background.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفريغ الصوت'**
+  String get trNotificationChannel;
+
+  /// Second line of the transcription notification: recordings still to transcribe, including the one in progress.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =1{فاضل تسجيل واحد} =2{فاضل تسجيلين} few{فاضل {count} تسجيلات} other{فاضل {count} تسجيل}}'**
+  String trNotificationLeft(int count);
+
+  /// One-line explanation shown just before Android asks for notification permission, the first time a recording is queued for transcription.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسمح بالإشعارات عشان تتابع التفريغ وانت برّه التطبيق.'**
+  String get trNotificationWhy;
+
   /// Open the model and speech settings after a missing-model failure.
   ///
   /// In ar, this message translates to:

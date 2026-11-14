@@ -1146,6 +1146,23 @@
   "@trInterruptedTwice": {
     "description": "Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically."
   },
+  "trNotificationChannel": "تفريغ الصوت",
+  "@trNotificationChannel": {
+    "description": "Android notification channel name, shown in the system's notification settings, for the low-importance notification while recordings are transcribed in the background."
+  },
+  "trNotificationLeft": "{count, plural, =1{فاضل تسجيل واحد} =2{فاضل تسجيلين} few{فاضل {count} تسجيلات} other{فاضل {count} تسجيل}}",
+  "@trNotificationLeft": {
+    "description": "Second line of the transcription notification: recordings still to transcribe, including the one in progress.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trNotificationWhy": "اسمح بالإشعارات عشان تتابع التفريغ وانت برّه التطبيق.",
+  "@trNotificationWhy": {
+    "description": "One-line explanation shown just before Android asks for notification permission, the first time a recording is queued for transcription."
+  },
   "trOpenSettings": "افتح إعدادات الصوت",
   "@trOpenSettings": {
     "description": "Open the model and speech settings after a missing-model failure."

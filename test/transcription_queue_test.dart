@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
+import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/processing/transcription_engine.dart';
@@ -112,7 +113,8 @@ void main() {
     expect(result.transcribedAt, isNotNull);
     expect(result.transcriptionFailure, isNull);
     expect((await live(n)).displayText, 'new text\n\nspoken words');
-    expect((await live(n)).originalText, 'typed');
+    // Typed text gets it too, so restoring the original keeps the transcript.
+    expect((await live(n)).originalText, 'typed\n\nspoken words');
     expect((await live(n)).title, 'edited title');
     engine.action = (_, _) async => 'spoken words';
     await queue.enqueue(a.id, redo: true);
@@ -135,13 +137,61 @@ void main() {
     await queue.enqueue(id, redo: true);
     await queue.drained;
     expect((await live(n)).displayText, 'old words');
+    expect((await live(n)).originalText, 'old words');
     await notes.edit(n.id, title: '', text: 'user removed transcript');
     await queue.enqueue(id, redo: true);
     await queue.drained;
     expect((await live(n)).displayText, 'user removed transcript\n\nnew words');
+    expect((await live(n)).originalText, 'old words\n\nnew words');
     await queue.enqueue(id, redo: true);
     await queue.drained;
     expect((await live(n)).displayText, 'user removed transcript\n\nnew words');
+  });
+
+  test('a transcript counts as typed text: no improved version, restore keeps it, proposals go', () async {
+    final n = await seed();
+    final id = (await files(n)).single.id;
+    engine.action = (_, _) async => 'spoken words';
+    await queue.enqueue(id);
+    await queue.drained;
+    var note = await live(n);
+    expect((note.originalText, note.editedText), ('typed\n\nspoken words', null));
+    expect(note.hasImprovedVersion, isFalse);
+
+    // An accepted rewrite shows the transcript once; restoring the original keeps it.
+    await notes.applyInsights(
+      n.id,
+      const NoteInsights(title: 'note', proposedText: 'Rewritten.', concepts: [], cluster: '', links: []),
+    );
+    await notes.acceptRewrite(n.id);
+    engine.action = (_, _) async => 'more words';
+    await (db.update(db.noteAttachments)..where((a) => a.id.equals(id))).write(
+      const NoteAttachmentsCompanion(transcriptNoteText: Value('gone'), transcript: Value('gone')),
+    );
+    await queue.enqueue(id, redo: true, manual: true);
+    await queue.drained;
+    note = await live(n);
+    expect(note.displayText, 'Rewritten.\n\nmore words');
+    expect(note.originalText, 'typed\n\nspoken words\n\nmore words');
+    expect(note.rewrite, RewriteStatus.accepted);
+    await notes.restoreOriginal(n.id);
+    expect((await live(n)).displayText, 'typed\n\nspoken words\n\nmore words');
+
+    // A pending proposal no longer matches the text, as after a user edit.
+    await notes.applyInsights(
+      n.id,
+      const NoteInsights(title: 'note', proposedText: 'Old proposal.', concepts: [], cluster: '', links: []),
+    );
+    expect((await live(n)).rewrite, RewriteStatus.pending);
+    engine.action = (_, _) async => 'last words';
+    await (db.update(db.noteAttachments)..where((a) => a.id.equals(id))).write(
+      const NoteAttachmentsCompanion(transcriptNoteText: Value('gone'), transcript: Value('gone')),
+    );
+    await queue.enqueue(id, redo: true, manual: true);
+    await queue.drained;
+    note = await live(n);
+    expect((note.proposedText, note.rewrite), (null, RewriteStatus.none));
+    expect(note.displayText, 'typed\n\nspoken words\n\nmore words\n\nlast words');
   });
 
   for (final kind in ['note', 'attachment', 'kind']) {
@@ -423,6 +473,80 @@ void main() {
       await queue.saved(n.id, [(await files(n)).single.path]);
       await queue.drained;
       expect((await files(n)).single.transcriptionAttempts, 2);
+    });
+  });
+
+  group('keeping the app alive in the background', () {
+    TranscriptionQueue alive(FakeTranscriptionKeepAlive keepAlive) =>
+        TranscriptionQueue(db, settings, () async => engine, processNote: (_) async {}, keepAlive: keepAlive);
+
+    test('starts with the first job, counts what is left, stops once the queue is empty', () async {
+      final keepAlive = FakeTranscriptionKeepAlive();
+      final queue = alive(keepAlive);
+      final n = await seed(voices: 2);
+      final a = await files(n);
+      final started = Completer<void>();
+      final release = releaseGate();
+      engine.action = (path, _) async {
+        if (path == a[0].path) {
+          started.complete();
+          return release.future;
+        }
+        return 'second';
+      };
+      await queue.enqueue(a[0].id);
+      await started.future;
+      expect(keepAlive.events, ['start 1']);
+      await queue.enqueue(a[1].id);
+      expect(keepAlive.events, ['start 1', 'start 2']);
+      release.complete('first');
+      await queue.drained;
+      expect(keepAlive.events, ['start 1', 'start 2', 'start 1', 'stop']);
+      expect((await files(n)).map((a) => a.transcriptionStatus), everyElement(TranscriptionStatus.done));
+    });
+
+    test('a failed last job still stops it', () async {
+      final keepAlive = FakeTranscriptionKeepAlive();
+      final queue = alive(keepAlive);
+      final n = await seed();
+      engine.action = (_, _) async => throw const TranscriptionFailure(TranscriptionFailureReason.audioUnreadable);
+      await queue.enqueue((await files(n)).single.id);
+      await queue.drained;
+      expect(keepAlive.events, ['start 1', 'stop']);
+      expect((await files(n)).single.transcriptionStatus, TranscriptionStatus.failed);
+    });
+
+    test('a refused service never stops transcription', () async {
+      final keepAlive = FakeTranscriptionKeepAlive(fail: true);
+      final queue = alive(keepAlive);
+      final n = await seed();
+      await queue.enqueue((await files(n)).single.id);
+      await queue.drained;
+      expect(keepAlive.events, ['start 1', 'stop']);
+      expect((await files(n)).single.transcriptionStatus, TranscriptionStatus.done);
+      expect((await live(n)).displayText, 'typed\n\nTest transcript');
+    });
+
+    test('nothing to run starts nothing, including recordings the crash-loop guard stops', () async {
+      final keepAlive = FakeTranscriptionKeepAlive();
+      final queue = alive(keepAlive);
+      final n = await seed(voices: 2);
+      final a = await files(n);
+      await (db.update(db.noteAttachments)..where((r) => r.id.equals(a[0].id))).write(
+        const NoteAttachmentsCompanion(transcriptionStatus: Value(TranscriptionStatus.done)),
+      );
+      await (db.update(db.noteAttachments)..where((r) => r.id.equals(a[1].id))).write(
+        const NoteAttachmentsCompanion(
+          transcriptionStatus: Value(TranscriptionStatus.running),
+          transcriptionAttempts: Value(2),
+        ),
+      );
+      await queue.enqueue(a[0].id);
+      await queue.resumeInterrupted();
+      await queue.drained;
+      expect(keepAlive.events, isEmpty);
+      expect(engine.paths, isEmpty);
+      expect((await files(n))[1].transcriptionFailure, 'interruptedTwice');
     });
   });
 }

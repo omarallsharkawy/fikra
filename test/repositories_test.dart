@@ -3,9 +3,10 @@ import 'package:fikra/data/attachment_draft.dart';
 import 'dart:async';
 import 'dart:io';
 
-import 'package:drift/drift.dart' show Value, driftRuntimeOptions;
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:fikra/data/processing/note_processor.dart';
+import 'package:fikra/data/processing/transcription_queue.dart';
 import 'package:fikra/data/ai/ai_service.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/demo/demo_seed.dart';
@@ -13,6 +14,9 @@ import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/fake_transcription_engine.dart';
+import 'voice_text/fake_voice_text_backend.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -318,34 +322,6 @@ void main() {
       expect(done.title, 'lecture');
     });
 
-    Future<void> transcribe(Note n, String transcript) async {
-      final a = (await notes.watchAttachments(n.id).first).single;
-      await (db.update(db.noteAttachments)..where((r) => r.id.equals(a.id))).write(
-        NoteAttachmentsCompanion(
-          transcript: Value(transcript),
-          transcriptionStatus: const Value(TranscriptionStatus.done),
-        ),
-      );
-    }
-
-    test('a saved transcript is analyzed when original typed text was empty', () async {
-      final p = await projects.create('p');
-      final n = await notes.create(
-        projectId: p.id,
-        title: '',
-        text: '',
-        source: NoteSource.voice,
-        attachments: [const AttachmentDraft(kind: AttachmentKind.voice, path: '/f/a.m4a', durationMs: 1000)],
-      );
-      await transcribe(n, 'spoken Flutter ideas');
-      final seen = <String>[];
-      final ai = _ScriptedAi([() async => _insights(title: 'voice insights')], seen: seen);
-      await NoteProcessor(notes, ai).process(n);
-      expect(ai.calls, 1);
-      expect(seen, ['spoken Flutter ideas']);
-      expect((await notes.watchNote(n.id).first)!.title, 'voice insights');
-    });
-
     Future<Note> voiceNote(String text) async => notes.create(
       projectId: (await projects.create('p')).id,
       title: '',
@@ -354,28 +330,47 @@ void main() {
       attachments: [const AttachmentDraft(kind: AttachmentKind.voice, path: '/f/a.m4a', durationMs: 1000)],
     );
 
-    test('typed text and transcripts are analyzed; no rewrite of that mix is proposed', () async {
-      final n = await voiceNote('typed');
-      await transcribe(n, 'spoken words');
+    /// The real queue appends the transcript and wakes the real processor.
+    Future<void> transcribe(Note n, String transcript, AiService ai) async {
+      final processor = NoteProcessor(notes, ai);
+      final passes = <Future<void>>[];
+      final queue = TranscriptionQueue(
+        db,
+        FakeVoiceTextSettings(),
+        () async => FakeTranscriptionEngine(action: (_, _) async => transcript),
+        processNote: (id) {
+          final pass = processor.retry(id);
+          passes.add(pass);
+          return pass;
+        },
+      );
+      await queue.enqueue((await notes.watchAttachments(n.id).first).single.id);
+      await queue.drained;
+      await Future.wait(passes);
+    }
+
+    test('a transcript is analyzed once, as typed text, when nothing was typed', () async {
+      final n = await voiceNote('');
       final seen = <String>[];
-      final ai = _ScriptedAi([() async => _insights(title: 't', proposed: 'rewritten')], seen: seen);
-      await NoteProcessor(notes, ai).process(n);
-      expect(seen, ['typed\n\nspoken words']);
+      await transcribe(
+        n,
+        'spoken Flutter ideas',
+        _ScriptedAi([() async => _insights(title: 'voice insights')], seen: seen),
+      );
+      expect(seen, ['spoken Flutter ideas']);
       final done = (await notes.watchNote(n.id).first)!;
-      expect(done.originalText, 'typed');
-      expect(done.proposedText, isNull);
-      expect(done.rewrite, RewriteStatus.none);
-      expect(done.status, ProcessingStatus.ready);
+      expect(done.originalText, 'spoken Flutter ideas');
+      expect(done.editedText, isNull);
+      expect(done.title, 'voice insights');
     });
 
-    test('with a transcript, edits are still not analyzed and still win', () async {
+    test('with a transcript, edits are still not analyzed and the edit shows it once', () async {
       final n = await voiceNote('typed');
       await notes.edit(n.id, title: '', text: 'my own edit');
-      await transcribe(n, 'spoken words');
       final seen = <String>[];
-      await NoteProcessor(notes, _ScriptedAi([() async => _insights()], seen: seen)).process(n);
+      await transcribe(n, 'spoken words', _ScriptedAi([() async => _insights()], seen: seen));
       expect(seen, ['typed\n\nspoken words']);
-      expect((await notes.watchNote(n.id).first)!.displayText, 'my own edit');
+      expect((await notes.watchNote(n.id).first)!.displayText, 'my own edit\n\nspoken words');
     });
 
     test('without a transcript, an edited note is still analyzed from its typed text', () async {

@@ -25,6 +25,11 @@ abstract interface class SettingsRepository implements VoiceTextSettings {
   Stream<AppTheme> watchTheme();
   Future<void> setTheme(AppTheme theme);
 
+  /// Whether the app already asked for notification permission for
+  /// transcription (asked once, the first time a recording is queued).
+  Future<bool> readTranscriptionNotificationsAsked();
+  Future<void> markTranscriptionNotificationsAsked();
+
   /// Deletes every project, note, link and chat, then every attachment file.
   /// Preferences (like the theme) are kept. Throws [WipeFilesException] if the
   /// data is gone but some files couldn't be deleted (retrying is safe).
@@ -46,6 +51,7 @@ class LocalSettingsRepository implements SettingsRepository {
 
   static const _themeKey = 'theme';
   static const autoTranscribeKey = 'voice_text_auto_transcribe';
+  static const transcriptionNotificationsKey = 'transcription_notifications_asked';
   static const voiceTextModelKey = 'voice_text_model';
   static const voiceTextLanguageKey = 'voice_text_language';
   static const _currentProjectKey = 'current_project';
@@ -102,6 +108,18 @@ class LocalSettingsRepository implements SettingsRepository {
   Future<bool> readAutoTranscribe() async =>
       (await (db.select(db.settings)..where((s) => s.key.equals(autoTranscribeKey))).getSingleOrNull())?.value ==
       'true';
+
+  @override
+  Future<bool> readTranscriptionNotificationsAsked() async =>
+      (await (db.select(
+        db.settings,
+      )..where((s) => s.key.equals(transcriptionNotificationsKey))).getSingleOrNull())?.value ==
+      'true';
+
+  @override
+  Future<void> markTranscriptionNotificationsAsked() async {
+    await db.into(db.settings).insertOnConflictUpdate(const Setting(key: transcriptionNotificationsKey, value: 'true'));
+  }
 
   @override
   Future<void> setAutoTranscribe(bool enabled) async {

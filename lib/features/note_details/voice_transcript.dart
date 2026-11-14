@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,7 @@ import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../../data/processing/transcription_engine.dart';
 import '../../l10n/localizations.dart';
+import '../shared/transcription_notifications.dart';
 import '../voice_text/voice_text_copy.dart';
 import '../voice_text/whisper_metrics.dart';
 import '../voice_text/whisper_models.dart';
@@ -32,6 +35,7 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
       await ref
           .read(transcriptionQueueProvider)
           .enqueue(widget.attachment.id, redo: widget.attachment.transcript != null, manual: true);
+      if (mounted) unawaited(askTranscriptionNotificationsOnce(context, ref));
     } catch (_) {
       if (mounted) showToast(context, context.l10n.trQueueFailed);
     } finally {

@@ -87,3 +87,7 @@ Phase 5b review: note_selection_actions.dart exports noteSelectionActions(contex
 New voice previews (id == null) show an existing ChoiceTag, trAfterSave, when auto-transcription is off. Its selected state updates AttachmentDraft.transcribe without touching the temporary audio file. Saved attachment previews have no toggle; automatic mode makes the save policy select all new voice drafts. Capture/AAC settings, microphone ownership, five-minute limit and cleanup behavior are unchanged. Save paths consume the current persisted setting, so a loading chip cannot accidentally disable auto mode. All inference is deferred until copies and the note commit succeed.
 
 Voice preview keys retain path/position identity when a new immutable draft is made by the transcription toggle, preserving player state/playback across that toggle.
+
+## Transcription notifications
+
+`transcription_notifications.dart`: `askTranscriptionNotificationsOnce(context, ref)` runs the first time a recording is queued for transcription (Add save, Edit save, the details transcribe/retry/redo button). If the settings flag is unset and the permission can still be asked (`TranscriptionNotificationPermission.canAsk`, i.e. Android 13+ and not yet decided), it sets the flag, shows the one-line `trNotificationWhy` toast on the root navigator's context (Edit closes after saving) and requests the permission. Any failure only skips the question; callers never await it before saving or navigating. Refusing keeps transcription working while the app is open.

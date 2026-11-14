@@ -7,18 +7,38 @@ import '../local/database.dart';
 import '../local/transcription_order.dart';
 import '../settings_repository.dart';
 import 'transcription_engine.dart';
+import 'transcription_keep_alive.dart';
 
 /// Durable state in SQLite, FIFO scheduling in this process. Enqueue completes
 /// after persisting `queued`; [drained] is for tests/maintenance, not save UI.
 class TranscriptionQueue {
-  TranscriptionQueue(this.db, this.settings, this.engine, {required this.processNote});
+  TranscriptionQueue(
+    this.db,
+    this.settings,
+    this.engine, {
+    required this.processNote,
+    this.keepAlive = const NoTranscriptionKeepAlive(),
+  });
   final FikraDatabase db;
   final VoiceTextSettings settings;
   final TranscriptionEngineFactory engine;
   final Future<void> Function(String noteId) processNote;
+
+  /// Runs from the first job's start until the queue is empty again.
+  final TranscriptionKeepAlive keepAlive;
+  bool _kept = false;
   final _pending = <String>{};
   Future<void> _tail = Future.value();
   Future<void> get drained => _tail;
+
+  /// The keep-alive is a convenience: its failure never stops a job.
+  Future<void> _keep(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (error, stack) {
+      developer.log('Transcription keep-alive failed', name: 'FIKRA_TRANSCRIPTION', error: error, stackTrace: stack);
+    }
+  }
 
   Future<NoteAttachment?> _attachment(String id) =>
       (db.select(db.noteAttachments)..where((a) => a.id.equals(id))).getSingleOrNull();
@@ -36,7 +56,11 @@ class TranscriptionQueue {
     final ready = Completer<bool>();
     _tail = _tail.then((_) async {
       try {
-        if (await ready.future) await _run(id);
+        if (await ready.future) {
+          await _keep(() => keepAlive.start(_pending.length));
+          _kept = true;
+          await _run(id);
+        }
       } catch (error, stack) {
         developer.log(
           'Transcription state could not be saved',
@@ -48,6 +72,11 @@ class TranscriptionQueue {
         // state is recovered on launch if even the failure write was impossible.
       } finally {
         _pending.remove(id);
+        // Success or failure, the last job ends the keep-alive.
+        if (_pending.isEmpty && _kept) {
+          _kept = false;
+          await _keep(keepAlive.stop);
+        }
       }
     });
     try {
@@ -72,6 +101,8 @@ class TranscriptionQueue {
         return true;
       });
       ready.complete(accepted);
+      // A job joined while another runs: the notification's count goes up.
+      if (accepted && _kept) await _keep(() => keepAlive.start(_pending.length));
     } catch (_) {
       ready.complete(false);
       rethrow;
@@ -161,14 +192,20 @@ class TranscriptionQueue {
         );
         // On redo, retain the transcript the user already sees in the note.
         // Append the replacement only if they removed the previous transcript.
+        // A transcript counts as text the user wrote: it goes into originalText,
+        // so "restore original" keeps it, and into an edited or accepted text
+        // the note shows, so the visible text has it exactly once.
+        String joined(String body) => body.trim().isEmpty ? text : '${body.trimRight()}\n\n$text';
+        final original = append && !note.originalText.contains(text) ? joined(note.originalText) : null;
         await (db.update(db.notes)..where((n) => n.id.equals(note.id))).write(
           NotesCompanion(
             // Persist the next AI pass before waking it, for launch recovery.
             status: const Value(ProcessingStatus.processing),
-            editedText: append ? Value(current.trim().isEmpty ? text : '$current\n\n$text') : const Value.absent(),
+            originalText: original != null ? Value(original) : const Value.absent(),
+            editedText: append && note.editedText != null ? Value(joined(note.editedText!)) : const Value.absent(),
+            // As in a user edit: a pending proposal no longer matches the text.
             proposedText: append ? const Value(null) : const Value.absent(),
-            // As in a user edit: a pending proposal no longer matches the text,
-            // but an accepted or rejected rewrite keeps its history.
+            // An accepted or rejected rewrite keeps its history.
             rewrite: append && note.rewrite == RewriteStatus.pending
                 ? const Value(RewriteStatus.none)
                 : const Value.absent(),

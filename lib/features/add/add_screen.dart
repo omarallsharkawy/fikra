@@ -14,6 +14,7 @@ import '../../data/local/database.dart';
 import '../projects/project_header.dart';
 import '../shared/attachment_editor.dart';
 import '../shared/note_presentation.dart';
+import '../shared/transcription_notifications.dart';
 import '../../data/attachment_draft.dart';
 
 part 'add_save.dart';

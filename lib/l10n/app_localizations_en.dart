@@ -1543,6 +1543,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Transcription stopped twice because the app closed. Try again or choose a smaller model.';
 
   @override
+  String get trNotificationChannel => 'Transcription';
+
+  @override
+  String trNotificationLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recordings left',
+      one: '1 recording left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trNotificationWhy => 'Allow notifications to follow transcription after you leave the app.';
+
+  @override
   String get trOpenSettings => 'Open voice settings';
 
   @override

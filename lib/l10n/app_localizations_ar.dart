@@ -1587,6 +1587,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trInterruptedTwice => 'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.';
 
   @override
+  String get trNotificationChannel => 'تفريغ الصوت';
+
+  @override
+  String trNotificationLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'فاضل $count تسجيل',
+      few: 'فاضل $count تسجيلات',
+      two: 'فاضل تسجيلين',
+      one: 'فاضل تسجيل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trNotificationWhy => 'اسمح بالإشعارات عشان تتابع التفريغ وانت برّه التطبيق.';
+
+  @override
   String get trOpenSettings => 'افتح إعدادات الصوت';
 
   @override

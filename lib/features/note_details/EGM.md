@@ -106,6 +106,6 @@ VoiceTranscript renders below each existing VoicePlayer from attachment streams.
 
 Edit combines the current auto preference with explicit new-voice toggles and persists queued requests with the note save; existing recordings retain transcript/status/provenance and are never automatically re-queued. The queue wakes only after successful commit. Later transcription success re-reads live note text, preserving user edits made during native work.
 
-Edit loads its text once. If a transcript is appended while Edit is open (the stored text then extends the loaded text), saving keeps it: an untouched body saves the stored text, and a changed body gets the appended part added after a blank line.
+A transcript counts as text the user wrote: it is in originalText (and editedText when edited), so «ارجع للأصل» keeps it and an unedited voice note offers no restore. Edit loads its text once. If a transcript is appended while Edit is open (detected when the stored originalText extends the originalText Edit loaded), saving keeps it: an untouched body saves the stored text, and a changed body gets the appended part added after a blank line unless the body already contains it. Edit save and the details transcribe/retry/redo button call `askTranscriptionNotificationsOnce` (features/shared) unawaited when they queue a recording.
 
 `interruptedTwice` failures show `trInterruptedTwice` and offer both retry and voice settings (a smaller model is one way out). The details button's transcribe/retry/redo is a manual request, so it resets the attempt count.

@@ -62,3 +62,5 @@ Voice layout phase 1 adds described vtVoiceSection (الصوت / Voice), vtTry (
 Phase 2 adds described trAutomatic/trAutomaticHint/trDownloadFirst/trAfterSave, trQueueFailed/trQueued/trWorking, transcript expansion/redo/engine labels and stable localized failure actions, plus vtEngineBusy. originalKeptHint's obsolete no-automatic-transcription comment is replaced in both ARBs; visible text is unchanged. Generated lookups are regenerated and formatted. Existing size/timing units and model labels remain unchanged.
 
 `trInterruptedTwice` explains a saved recording that stopped being transcribed because the app closed during it twice; both ARBs carry a description.
+
+Background transcription adds described `trNotificationChannel` (the Android notification channel name), `trNotificationLeft` (plural count of recordings left, including the one running; Arabic has =1/=2/few/other forms) and `trNotificationWhy` (one-line reason shown before the notification permission prompt). The notification title reuses `trWorking`. Arabic copy awaits the Hydrogen review.
