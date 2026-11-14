@@ -15,6 +15,7 @@ import '../../core/widgets/photo_thumb.dart';
 import '../../core/widgets/voice_player.dart';
 import '../../data/links_repository.dart';
 import '../../data/local/database.dart';
+import 'voice_transcript.dart';
 import '../shared/link_picker.dart';
 import '../shared/move_confirm.dart';
 import '../shared/note_links.dart';

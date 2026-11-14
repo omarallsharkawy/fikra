@@ -27,6 +27,8 @@ All application source for FIKRA, a local-first Arabic and English notes app for
 
 - Run: `flutter analyze && flutter test`
 
-Attachment persistence uses `NoteAttachments` (introduced in v5; current schema v6). Add and Edit share the draft editor; copies precede atomic repository saves, and stored-file deletion follows commit. Cards share one per-project attachment stream. All files and recording operations remain local.
+Attachment persistence uses `NoteAttachments` (introduced in v5; current schema v7). Add and Edit share the draft editor; copies precede atomic repository saves, and stored-file deletion follows commit. Cards share one per-project attachment stream. All files and recording operations remain local.
 
 Schema v6 adds local user links, dismissed-pair memory and note groups. Repositories expose moves and grouping without widget changes; relink jobs share the analysis queue and preserve rewrite/status fields.
+
+Schema v7 stores attachment transcription state and provenance. Settings persist optional auto-transcription (off by default), saved recordings enter a separate durable queue, and details/card streams expose progress. A local engine adapter beside the voice experiment implements the data-layer TranscriptionEngine seam; app wiring shares the Whisper lock with trial file/live inference. No external transcription services are implemented.

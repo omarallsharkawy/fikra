@@ -44,6 +44,12 @@ class NativeVoiceTextBackend implements VoiceTextBackend {
     _storageReady = true;
     if ((await _models.clearInterruptedDownloads()).isNotEmpty) _warning = VoiceTextIssue.interrupted;
     _clips = await _recordings.load();
+  }
+
+  bool _probed = false;
+  Future<void> _probeFfmpeg() async {
+    if (_probed) return;
+    _probed = true;
     try {
       _ffmpeg['ffmpeg_version'] = await FFmpegKitConfig.getFFmpegVersion();
       final decoders = await FFmpegKit.execute('-hide_banner -decoders');
@@ -150,11 +156,14 @@ class NativeVoiceTextBackend implements VoiceTextBackend {
   }
 
   @override
-  Future<Map<String, Object?>> transcribe(SpikeModel model, SpikeRecording clip, String language, int threads) =>
-      WhisperFileEngine(_models, _recordings, _ffmpeg).run(model, clip, language, threads);
+  Future<Map<String, Object?>> transcribe(SpikeModel model, SpikeRecording clip, String language, int threads) async {
+    await _probeFfmpeg();
+    return WhisperFileEngine(_models, _recordings, _ffmpeg).run(model, clip, language, threads);
+  }
 
   @override
   Future<VoiceTextLive> startLive(SpikeModel model, String language, int threads) async {
+    await _probeFfmpeg();
     final run = WhisperRun(model, language, threads, 'live_pcm16_16khz_mono', 0, 'live', _ffmpeg);
     final live = _live = WhisperMicrophoneLive(_recorder, _recordings, run);
     run.wall.start();

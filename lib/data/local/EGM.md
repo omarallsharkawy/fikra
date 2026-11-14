@@ -16,7 +16,7 @@ From `database.dart`:
 - Enums: `NoteSource { text, voice, pdf }`, `ProcessingStatus { processing, ready, failed }`, `RewriteStatus { none, pending, accepted, rejected }`, `AttachmentKind { pdf, voice, image }`.
 - `class FikraDatabase`
   - `FikraDatabase([QueryExecutor? executor])`: defaults to `driftDatabase(name: 'fikra')`; tests inject an executor.
-  - `schemaVersion` is 6.
+  - `schemaVersion` is 7.
 - `extension NoteX on Note`: `conceptList`, `originalContent`, `displayText`, `hasImprovedVersion`.
 - `extension ChatEntryX on ChatEntry`: `sourceList`, `isUser`.
 
@@ -57,7 +57,7 @@ Schema and migrations:
 
 - `beforeOpen` sets `PRAGMA foreign_keys = ON`. The cascades above depend on it.
 - Drift does not wrap `onUpgrade` in a transaction, and `user_version` only moves after it returns. Every migration step must therefore be atomic and safe to re-run, so an interrupted upgrade can never leave the app unable to open. The existing steps use `transaction`, a `PRAGMA table_info` guard before adding a column, and `CREATE INDEX IF NOT EXISTS`.
-- Schema snapshots for v1 to v6 live in `drift_schemas/` and `test/generated_migrations/`. `test/migration_test.dart` validates upgrades against them, including re-runs after an interruption.
+- Schema snapshots for v1 to v7 live in `drift_schemas/` and `test/generated_migrations/`. `test/migration_test.dart` validates upgrades against them, including re-runs after an interruption.
 
 ## Side Effects
 
@@ -76,10 +76,20 @@ One transaction guards table creation, creates the note index with IF NOT EXISTS
 
 ## v6 migration and API
 
-`schemaVersion` is 6. `LinkOrigin { ai, user }` describes link provenance; links also have dismissed (false by default) and nullable createdAt. Labels remain NOT NULL, as in v5; no reason is represented by `''`. Existing label values are preserved without rebuilding the link table.
+`schemaVersion` is 7. `LinkOrigin { ai, user }` describes link provenance; links also have dismissed (false by default) and nullable createdAt. Labels remain NOT NULL, as in v5; no reason is represented by `''`. Existing label values are preserved without rebuilding the link table.
 
 `NoteGroups` (`NoteGroup`) has id, projectId (cascade), parentId (self FK, set null), name, nullable color, position and createdAt; project and parent indexes support lookup. `Notes.groupId` is nullable, indexed and references groups with set null. New installs create the group table before notes. groupId is declared after all legacy Notes columns so fresh and upgraded column order matches.
 
 The v6 transaction guards group creation via sqlite_master, guards group_id and each new link column via table_info. The existing link table is not rebuilt and its label constraint is unchanged. It creates all three new indexes with IF NOT EXISTS. No row or file is lost and repeating the step preserves existing group assignments and link metadata.
 
 The v5 backfill now explicitly selects only legacy attachment columns, never the generated current Notes model. This avoids asking a populated v4 database for group_id before v6 creates it. v2 SQL, v3 named indexes and v4's guarded individual column do not read future models and are unchanged. Snapshots cover v1–v6, with populated v4/v5 upgrades, partial v6 state and repeated v6 execution tested.
+
+## v7 recording transcripts
+
+NoteAttachments adds nullable transcript, transcriptNoteText, transcriptionFailure, transcriptionEngine and transcribedAt, plus nullable integer transcriptionOrder; transcriptionStatus is a text enum (none/queued/running/done/failed), NOT NULL default none. transcriptNoteText is the last text represented in the note body, retained when redo changes transcript so repeated redos never add a second paragraph while the old one remains. Engine IDs are provider-neutral strings; local IDs use local:ggml-<model>.bin. Failure codes are modelMissing/busy/audioUnreadable/other. transcribedAt records the last completion, including failure; an older successful transcript and its engine remain visible during failed redo.
+
+One transaction guards each v7 column with PRAGMA table_info. The v5 legacy backfill now inserts only historical columns with raw SQL, avoiding current generated fields before v7 exists on an interrupted v5 database. Snapshots and generated fixtures include v7; real populated v6, partial v7, repeated v7 and every earlier upgrade are tested. database.g.dart is regenerated with build_runner, not hand-edited.
+
+transcription_order.dart allocates MAX(transcription_order)+1 inside the caller transaction. New save requests and manual enqueues persist this order; recovery retains it for interrupted jobs. No audio data is stored in SQLite.
+
+Schema v7 also adds `note_attachments.transcription_attempts` (INTEGER NOT NULL DEFAULT 0). It is in the same idempotent v7 step: each column is added only if `PRAGMA table_info` lacks it, so a partial or repeated upgrade keeps existing counts.

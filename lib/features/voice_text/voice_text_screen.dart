@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/providers.dart';
+import 'voice_text_auto.dart';
 import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -188,6 +190,8 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: FikraSpace.s24),
+                      VoiceTextAuto(controller: c, act: act, onChanged: () => ref.invalidate(autoTranscribeProvider)),
                       section(l.vtTry),
                       VoiceTextRecording(controller: c, act: act),
                       const SizedBox(height: FikraSpace.s12),

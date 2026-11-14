@@ -39,7 +39,9 @@ class WhisperRun {
   final Map<String, Object?> values;
   final wall = Stopwatch();
 
-  Future<Map<String, Object?>> finish(RecordingStore recordings) async {
+  /// A [private] run (a saved note's recording) logs its numbers without the
+  /// spoken text and is not added to the experiment's run history file.
+  Future<Map<String, Object?>> finish(RecordingStore recordings, {bool private = false}) async {
     wall.stop();
     values.addAll({
       'wall_ms': wall.elapsedMilliseconds,
@@ -47,6 +49,12 @@ class WhisperRun {
       'rss_after_mb': memoryMb(ProcessInfo.currentRss),
       'rss_max_mb': memoryMb(ProcessInfo.maxRss),
     });
+    if (private) {
+      final text = values['text'] as String? ?? '';
+      // ignore: avoid_print
+      print(whisperLogLine({...values, 'text': null, 'text_chars': text.length}));
+      return Map.unmodifiable(values);
+    }
     var line = whisperLogLine(values);
     try {
       await recordings.appendRun(line);

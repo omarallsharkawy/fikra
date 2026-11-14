@@ -58,3 +58,7 @@ Local Egyptian model adds vtEgyptian (مصري · تجريبي / Egyptian · exp
 
 
 Voice layout phase 1 adds described vtVoiceSection (الصوت / Voice), vtTry (جرّب / Try it), vtTesting (للقياس / For testing), vtFullModels (نماذج من غير ضغط / Uncompressed models) and vtRefreshModels (حدّث قائمة النماذج / Refresh model list). vtMs now joins the number and Latin unit with U+00A0, retaining a single bidi isolate in result formatting. Generated files are regenerated, then formatted. The everyday elapsed-time line reuses vtWall in seconds.
+
+Phase 2 adds described trAutomatic/trAutomaticHint/trDownloadFirst/trAfterSave, trQueueFailed/trQueued/trWorking, transcript expansion/redo/engine labels and stable localized failure actions, plus vtEngineBusy. originalKeptHint's obsolete no-automatic-transcription comment is replaced in both ARBs; visible text is unchanged. Generated lookups are regenerated and formatted. Existing size/timing units and model labels remain unchanged.
+
+`trInterruptedTwice` explains a saved recording that stopped being transcribed because the app closed during it twice; both ARBs carry a description.

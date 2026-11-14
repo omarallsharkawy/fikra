@@ -30,6 +30,26 @@ void main() {
     expect(await File('${dir.path}/runs.jsonl').readAsLines(), printed);
   });
 
+  test('a private note run prints its numbers without the text and keeps no history', () async {
+    final dir = await Directory.systemTemp.createTemp('fikra-whisper-run');
+    addTearDown(() => dir.delete(recursive: true));
+    final run = WhisperRun(spikeModels.first, 'ar', 4, 'wav_pcm16_16khz_mono', 12, 'file', {});
+    run.values['text'] = 'كلام خاص';
+    final printed = <String>[];
+    final result = await runZoned(
+      () => run.finish(RecordingStore(dir), private: true),
+      zoneSpecification: ZoneSpecification(print: (_, _, _, line) => printed.add(line)),
+    );
+    expect(result['text'], 'كلام خاص');
+    expect(printed, hasLength(1));
+    expect(printed.single, isNot(contains('كلام')));
+    final logged = jsonDecode(printed.single.substring(14)) as Map<String, Object?>;
+    expect(logged['text'], isNull);
+    expect(logged['text_chars'], 8);
+    expect(logged['wall_ms'], result['wall_ms']);
+    expect(await File('${dir.path}/runs.jsonl').exists(), isFalse);
+  });
+
   test('local Egyptian model requires the existing small Q5_1 header validation', () async {
     final dir = await Directory.systemTemp.createTemp('fikra-egyptian-model');
     addTearDown(() => dir.delete(recursive: true));

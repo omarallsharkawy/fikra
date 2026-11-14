@@ -1538,4 +1538,63 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vtRefreshModels => 'حدّث قائمة النماذج';
+
+  @override
+  String get trAutomatic => 'فرّغ التسجيلات لوحدها';
+
+  @override
+  String get trAutomaticHint => 'بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.';
+
+  @override
+  String get trDownloadFirst => 'نزّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.';
+
+  @override
+  String get trAfterSave => 'فرّغه بعد الحفظ';
+
+  @override
+  String get trQueueFailed => 'التسجيل اتحفظ، بس مقدرناش نضيفه للتفريغ. جرّب من الملاحظة.';
+
+  @override
+  String get trWorking => 'بيفرّغ الصوت…';
+
+  @override
+  String get trQueued => 'مستني دوره للتفريغ…';
+
+  @override
+  String get trExpand => 'اعرض النص كله';
+
+  @override
+  String get trCollapse => 'اعرض أقل';
+
+  @override
+  String trLocalEngine(String model) {
+    return 'على الموبايل · $model';
+  }
+
+  @override
+  String get trModelMissing => 'النموذج مش موجود أو ملفه بايظ. نزّله من إعدادات الصوت وجرّب تاني.';
+
+  @override
+  String get trBusy => 'تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.';
+
+  @override
+  String get trAudioUnreadable => 'مقدرناش نقرا التسجيل أو نطلع منه كلام. جرّب تشغّله الأول.';
+
+  @override
+  String get trFailed => 'مقدرناش نفرّغ التسجيل. جرّب تاني.';
+
+  @override
+  String get trInterruptedTwice => 'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.';
+
+  @override
+  String get trOpenSettings => 'افتح إعدادات الصوت';
+
+  @override
+  String get trTranscribe => 'فرّغ الصوت';
+
+  @override
+  String get trRedo => 'فرّغ تاني';
+
+  @override
+  String get vtEngineBusy => 'في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.';
 }

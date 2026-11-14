@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,6 +48,16 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
     super.dispose();
   }
 
+  /// A transcript that finished while this screen was open was appended to the
+  /// stored text after the text loaded here. Keep it instead of saving over it.
+  String _withNewTranscript(String text) {
+    final live = ref.read(noteProvider(widget.noteId)).value?.displayText;
+    if (live == null || live.length <= _initialText.length || !live.startsWith(_initialText)) return text;
+    if (text == _initialText) return live;
+    final added = live.substring(_initialText.length).trim();
+    return [text.trimRight(), added].where((s) => s.isNotEmpty).join('\n\n');
+  }
+
   Future<void> _save() async {
     if (attachmentBusy || _initialFiles == null) return;
     if (_text!.text.trim().isEmpty && draftFiles.isEmpty) {
@@ -53,7 +65,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
       return;
     }
     var title = _title!.text;
-    final text = _text!.text;
+    final text = _withNewTranscript(_text!.text);
     final draft = List<AttachmentDraft>.of(draftFiles);
     if (text.trim().isEmpty && !_titleEdited && title == _initialTitle && draft.isNotEmpty) {
       final keptIds = draft.map((a) => a.id).toSet();
@@ -64,10 +76,19 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
     }
     setState(() => saving = true);
     try {
+      var transcriptionPaths = <String>[];
       await saveAttachmentDraft(
         ref.read(attachmentStoreProvider),
-        draft,
-        (stored) => ref.read(notesRepoProvider).edit(widget.noteId, title: title, text: text, attachments: stored),
+        transcriptionDraft(draft, automatic: await ref.read(settingsRepoProvider).readAutoTranscribe()),
+        (stored) {
+          transcriptionPaths = newTranscriptionPaths(stored);
+          return ref.read(notesRepoProvider).edit(widget.noteId, title: title, text: text, attachments: stored);
+        },
+      );
+      unawaited(
+        ref.read(transcriptionQueueProvider).saved(widget.noteId, transcriptionPaths).catchError((_) {
+          if (mounted) showToast(context, context.l10n.trQueueFailed);
+        }),
       );
       await cleanDraftRecordings();
       if (!mounted) return;

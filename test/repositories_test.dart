@@ -3,7 +3,7 @@ import 'package:fikra/data/attachment_draft.dart';
 import 'dart:async';
 import 'dart:io';
 
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show Value, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:fikra/data/processing/note_processor.dart';
 import 'package:fikra/data/ai/ai_service.dart';
@@ -318,6 +318,76 @@ void main() {
       expect(done.title, 'lecture');
     });
 
+    Future<void> transcribe(Note n, String transcript) async {
+      final a = (await notes.watchAttachments(n.id).first).single;
+      await (db.update(db.noteAttachments)..where((r) => r.id.equals(a.id))).write(
+        NoteAttachmentsCompanion(
+          transcript: Value(transcript),
+          transcriptionStatus: const Value(TranscriptionStatus.done),
+        ),
+      );
+    }
+
+    test('a saved transcript is analyzed when original typed text was empty', () async {
+      final p = await projects.create('p');
+      final n = await notes.create(
+        projectId: p.id,
+        title: '',
+        text: '',
+        source: NoteSource.voice,
+        attachments: [const AttachmentDraft(kind: AttachmentKind.voice, path: '/f/a.m4a', durationMs: 1000)],
+      );
+      await transcribe(n, 'spoken Flutter ideas');
+      final seen = <String>[];
+      final ai = _ScriptedAi([() async => _insights(title: 'voice insights')], seen: seen);
+      await NoteProcessor(notes, ai).process(n);
+      expect(ai.calls, 1);
+      expect(seen, ['spoken Flutter ideas']);
+      expect((await notes.watchNote(n.id).first)!.title, 'voice insights');
+    });
+
+    Future<Note> voiceNote(String text) async => notes.create(
+      projectId: (await projects.create('p')).id,
+      title: '',
+      text: text,
+      source: NoteSource.voice,
+      attachments: [const AttachmentDraft(kind: AttachmentKind.voice, path: '/f/a.m4a', durationMs: 1000)],
+    );
+
+    test('typed text and transcripts are analyzed; no rewrite of that mix is proposed', () async {
+      final n = await voiceNote('typed');
+      await transcribe(n, 'spoken words');
+      final seen = <String>[];
+      final ai = _ScriptedAi([() async => _insights(title: 't', proposed: 'rewritten')], seen: seen);
+      await NoteProcessor(notes, ai).process(n);
+      expect(seen, ['typed\n\nspoken words']);
+      final done = (await notes.watchNote(n.id).first)!;
+      expect(done.originalText, 'typed');
+      expect(done.proposedText, isNull);
+      expect(done.rewrite, RewriteStatus.none);
+      expect(done.status, ProcessingStatus.ready);
+    });
+
+    test('with a transcript, edits are still not analyzed and still win', () async {
+      final n = await voiceNote('typed');
+      await notes.edit(n.id, title: '', text: 'my own edit');
+      await transcribe(n, 'spoken words');
+      final seen = <String>[];
+      await NoteProcessor(notes, _ScriptedAi([() async => _insights()], seen: seen)).process(n);
+      expect(seen, ['typed\n\nspoken words']);
+      expect((await notes.watchNote(n.id).first)!.displayText, 'my own edit');
+    });
+
+    test('without a transcript, an edited note is still analyzed from its typed text', () async {
+      final p = await projects.create('p');
+      final n = await notes.create(projectId: p.id, title: '', text: '', source: NoteSource.text);
+      await notes.edit(n.id, title: '', text: 'an edit is not analyzed');
+      final ai = _ScriptedAi([]); // any analyze call would fail on the empty script
+      await NoteProcessor(notes, ai).process(n);
+      expect(ai.calls, 0);
+      expect((await notes.watchNote(n.id).first)!.status, ProcessingStatus.ready);
+    });
+
     test('an attachment does not stop typed text being analyzed', () async {
       final p = await projects.create('p');
       final n = await notes.create(
@@ -385,8 +455,11 @@ NoteInsights _insights({String title = 't', String? proposed, List<ProposedLink>
 /// AiService whose analyze() answers come from a script, one per call
 /// (the last entry repeats).
 class _ScriptedAi implements AiService {
-  _ScriptedAi(this.script);
+  _ScriptedAi(this.script, {this.seen});
   final List<Future<NoteInsights> Function()> script;
+
+  /// The text each analyze() call received, when given.
+  final List<String>? seen;
   var _calls = 0;
   int get calls => _calls;
 
@@ -394,6 +467,7 @@ class _ScriptedAi implements AiService {
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes) {
     final step = script[_calls < script.length ? _calls : script.length - 1];
     _calls++;
+    seen?.add(note.originalText);
     return step();
   }
 

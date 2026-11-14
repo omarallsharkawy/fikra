@@ -173,6 +173,8 @@ void main() {
                     id: '$id-a$j',
                     noteId: id,
                     kind: AttachmentKind.values[j ~/ 2],
+                    transcriptionStatus: TranscriptionStatus.none,
+                    transcriptionAttempts: 0,
                     path: '/stress/$id-$j',
                     name: 'file-$j.pdf',
                     bytes: 12345,

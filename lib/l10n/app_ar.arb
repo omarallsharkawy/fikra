@@ -395,7 +395,7 @@
     "description": "Historical student note describing the original UI; preserve the dark/RTL description in both languages."
   },
   "@originalKeptHint": {
-    "description": "Applies to every note source. There is no automatic voice transcription."
+    "description": "Applies to every note source. Saved recordings can be transcribed locally after saving."
   },
   "@photosTitle": {
     "description": "Default title for a photo-only note. The parenthetical location note in the glossary is not UI copy."
@@ -1080,5 +1080,86 @@
   "vtRefreshModels": "حدّث قائمة النماذج",
   "@vtRefreshModels": {
     "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
+  },
+  "trAutomatic": "فرّغ التسجيلات لوحدها",
+  "@trAutomatic": {
+    "description": "Voice setting: transcribe only new recordings after a note save."
+  },
+  "trAutomaticHint": "بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.",
+  "@trAutomaticHint": {
+    "description": "Hint below automatic recording transcription setting."
+  },
+  "trDownloadFirst": "نزّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.",
+  "@trDownloadFirst": {
+    "description": "Explains why automatic transcription cannot be enabled without an installed model."
+  },
+  "trAfterSave": "فرّغه بعد الحفظ",
+  "@trAfterSave": {
+    "description": "Toggle on a new recording draft; no inference runs before saving."
+  },
+  "trQueueFailed": "التسجيل اتحفظ، بس مقدرناش نضيفه للتفريغ. جرّب من الملاحظة.",
+  "@trQueueFailed": {
+    "description": "Failure persisting or waking a saved recording transcription request."
+  },
+  "trWorking": "بيفرّغ الصوت…",
+  "@trWorking": {
+    "description": "Live status on a note card and its running voice attachment."
+  },
+  "trQueued": "مستني دوره للتفريغ…",
+  "@trQueued": {
+    "description": "A saved recording is queued behind another job."
+  },
+  "trExpand": "اعرض النص كله",
+  "@trExpand": {
+    "description": "Expand the collapsed transcript of a saved recording."
+  },
+  "trCollapse": "اعرض أقل",
+  "@trCollapse": {
+    "description": "Collapse a saved recording transcript to three lines."
+  },
+  "trLocalEngine": "على الموبايل · {model}",
+  "@trLocalEngine": {
+    "description": "Engine label for the model that produced a saved transcript.",
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "trModelMissing": "النموذج مش موجود أو ملفه بايظ. نزّله من إعدادات الصوت وجرّب تاني.",
+  "@trModelMissing": {
+    "description": "Transcription failure with an action opening voice settings."
+  },
+  "trBusy": "تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.",
+  "@trBusy": {
+    "description": "Timed out waiting for the process-wide local engine lease."
+  },
+  "trAudioUnreadable": "مقدرناش نقرا التسجيل أو نطلع منه كلام. جرّب تشغّله الأول.",
+  "@trAudioUnreadable": {
+    "description": "Unreadable or empty audio transcription failure."
+  },
+  "trFailed": "مقدرناش نفرّغ التسجيل. جرّب تاني.",
+  "@trFailed": {
+    "description": "Other saved recording transcription failure."
+  },
+  "trInterruptedTwice": "التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.",
+  "@trInterruptedTwice": {
+    "description": "Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically."
+  },
+  "trOpenSettings": "افتح إعدادات الصوت",
+  "@trOpenSettings": {
+    "description": "Open the model and speech settings after a missing-model failure."
+  },
+  "trTranscribe": "فرّغ الصوت",
+  "@trTranscribe": {
+    "description": "Queue a saved voice attachment for transcription."
+  },
+  "trRedo": "فرّغ تاني",
+  "@trRedo": {
+    "description": "Redo a saved recording with the currently selected engine and model."
+  },
+  "vtEngineBusy": "في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.",
+  "@vtEngineBusy": {
+    "description": "The test screen cannot start another model while the app-wide Whisper lease is held."
   }
 }

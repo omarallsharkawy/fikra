@@ -16,6 +16,7 @@ final voiceTextControllerProvider = Provider.autoDispose<VoiceTextController>((r
   final controller = VoiceTextController(
     ref.watch(voiceTextBackendProvider),
     settings: ref.watch(voiceTextSettingsProvider),
+    whisperLock: ref.watch(whisperLockProvider),
     claimMicrophone: () => activity.claim(owner),
     releaseMicrophone: () => activity.release(owner),
   );

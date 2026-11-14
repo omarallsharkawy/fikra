@@ -1493,4 +1493,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vtRefreshModels => 'Refresh model list';
+
+  @override
+  String get trAutomatic => 'Transcribe recordings automatically';
+
+  @override
+  String get trAutomaticHint => 'Runs on your phone after saving and can take a while.';
+
+  @override
+  String get trDownloadFirst => 'Download a model first to transcribe recordings on your phone.';
+
+  @override
+  String get trAfterSave => 'Transcribe after saving';
+
+  @override
+  String get trQueueFailed => 'The recording is saved, but we couldn’t queue it. Try from the note.';
+
+  @override
+  String get trWorking => 'Transcribing audio…';
+
+  @override
+  String get trQueued => 'Waiting to transcribe…';
+
+  @override
+  String get trExpand => 'Show full transcript';
+
+  @override
+  String get trCollapse => 'Show less';
+
+  @override
+  String trLocalEngine(String model) {
+    return 'On your phone · $model';
+  }
+
+  @override
+  String get trModelMissing => 'The model is missing or damaged. Download it in voice settings and try again.';
+
+  @override
+  String get trBusy => 'Another transcription took too long. Try again when it finishes.';
+
+  @override
+  String get trAudioUnreadable => 'We couldn’t read the recording or find speech. Try playing it first.';
+
+  @override
+  String get trFailed => 'We couldn’t transcribe the recording. Try again.';
+
+  @override
+  String get trInterruptedTwice =>
+      'Transcription stopped twice because the app closed. Try again or choose a smaller model.';
+
+  @override
+  String get trOpenSettings => 'Open voice settings';
+
+  @override
+  String get trTranscribe => 'Transcribe audio';
+
+  @override
+  String get trRedo => 'Transcribe again';
+
+  @override
+  String get vtEngineBusy => 'A recording is being transcribed. Wait for it to finish and try again.';
 }

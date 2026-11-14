@@ -11,3 +11,5 @@ voice_text_screen_test.dart checks always-visible primary model rows and per-row
 All scrolling uses revealVoiceText/tapVoiceText with a plain keyed target and explicit outer Scrollable, excluding SelectableText's nested Scrollable. No first/last/at finder is passed into scrollUntilVisible, ensureVisible or dragUntilVisible. The testing expansion helper opens the hidden measurement controls before selecting them.
 
 Run flutter test test/voice_text; screenshots are in ../screenshots/voice_text_test.dart. The sandbox cannot run the Flutter runner's localhost socket. Tests do not establish phone recognition quality or native performance.
+
+Phase 2 FakeVoiceTextSettings mirrors readAutoTranscribe/setAutoTranscribe with a false default. Trial controller tests share an injectable WhisperLock with saved-recording fake engines; capture methods remain imported through the controller library's part extension. No fake invokes native Whisper.

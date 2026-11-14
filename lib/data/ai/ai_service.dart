@@ -4,7 +4,8 @@ import '../local/database.dart';
 /// [DemoAiService]; the connected build will call Alaa's API behind the same
 /// interface so screens don't change.
 abstract interface class AiService {
-  /// Rewrite, tag and link a saved note from its typed text.
+  /// Rewrite, tag and link a saved note from its typed text ([Note.originalText]).
+  /// NoteProcessor appends saved voice transcripts to that field for analysis.
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes);
 
   /// Answer a question using only the notes of one project.

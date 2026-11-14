@@ -15,7 +15,13 @@ class WhisperFileEngine {
   final RecordingStore recordings;
   final Map<String, Object?> ffmpeg;
 
-  Future<Map<String, Object?>> run(SpikeModel model, SpikeRecording clip, String language, int threads) async {
+  Future<Map<String, Object?>> run(
+    SpikeModel model,
+    SpikeRecording clip,
+    String language,
+    int threads, {
+    bool private = false,
+  }) async {
     final run = WhisperRun(model, language, threads, clip.format, clip.seconds, 'file', ffmpeg);
     final data = run.values;
     int? previousSession;
@@ -54,6 +60,7 @@ class WhisperFileEngine {
           // original spike's explicitly approximate transcription+load figure.
           data['transcription_wall_ms_estimate'] = (run.wall.elapsedMilliseconds - conversionMs).clamp(0, 1 << 62);
           if ((await session.getReturnCode())?.getValue() != 0) {
+            data['conversion_failed'] = true;
             data['error'] = '${data['error'] ?? ''} FFmpeg conversion failed';
             data['error_kind'] = VoiceTextIssue.transcription.name;
           } else {
@@ -75,6 +82,6 @@ class WhisperFileEngine {
         data['cleanup_error'] = e.toString();
       }
     }
-    return run.finish(recordings);
+    return run.finish(recordings, private: private);
   }
 }

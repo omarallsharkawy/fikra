@@ -19,3 +19,7 @@ The harness accepts optional repository, recorder factory, microphone permission
 `host` (a bare themed app with the text scale applied above the navigator) also lives there. Review fixes: `SpyLinks` now counts `linkNotesForUndo` and has `linkGate` and `undoGate` completers; `SpyGroups.failAssign` makes assignments throw.
 
 `fikraTest` accepts a VoiceTextBackend override for the Settings-only experiment's real-router screenshot fixtures. Existing tests and native audio mocks are unchanged.
+
+Saved transcription: fikraTest accepts an optional TranscriptionEngine and always overrides the engine factory with a fake (including launch recovery). fake_transcription_engine.dart records paths/languages and accepts a gated/error action; FakeTranscriptionAi avoids leaving demo latency timers after unmount. transcription_scroll.dart finds a page's unique outer Scrollable, excludes nested EditableText/Scrollable internals, and reveals plain keyed targets with an explicit scrollable. The helper uses no first/last/at finders.
+
+`fikraTest` closes the database with `pumpFuture` in the test's zone. Work a test does not wait for, such as the note analysis a finished transcription starts, can still hold drift's lock; closing from `runAsync` waited for it forever and hung the file.

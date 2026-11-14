@@ -148,7 +148,14 @@ class _Attachment extends ConsumerWidget {
               ),
             )
           else if (a.kind == AttachmentKind.voice)
-            VoicePlayer(key: ValueKey(a.id), path: a.path, durationMs: a.durationMs ?? 0)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                VoicePlayer(key: ValueKey(a.id), path: a.path, durationMs: a.durationMs ?? 0),
+                const SizedBox(height: FikraSpace.s8),
+                VoiceTranscript(key: ValueKey('voice-transcript-${a.id}'), attachment: a),
+              ],
+            )
           else if (i == 0 || attachments[i - 1].kind != AttachmentKind.image)
             _Photos(
               paths: attachments.skip(i).takeWhile((a) => a.kind == AttachmentKind.image).map((a) => a.path).toList(),

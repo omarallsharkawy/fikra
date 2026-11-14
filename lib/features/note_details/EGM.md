@@ -99,3 +99,13 @@ The former `note_link_actions.dart` part moved to `features/shared/note_link_act
 ## Shared move confirmation (links phase 5a)
 
 `_move` now calls `confirmMove` from `shared/move_confirm.dart` (the same re-ask loop and danger flag, moved out unchanged). `moveNoteMessage(l10n, impact)` keeps its name and delegates to `moveMessage`. Behaviour, strings and keys are unchanged; `test/project_moves_test.dart` still covers them.
+
+## Saved recording transcripts (phase 2)
+
+VoiceTranscript renders below each existing VoicePlayer from attachment streams. It shows queued/running badges, the last successful transcript collapsed to three lines with expansion/RTL/selectable full text, and the producing engine (localized local model, or a provider-neutral ID fallback). Failed redos retain the old transcript. Stable failure codes select plain messages and retry; modelMissing additionally opens /settings/voice-text. Manual transcribe/redo enqueues an attachment ID and returns immediately, with a local duplicate-tap guard and visible toast on persistence failure. No inference or model choice occurs inside this widget.
+
+Edit combines the current auto preference with explicit new-voice toggles and persists queued requests with the note save; existing recordings retain transcript/status/provenance and are never automatically re-queued. The queue wakes only after successful commit. Later transcription success re-reads live note text, preserving user edits made during native work.
+
+Edit loads its text once. If a transcript is appended while Edit is open (the stored text then extends the loaded text), saving keeps it: an untouched body saves the stored text, and a changed body gets the appended part added after a blank line.
+
+`interruptedTwice` failures show `trInterruptedTwice` and offer both retry and voice settings (a smaller model is one way out). The details button's transcribe/retry/redo is a manual request, so it resets the attempt count.

@@ -170,6 +170,14 @@ class FakeVoiceTextLive implements VoiceTextLive {
 /// Same narrow read/write contract as the database-backed settings repository.
 class FakeVoiceTextSettings implements VoiceTextSettings {
   FakeVoiceTextSettings({this.modelName, this.language});
+  bool autoTranscribe = false;
+  @override
+  Future<bool> readAutoTranscribe() async => autoTranscribe;
+  @override
+  Future<void> setAutoTranscribe(bool value) async {
+    autoTranscribe = value;
+  }
+
   String? modelName;
   String? language;
   @override

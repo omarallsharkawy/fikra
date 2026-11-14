@@ -1683,8 +1683,100 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _transcriptMeta = const VerificationMeta('transcript');
   @override
-  List<GeneratedColumn> get $columns => [id, noteId, kind, path, name, bytes, durationMs, position, createdAt];
+  late final GeneratedColumn<String> transcript = GeneratedColumn<String>(
+    'transcript',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transcriptNoteTextMeta = const VerificationMeta('transcriptNoteText');
+  @override
+  late final GeneratedColumn<String> transcriptNoteText = GeneratedColumn<String>(
+    'transcript_note_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transcriptionOrderMeta = const VerificationMeta('transcriptionOrder');
+  @override
+  late final GeneratedColumn<int> transcriptionOrder = GeneratedColumn<int>(
+    'transcription_order',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TranscriptionStatus, String> transcriptionStatus =
+      GeneratedColumn<String>(
+        'transcription_status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('none'),
+      ).withConverter<TranscriptionStatus>($NoteAttachmentsTable.$convertertranscriptionStatus);
+  static const VerificationMeta _transcriptionFailureMeta = const VerificationMeta('transcriptionFailure');
+  @override
+  late final GeneratedColumn<String> transcriptionFailure = GeneratedColumn<String>(
+    'transcription_failure',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transcriptionEngineMeta = const VerificationMeta('transcriptionEngine');
+  @override
+  late final GeneratedColumn<String> transcriptionEngine = GeneratedColumn<String>(
+    'transcription_engine',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transcribedAtMeta = const VerificationMeta('transcribedAt');
+  @override
+  late final GeneratedColumn<DateTime> transcribedAt = GeneratedColumn<DateTime>(
+    'transcribed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transcriptionAttemptsMeta = const VerificationMeta('transcriptionAttempts');
+  @override
+  late final GeneratedColumn<int> transcriptionAttempts = GeneratedColumn<int>(
+    'transcription_attempts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    noteId,
+    kind,
+    path,
+    name,
+    bytes,
+    durationMs,
+    position,
+    createdAt,
+    transcript,
+    transcriptNoteText,
+    transcriptionOrder,
+    transcriptionStatus,
+    transcriptionFailure,
+    transcriptionEngine,
+    transcribedAt,
+    transcriptionAttempts,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1728,6 +1820,45 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('transcript')) {
+      context.handle(_transcriptMeta, transcript.isAcceptableOrUnknown(data['transcript']!, _transcriptMeta));
+    }
+    if (data.containsKey('transcript_note_text')) {
+      context.handle(
+        _transcriptNoteTextMeta,
+        transcriptNoteText.isAcceptableOrUnknown(data['transcript_note_text']!, _transcriptNoteTextMeta),
+      );
+    }
+    if (data.containsKey('transcription_order')) {
+      context.handle(
+        _transcriptionOrderMeta,
+        transcriptionOrder.isAcceptableOrUnknown(data['transcription_order']!, _transcriptionOrderMeta),
+      );
+    }
+    if (data.containsKey('transcription_failure')) {
+      context.handle(
+        _transcriptionFailureMeta,
+        transcriptionFailure.isAcceptableOrUnknown(data['transcription_failure']!, _transcriptionFailureMeta),
+      );
+    }
+    if (data.containsKey('transcription_engine')) {
+      context.handle(
+        _transcriptionEngineMeta,
+        transcriptionEngine.isAcceptableOrUnknown(data['transcription_engine']!, _transcriptionEngineMeta),
+      );
+    }
+    if (data.containsKey('transcribed_at')) {
+      context.handle(
+        _transcribedAtMeta,
+        transcribedAt.isAcceptableOrUnknown(data['transcribed_at']!, _transcribedAtMeta),
+      );
+    }
+    if (data.containsKey('transcription_attempts')) {
+      context.handle(
+        _transcriptionAttemptsMeta,
+        transcriptionAttempts.isAcceptableOrUnknown(data['transcription_attempts']!, _transcriptionAttemptsMeta),
+      );
+    }
     return context;
   }
 
@@ -1748,6 +1879,31 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
       durationMs: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
       position: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}position'])!,
       createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      transcript: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}transcript']),
+      transcriptNoteText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transcript_note_text'],
+      ),
+      transcriptionOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}transcription_order'],
+      ),
+      transcriptionStatus: $NoteAttachmentsTable.$convertertranscriptionStatus.fromSql(
+        attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}transcription_status'])!,
+      ),
+      transcriptionFailure: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transcription_failure'],
+      ),
+      transcriptionEngine: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transcription_engine'],
+      ),
+      transcribedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}transcribed_at']),
+      transcriptionAttempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}transcription_attempts'],
+      )!,
     );
   }
 
@@ -1759,6 +1915,8 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
   static JsonTypeConverter2<AttachmentKind, String, String> $converterkind = const EnumNameConverter<AttachmentKind>(
     AttachmentKind.values,
   );
+  static JsonTypeConverter2<TranscriptionStatus, String, String> $convertertranscriptionStatus =
+      const EnumNameConverter<TranscriptionStatus>(TranscriptionStatus.values);
 }
 
 class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
@@ -1771,6 +1929,20 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
   final int? durationMs;
   final int position;
   final DateTime createdAt;
+  final String? transcript;
+
+  /// Last transcript represented in the note body, retained across redos so a
+  /// different result cannot get appended again on every retry.
+  final String? transcriptNoteText;
+  final int? transcriptionOrder;
+  final TranscriptionStatus transcriptionStatus;
+  final String? transcriptionFailure;
+  final String? transcriptionEngine;
+  final DateTime? transcribedAt;
+
+  /// Runs started since the last manual request, written before inference
+  /// begins, so a native crash or out-of-memory kill still counts.
+  final int transcriptionAttempts;
   const NoteAttachment({
     required this.id,
     required this.noteId,
@@ -1781,6 +1953,14 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     this.durationMs,
     required this.position,
     required this.createdAt,
+    this.transcript,
+    this.transcriptNoteText,
+    this.transcriptionOrder,
+    required this.transcriptionStatus,
+    this.transcriptionFailure,
+    this.transcriptionEngine,
+    this.transcribedAt,
+    required this.transcriptionAttempts,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1802,6 +1982,30 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     }
     map['position'] = Variable<int>(position);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || transcript != null) {
+      map['transcript'] = Variable<String>(transcript);
+    }
+    if (!nullToAbsent || transcriptNoteText != null) {
+      map['transcript_note_text'] = Variable<String>(transcriptNoteText);
+    }
+    if (!nullToAbsent || transcriptionOrder != null) {
+      map['transcription_order'] = Variable<int>(transcriptionOrder);
+    }
+    {
+      map['transcription_status'] = Variable<String>(
+        $NoteAttachmentsTable.$convertertranscriptionStatus.toSql(transcriptionStatus),
+      );
+    }
+    if (!nullToAbsent || transcriptionFailure != null) {
+      map['transcription_failure'] = Variable<String>(transcriptionFailure);
+    }
+    if (!nullToAbsent || transcriptionEngine != null) {
+      map['transcription_engine'] = Variable<String>(transcriptionEngine);
+    }
+    if (!nullToAbsent || transcribedAt != null) {
+      map['transcribed_at'] = Variable<DateTime>(transcribedAt);
+    }
+    map['transcription_attempts'] = Variable<int>(transcriptionAttempts);
     return map;
   }
 
@@ -1816,6 +2020,18 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       durationMs: durationMs == null && nullToAbsent ? const Value.absent() : Value(durationMs),
       position: Value(position),
       createdAt: Value(createdAt),
+      transcript: transcript == null && nullToAbsent ? const Value.absent() : Value(transcript),
+      transcriptNoteText: transcriptNoteText == null && nullToAbsent ? const Value.absent() : Value(transcriptNoteText),
+      transcriptionOrder: transcriptionOrder == null && nullToAbsent ? const Value.absent() : Value(transcriptionOrder),
+      transcriptionStatus: Value(transcriptionStatus),
+      transcriptionFailure: transcriptionFailure == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transcriptionFailure),
+      transcriptionEngine: transcriptionEngine == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transcriptionEngine),
+      transcribedAt: transcribedAt == null && nullToAbsent ? const Value.absent() : Value(transcribedAt),
+      transcriptionAttempts: Value(transcriptionAttempts),
     );
   }
 
@@ -1831,6 +2047,16 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       position: serializer.fromJson<int>(json['position']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      transcript: serializer.fromJson<String?>(json['transcript']),
+      transcriptNoteText: serializer.fromJson<String?>(json['transcriptNoteText']),
+      transcriptionOrder: serializer.fromJson<int?>(json['transcriptionOrder']),
+      transcriptionStatus: $NoteAttachmentsTable.$convertertranscriptionStatus.fromJson(
+        serializer.fromJson<String>(json['transcriptionStatus']),
+      ),
+      transcriptionFailure: serializer.fromJson<String?>(json['transcriptionFailure']),
+      transcriptionEngine: serializer.fromJson<String?>(json['transcriptionEngine']),
+      transcribedAt: serializer.fromJson<DateTime?>(json['transcribedAt']),
+      transcriptionAttempts: serializer.fromJson<int>(json['transcriptionAttempts']),
     );
   }
   @override
@@ -1846,6 +2072,16 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       'durationMs': serializer.toJson<int?>(durationMs),
       'position': serializer.toJson<int>(position),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'transcript': serializer.toJson<String?>(transcript),
+      'transcriptNoteText': serializer.toJson<String?>(transcriptNoteText),
+      'transcriptionOrder': serializer.toJson<int?>(transcriptionOrder),
+      'transcriptionStatus': serializer.toJson<String>(
+        $NoteAttachmentsTable.$convertertranscriptionStatus.toJson(transcriptionStatus),
+      ),
+      'transcriptionFailure': serializer.toJson<String?>(transcriptionFailure),
+      'transcriptionEngine': serializer.toJson<String?>(transcriptionEngine),
+      'transcribedAt': serializer.toJson<DateTime?>(transcribedAt),
+      'transcriptionAttempts': serializer.toJson<int>(transcriptionAttempts),
     };
   }
 
@@ -1859,6 +2095,14 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     Value<int?> durationMs = const Value.absent(),
     int? position,
     DateTime? createdAt,
+    Value<String?> transcript = const Value.absent(),
+    Value<String?> transcriptNoteText = const Value.absent(),
+    Value<int?> transcriptionOrder = const Value.absent(),
+    TranscriptionStatus? transcriptionStatus,
+    Value<String?> transcriptionFailure = const Value.absent(),
+    Value<String?> transcriptionEngine = const Value.absent(),
+    Value<DateTime?> transcribedAt = const Value.absent(),
+    int? transcriptionAttempts,
   }) => NoteAttachment(
     id: id ?? this.id,
     noteId: noteId ?? this.noteId,
@@ -1869,6 +2113,14 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     durationMs: durationMs.present ? durationMs.value : this.durationMs,
     position: position ?? this.position,
     createdAt: createdAt ?? this.createdAt,
+    transcript: transcript.present ? transcript.value : this.transcript,
+    transcriptNoteText: transcriptNoteText.present ? transcriptNoteText.value : this.transcriptNoteText,
+    transcriptionOrder: transcriptionOrder.present ? transcriptionOrder.value : this.transcriptionOrder,
+    transcriptionStatus: transcriptionStatus ?? this.transcriptionStatus,
+    transcriptionFailure: transcriptionFailure.present ? transcriptionFailure.value : this.transcriptionFailure,
+    transcriptionEngine: transcriptionEngine.present ? transcriptionEngine.value : this.transcriptionEngine,
+    transcribedAt: transcribedAt.present ? transcribedAt.value : this.transcribedAt,
+    transcriptionAttempts: transcriptionAttempts ?? this.transcriptionAttempts,
   );
   NoteAttachment copyWithCompanion(NoteAttachmentsCompanion data) {
     return NoteAttachment(
@@ -1881,6 +2133,18 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       durationMs: data.durationMs.present ? data.durationMs.value : this.durationMs,
       position: data.position.present ? data.position.value : this.position,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      transcript: data.transcript.present ? data.transcript.value : this.transcript,
+      transcriptNoteText: data.transcriptNoteText.present ? data.transcriptNoteText.value : this.transcriptNoteText,
+      transcriptionOrder: data.transcriptionOrder.present ? data.transcriptionOrder.value : this.transcriptionOrder,
+      transcriptionStatus: data.transcriptionStatus.present ? data.transcriptionStatus.value : this.transcriptionStatus,
+      transcriptionFailure: data.transcriptionFailure.present
+          ? data.transcriptionFailure.value
+          : this.transcriptionFailure,
+      transcriptionEngine: data.transcriptionEngine.present ? data.transcriptionEngine.value : this.transcriptionEngine,
+      transcribedAt: data.transcribedAt.present ? data.transcribedAt.value : this.transcribedAt,
+      transcriptionAttempts: data.transcriptionAttempts.present
+          ? data.transcriptionAttempts.value
+          : this.transcriptionAttempts,
     );
   }
 
@@ -1895,13 +2159,39 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
           ..write('bytes: $bytes, ')
           ..write('durationMs: $durationMs, ')
           ..write('position: $position, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('transcript: $transcript, ')
+          ..write('transcriptNoteText: $transcriptNoteText, ')
+          ..write('transcriptionOrder: $transcriptionOrder, ')
+          ..write('transcriptionStatus: $transcriptionStatus, ')
+          ..write('transcriptionFailure: $transcriptionFailure, ')
+          ..write('transcriptionEngine: $transcriptionEngine, ')
+          ..write('transcribedAt: $transcribedAt, ')
+          ..write('transcriptionAttempts: $transcriptionAttempts')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, noteId, kind, path, name, bytes, durationMs, position, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    noteId,
+    kind,
+    path,
+    name,
+    bytes,
+    durationMs,
+    position,
+    createdAt,
+    transcript,
+    transcriptNoteText,
+    transcriptionOrder,
+    transcriptionStatus,
+    transcriptionFailure,
+    transcriptionEngine,
+    transcribedAt,
+    transcriptionAttempts,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1914,7 +2204,15 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
           other.bytes == this.bytes &&
           other.durationMs == this.durationMs &&
           other.position == this.position &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.transcript == this.transcript &&
+          other.transcriptNoteText == this.transcriptNoteText &&
+          other.transcriptionOrder == this.transcriptionOrder &&
+          other.transcriptionStatus == this.transcriptionStatus &&
+          other.transcriptionFailure == this.transcriptionFailure &&
+          other.transcriptionEngine == this.transcriptionEngine &&
+          other.transcribedAt == this.transcribedAt &&
+          other.transcriptionAttempts == this.transcriptionAttempts);
 }
 
 class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
@@ -1927,6 +2225,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
   final Value<int?> durationMs;
   final Value<int> position;
   final Value<DateTime> createdAt;
+  final Value<String?> transcript;
+  final Value<String?> transcriptNoteText;
+  final Value<int?> transcriptionOrder;
+  final Value<TranscriptionStatus> transcriptionStatus;
+  final Value<String?> transcriptionFailure;
+  final Value<String?> transcriptionEngine;
+  final Value<DateTime?> transcribedAt;
+  final Value<int> transcriptionAttempts;
   final Value<int> rowid;
   const NoteAttachmentsCompanion({
     this.id = const Value.absent(),
@@ -1938,6 +2244,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     this.durationMs = const Value.absent(),
     this.position = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.transcript = const Value.absent(),
+    this.transcriptNoteText = const Value.absent(),
+    this.transcriptionOrder = const Value.absent(),
+    this.transcriptionStatus = const Value.absent(),
+    this.transcriptionFailure = const Value.absent(),
+    this.transcriptionEngine = const Value.absent(),
+    this.transcribedAt = const Value.absent(),
+    this.transcriptionAttempts = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NoteAttachmentsCompanion.insert({
@@ -1950,6 +2264,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     this.durationMs = const Value.absent(),
     required int position,
     required DateTime createdAt,
+    this.transcript = const Value.absent(),
+    this.transcriptNoteText = const Value.absent(),
+    this.transcriptionOrder = const Value.absent(),
+    this.transcriptionStatus = const Value.absent(),
+    this.transcriptionFailure = const Value.absent(),
+    this.transcriptionEngine = const Value.absent(),
+    this.transcribedAt = const Value.absent(),
+    this.transcriptionAttempts = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        noteId = Value(noteId),
@@ -1967,6 +2289,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     Expression<int>? durationMs,
     Expression<int>? position,
     Expression<DateTime>? createdAt,
+    Expression<String>? transcript,
+    Expression<String>? transcriptNoteText,
+    Expression<int>? transcriptionOrder,
+    Expression<String>? transcriptionStatus,
+    Expression<String>? transcriptionFailure,
+    Expression<String>? transcriptionEngine,
+    Expression<DateTime>? transcribedAt,
+    Expression<int>? transcriptionAttempts,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1979,6 +2309,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
       if (durationMs != null) 'duration_ms': durationMs,
       if (position != null) 'position': position,
       if (createdAt != null) 'created_at': createdAt,
+      if (transcript != null) 'transcript': transcript,
+      if (transcriptNoteText != null) 'transcript_note_text': transcriptNoteText,
+      if (transcriptionOrder != null) 'transcription_order': transcriptionOrder,
+      if (transcriptionStatus != null) 'transcription_status': transcriptionStatus,
+      if (transcriptionFailure != null) 'transcription_failure': transcriptionFailure,
+      if (transcriptionEngine != null) 'transcription_engine': transcriptionEngine,
+      if (transcribedAt != null) 'transcribed_at': transcribedAt,
+      if (transcriptionAttempts != null) 'transcription_attempts': transcriptionAttempts,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1993,6 +2331,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     Value<int?>? durationMs,
     Value<int>? position,
     Value<DateTime>? createdAt,
+    Value<String?>? transcript,
+    Value<String?>? transcriptNoteText,
+    Value<int?>? transcriptionOrder,
+    Value<TranscriptionStatus>? transcriptionStatus,
+    Value<String?>? transcriptionFailure,
+    Value<String?>? transcriptionEngine,
+    Value<DateTime?>? transcribedAt,
+    Value<int>? transcriptionAttempts,
     Value<int>? rowid,
   }) {
     return NoteAttachmentsCompanion(
@@ -2005,6 +2351,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
       durationMs: durationMs ?? this.durationMs,
       position: position ?? this.position,
       createdAt: createdAt ?? this.createdAt,
+      transcript: transcript ?? this.transcript,
+      transcriptNoteText: transcriptNoteText ?? this.transcriptNoteText,
+      transcriptionOrder: transcriptionOrder ?? this.transcriptionOrder,
+      transcriptionStatus: transcriptionStatus ?? this.transcriptionStatus,
+      transcriptionFailure: transcriptionFailure ?? this.transcriptionFailure,
+      transcriptionEngine: transcriptionEngine ?? this.transcriptionEngine,
+      transcribedAt: transcribedAt ?? this.transcribedAt,
+      transcriptionAttempts: transcriptionAttempts ?? this.transcriptionAttempts,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2039,6 +2393,32 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (transcript.present) {
+      map['transcript'] = Variable<String>(transcript.value);
+    }
+    if (transcriptNoteText.present) {
+      map['transcript_note_text'] = Variable<String>(transcriptNoteText.value);
+    }
+    if (transcriptionOrder.present) {
+      map['transcription_order'] = Variable<int>(transcriptionOrder.value);
+    }
+    if (transcriptionStatus.present) {
+      map['transcription_status'] = Variable<String>(
+        $NoteAttachmentsTable.$convertertranscriptionStatus.toSql(transcriptionStatus.value),
+      );
+    }
+    if (transcriptionFailure.present) {
+      map['transcription_failure'] = Variable<String>(transcriptionFailure.value);
+    }
+    if (transcriptionEngine.present) {
+      map['transcription_engine'] = Variable<String>(transcriptionEngine.value);
+    }
+    if (transcribedAt.present) {
+      map['transcribed_at'] = Variable<DateTime>(transcribedAt.value);
+    }
+    if (transcriptionAttempts.present) {
+      map['transcription_attempts'] = Variable<int>(transcriptionAttempts.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2057,6 +2437,14 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
           ..write('durationMs: $durationMs, ')
           ..write('position: $position, ')
           ..write('createdAt: $createdAt, ')
+          ..write('transcript: $transcript, ')
+          ..write('transcriptNoteText: $transcriptNoteText, ')
+          ..write('transcriptionOrder: $transcriptionOrder, ')
+          ..write('transcriptionStatus: $transcriptionStatus, ')
+          ..write('transcriptionFailure: $transcriptionFailure, ')
+          ..write('transcriptionEngine: $transcriptionEngine, ')
+          ..write('transcribedAt: $transcribedAt, ')
+          ..write('transcriptionAttempts: $transcriptionAttempts, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4745,6 +5133,14 @@ typedef $$NoteAttachmentsTableCreateCompanionBuilder = NoteAttachmentsCompanion 
   Value<int?> durationMs,
   required int position,
   required DateTime createdAt,
+  Value<String?> transcript,
+  Value<String?> transcriptNoteText,
+  Value<int?> transcriptionOrder,
+  Value<TranscriptionStatus> transcriptionStatus,
+  Value<String?> transcriptionFailure,
+  Value<String?> transcriptionEngine,
+  Value<DateTime?> transcribedAt,
+  Value<int> transcriptionAttempts,
   Value<int> rowid,
 });
 typedef $$NoteAttachmentsTableUpdateCompanionBuilder = NoteAttachmentsCompanion Function({
@@ -4757,6 +5153,14 @@ typedef $$NoteAttachmentsTableUpdateCompanionBuilder = NoteAttachmentsCompanion 
   Value<int?> durationMs,
   Value<int> position,
   Value<DateTime> createdAt,
+  Value<String?> transcript,
+  Value<String?> transcriptNoteText,
+  Value<int?> transcriptionOrder,
+  Value<TranscriptionStatus> transcriptionStatus,
+  Value<String?> transcriptionFailure,
+  Value<String?> transcriptionEngine,
+  Value<DateTime?> transcribedAt,
+  Value<int> transcriptionAttempts,
   Value<int> rowid,
 });
 
@@ -4803,6 +5207,33 @@ class $$NoteAttachmentsTableFilterComposer extends Composer<_$FikraDatabase, $No
 
   ColumnFilters<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get transcript =>
+      $composableBuilder(column: $table.transcript, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get transcriptNoteText =>
+      $composableBuilder(column: $table.transcriptNoteText, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get transcriptionOrder =>
+      $composableBuilder(column: $table.transcriptionOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<TranscriptionStatus, TranscriptionStatus, String> get transcriptionStatus =>
+      $composableBuilder(
+        column: $table.transcriptionStatus,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get transcriptionFailure =>
+      $composableBuilder(column: $table.transcriptionFailure, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get transcriptionEngine =>
+      $composableBuilder(column: $table.transcriptionEngine, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get transcribedAt =>
+      $composableBuilder(column: $table.transcribedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get transcriptionAttempts =>
+      $composableBuilder(column: $table.transcriptionAttempts, builder: (column) => ColumnFilters(column));
 
   $$NotesTableFilterComposer get noteId {
     final $$NotesTableFilterComposer composer = $composerBuilder(
@@ -4854,6 +5285,30 @@ class $$NoteAttachmentsTableOrderingComposer extends Composer<_$FikraDatabase, $
   ColumnOrderings<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get transcript =>
+      $composableBuilder(column: $table.transcript, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transcriptNoteText =>
+      $composableBuilder(column: $table.transcriptNoteText, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get transcriptionOrder =>
+      $composableBuilder(column: $table.transcriptionOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transcriptionStatus =>
+      $composableBuilder(column: $table.transcriptionStatus, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transcriptionFailure =>
+      $composableBuilder(column: $table.transcriptionFailure, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transcriptionEngine =>
+      $composableBuilder(column: $table.transcriptionEngine, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get transcribedAt =>
+      $composableBuilder(column: $table.transcribedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get transcriptionAttempts =>
+      $composableBuilder(column: $table.transcriptionAttempts, builder: (column) => ColumnOrderings(column));
+
   $$NotesTableOrderingComposer get noteId {
     final $$NotesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4897,6 +5352,29 @@ class $$NoteAttachmentsTableAnnotationComposer extends Composer<_$FikraDatabase,
   GeneratedColumn<int> get position => $composableBuilder(column: $table.position, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get transcript => $composableBuilder(column: $table.transcript, builder: (column) => column);
+
+  GeneratedColumn<String> get transcriptNoteText =>
+      $composableBuilder(column: $table.transcriptNoteText, builder: (column) => column);
+
+  GeneratedColumn<int> get transcriptionOrder =>
+      $composableBuilder(column: $table.transcriptionOrder, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TranscriptionStatus, String> get transcriptionStatus =>
+      $composableBuilder(column: $table.transcriptionStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get transcriptionFailure =>
+      $composableBuilder(column: $table.transcriptionFailure, builder: (column) => column);
+
+  GeneratedColumn<String> get transcriptionEngine =>
+      $composableBuilder(column: $table.transcriptionEngine, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get transcribedAt =>
+      $composableBuilder(column: $table.transcribedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get transcriptionAttempts =>
+      $composableBuilder(column: $table.transcriptionAttempts, builder: (column) => column);
 
   $$NotesTableAnnotationComposer get noteId {
     final $$NotesTableAnnotationComposer composer = $composerBuilder(
@@ -4951,6 +5429,14 @@ class $$NoteAttachmentsTableTableManager
                 Value<int?> durationMs = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> transcript = const Value.absent(),
+                Value<String?> transcriptNoteText = const Value.absent(),
+                Value<int?> transcriptionOrder = const Value.absent(),
+                Value<TranscriptionStatus> transcriptionStatus = const Value.absent(),
+                Value<String?> transcriptionFailure = const Value.absent(),
+                Value<String?> transcriptionEngine = const Value.absent(),
+                Value<DateTime?> transcribedAt = const Value.absent(),
+                Value<int> transcriptionAttempts = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NoteAttachmentsCompanion(
                 id: id,
@@ -4962,6 +5448,14 @@ class $$NoteAttachmentsTableTableManager
                 durationMs: durationMs,
                 position: position,
                 createdAt: createdAt,
+                transcript: transcript,
+                transcriptNoteText: transcriptNoteText,
+                transcriptionOrder: transcriptionOrder,
+                transcriptionStatus: transcriptionStatus,
+                transcriptionFailure: transcriptionFailure,
+                transcriptionEngine: transcriptionEngine,
+                transcribedAt: transcribedAt,
+                transcriptionAttempts: transcriptionAttempts,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4975,6 +5469,14 @@ class $$NoteAttachmentsTableTableManager
                 Value<int?> durationMs = const Value.absent(),
                 required int position,
                 required DateTime createdAt,
+                Value<String?> transcript = const Value.absent(),
+                Value<String?> transcriptNoteText = const Value.absent(),
+                Value<int?> transcriptionOrder = const Value.absent(),
+                Value<TranscriptionStatus> transcriptionStatus = const Value.absent(),
+                Value<String?> transcriptionFailure = const Value.absent(),
+                Value<String?> transcriptionEngine = const Value.absent(),
+                Value<DateTime?> transcribedAt = const Value.absent(),
+                Value<int> transcriptionAttempts = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NoteAttachmentsCompanion.insert(
                 id: id,
@@ -4986,6 +5488,14 @@ class $$NoteAttachmentsTableTableManager
                 durationMs: durationMs,
                 position: position,
                 createdAt: createdAt,
+                transcript: transcript,
+                transcriptNoteText: transcriptNoteText,
+                transcriptionOrder: transcriptionOrder,
+                transcriptionStatus: transcriptionStatus,
+                transcriptionFailure: transcriptionFailure,
+                transcriptionEngine: transcriptionEngine,
+                transcribedAt: transcribedAt,
+                transcriptionAttempts: transcriptionAttempts,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

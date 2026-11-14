@@ -6,7 +6,7 @@ Composition root of the FIKRA Flutter app. This package reads the build mode,
 wires `lib/data` implementations into Riverpod providers, defines the go_router
 route table and its redirects, and builds the root `MaterialApp.router` and the
 four-tab shell. Feature screens live in `lib/features` and are only referenced
-here as route targets. This directory has no subdirectories.
+here as route targets; the local transcription adapter is also wired here behind the data engine interface. This directory has no subdirectories.
 
 ## Interface
 
@@ -225,4 +225,8 @@ Local data services include `linksRepoProvider` (`Provider<LinksRepository>`) an
 
 ## Experimental voice to text route
 
-`/settings/voice-text` pushes VoiceTextScreen with `_pushed` (MaterialPage), just like Settings and note pages. The feature owns its fakeable backend/controller providers; app providers are used only for the existing shared microphone lease. The real main entrypoint reaches it from Settings; no standalone test app remains.
+`/settings/voice-text` pushes VoiceTextScreen with `_pushed` (MaterialPage), just like Settings and note pages. The feature owns its fakeable backend/controller providers; app providers supply the microphone lease, Whisper lease, saved-recording queue and settings repository. The real main entrypoint reaches it from Settings; no standalone test app remains.
+
+## Saved recording transcription (phase 2)
+
+whisperLockProvider supplies the process-wide lease; transcriptionEngineProvider is a replaceable asynchronous factory (local in both modes); transcriptionQueueProvider is app-scoped and schedules normal NoteProcessor.retry after success. Startup resumes attachment queued/running work next to NoteProcessor.resumeInterrupted before orphan maintenance. autoTranscribeProvider exposes the off-by-default persisted setting to draft chips and is invalidated after the voice-settings control changes it. No connected AI/backend support or external transcription provider is added.

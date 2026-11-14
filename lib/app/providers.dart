@@ -14,6 +14,10 @@ import '../data/local/database.dart';
 import '../data/links_repository.dart';
 import '../data/groups_repository.dart';
 import '../data/processing/note_processor.dart';
+import '../data/processing/transcription_engine.dart';
+import '../data/processing/transcription_queue.dart';
+import '../data/processing/whisper_lock.dart';
+import '../features/voice_text/local_transcription_engine.dart';
 import '../data/repositories.dart';
 import '../data/settings_repository.dart';
 import 'app_config.dart';
@@ -94,10 +98,29 @@ final noteProcessorProvider = Provider<NoteProcessor>(
   (ref) => NoteProcessor(ref.watch(notesRepoProvider), ref.watch(aiServiceProvider)),
 );
 
+/// Local transcription is available in both modes, independently of AI/backend.
+final whisperLockProvider = Provider<WhisperLock>((ref) => appWhisperLock);
+final transcriptionEngineProvider = Provider<TranscriptionEngineFactory>(
+  (ref) =>
+      () => LocalTranscriptionEngine.prepare(ref.read(settingsRepoProvider), ref.read(whisperLockProvider)),
+);
+final transcriptionQueueProvider = Provider<TranscriptionQueue>(
+  (ref) => TranscriptionQueue(
+    ref.watch(databaseProvider),
+    ref.watch(settingsRepoProvider),
+    ref.watch(transcriptionEngineProvider),
+    processNote: (id) => ref.read(noteProcessorProvider).retry(id),
+  ),
+);
+final autoTranscribeProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(settingsRepoProvider).readAutoTranscribe(),
+);
+
 /// Runs once at launch (watched by FikraApp).
 final startupMaintenanceProvider = FutureProvider<void>((ref) async {
   await ref.read(appLanguageProvider.future);
   await ref.read(noteProcessorProvider).resumeInterrupted();
+  await ref.read(transcriptionQueueProvider).resumeInterrupted();
   final notes = ref.read(notesRepoProvider);
   await ref.read(attachmentStoreProvider).sweepOrphans(await notes.attachmentPaths());
 });

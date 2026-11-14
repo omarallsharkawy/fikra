@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'fake_transcription_engine.dart';
+
+import 'package:fikra/data/processing/transcription_engine.dart';
+
 import 'package:fikra/l10n/localizations.dart';
 
 import 'dart:ui' show ImageByteFormat;
@@ -58,6 +62,7 @@ void fikraTest(
   List<String>? audioEvents,
   Future<void> Function(String path)? pauseAudio,
   VoiceTextBackend? voiceTextBackend,
+  TranscriptionEngine? transcriptionEngine,
 }) {
   testWidgets(description, (tester) async {
     tester.platformDispatcher.localeTestValue = locale;
@@ -76,6 +81,8 @@ void fikraTest(
         child: ProviderScope(
           overrides: [
             databaseProvider.overrideWithValue(db),
+            // No test, including startup recovery, may load a real model.
+            transcriptionEngineProvider.overrideWithValue(() async => transcriptionEngine ?? FakeTranscriptionEngine()),
             if (voiceTextBackend != null) voiceTextBackendProvider.overrideWithValue(voiceTextBackend),
             if (notesRepository != null) notesRepoProvider.overrideWithValue(notesRepository(db)),
             if (projectsRepository != null) projectsRepoProvider.overrideWithValue(projectsRepository(db)),
@@ -101,7 +108,10 @@ void fikraTest(
     } finally {
       await tester.pumpWidget(const SizedBox()); // dispose providers → cancel queries
       await tester.pump(Duration.zero); // flush drift's close timer
-      await tester.runAsync(db.close);
+      // Close in the test's zone, pumping: work the test did not wait for (such
+      // as the note analysis a finished transcription wakes) may still hold
+      // drift's lock, and a close from runAsync would wait for it forever.
+      await pumpFuture(tester, db.close);
     }
   }, tags: tags);
 }

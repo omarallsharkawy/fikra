@@ -9,6 +9,8 @@ enum AttachmentKind { pdf, voice, image }
 
 enum LinkOrigin { ai, user }
 
+enum TranscriptionStatus { none, queued, running, done, failed }
+
 /// "Saved" and "AI finished" are separate states.
 enum ProcessingStatus { processing, ready, failed }
 
@@ -103,6 +105,20 @@ class NoteAttachments extends Table {
   IntColumn get durationMs => integer().nullable()();
   IntColumn get position => integer()();
   DateTimeColumn get createdAt => dateTime()();
+  TextColumn get transcript => text().nullable()();
+
+  /// Last transcript represented in the note body, retained across redos so a
+  /// different result cannot get appended again on every retry.
+  TextColumn get transcriptNoteText => text().nullable()();
+  IntColumn get transcriptionOrder => integer().nullable()();
+  TextColumn get transcriptionStatus => textEnum<TranscriptionStatus>().withDefault(const Constant('none'))();
+  TextColumn get transcriptionFailure => text().nullable()();
+  TextColumn get transcriptionEngine => text().nullable()();
+  DateTimeColumn get transcribedAt => dateTime().nullable()();
+
+  /// Runs started since the last manual request, written before inference
+  /// begins, so a native crash or out-of-memory kill still counts.
+  IntColumn get transcriptionAttempts => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -160,7 +176,7 @@ class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -239,19 +255,21 @@ class FikraDatabase extends _$FikraDatabase {
               int? durationMs,
             }) async {
               if (path == null || path.trim().isEmpty) return;
-              await into(noteAttachments).insert(
-                NoteAttachment(
-                  id: 'legacy:${note.read<String>('id')}:$key',
-                  noteId: note.read<String>('id'),
-                  kind: kind,
-                  path: path,
-                  name: name,
-                  bytes: bytes,
-                  durationMs: durationMs,
-                  position: position++,
-                  createdAt: note.read<DateTime>('created_at'),
-                ),
-                mode: InsertMode.insertOrIgnore,
+              await customStatement(
+                'INSERT OR IGNORE INTO note_attachments '
+                '(id, note_id, kind, path, name, bytes, duration_ms, position, created_at) '
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                  'legacy:${note.read<String>('id')}:$key',
+                  note.read<String>('id'),
+                  kind.name,
+                  path,
+                  name,
+                  bytes,
+                  durationMs,
+                  position++,
+                  note.read<DateTime>('created_at').millisecondsSinceEpoch ~/ 1000,
+                ],
               );
             }
 
@@ -294,6 +312,25 @@ class FikraDatabase extends _$FikraDatabase {
           await customStatement('CREATE INDEX IF NOT EXISTS note_groups_project ON note_groups (project_id)');
           await customStatement('CREATE INDEX IF NOT EXISTS note_groups_parent ON note_groups (parent_id)');
           await customStatement('CREATE INDEX IF NOT EXISTS notes_group ON notes (group_id)');
+        });
+      }
+      if (from < 7) {
+        await transaction(() async {
+          final columns = await customSelect('PRAGMA table_info(note_attachments)').get();
+          for (final column in <GeneratedColumn<Object>>[
+            noteAttachments.transcript,
+            noteAttachments.transcriptNoteText,
+            noteAttachments.transcriptionOrder,
+            noteAttachments.transcriptionStatus,
+            noteAttachments.transcriptionFailure,
+            noteAttachments.transcriptionEngine,
+            noteAttachments.transcribedAt,
+            noteAttachments.transcriptionAttempts,
+          ]) {
+            if (!columns.any((c) => c.read<String>('name') == column.$name)) {
+              await m.addColumn(noteAttachments, column);
+            }
+          }
         });
       }
     },

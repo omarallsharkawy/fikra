@@ -1058,5 +1058,89 @@
   "vtRefreshModels": "Refresh model list",
   "@vtRefreshModels": {
     "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
+  },
+  "trAutomatic": "Transcribe recordings automatically",
+  "@trAutomatic": {
+    "description": "Voice setting: transcribe only new recordings after a note save."
+  },
+  "trAutomaticHint": "Runs on your phone after saving and can take a while.",
+  "@trAutomaticHint": {
+    "description": "Hint below automatic recording transcription setting."
+  },
+  "trDownloadFirst": "Download a model first to transcribe recordings on your phone.",
+  "@trDownloadFirst": {
+    "description": "Explains why automatic transcription cannot be enabled without an installed model."
+  },
+  "trAfterSave": "Transcribe after saving",
+  "@trAfterSave": {
+    "description": "Toggle on a new recording draft; no inference runs before saving."
+  },
+  "trQueueFailed": "The recording is saved, but we couldn’t queue it. Try from the note.",
+  "@trQueueFailed": {
+    "description": "Failure persisting or waking a saved recording transcription request."
+  },
+  "trWorking": "Transcribing audio…",
+  "@trWorking": {
+    "description": "Live status on a note card and its running voice attachment."
+  },
+  "trQueued": "Waiting to transcribe…",
+  "@trQueued": {
+    "description": "A saved recording is queued behind another job."
+  },
+  "trExpand": "Show full transcript",
+  "@trExpand": {
+    "description": "Expand the collapsed transcript of a saved recording."
+  },
+  "trCollapse": "Show less",
+  "@trCollapse": {
+    "description": "Collapse a saved recording transcript to three lines."
+  },
+  "trLocalEngine": "On your phone · {model}",
+  "@trLocalEngine": {
+    "description": "Engine label for the model that produced a saved transcript.",
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "trModelMissing": "The model is missing or damaged. Download it in voice settings and try again.",
+  "@trModelMissing": {
+    "description": "Transcription failure with an action opening voice settings."
+  },
+  "trBusy": "Another transcription took too long. Try again when it finishes.",
+  "@trBusy": {
+    "description": "Timed out waiting for the process-wide local engine lease."
+  },
+  "trAudioUnreadable": "We couldn’t read the recording or find speech. Try playing it first.",
+  "@trAudioUnreadable": {
+    "description": "Unreadable or empty audio transcription failure."
+  },
+  "trFailed": "We couldn’t transcribe the recording. Try again.",
+  "@trFailed": {
+    "description": "Other saved recording transcription failure."
+  },
+  "trInterruptedTwice": "Transcription stopped twice because the app closed. Try again or choose a smaller model.",
+  "@trInterruptedTwice": {
+    "description": "Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically."
+  },
+  "trOpenSettings": "Open voice settings",
+  "@trOpenSettings": {
+    "description": "Open the model and speech settings after a missing-model failure."
+  },
+  "trTranscribe": "Transcribe audio",
+  "@trTranscribe": {
+    "description": "Queue a saved voice attachment for transcription."
+  },
+  "trRedo": "Transcribe again",
+  "@trRedo": {
+    "description": "Redo a saved recording with the currently selected engine and model."
+  },
+  "vtEngineBusy": "A recording is being transcribed. Wait for it to finish and try again.",
+  "@vtEngineBusy": {
+    "description": "The test screen cannot start another model while the app-wide Whisper lease is held."
+  },
+  "@originalKeptHint": {
+    "description": "Applies to every note source. Saved recordings can be transcribed locally after saving."
   }
 }

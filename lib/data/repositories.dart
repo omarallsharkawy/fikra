@@ -6,6 +6,7 @@ import 'files/attachment_store.dart';
 import 'ids.dart';
 import 'link_label.dart';
 import 'local/database.dart';
+import 'local/transcription_order.dart';
 import 'links_repository.dart';
 
 typedef ProjectSummary = ({Project project, int noteCount});
@@ -256,6 +257,9 @@ class LocalNotesRepository implements NotesRepository {
     for (final a in attachments.where((a) => a.id != null)) {
       if (byId[a.id]?.path != a.path) throw StateError('Attachment no longer exists');
     }
+    var requestOrder = attachments.any((a) => a.id == null && a.kind == AttachmentKind.voice && a.transcribe)
+        ? await nextTranscriptionOrder(db)
+        : 0;
     await (db.delete(db.noteAttachments)..where((a) => a.noteId.equals(noteId))).go();
     for (final (position, a) in attachments.indexed) {
       await db
@@ -271,6 +275,20 @@ class LocalNotesRepository implements NotesRepository {
               durationMs: a.durationMs,
               position: position,
               createdAt: byId[a.id]?.createdAt ?? DateTime.now(),
+              transcript: byId[a.id]?.transcript,
+              transcriptNoteText: byId[a.id]?.transcriptNoteText,
+              transcriptionOrder:
+                  byId[a.id]?.transcriptionOrder ??
+                  (a.id == null && a.kind == AttachmentKind.voice && a.transcribe ? requestOrder++ : null),
+              transcriptionStatus:
+                  byId[a.id]?.transcriptionStatus ??
+                  (a.kind == AttachmentKind.voice && a.transcribe
+                      ? TranscriptionStatus.queued
+                      : TranscriptionStatus.none),
+              transcriptionFailure: byId[a.id]?.transcriptionFailure,
+              transcriptionEngine: byId[a.id]?.transcriptionEngine,
+              transcribedAt: byId[a.id]?.transcribedAt,
+              transcriptionAttempts: byId[a.id]?.transcriptionAttempts ?? 0,
             ),
           );
     }

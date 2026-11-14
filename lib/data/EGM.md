@@ -25,7 +25,7 @@ From `settings_repository.dart`:
 
 - `enum AppLanguage { system, ar, en }`: persisted language choice, free of Flutter types.
 - `enum AppTheme { system, light, dark }`: free of Flutter types; the app maps it to `ThemeMode`.
-- `abstract interface class SettingsRepository`, implemented by `LocalSettingsRepository(FikraDatabase db, AttachmentStore files)`: `watchTheme`, `setTheme`, `watchLanguage`, `setLanguage`, `readVoiceTextChoices`, `setVoiceTextModel`, `setVoiceTextLanguage`, `wipeAllData`. The three voice methods also form the narrow `VoiceTextSettings` interface.
+- `abstract interface class SettingsRepository`, implemented by `LocalSettingsRepository(FikraDatabase db, AttachmentStore files)`: `watchTheme`, `setTheme`, `watchLanguage`, `setLanguage`, `readVoiceTextChoices`, `setVoiceTextModel`, `setVoiceTextLanguage`, `readAutoTranscribe`, `setAutoTranscribe`, `wipeAllData`. The voice preference methods also form the narrow `VoiceTextSettings` interface.
 - `class WipeFilesException implements Exception`: wraps `cause`.
 
 Subdirectories:
@@ -105,4 +105,12 @@ Files and ordering:
 
 ## Voice preferences (phase 1)
 
-The existing key/value settings table also stores voice_text_model (modelName) and voice_text_language (ar/en/auto). Reads return a nullable pair so the feature can choose an installed-model fallback; writes use insertOnConflictUpdate. Speech language is independent of app language, and invalid values are rejected. Wipe retains both keys alongside theme/language; only current_project is removed. There is no migration, automatic voice-note transcription or external-engine integration. Tests cover reopening, overwrites, validation and wipe retention in test/settings_test.dart; feature tests use a matching in-memory VoiceTextSettings fake.
+The existing key/value settings table also stores voice_text_model (modelName) and voice_text_language (ar/en/auto). Reads return a nullable pair so the feature can choose an installed-model fallback; writes use insertOnConflictUpdate. Speech language is independent of app language, and invalid values are rejected. Wipe retains both keys alongside theme/language; only current_project is removed. Phase 2 adds schema v7 and optional saved-recording transcription; external engines remain unimplemented. Tests cover reopening, overwrites, validation and wipe retention in test/settings_test.dart; feature tests use a matching in-memory VoiceTextSettings fake.
+
+## Saved recording transcription (phase 2)
+
+VoiceTextSettings also exposes readAutoTranscribe/setAutoTranscribe, using voice_text_auto_transcribe (`true`/`false`, absent/unknown = false). Wipe preserves this preference along with model/language/theme. AttachmentDraft.transcribe is a new-file save intent; transcriptionDraft snapshots auto-or-explicit selection for voice drafts only, never existing IDs or non-voice files. saveAttachmentDraft preserves the intent through copying. _replaceAttachments persists queued atomically with new rows and preserves all transcription metadata for existing IDs during edits.
+
+TranscriptionQueue in processing owns attachment state and atomically appends transcript text to freshly read Notes.editedText. originalText/extractedText are untouched. transcriptNoteText remembers what is already represented in the note body across multiple different redos; deleting an attachment does not erase text the user may have edited. Notes.status becomes processing in the same success transaction so the normal AI pass also survives a killed wake-up.
+
+A nullable transcriptionOrder allocated transactionally preserves FIFO on launch recovery. transcriptionAttempts (NOT NULL, default 0) counts runs started since the last manual request; replacing attachments on edit preserves it. save wake-ups take only new copied/requested paths; ordinary enqueue ignores done attachments unless redo is explicit.

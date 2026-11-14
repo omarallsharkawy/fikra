@@ -8,6 +8,7 @@ export 'whisper_models.dart';
 export 'whisper_recordings.dart' show SpikeRecording;
 
 enum VoiceTextIssue {
+  busy,
   network,
   interrupted,
   corrupt,

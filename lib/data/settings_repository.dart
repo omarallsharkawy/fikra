@@ -11,6 +11,8 @@ enum AppLanguage { system, ar, en }
 /// and native inference. Future engine/automation settings can be added here.
 abstract interface class VoiceTextSettings {
   Future<({String? modelName, String? language})> readVoiceTextChoices();
+  Future<bool> readAutoTranscribe();
+  Future<void> setAutoTranscribe(bool enabled);
   Future<void> setVoiceTextModel(String modelName);
   Future<void> setVoiceTextLanguage(String language);
 }
@@ -43,6 +45,7 @@ class LocalSettingsRepository implements SettingsRepository {
   final AttachmentStore files;
 
   static const _themeKey = 'theme';
+  static const autoTranscribeKey = 'voice_text_auto_transcribe';
   static const voiceTextModelKey = 'voice_text_model';
   static const voiceTextLanguageKey = 'voice_text_language';
   static const _currentProjectKey = 'current_project';
@@ -93,6 +96,16 @@ class LocalSettingsRepository implements SettingsRepository {
   Future<void> setVoiceTextLanguage(String language) async {
     if (!const ['ar', 'en', 'auto'].contains(language)) throw ArgumentError.value(language, 'language');
     await db.into(db.settings).insertOnConflictUpdate(Setting(key: voiceTextLanguageKey, value: language));
+  }
+
+  @override
+  Future<bool> readAutoTranscribe() async =>
+      (await (db.select(db.settings)..where((s) => s.key.equals(autoTranscribeKey))).getSingleOrNull())?.value ==
+      'true';
+
+  @override
+  Future<void> setAutoTranscribe(bool enabled) async {
+    await db.into(db.settings).insertOnConflictUpdate(Setting(key: autoTranscribeKey, value: '$enabled'));
   }
 
   @override

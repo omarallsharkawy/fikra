@@ -23,4 +23,4 @@ Every feature uses generated `AppLocalizations` through `context.l10n`; user con
 
 Add and Edit both use `shared/attachment_editor.dart`; all live attachments come from the v5 table through repository streams.
 
-- voice_text: [./voice_text/EGM.md](./voice_text/EGM.md) - Settings-only on-device transcription experiment. It owns separate application-support models/recordings and uses a fakeable boundary instead of the note database. It does not change saved voice-note behavior.
+- voice_text: [./voice_text/EGM.md](./voice_text/EGM.md) - Settings-only on-device transcription experiment. It owns application-support models/trial recordings and the native adapter for the durable saved-recording queue. Settings and saved attachments use the shared database.

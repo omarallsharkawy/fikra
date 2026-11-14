@@ -13,9 +13,9 @@ void main() {
   late SchemaVerifier verifier;
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 → v6 produces exactly the current schema', () async {
+  test('v1 → v7 produces exactly the current schema', () async {
     final db = FikraDatabase(await verifier.startAt(1));
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 7);
     await db.close();
   });
 
@@ -34,7 +34,7 @@ void main() {
     note('text', 'text');
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 7);
     final byId = {for (final n in await db.select(db.notes).get()) n.id: n};
 
     final voice = byId['voice']!;
@@ -74,7 +74,7 @@ void main() {
     expect(raw.userVersion, 1);
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 7);
     final n = await db.select(db.notes).getSingle();
     expect(n.voicePath, '/files/rec.m4a');
     expect(n.attachmentPath, isNull);
@@ -87,7 +87,7 @@ void main() {
     // An interrupted v3 upgrade: one index already exists, user_version still 2.
     schema.rawDatabase.execute('CREATE INDEX notes_status ON notes (status)');
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 7);
     final names = (await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get())
         .map((r) => r.read<String>('name'))
         .toSet();
@@ -122,7 +122,7 @@ void main() {
     raw.execute("ALTER TABLE notes ADD COLUMN image_paths TEXT NOT NULL DEFAULT ''");
 
     final db = FikraDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 7);
     final n = await db.select(db.notes).getSingle();
     expect((await db.select(db.noteAttachments).get()).where((a) => a.kind == AttachmentKind.image), isEmpty);
     expect(n.attachmentPath, '/files/doc.pdf');
@@ -168,7 +168,7 @@ void main() {
         }
         final db = FikraDatabase(schema.newConnection());
         try {
-          await verifier.migrateAndValidate(db, 6);
+          await verifier.migrateAndValidate(db, 7);
           final declaredColumns = db.notes.$columns.map((c) => c.$name).toList();
           final physicalColumns = (await db.customSelect('PRAGMA table_info(notes)').get())
               .map((r) => r.read<String>('name'))
@@ -211,5 +211,54 @@ void main() {
         }
       });
     }
+  }
+  for (final partial in [false, true]) {
+    test('real v6 → v7 preserves data and re-running is safe; partial=$partial', () async {
+      final schema = await verifier.schemaAt(6);
+      final raw = schema.rawDatabase;
+      raw.execute("INSERT INTO projects VALUES ('p', 'project', 1700000000)");
+      raw.execute(
+        "INSERT INTO notes (id, project_id, title, original_text, source, status, created_at, updated_at) "
+        "VALUES ('n', 'p', 'title', 'typed', 'voice', 'ready', 1700000000, 1700000000)",
+      );
+      raw.execute(
+        "INSERT INTO note_attachments (id, note_id, kind, path, duration_ms, position, created_at) "
+        "VALUES ('a', 'n', 'voice', '/a.m4a', 5000, 0, 1700000000)",
+      );
+      raw.execute("INSERT INTO settings VALUES ('voice_text_model', 'small-egy-cs-q5_1')");
+      if (partial) {
+        raw.execute('ALTER TABLE note_attachments ADD COLUMN transcript TEXT NULL');
+        raw.execute("ALTER TABLE note_attachments ADD COLUMN transcription_status TEXT NOT NULL DEFAULT 'none'");
+        raw.execute('ALTER TABLE note_attachments ADD COLUMN transcription_attempts INTEGER NOT NULL DEFAULT 0');
+        raw.execute(
+          "UPDATE note_attachments SET transcript = 'already written', transcription_status = 'done', "
+          'transcription_attempts = 1',
+        );
+      }
+      final db = FikraDatabase(schema.newConnection());
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, 7);
+      final note = await db.select(db.notes).getSingle();
+      final a = await db.select(db.noteAttachments).getSingle();
+      expect(note.originalText, 'typed');
+      expect((a.id, a.path, a.durationMs, a.position), ('a', '/a.m4a', 5000, 0));
+      expect(a.transcript, partial ? 'already written' : null);
+      expect(a.transcriptionStatus, partial ? TranscriptionStatus.done : TranscriptionStatus.none);
+      // Added with the other v7 columns; an earlier partial run's count is kept.
+      expect(a.transcriptionAttempts, partial ? 1 : 0);
+      expect([
+        a.transcriptNoteText,
+        a.transcriptionOrder,
+        a.transcriptionEngine,
+        a.transcriptionFailure,
+        a.transcribedAt,
+      ], everyElement(isNull));
+      expect((await db.select(db.settings).getSingle()).value, 'small-egy-cs-q5_1');
+      await db.migration.onUpgrade(Migrator(db), 6, 7);
+      await db.migration.onUpgrade(Migrator(db), 6, 7);
+      expect(await db.select(db.noteAttachments).getSingle(), a);
+      expect(await db.select(db.notes).getSingle(), note);
+      expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
+    });
   }
 }

@@ -9,7 +9,15 @@ class EmptyNoteException implements Exception {
 
 /// A saved attachment has an ID; a picked file or temporary recording has none.
 class AttachmentDraft {
-  const AttachmentDraft({this.id, required this.kind, required this.path, this.name, this.bytes, this.durationMs});
+  const AttachmentDraft({
+    this.id,
+    required this.kind,
+    required this.path,
+    this.name,
+    this.bytes,
+    this.durationMs,
+    this.transcribe = false,
+  });
   factory AttachmentDraft.saved(NoteAttachment a) =>
       AttachmentDraft(id: a.id, kind: a.kind, path: a.path, name: a.name, bytes: a.bytes, durationMs: a.durationMs);
   final String? id;
@@ -18,6 +26,9 @@ class AttachmentDraft {
   final String? name;
   final int? bytes;
   final int? durationMs;
+
+  /// Only new saved voice rows can request work; never run on a temp file.
+  final bool transcribe;
 
   /// Raw display name; localized file-only auto-titles belong to presentation.
   String get fileTitle => name ?? p.basename(path);
@@ -45,7 +56,16 @@ Future<T> saveAttachmentDraft<T>(
       };
       final path = await store.persist(a.path, extension: extension);
       copied.add(path);
-      stored.add(AttachmentDraft(kind: a.kind, path: path, name: a.name, bytes: a.bytes, durationMs: a.durationMs));
+      stored.add(
+        AttachmentDraft(
+          kind: a.kind,
+          path: path,
+          name: a.name,
+          bytes: a.bytes,
+          durationMs: a.durationMs,
+          transcribe: a.transcribe,
+        ),
+      );
     }
     return await commit(stored);
   } catch (_) {
@@ -53,3 +73,23 @@ Future<T> saveAttachmentDraft<T>(
     rethrow;
   }
 }
+
+/// Snapshot the save policy. Existing attachments never get re-queued by edits.
+List<AttachmentDraft> transcriptionDraft(List<AttachmentDraft> draft, {required bool automatic}) => [
+  for (final a in draft)
+    AttachmentDraft(
+      id: a.id,
+      kind: a.kind,
+      path: a.path,
+      name: a.name,
+      bytes: a.bytes,
+      durationMs: a.durationMs,
+      transcribe: a.id == null && a.kind == AttachmentKind.voice && (automatic || a.transcribe),
+    ),
+];
+
+/// Only the new copied files requested by this exact save may wake the queue.
+List<String> newTranscriptionPaths(List<AttachmentDraft> stored) => [
+  for (final a in stored)
+    if (a.id == null && a.kind == AttachmentKind.voice && a.transcribe) a.path,
+];

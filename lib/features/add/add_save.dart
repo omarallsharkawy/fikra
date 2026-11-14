@@ -16,18 +16,27 @@ extension _AddSave on _AddScreenState {
         : NoteSource.text;
     _set(() => saving = true);
     try {
+      var transcriptionPaths = <String>[];
       final note = await saveAttachmentDraft(
         store,
-        draft,
-        (stored) => ref
-            .read(notesRepoProvider)
-            .create(
-              projectId: project.id,
-              title: text.trim().isEmpty && title.trim().isEmpty ? fileOnlyTitle : title,
-              text: text,
-              source: source,
-              attachments: stored,
-            ),
+        transcriptionDraft(draft, automatic: await ref.read(settingsRepoProvider).readAutoTranscribe()),
+        (stored) {
+          transcriptionPaths = newTranscriptionPaths(stored);
+          return ref
+              .read(notesRepoProvider)
+              .create(
+                projectId: project.id,
+                title: text.trim().isEmpty && title.trim().isEmpty ? fileOnlyTitle : title,
+                text: text,
+                source: source,
+                attachments: stored,
+              );
+        },
+      );
+      unawaited(
+        ref.read(transcriptionQueueProvider).saved(note.id, transcriptionPaths).catchError((_) {
+          if (mounted) showToast(context, context.l10n.trQueueFailed);
+        }),
       );
       // No operation after commit is allowed to roll back committed files.
       await cleanDraftRecordings();

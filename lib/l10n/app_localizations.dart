@@ -860,7 +860,7 @@ abstract class AppLocalizations {
   /// **'نص الملاحظة'**
   String get noteTextA11y;
 
-  /// Applies to every note source. There is no automatic voice transcription.
+  /// Applies to every note source. Saved recordings can be transcribed locally after saving.
   ///
   /// In ar, this message translates to:
   /// **'النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.'**
@@ -2527,6 +2527,120 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'حدّث قائمة النماذج'**
   String get vtRefreshModels;
+
+  /// Voice setting: transcribe only new recordings after a note save.
+  ///
+  /// In ar, this message translates to:
+  /// **'فرّغ التسجيلات لوحدها'**
+  String get trAutomatic;
+
+  /// Hint below automatic recording transcription setting.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.'**
+  String get trAutomaticHint;
+
+  /// Explains why automatic transcription cannot be enabled without an installed model.
+  ///
+  /// In ar, this message translates to:
+  /// **'نزّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.'**
+  String get trDownloadFirst;
+
+  /// Toggle on a new recording draft; no inference runs before saving.
+  ///
+  /// In ar, this message translates to:
+  /// **'فرّغه بعد الحفظ'**
+  String get trAfterSave;
+
+  /// Failure persisting or waking a saved recording transcription request.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيل اتحفظ، بس مقدرناش نضيفه للتفريغ. جرّب من الملاحظة.'**
+  String get trQueueFailed;
+
+  /// Live status on a note card and its running voice attachment.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيفرّغ الصوت…'**
+  String get trWorking;
+
+  /// A saved recording is queued behind another job.
+  ///
+  /// In ar, this message translates to:
+  /// **'مستني دوره للتفريغ…'**
+  String get trQueued;
+
+  /// Expand the collapsed transcript of a saved recording.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض النص كله'**
+  String get trExpand;
+
+  /// Collapse a saved recording transcript to three lines.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض أقل'**
+  String get trCollapse;
+
+  /// Engine label for the model that produced a saved transcript.
+  ///
+  /// In ar, this message translates to:
+  /// **'على الموبايل · {model}'**
+  String trLocalEngine(String model);
+
+  /// Transcription failure with an action opening voice settings.
+  ///
+  /// In ar, this message translates to:
+  /// **'النموذج مش موجود أو ملفه بايظ. نزّله من إعدادات الصوت وجرّب تاني.'**
+  String get trModelMissing;
+
+  /// Timed out waiting for the process-wide local engine lease.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.'**
+  String get trBusy;
+
+  /// Unreadable or empty audio transcription failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نقرا التسجيل أو نطلع منه كلام. جرّب تشغّله الأول.'**
+  String get trAudioUnreadable;
+
+  /// Other saved recording transcription failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نفرّغ التسجيل. جرّب تاني.'**
+  String get trFailed;
+
+  /// Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.'**
+  String get trInterruptedTwice;
+
+  /// Open the model and speech settings after a missing-model failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح إعدادات الصوت'**
+  String get trOpenSettings;
+
+  /// Queue a saved voice attachment for transcription.
+  ///
+  /// In ar, this message translates to:
+  /// **'فرّغ الصوت'**
+  String get trTranscribe;
+
+  /// Redo a saved recording with the currently selected engine and model.
+  ///
+  /// In ar, this message translates to:
+  /// **'فرّغ تاني'**
+  String get trRedo;
+
+  /// The test screen cannot start another model while the app-wide Whisper lease is held.
+  ///
+  /// In ar, this message translates to:
+  /// **'في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.'**
+  String get vtEngineBusy;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

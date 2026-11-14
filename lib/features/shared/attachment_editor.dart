@@ -21,6 +21,7 @@ import '../../core/widgets/voice_player.dart';
 import '../../data/files/attachment_store.dart';
 import '../../data/local/database.dart';
 import 'inline_recorder.dart';
+import 'group_form.dart';
 import '../../data/attachment_draft.dart';
 
 part 'attachment_files.dart';
@@ -90,7 +91,7 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
         for (final (i, a) in draftFiles.indexed)
           if (a.kind != AttachmentKind.image || i == 0 || draftFiles[i - 1].kind != AttachmentKind.image)
             Padding(
-              key: ObjectKey(a),
+              key: a.kind == AttachmentKind.voice ? ValueKey((a.id ?? a.path, i)) : ObjectKey(a),
               padding: const EdgeInsets.only(top: 4, bottom: 6),
               child: switch (a.kind) {
                 AttachmentKind.pdf => _PdfChip(
@@ -98,12 +99,44 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
                   bytes: a.bytes ?? 0,
                   onRemove: attachmentBusy ? null : () => removeDraft(a),
                 ),
-                AttachmentKind.voice => VoicePlayer(
-                  key: ValueKey(a.path),
-                  path: a.path,
-                  durationMs: a.durationMs ?? 0,
-                  embedded: true,
-                  onDelete: attachmentBusy ? null : () => removeDraft(a),
+                AttachmentKind.voice => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    VoicePlayer(
+                      key: ValueKey(a.path),
+                      path: a.path,
+                      durationMs: a.durationMs ?? 0,
+                      embedded: true,
+                      onDelete: attachmentBusy ? null : () => removeDraft(a),
+                    ),
+                    if (a.id == null && !(ref.watch(autoTranscribeProvider).value ?? false))
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: ChoiceTag(
+                          key: ValueKey('transcribe-draft-${a.path}'),
+                          label: context.l10n.trAfterSave,
+                          selected: a.transcribe,
+                          onTap: attachmentBusy
+                              ? null
+                              : () => updateDraft(() {
+                                  draftFiles = [
+                                    for (final file in draftFiles)
+                                      if (identical(file, a))
+                                        AttachmentDraft(
+                                          kind: a.kind,
+                                          path: a.path,
+                                          name: a.name,
+                                          bytes: a.bytes,
+                                          durationMs: a.durationMs,
+                                          transcribe: !a.transcribe,
+                                        )
+                                      else
+                                        file,
+                                  ];
+                                }),
+                        ),
+                      ),
+                  ],
                 ),
                 AttachmentKind.image => _ImageStrip(
                   images: draftFiles.skip(i).takeWhile((a) => a.kind == AttachmentKind.image).toList(),

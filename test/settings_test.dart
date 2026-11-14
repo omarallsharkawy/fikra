@@ -64,6 +64,15 @@ void main() {
     expect(() => settings.setVoiceTextLanguage('unknown'), throwsArgumentError);
   });
 
+  test('automatic transcription defaults off, persists and can be turned off', () async {
+    expect(await settings.readAutoTranscribe(), isFalse);
+    await settings.setAutoTranscribe(true);
+    final reopened = LocalSettingsRepository(db, AttachmentStore());
+    expect(await reopened.readAutoTranscribe(), isTrue);
+    await reopened.setAutoTranscribe(false);
+    expect(await settings.readAutoTranscribe(), isFalse);
+  });
+
   test('wipe removes all data and files but keeps the theme', () async {
     final projects = LocalProjectsRepository(db);
     final notes = LocalNotesRepository(db);
@@ -75,6 +84,7 @@ void main() {
     final unrelated = await File('${temp.path}/other.txt').writeAsString('x');
 
     await settings.setTheme(AppTheme.dark);
+    await settings.setAutoTranscribe(true);
     await settings.setVoiceTextModel('small-egy-cs-q5_1');
     await settings.setVoiceTextLanguage('ar');
     await settings.setLanguage(AppLanguage.en);
@@ -99,6 +109,7 @@ void main() {
     expect(draft.existsSync(), isFalse);
     expect(unrelated.existsSync(), isTrue);
     expect(await settings.watchTheme().first, AppTheme.dark);
+    expect(await settings.readAutoTranscribe(), isTrue);
     expect(await settings.readVoiceTextChoices(), (modelName: 'small-egy-cs-q5_1', language: 'ar'));
     expect(await settings.watchLanguage().first, AppLanguage.en);
   });

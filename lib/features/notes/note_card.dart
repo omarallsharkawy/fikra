@@ -87,6 +87,19 @@ class NoteCard extends ConsumerWidget {
               GroupTag(key: ValueKey('note-group-${note.id}'), group: group),
               const SizedBox(height: 6),
             ],
+            if (attachments.any(
+              (a) =>
+                  a.kind == AttachmentKind.voice &&
+                  (a.transcriptionStatus == TranscriptionStatus.queued ||
+                      a.transcriptionStatus == TranscriptionStatus.running),
+            )) ...[
+              FikraBadge(
+                key: ValueKey('transcribing-${note.id}'),
+                kind: BadgeKind.processing,
+                label: context.l10n.trWorking,
+              ),
+              const SizedBox(height: FikraSpace.s8),
+            ],
             FikraSwitcher(
               alignment: AlignmentDirectional.topStart,
               child: KeyedSubtree(
