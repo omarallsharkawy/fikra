@@ -1987,6 +1987,42 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.'**
   String get groupRuleHasChildren;
+
+  /// No description provided for @suggestedTopics.
+  ///
+  /// In ar, this message translates to:
+  /// **'مواضيع مقترحة'**
+  String get suggestedTopics;
+
+  /// No description provided for @makeTopicGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'حوّل «{topic}» لمجموعة'**
+  String makeTopicGroup(String topic);
+
+  /// No description provided for @graphGroupA11y.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموعة «{group}»، {notes}'**
+  String graphGroupA11y(String group, String notes);
+
+  /// No description provided for @moreTopics.
+  ///
+  /// In ar, this message translates to:
+  /// **'باقي المواضيع'**
+  String get moreTopics;
+
+  /// No description provided for @moreTopicsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, zero{مفيش مواضيع تانية} one{موضوع تاني} two{موضوعين تانيين} few{{count} مواضيع تانية} many{{count} موضوع تاني} other{{count} موضوع تاني}}'**
+  String moreTopicsCount(int count);
+
+  /// No description provided for @graphNoteInGroup.
+  ///
+  /// In ar, this message translates to:
+  /// **'{title}، في مجموعة «{group}»'**
+  String graphNoteInGroup(String title, String group);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

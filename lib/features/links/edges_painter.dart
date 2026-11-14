@@ -26,6 +26,14 @@ class _EdgesPainter extends CustomPainter {
       paintCount++;
       return true;
     }());
+    canvas.save();
+    final mask = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Offset.zero & size);
+    for (final r in paths.layout.obstacles) {
+      mask.addRect(_rect(r).inflate(1.5));
+    }
+    canvas.clipPath(mask, doAntiAlias: false);
     final stroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -48,11 +56,13 @@ class _EdgesPainter extends CustomPainter {
       canvas.drawCircle(Offset(edge.start.x, edge.start.y), 3, dot);
       canvas.drawCircle(Offset(edge.end.x, edge.end.y), 3, dot);
     }
+    canvas.restore();
   }
 
   @override
   bool shouldRepaint(_EdgesPainter old) =>
       !paths.sameInk(old.paths) ||
+      !listEquals(paths.layout.obstacles, old.paths.layout.obstacles) ||
       !setEquals(old.dimmed, dimmed) ||
       old.accent != accent ||
       old.suggestionColor != suggestionColor;

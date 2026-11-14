@@ -85,9 +85,7 @@ Future<bool> groupNotes(
   required String projectId,
   required List<Note> notes,
 }) async {
-  final l10n = context.l10n;
   final repo = ref.read(groupsRepoProvider);
-  final notesRepo = ref.read(notesRepoProvider);
   final pick = await showGroupSheet(context, projectId: projectId, canRemove: notes.any((n) => n.groupId != null));
   if (pick == null || !context.mounted) return false;
   NoteGroup? target;
@@ -107,8 +105,27 @@ Future<bool> groupNotes(
       if (!ok || created == null || !context.mounted) return false;
       target = created;
   }
+  return assignSelectionGroup(context, ref, projectId: projectId, notes: notes, target: target, created: created);
+}
+
+/// Assigns a known target using the same guarded, stale-safe Undo as the picker.
+/// Used by suggested topics in the graph; callers hold selectionBusyProvider.
+Future<bool> assignSelectionGroup(
+  BuildContext context,
+  WidgetRef ref, {
+  required String projectId,
+  required List<Note> notes,
+  NoteGroup? target,
+  NoteGroup? created,
+  bool freshlyRead = false,
+}) async {
+  final l10n = context.l10n;
+  final repo = ref.read(groupsRepoProvider);
+  final notesRepo = ref.read(notesRepoProvider);
   // The groups as they are now, not when the selection started.
-  final live = {for (final n in ref.read(notesOfProjectProvider(projectId)).value ?? notes) n.id: n};
+  final live = {
+    for (final n in freshlyRead ? notes : ref.read(notesOfProjectProvider(projectId)).value ?? notes) n.id: n,
+  };
   final previous = {
     for (final n in notes)
       if (live[n.id] case final note?) note.id: note.groupId,

@@ -14,7 +14,11 @@ List<GraphCapsule> layoutGraphCapsules(
 }) {
   if (selected == null) return const [];
   final result = <GraphCapsule>[];
-  final blocked = obstacles.map((r) => r.inflate(4)).toList();
+  final blocked = [
+    ...obstacles.map((r) => r.inflate(4)),
+    for (final f in layout.frames)
+      Rect.fromLTWH(f.header.left, f.header.top, f.header.width, f.header.height).inflate(4),
+  ];
   final edges =
       layout.edges
           .where((e) => (e.link.sourceId == selected || e.link.targetId == selected) && e.link.label.trim().isNotEmpty)
@@ -25,7 +29,11 @@ List<GraphCapsule> layoutGraphCapsules(
     Rect? placed;
     for (final width in [160.0, 128.0, 96.0, 72.0]) {
       final size = measure(edge.link.label, width);
-      for (final t in [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]) {
+      for (final t in [
+        0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8,
+        // Short curved gutter exits occupy only part of a segmented route.
+        if (edge.curves.length > 1) ...[for (var i = 1; i < 40; i++) i / 40],
+      ]) {
         final p = edge.pointAt(t);
         final rect = Rect.fromCenter(center: Offset(p.x, p.y), width: size.width, height: size.height);
         if (!canvas.contains(rect.topLeft) || !canvas.contains(rect.bottomRight) || blocked.any(rect.overlaps)) {

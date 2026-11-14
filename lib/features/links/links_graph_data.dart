@@ -5,9 +5,13 @@ part of 'links_screen.dart';
 extension _LinksGraphData on _LinksScreenState {
   void _setProject(String? projectId) {
     if (_projectId != projectId) {
+      _cancelHold?.call();
+      _pointers.clear();
       _projectId = projectId;
       _notesSource = null;
       _linksSource = null;
+      _groupsSource = null;
+      _selection = null;
       _input = null;
       _pending = null;
       _layout = null;
@@ -20,14 +24,39 @@ extension _LinksGraphData on _LinksScreenState {
 
   // Project only after a stream emission, not on selection/zoom/theme rebuilds.
   // Content-only writes produce the same projection and retain the layout.
-  void _updateGraph(List<Note> notes, List<NoteLink> links) {
+  void _updateGraph(List<Note> notes, List<NoteLink> links, List<NoteGroup> groups) {
     final notesChanged = !identical(notes, _notesSource);
+    final groupsChanged = !identical(groups, _groupsSource);
     final linksChanged = !identical(links, _linksSource);
     final rtl = Directionality.of(context) == TextDirection.rtl;
+    final headerExtent = GraphLayout.headerHeight * math.max(1, MediaQuery.textScalerOf(context).scale(14) / 14);
     final generalLabel = context.l10n.clusterGeneral;
-    if (!notesChanged && !linksChanged && _input?.rtl == rtl && _input?.generalLabel == generalLabel) return;
+    final scaler = MediaQuery.textScalerOf(context);
+    final style = context.text.chip;
+    final labelStyle = Object.hash(
+      style,
+      context.text.section,
+      scaler,
+      rtl,
+      generalLabel,
+      DefaultTextStyle.of(context).style,
+      MediaQuery.boldTextOf(context),
+      Localizations.localeOf(context),
+    );
+
+    if (!notesChanged &&
+        !linksChanged &&
+        !groupsChanged &&
+        _input?.rtl == rtl &&
+        _input?.generalLabel == generalLabel &&
+        _input?.headerExtent == headerExtent &&
+        _labelStyle == labelStyle) {
+      return;
+    }
+    _labelStyle = labelStyle;
     _notesSource = notes;
     _linksSource = links;
+    _groupsSource = groups;
     final input = GraphInput(
       notesChanged
           ? [
@@ -55,6 +84,19 @@ extension _LinksGraphData on _LinksScreenState {
                   ),
             ]
           : _input!.links,
+      groups: [
+        for (final g in groups) (id: g.id, parentId: g.parentId, name: g.name, color: g.color, position: g.position),
+      ],
+      memberships: {
+        for (final n in notes)
+          if (n.groupId != null) n.id: n.groupId!,
+      },
+      labelSizes: {
+        for (final name in notes.map((n) => n.cluster?.trim().isNotEmpty == true ? n.cluster! : generalLabel).toSet())
+          name: _measureGraphText(name, style, 264),
+      },
+      suggestedSize: _measureGraphText(context.l10n.suggestedTopics, context.text.section, 320),
+      headerExtent: headerExtent,
       rtl: rtl,
       generalLabel: generalLabel,
     );

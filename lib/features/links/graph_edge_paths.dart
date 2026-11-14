@@ -47,46 +47,60 @@ class CachedGraphEdge {
       a.start == b.start &&
       a.control1 == b.control1 &&
       a.control2 == b.control2 &&
-      a.end == b.end;
+      a.end == b.end &&
+      a.curves.length == b.curves.length &&
+      List.generate(a.curves.length, (i) => a.curves[i] == b.curves[i]).every((v) => v);
 }
 
 /// One cubic path and one packed line-segment buffer. Dash subdivision walks
 /// the already flattened curve once; no metrics or per-dash engine Paths.
 class GraphEdgeInk {
   GraphEdgeInk(GraphEdge e) {
-    path = Path()
-      ..moveTo(e.start.x, e.start.y)
-      ..cubicTo(e.control1.x, e.control1.y, e.control2.x, e.control2.y, e.end.x, e.end.y);
-    final segments = <double>[];
-    if (!e.link.isUser) {
-      var travelled = 0.0;
-      for (var i = 1; i < e.points.length; i++) {
-        final a = e.points[i - 1], b = e.points[i];
-        final dx = b.x - a.x, dy = b.y - a.y, length = math.sqrt(dx * dx + dy * dy);
-        var position = 0.0;
-        while (position < length) {
-          final phase = travelled % 10;
-          final on = phase < 5;
-          final step = math.min(length - position, (on ? 5 : 10) - phase);
-          if (step < 1e-9) {
-            travelled += 1e-8;
-            continue;
-          }
-          if (on) {
-            segments.addAll([
-              a.x + dx * position / length,
-              a.y + dy * position / length,
-              a.x + dx * (position + step) / length,
-              a.y + dy * (position + step) / length,
-            ]);
-          }
-          position += step;
-          travelled += step;
-        }
+    path = Path()..moveTo(e.start.x, e.start.y);
+    for (final c in e.curves) {
+      if (c.start.x == c.control1.x && c.start.x == c.control2.x && c.start.x == c.end.x) {
+        path.lineTo(c.end.x, c.end.y);
+      } else {
+        path.cubicTo(c.control1.x, c.control1.y, c.control2.x, c.control2.y, c.end.x, c.end.y);
       }
     }
-    dashPoints = Float32List.fromList(segments);
+    if (e.link.isUser) {
+      dashPoints = Float32List(0);
+      return;
+    }
+    final lengths = <double>[];
+    var total = 0.0;
+    for (var i = 1; i < e.points.length; i++) {
+      final a = e.points[i - 1], b = e.points[i];
+      final len = math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+      lengths.add(len);
+      total += len;
+    }
+    // One packed allocation. No temporary List or division per dash, including
+    // long gutter runs. A view trims the conservative per-segment capacity.
+    final buffer = Float32List((total / 10 + 2 * e.points.length + 1).ceil() * 4);
+    var written = 0, travelled = 0.0;
+    for (final (i, length) in lengths.indexed) {
+      if (length < 1e-9) continue;
+      final a = e.points[i], b = e.points[i + 1];
+      final ux = (b.x - a.x) / length, uy = (b.y - a.y) / length;
+      final phase = travelled % 10;
+      var position = phase < 5 ? 0.0 : 10 - phase;
+      var dash = phase < 5 ? 5 - phase : 5.0;
+      while (position < length) {
+        final end = math.min(length, position + dash);
+        buffer[written++] = a.x + ux * position;
+        buffer[written++] = a.y + uy * position;
+        buffer[written++] = a.x + ux * end;
+        buffer[written++] = a.y + uy * end;
+        position += dash + 5;
+        dash = 5;
+      }
+      travelled += length;
+    }
+    dashPoints = Float32List.sublistView(buffer, 0, written);
   }
+
   late final Path path;
   late final Float32List dashPoints;
 }

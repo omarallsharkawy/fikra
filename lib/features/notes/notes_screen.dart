@@ -16,8 +16,8 @@ import '../projects/project_header.dart';
 import '../shared/group_filter.dart';
 import '../shared/group_options.dart';
 import '../shared/note_groups.dart';
-import '../shared/selection_actions.dart';
 import '../shared/selection_bar.dart';
+import '../shared/note_selection_actions.dart';
 import 'note_card.dart';
 
 part 'notes_selection.dart';

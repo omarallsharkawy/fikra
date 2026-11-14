@@ -48,70 +48,15 @@ mixin _Selection on ConsumerState<NotesScreen> {
     if (selection.isEmpty) _selection = null;
   }
 
-  /// Runs [action] on the selected notes as they are now. The selection may
-  /// change while it runs; the action keeps the notes it started with, and
-  /// ends only the selection it started from. One action or Undo at a time
-  /// ([selectionBusyProvider]).
-  Future<void> _run(Future<bool> Function(List<Note> notes, String projectId) action) async {
-    final selection = _selection;
-    final project = ref.read(selectedProjectProvider);
-    if (selection == null || project == null) return;
-    final notes = [
-      for (final n in ref.read(selectedNotesProvider).value ?? const <Note>[])
-        if (selection.contains(n.id)) n,
-    ];
-    if (notes.isEmpty) return;
-    final guard = ref.read(selectionBusyProvider.notifier);
-    if (!guard.claim()) return;
-    // An earlier Undo can't be pressed while this one runs.
-    ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
-    try {
-      final done = await action(notes, project.id);
-      if (done && mounted && identical(_selection, selection)) _endSelection();
-    } finally {
-      guard.release();
-    }
-  }
-
   Widget _actionBar(BuildContext context, int count) {
-    final l10n = context.l10n;
-    final busy = ref.watch(selectionBusyProvider);
-    final canLink = count >= 2 && count <= maxLinkTogether;
-    List<String> ids(List<Note> notes) => [for (final n in notes) n.id];
-    return SelectionActionBar(
-      note: count > maxLinkTogether ? l10n.linkTogetherLimit(maxLinkTogether) : null,
-      actions: [
-        SelectionAction(
-          key: const ValueKey('selection-link'),
-          icon: Icons.hub_outlined,
-          label: l10n.linkTogether,
-          onTap: busy || !canLink ? null : () => _run((notes, _) => linkTogether(context, ref, ids(notes))),
-          disabledHint: count < 2 ? l10n.linkTogetherNeedsTwo : l10n.linkTogetherLimit(maxLinkTogether),
-        ),
-        SelectionAction(
-          key: const ValueKey('selection-group'),
-          icon: Icons.folder_copy_outlined,
-          label: l10n.groupAction,
-          onTap: busy
-              ? null
-              : () => _run((notes, projectId) => groupNotes(context, ref, projectId: projectId, notes: notes)),
-        ),
-        SelectionAction(
-          key: const ValueKey('selection-move'),
-          icon: Icons.drive_file_move_outline,
-          label: l10n.moveConfirm,
-          onTap: busy
-              ? null
-              : () => _run((notes, projectId) => moveNotesTo(context, ref, projectId: projectId, noteIds: ids(notes))),
-        ),
-        SelectionAction(
-          key: const ValueKey('selection-delete'),
-          icon: Icons.delete_outline_rounded,
-          label: l10n.delete,
-          danger: true,
-          onTap: busy ? null : () => _run((notes, _) => deleteNotes(context, ref, ids(notes))),
-        ),
-      ],
+    final selection = _selection!;
+    return noteSelectionActions(
+      context,
+      ref,
+      selection: selection,
+      onDone: () {
+        if (identical(_selection, selection)) _endSelection();
+      },
     );
   }
 }

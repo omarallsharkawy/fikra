@@ -752,5 +752,45 @@
   "groupRuleMissingGroup": "This group no longer exists.",
   "groupRuleInvalidParent": "A group can only go inside a top-level group, not inside a sub-group.",
   "groupRuleSelfParent": "A group can't go inside itself.",
-  "groupRuleHasChildren": "This group has groups inside it, so it can't go inside another group."
+  "groupRuleHasChildren": "This group has groups inside it, so it can't go inside another group.",
+  "suggestedTopics": "Suggested topics",
+  "makeTopicGroup": "Make {topic} a group",
+  "@makeTopicGroup": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "graphGroupA11y": "Group {group}, {notes}",
+  "@graphGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTopics": "More topics",
+  "moreTopicsCount": "{count, plural, one{{count} more topic} other{{count} more topics}}",
+  "@moreTopicsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "graphNoteInGroup": "{title}, in group {group}",
+  "@graphNoteInGroup": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  }
 }

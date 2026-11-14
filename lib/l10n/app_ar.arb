@@ -774,5 +774,45 @@
   "groupRuleMissingGroup": "المجموعة دي مابقتش موجودة.",
   "groupRuleInvalidParent": "تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.",
   "groupRuleSelfParent": "مينفعش تحط المجموعة جوه نفسها.",
-  "groupRuleHasChildren": "المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية."
+  "groupRuleHasChildren": "المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.",
+  "suggestedTopics": "مواضيع مقترحة",
+  "makeTopicGroup": "حوّل «{topic}» لمجموعة",
+  "@makeTopicGroup": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "graphGroupA11y": "مجموعة «{group}»، {notes}",
+  "@graphGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTopics": "باقي المواضيع",
+  "moreTopicsCount": "{count, plural, zero{مفيش مواضيع تانية} one{موضوع تاني} two{موضوعين تانيين} few{{count} مواضيع تانية} many{{count} موضوع تاني} other{{count} موضوع تاني}}",
+  "@moreTopicsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "graphNoteInGroup": "{title}، في مجموعة «{group}»",
+  "@graphNoteInGroup": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  }
 }

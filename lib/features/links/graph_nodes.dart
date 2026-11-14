@@ -22,7 +22,7 @@ class _OverflowNode extends StatelessWidget {
   final String? semanticLabel;
   final bool numbersOnly;
   final bool dimmed;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) => Pressable(
@@ -30,13 +30,15 @@ class _OverflowNode extends StatelessWidget {
     semanticLabel: semanticLabel ?? label,
     child: Glass(
       radius: FikraRadius.sm,
-      color: dimmed ? context.colors.screen : null,
-      gradient: dimmed ? null : context.colors.glassGradient,
+      color: dimmed || onTap == null ? context.colors.screen : null,
+      gradient: dimmed || onTap == null ? null : context.colors.glassGradient,
       child: Center(
         child: Text(
           label,
           textDirection: numbersOnly ? TextDirection.ltr : Directionality.of(context),
-          style: context.text.chip.copyWith(color: dimmed ? _mutedGraphText(context) : context.colors.textPrimary),
+          style: context.text.chip.copyWith(
+            color: dimmed || onTap == null ? _mutedGraphText(context) : context.colors.textPrimary,
+          ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -103,53 +105,86 @@ class _NodePreview extends StatelessWidget {
 }
 
 class _Node extends StatelessWidget {
-  const _Node({super.key, required this.note, required this.selected, required this.onTap, this.dimmed = false});
+  const _Node({
+    super.key,
+    required this.note,
+    required this.selected,
+    required this.onTap,
+    this.dimmed = false,
+    this.selecting = false,
+    this.onHold,
+    this.semanticLabel,
+  });
   final GraphNote note;
   final bool selected;
+  final bool selecting;
+  final VoidCallback? onHold;
+  final String? semanticLabel;
   final bool dimmed;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Pressable(
-      onTap: onTap,
-      selected: selected,
-      semanticLabel: _graphTitle(context, note),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: AlignmentDirectional.centerStart,
-        decoration: BoxDecoration(
-          gradient: selected
-              ? context.colors.selectedGradient
-              : dimmed
-              ? null
-              : context.colors.glassGradient,
-          color: selected
-              ? null
-              : dimmed
-              ? context.colors.screen
-              : context.colors.glass,
-          borderRadius: BorderRadius.circular(FikraRadius.sm),
-          border: Border.all(
-            color: selected
-                ? context.colors.accentLight
+    return Semantics(
+      checked: selecting ? selected : null,
+      onLongPress: onHold,
+      child: Pressable(
+        onTap: onTap,
+        selected: selected,
+        // Long-press recognition is pointer-tracked by _GraphHold. Expose the
+        // equivalent action to assistive technology without joining the arena.
+        semanticLabel: semanticLabel ?? _graphTitle(context, note),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          alignment: AlignmentDirectional.centerStart,
+          decoration: BoxDecoration(
+            gradient: selected
+                ? context.colors.selectedGradient
                 : dimmed
-                ? context.colors.border
-                : context.colors.borderGraph,
-            width: selected ? 1.2 : FikraSpace.hairline,
-          ),
-        ),
-        child: Text(
-          _graphTitle(context, note),
-          style: context.text.chip.copyWith(
+                ? null
+                : context.colors.glassGradient,
             color: selected
-                ? context.colors.textOnSelected
+                ? null
                 : dimmed
-                ? _mutedGraphText(context)
-                : context.colors.textPrimary,
+                ? context.colors.screen
+                : context.colors.glass,
+            borderRadius: BorderRadius.circular(FikraRadius.sm),
+            border: Border.all(
+              color: selected
+                  ? context.colors.accentLight
+                  : dimmed
+                  ? context.colors.border
+                  : context.colors.borderGraph,
+              width: selected ? 1.2 : FikraSpace.hairline,
+            ),
           ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              if (selecting) ...[
+                Icon(
+                  selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                  key: ValueKey('graph-check-${note.id}'),
+                  size: 20,
+                  color: selected ? context.colors.textOnSelected : context.colors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Expanded(
+                child: Text(
+                  _graphTitle(context, note),
+                  style: context.text.chip.copyWith(
+                    color: selected
+                        ? context.colors.textOnSelected
+                        : dimmed
+                        ? _mutedGraphText(context)
+                        : context.colors.textPrimary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

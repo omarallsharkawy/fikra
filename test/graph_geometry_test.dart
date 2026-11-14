@@ -244,4 +244,18 @@ void main() {
     // ignore: avoid_print
     print('240/1000 total geometry+cache: full $fullUs us; one changed link $editUs us; rebuilt ${next.rebuiltEdges}');
   });
+  test('packed dashes retain 5-on/5-off phase through a cubic gutter corner', () {
+    final e = GraphEdge(
+      link(0, 1),
+      (x: 0.0, y: 0.0),
+      (x: 8.0, y: 0.0),
+      (x: 24.0, y: 12.0),
+      (x: 24.0, y: 16.0),
+      segments: [
+        (start: (x: 0.0, y: 0.0), control1: (x: 8.0, y: 0.0), control2: (x: 16.0, y: 0.0), end: (x: 24.0, y: 0.0)),
+        (start: (x: 24.0, y: 0.0), control1: (x: 24.0, y: 4.0), control2: (x: 24.0, y: 12.0), end: (x: 24.0, y: 16.0)),
+      ],
+    );
+    expect(GraphEdgeInk(e).dashPoints, [0, 0, 5, 0, 10, 0, 15, 0, 20, 0, 24, 0, 24, 0, 24, 1, 24, 6, 24, 11]);
+  });
 }

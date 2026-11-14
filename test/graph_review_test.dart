@@ -221,7 +221,7 @@ void main() {
     expect(preview, findsOneWidget);
   });
 
-  fikraTest('overflow cards and more groups fade but open their own sheets', locale: const Locale('en'), (
+  fikraTest('overflow cards and more topics fade but open their own sheets', locale: const Locale('en'), (
     tester,
     db,
   ) async {
@@ -263,7 +263,7 @@ void main() {
     await tester.tapAt(const Offset(195, 10));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    final more = find.text(en.moreGroupsCount(layout.hiddenRows.length));
+    final more = find.text(en.moreTopicsCount(layout.hiddenRows.length));
     expect(tester.widget<Text>(more).style!.color, muted);
     final mp = layout.positionInRow(layout.rows.length, 0);
     controller.value = Matrix4.translationValues(100 - mp.left, 100 - mp.top, 0);
@@ -271,7 +271,7 @@ void main() {
     await tester.tap(more);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text(en.moreGroups), findsOneWidget);
+    expect(find.text(en.moreTopics), findsOneWidget);
     expect(find.text(en.linkOptionsTitle), findsNothing);
   });
 

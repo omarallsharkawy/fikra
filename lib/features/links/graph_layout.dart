@@ -3,78 +3,42 @@ import 'dart:math' as math;
 import '../shared/link_pairs.dart';
 
 part 'graph_geometry.dart';
+part 'graph_frames_layout.dart';
+part 'graph_input.dart';
+part 'graph_labels.dart';
+part 'graph_routing.dart';
+part 'graph_compact.dart';
+part 'graph_ports.dart';
+part 'graph_arc_route.dart';
 
 /// Small, isolate-safe projections. Never include note bodies or attachments.
 typedef GraphNote = ({String id, String title, String? cluster, int createdAt, int status});
 typedef GraphLink = ({String id, String sourceId, String targetId, String label, double strength, bool isUser});
 typedef GraphPosition = ({double left, double top, double width, double height});
 
-class GraphInput {
-  GraphInput(this.notes, this.links, {this.rtl = true, this.generalLabel = ''})
-    : signature = Object.hash(
-        rtl,
-        generalLabel,
-        notes.length,
-        links.length,
-        Object.hashAllUnordered(notes),
-        Object.hashAllUnordered(links),
-      );
-
-  final List<GraphNote> notes;
-  final List<GraphLink> links;
-  final bool rtl;
-  final String generalLabel;
-
-  /// Ignores stream ordering and fields outside the projections. Includes time
-  /// (ranking), status, titles, and edge appearance as well as topology.
-  final int signature;
-
-  /// Check equality after hashing too: a hash collision must not hide an edit.
-  bool sameData(GraphInput other) =>
-      signature == other.signature &&
-      rtl == other.rtl &&
-      generalLabel == other.generalLabel &&
-      _sameRecords(notes, other.notes) &&
-      _sameRecords(links, other.links);
-
-  static bool _sameRecords<T>(List<T> a, List<T> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    // Database streams normally retain their ordering. Avoid building a large
-    // frequency map on the common, unchanged-data path.
-    var sameOrder = true;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) {
-        sameOrder = false;
-        break;
-      }
-    }
-    if (sameOrder) return true;
-    final counts = <T, int>{};
-    for (final value in a) {
-      counts.update(value, (count) => count + 1, ifAbsent: () => 1);
-    }
-    for (final value in b) {
-      final count = counts[value];
-      if (count == null) return false;
-      if (count == 1) {
-        counts.remove(value);
-      } else {
-        counts[value] = count - 1;
-      }
-    }
-    return counts.isEmpty;
-  }
-}
-
 class GraphRow {
-  const GraphRow({required this.cluster, required this.notes, required this.visible, required this.index});
+  const GraphRow({
+    required this.cluster,
+    required this.notes,
+    required this.visible,
+    required this.index,
+    this.groupId,
+    this.top,
+    this.start = GraphLayout.padding,
+    this.canMakeGroup = false,
+  });
 
   final String cluster;
   final List<GraphNote> notes;
   final List<GraphNote> visible;
   final int index;
+  final String? groupId;
+  final double? top;
+  final double start;
+  final bool canMakeGroup;
+  double get labelTop => top ?? GraphLayout.padding + index * GraphLayout.rowHeight;
   int get hiddenCount => notes.length - visible.length;
+  List<GraphNote> get hiddenNotes => notes.skip(visible.length).toList();
 }
 
 /// Pure layout, with no Flutter, database, or UI objects. Coordinates retain the
@@ -91,6 +55,10 @@ class GraphLayout {
     required this.linkCount,
     required this.width,
     required this.height,
+    this.frames = const [],
+    this.suggestedTop,
+    this.labelSizes = const {},
+    this.suggestedSize = (width: 180, height: 24),
   });
 
   static const nodeWidth = 148.0;
@@ -98,9 +66,21 @@ class GraphLayout {
   static const gapX = 22.0;
   static const rowHeight = 132.0;
   static const padding = 24.0;
+  static const headerHeight = 64.0;
   static const smallProjectLimit = 60;
 
+  final Map<String, GraphTextSize> labelSizes;
+  final GraphTextSize suggestedSize;
+  late final List<GraphLabel> labels;
+  List<GraphPosition> get obstacles => [
+    for (final f in frames) f.header,
+    for (final l in labels) l.bounds,
+    for (final l in labels)
+      if (l.control != null) l.control!,
+  ];
   final bool rtl;
+  final List<GraphFrame> frames;
+  final double? suggestedTop;
   final List<GraphRow> rows;
   final List<GraphRow> hiddenRows;
   final Map<String, GraphNote> nodes;
@@ -112,22 +92,43 @@ class GraphLayout {
   final double width;
   final double height;
 
-  GraphPosition positionInRow(int row, int column) => (
-    left: rtl ? width - padding - (column + 1) * nodeWidth - column * gapX : padding + column * (nodeWidth + gapX),
-    top: padding + row * rowHeight + 34,
-    width: nodeWidth,
-    height: nodeHeight,
-  );
+  GraphPosition positionInRow(int row, int column) {
+    final data = row < rows.length ? rows[row] : null;
+    final start = data?.start ?? padding;
+    return (
+      left: rtl ? width - start - (column + 1) * nodeWidth - column * gapX : start + column * (nodeWidth + gapX),
+      top: (data?.labelTop ?? (padding + row * rowHeight)) + 34,
+      width: nodeWidth,
+      height: nodeHeight,
+    );
+  }
+
+  GraphPosition get morePosition =>
+      positionInRow(frames.isNotEmpty && hiddenRows.isNotEmpty ? rows.length - 1 : rows.length, 0);
 
   /// Top-level-compatible callback for Flutter's compute().
-  static GraphLayout fromInput(GraphInput input) =>
-      compute(input.notes, input.links, rtl: input.rtl, generalLabel: input.generalLabel);
+  static GraphLayout fromInput(GraphInput input) => compute(
+    input.notes,
+    input.links,
+    rtl: input.rtl,
+    generalLabel: input.generalLabel,
+    groups: input.groups,
+    memberships: input.memberships,
+    headerExtent: input.headerExtent,
+    labelSizes: input.labelSizes,
+    suggestedSize: input.suggestedSize,
+  );
 
   static GraphLayout compute(
     List<GraphNote> notes,
     List<GraphLink> links, {
     bool rtl = true,
     String generalLabel = '',
+    double headerExtent = headerHeight,
+    Map<String, GraphTextSize> labelSizes = const {},
+    GraphTextSize suggestedSize = (width: 180, height: 24),
+    List<GraphGroup> groups = const [],
+    Map<String, String> memberships = const {},
     int maxNodesPerRow = 12,
     int maxNodes = 240,
     int maxRows = 20,
@@ -135,13 +136,31 @@ class GraphLayout {
     int preserveSmallProjectsUpTo = smallProjectLimit,
   }) {
     assert(maxNodesPerRow > 0 && maxNodes > 0 && maxRows > 0 && maxEdges > 0);
+    if (groups.isNotEmpty) {
+      return _layoutFrames(
+        notes,
+        links,
+        groups,
+        memberships,
+        rtl: rtl,
+        generalLabel: generalLabel,
+        headerExtent: headerExtent,
+        labelSizes: labelSizes,
+        suggestedSize: suggestedSize,
+        maxNodesPerRow: maxNodesPerRow,
+        maxNodes: maxNodes,
+        maxRows: maxRows,
+        maxEdges: maxEdges,
+        preserveSmallProjectsUpTo: preserveSmallProjectsUpTo,
+      );
+    }
     // ProcessingStatus.ready.index == 1. The input deliberately has no database
     // dependency; every status still participates in the memo signature.
     final ready = notes.where((n) => n.status == 1).toList()..sort((a, b) => a.createdAt.compareTo(b.createdAt));
     final small = notes.length <= preserveSmallProjectsUpTo;
     final clusters = <String, List<GraphNote>>{};
     for (final note in ready) {
-      clusters.putIfAbsent(note.cluster ?? generalLabel, () => []).add(note);
+      clusters.putIfAbsent(note.cluster?.trim().isNotEmpty == true ? note.cluster! : generalLabel, () => []).add(note);
     }
     final ordered = clusters.entries.toList()..sort((a, b) => b.value.length.compareTo(a.value.length));
     final degree = <String, int>{};
@@ -173,7 +192,8 @@ class GraphLayout {
           ? 0
           : math.min(rowNotes.length, math.min(maxNodesPerRow, maxNodes - nodes.length));
       final row = GraphRow(
-        cluster: entry.key,
+        cluster: entry.key.trim().isEmpty ? generalLabel : entry.key,
+        canMakeGroup: entry.key.trim().isNotEmpty && rowNotes.every((n) => n.cluster?.trim().isNotEmpty ?? false),
         notes: rowNotes,
         visible: rowNotes.take(count).toList(),
         index: rows.length,
@@ -204,6 +224,8 @@ class GraphLayout {
     }
     final layout = GraphLayout._(
       rtl: rtl,
+      labelSizes: labelSizes,
+      suggestedSize: suggestedSize,
       rows: rows,
       hiddenRows: hiddenRows,
       nodes: nodes,
@@ -219,7 +241,6 @@ class GraphLayout {
         layout.positions[row.visible[i].id] = layout.positionInRow(row.index, i);
       }
     }
-    layout.edges = buildGraphEdges(layout);
-    return layout;
+    return _finishGraph(layout);
   }
 }

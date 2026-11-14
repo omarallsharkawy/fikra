@@ -1206,4 +1206,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get groupRuleHasChildren => 'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.';
+
+  @override
+  String get suggestedTopics => 'مواضيع مقترحة';
+
+  @override
+  String makeTopicGroup(String topic) {
+    return 'حوّل «$topic» لمجموعة';
+  }
+
+  @override
+  String graphGroupA11y(String group, String notes) {
+    return 'مجموعة «$group»، $notes';
+  }
+
+  @override
+  String get moreTopics => 'باقي المواضيع';
+
+  @override
+  String moreTopicsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count موضوع تاني',
+      many: '$count موضوع تاني',
+      few: '$count مواضيع تانية',
+      two: 'موضوعين تانيين',
+      one: 'موضوع تاني',
+      zero: 'مفيش مواضيع تانية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String graphNoteInGroup(String title, String group) {
+    return '$title، في مجموعة «$group»';
+  }
 }

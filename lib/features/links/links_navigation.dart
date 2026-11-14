@@ -3,7 +3,7 @@ part of 'links_screen.dart';
 /// Leaving the graph: open a note, or pick one from a cluster sheet.
 extension _LinksNavigation on _LinksScreenState {
   Future<void> _openLink(GraphLink edge) async {
-    if (_linkOptionsOpen || !(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    if (_selection != null || _linkOptionsOpen || !(ModalRoute.of(context)?.isCurrent ?? true)) return;
     final notes = {for (final n in _notesSource ?? const <Note>[]) n.id: n};
     NoteLink? link;
     for (final l in _linksSource ?? const <NoteLink>[]) {
@@ -61,37 +61,58 @@ extension _LinksNavigation on _LinksScreenState {
     context.push('/note/$id', extra: full);
   }
 
-  Future<void> _showCluster(GraphRow row) => showFikraSheet<void>(
-    context,
-    title: row.cluster,
-    builder: (sheetContext) => SizedBox(
-      height: MediaQuery.sizeOf(sheetContext).height * 0.55,
-      child: ListView.builder(
-        itemExtent: 64,
-        itemCount: row.notes.length,
-        itemBuilder: (context, index) {
-          final note = row.notes[index];
-          return ListTile(
-            title: Text(
-              _graphTitle(context, note),
-              style: context.text.body,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+  Future<void> _showCluster(GraphRow row) {
+    final hidden = row.hiddenNotes;
+    return showFikraSheet<void>(
+      context,
+      title: row.cluster,
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * 0.55,
+        child: Column(
+          children: [
+            if (row.canMakeGroup && row.groupId == null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: FikraButton.secondary(
+                  key: const ValueKey('graph-topic-convert-sheet'),
+                  label: context.l10n.makeTopicGroup(row.cluster),
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    _makeGroup(row);
+                  },
+                ),
+              ),
+            Expanded(
+              child: ListView.builder(
+                itemExtent: 64,
+                itemCount: hidden.length,
+                itemBuilder: (context, index) {
+                  final note = hidden[index];
+                  return ListTile(
+                    title: Text(
+                      _graphTitle(context, note),
+                      style: context.text.body,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      _openNote(note.id);
+                    },
+                  );
+                },
+              ),
             ),
-            onTap: () {
-              Navigator.pop(sheetContext);
-              _openNote(note.id);
-            },
-          );
-        },
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Future<void> _showMoreClusters(GraphLayout layout) async {
     final row = await showFikraSheet<GraphRow>(
       context,
-      title: context.l10n.moreGroups,
+      title: context.l10n.moreTopics,
       builder: (sheetContext) => SizedBox(
         height: MediaQuery.sizeOf(sheetContext).height * 0.55,
         child: ListView.builder(

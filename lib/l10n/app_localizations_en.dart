@@ -1164,4 +1164,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupRuleHasChildren => 'This group has groups inside it, so it can\'t go inside another group.';
+
+  @override
+  String get suggestedTopics => 'Suggested topics';
+
+  @override
+  String makeTopicGroup(String topic) {
+    return 'Make $topic a group';
+  }
+
+  @override
+  String graphGroupA11y(String group, String notes) {
+    return 'Group $group, $notes';
+  }
+
+  @override
+  String get moreTopics => 'More topics';
+
+  @override
+  String moreTopicsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more topics',
+      one: '$count more topic',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String graphNoteInGroup(String title, String group) {
+    return '$title, in group $group';
+  }
 }
