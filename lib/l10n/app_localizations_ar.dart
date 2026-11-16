@@ -1317,7 +1317,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtBaseHint => 'توازن بين الحجم والدقة.';
 
   @override
-  String get vtSmallHint => 'دقة أعلى متوقعة، بس أبطأ وحجمه أكبر.';
+  String get vtSmallHint => 'ممكن يكون أدق، بس أبطأ وحجمه أكبر.';
 
   @override
   String get vtFullHint => 'نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.';
@@ -1390,7 +1390,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtClips => 'آخر تسجيلاتك';
 
   @override
-  String get vtNoRecordings => 'سجّل كام كلمة عشان تجرّب التحويل. آخر 10 تسجيلات بيفضلوا هنا.';
+  String get vtNoRecordings => 'سجّل كام كلمة عشان تجرّب التفريغ. آخر 10 تسجيلات بيفضلوا هنا.';
 
   @override
   String vtClip(String number, String format) {
@@ -1401,13 +1401,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtDeleteRecordingBody => 'التسجيل ده هيتحذف من التجربة.';
 
   @override
-  String get vtTranscribe => 'حوّل لنص';
+  String get vtTranscribe => 'فرّغ الصوت';
 
   @override
-  String get vtWorking => 'بنحوّل الصوت لنص…';
+  String get vtWorking => 'بيفرّغ الصوت…';
 
   @override
-  String get vtCannotCancel => 'بعد ما التحويل يبدأ، لازم نستنى لحد ما يخلص.';
+  String get vtCannotCancel => 'بعد ما التفريغ يبدأ، استنى لحد ما يخلص.';
 
   @override
   String get vtWait => 'استنى لحد ما العملية تخلص، أو وقّف التسجيل الأول.';
@@ -1433,12 +1433,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vtFaster(String times) {
-    return 'أسرع من الكلام $times مرات';
+    return 'أسرع من الكلام $times مرة';
   }
 
   @override
   String vtSlower(String times) {
-    return 'أبطأ من الكلام $times مرات';
+    return 'أبطأ من الكلام $times مرة';
   }
 
   @override
@@ -1468,7 +1468,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vtEstimate(String ms) {
-    return 'النص وتحميل النموذج، تقريبًا: $ms';
+    return 'التفريغ وتشغيل النموذج، تقريبًا: $ms';
   }
 
   @override
@@ -1477,7 +1477,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get vtTimingHint => 'الوقت بيشمل تجهيز الصوت وتحميل النموذج. الذاكرة للتطبيق كله.';
+  String get vtTimingHint => 'الوقت بيشمل تجهيز الصوت وتشغيل النموذج. الذاكرة للتطبيق كله.';
 
   @override
   String get vtHistory => 'تجارب قبل كده';
@@ -1486,13 +1486,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtLive => 'نص وإنت بتتكلم';
 
   @override
-  String get vtLiveHint => 'النص بيتعدّل وإنت بتتكلم. الوقف ممكن ياخد شوية وقت.';
+  String get vtLiveHint => 'النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.';
 
   @override
-  String get vtLiveStart => 'ابدأ التحويل المباشر';
+  String get vtLiveStart => 'ابدأ التفريغ المباشر';
 
   @override
-  String get vtLiveTiming => 'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التحويل.';
+  String get vtLiveTiming => 'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.';
 
   @override
   String get vtNetworkError => 'مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.';
@@ -1507,7 +1507,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtEmptyError => 'التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.';
 
   @override
-  String get vtTranscriptionError => 'مقدرناش نحوّل الصوت لنص. جرّب تسجيل أقصر أو نموذج أصغر.';
+  String get vtTranscriptionError => 'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو نموذج أصغر.';
 
   @override
   String get vtStorageError => 'المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.';
@@ -1540,13 +1540,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtRefreshModels => 'حدّث قائمة النماذج';
 
   @override
-  String get trAutomatic => 'فرّغ التسجيلات لوحدها';
+  String get trAutomatic => 'فرّغ التسجيلات تلقائي';
 
   @override
   String get trAutomaticHint => 'بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.';
 
   @override
-  String get trDownloadFirst => 'نزّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.';
+  String get trDownloadFirst => 'حمّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.';
 
   @override
   String get trAfterSave => 'فرّغه بعد الحفظ';
@@ -1572,7 +1572,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get trModelMissing => 'النموذج مش موجود أو ملفه بايظ. نزّله من إعدادات الصوت وجرّب تاني.';
+  String get trModelMissing => 'النموذج مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.';
 
   @override
   String get trBusy => 'تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.';
@@ -1603,7 +1603,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get trNotificationWhy => 'اسمح بالإشعارات عشان تتابع التفريغ وانت برّه التطبيق.';
+  String get trNotificationWhy => 'اسمح بالإشعارات عشان تتابع التفريغ وإنت برّه التطبيق.';
 
   @override
   String get trOpenSettings => 'افتح إعدادات الصوت';
@@ -1615,7 +1615,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trRedo => 'فرّغ تاني';
 
   @override
-  String get vtEngineBusy => 'في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.';
+  String get vtEngineBusy => 'فيه تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.';
 
   @override
   String get vsEngine => 'طريقة التفريغ';
@@ -1645,7 +1645,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsModel => 'اسم النموذج';
 
   @override
-  String get vsKey => 'مفتاح الخدمة';
+  String get vsKey => 'مفتاح API';
 
   @override
   String get vsKeyKeep => 'سيبه فاضي لو هتستخدم نفس المفتاح.';
@@ -1684,7 +1684,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vsConsentBody(String service, String host) {
-    return 'التسجيلات هتتبعت لـ«$service» على $host عشان يفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.';
+    return 'التسجيلات هتتبعت برّه الموبايل لـ«$service» على $host عشان تفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.';
   }
 
   @override
@@ -1710,12 +1710,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vsRemoteIntro(String service) {
-    return 'التسجيلات هتتبعت لـ«$service» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.';
+    return 'التسجيلات بتتبعت برّه الموبايل لـ«$service» عشان تتفرّغ. الخدمة ممكن تحاسبك على الاستخدام.';
   }
 
   @override
   String vsRemoteData(String service) {
-    return 'ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت لـ«$service» عشان تتفرّغ.';
+    return 'ملاحظاتك وملفاتك محفوظة على الموبايل، بس التسجيلات بتتبعت برّه الموبايل لـ«$service» عشان تتفرّغ.';
   }
 
   @override
@@ -1731,11 +1731,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vsRemoteAutoHint(String service) {
-    return 'التسجيلات الجديدة هتتبعت لـ«$service» بعد الحفظ، وممكن تاخد شوية وقت.';
+    return 'التسجيلات الجديدة هتتبعت برّه الموبايل لـ«$service» بعد الحفظ، وممكن تاخد شوية وقت.';
   }
 
   @override
-  String get vsOffline => 'مفيش اتصال بالخدمة. راجع النت وجرّب تاني.';
+  String get vsOffline => 'مقدرناش نوصل للخدمة. اتأكد من الاتصال وجرّب تاني.';
 
   @override
   String get vsKeyRejected => 'الخدمة رفضت المفتاح. راجعه في إعدادات الصوت.';
@@ -1753,10 +1753,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsUnexpected => 'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.';
 
   @override
-  String get vsTimeout => 'الخدمة اتأخرت في الرد. راجع الاتصال وجرّب تاني.';
+  String get vsTimeout => 'الخدمة اتأخرت في الرد. اتأكد من الاتصال وجرّب تاني.';
 
   @override
-  String get vsNeedsConsent => 'وافق على إرسال التسجيلات من إعدادات الصوت الأول.';
+  String get vsNeedsConsent => 'وافق إن التسجيلات تتبعت برّه الموبايل من إعدادات الصوت الأول.';
 
   @override
   String get vsRegion => 'المنطقة';
@@ -1768,7 +1768,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsBeijing => 'الصين (بكين)';
 
   @override
-  String get vsOpenAiKeyHint => 'هات المفتاح والعنوان والنموذج من مزوّد الخدمة، زي OpenAI أو Groq أو SiliconFlow.';
+  String get vsOpenAiKeyHint =>
+      'هات المفتاح والعنوان والنموذج من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.';
 
   @override
   String get vsGeminiKeyHint => 'هات المفتاح من Google AI Studio.';

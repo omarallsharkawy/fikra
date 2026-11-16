@@ -874,7 +874,7 @@
   },
   "vtTinyHint": "أصغر وأسرع، بس ممكن يغلط أكتر.",
   "vtBaseHint": "توازن بين الحجم والدقة.",
-  "vtSmallHint": "دقة أعلى متوقعة، بس أبطأ وحجمه أكبر.",
+  "vtSmallHint": "ممكن يكون أدق، بس أبطأ وحجمه أكبر.",
   "vtFullHint": "نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.",
   "vtOnPhone": "موجود على الموبايل",
   "vtNotDownloaded": "لسه متحمّلش",
@@ -933,7 +933,7 @@
   "vtWav": "صيغة الاختبار (WAV)",
   "vtAac": "صيغة التطبيق العادية (AAC)",
   "vtClips": "آخر تسجيلاتك",
-  "vtNoRecordings": "سجّل كام كلمة عشان تجرّب التحويل. آخر 10 تسجيلات بيفضلوا هنا.",
+  "vtNoRecordings": "سجّل كام كلمة عشان تجرّب التفريغ. آخر 10 تسجيلات بيفضلوا هنا.",
   "vtClip": "تسجيل {number} · {format}",
   "@vtClip": {
     "placeholders": {
@@ -946,9 +946,9 @@
     }
   },
   "vtDeleteRecordingBody": "التسجيل ده هيتحذف من التجربة.",
-  "vtTranscribe": "حوّل لنص",
-  "vtWorking": "بنحوّل الصوت لنص…",
-  "vtCannotCancel": "بعد ما التحويل يبدأ، لازم نستنى لحد ما يخلص.",
+  "vtTranscribe": "فرّغ الصوت",
+  "vtWorking": "بيفرّغ الصوت…",
+  "vtCannotCancel": "بعد ما التفريغ يبدأ، استنى لحد ما يخلص.",
   "vtWait": "استنى لحد ما العملية تخلص، أو وقّف التسجيل الأول.",
   "vtResult": "النص",
   "vtNoSpeech": "مفيش كلام واضح في التسجيل. جرّب تاني.",
@@ -969,7 +969,7 @@
       }
     }
   },
-  "vtFaster": "أسرع من الكلام {times} مرات",
+  "vtFaster": "أسرع من الكلام {times} مرة",
   "@vtFaster": {
     "placeholders": {
       "times": {
@@ -977,7 +977,7 @@
       }
     }
   },
-  "vtSlower": "أبطأ من الكلام {times} مرات",
+  "vtSlower": "أبطأ من الكلام {times} مرة",
   "@vtSlower": {
     "placeholders": {
       "times": {
@@ -1029,7 +1029,7 @@
       }
     }
   },
-  "vtEstimate": "النص وتحميل النموذج، تقريبًا: {ms}",
+  "vtEstimate": "التفريغ وتشغيل النموذج، تقريبًا: {ms}",
   "@vtEstimate": {
     "placeholders": {
       "ms": {
@@ -1045,17 +1045,17 @@
       }
     }
   },
-  "vtTimingHint": "الوقت بيشمل تجهيز الصوت وتحميل النموذج. الذاكرة للتطبيق كله.",
+  "vtTimingHint": "الوقت بيشمل تجهيز الصوت وتشغيل النموذج. الذاكرة للتطبيق كله.",
   "vtHistory": "تجارب قبل كده",
   "vtLive": "نص وإنت بتتكلم",
-  "vtLiveHint": "النص بيتعدّل وإنت بتتكلم. الوقف ممكن ياخد شوية وقت.",
-  "vtLiveStart": "ابدأ التحويل المباشر",
-  "vtLiveTiming": "وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التحويل.",
+  "vtLiveHint": "النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.",
+  "vtLiveStart": "ابدأ التفريغ المباشر",
+  "vtLiveTiming": "وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.",
   "vtNetworkError": "مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.",
   "vtInterruptedError": "التحميل أو التسجيل اتقطع. جرّب تاني.",
   "vtCorruptError": "مقدرناش نقرا النموذج. احذفه وحمّله تاني.",
   "vtEmptyError": "التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.",
-  "vtTranscriptionError": "مقدرناش نحوّل الصوت لنص. جرّب تسجيل أقصر أو نموذج أصغر.",
+  "vtTranscriptionError": "مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو نموذج أصغر.",
   "vtStorageError": "المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.",
   "vtStorageCheckError": "مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.",
   "vtCancelled": "التحميل اتلغى. تقدر تبدأه تاني.",
@@ -1081,7 +1081,7 @@
   "@vtRefreshModels": {
     "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
   },
-  "trAutomatic": "فرّغ التسجيلات لوحدها",
+  "trAutomatic": "فرّغ التسجيلات تلقائي",
   "@trAutomatic": {
     "description": "Voice setting: transcribe only new recordings after a note save."
   },
@@ -1089,7 +1089,7 @@
   "@trAutomaticHint": {
     "description": "Hint below automatic recording transcription setting."
   },
-  "trDownloadFirst": "نزّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.",
+  "trDownloadFirst": "حمّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.",
   "@trDownloadFirst": {
     "description": "Explains why automatic transcription cannot be enabled without an installed model."
   },
@@ -1126,7 +1126,7 @@
       }
     }
   },
-  "trModelMissing": "النموذج مش موجود أو ملفه بايظ. نزّله من إعدادات الصوت وجرّب تاني.",
+  "trModelMissing": "النموذج مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.",
   "@trModelMissing": {
     "description": "Transcription failure with an action opening voice settings."
   },
@@ -1159,7 +1159,7 @@
       }
     }
   },
-  "trNotificationWhy": "اسمح بالإشعارات عشان تتابع التفريغ وانت برّه التطبيق.",
+  "trNotificationWhy": "اسمح بالإشعارات عشان تتابع التفريغ وإنت برّه التطبيق.",
   "@trNotificationWhy": {
     "description": "One-line explanation shown just before Android asks for notification permission, the first time a recording is queued for transcription."
   },
@@ -1175,7 +1175,7 @@
   "@trRedo": {
     "description": "Redo a saved recording with the currently selected engine and model."
   },
-  "vtEngineBusy": "في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.",
+  "vtEngineBusy": "فيه تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.",
   "@vtEngineBusy": {
     "description": "The test screen cannot start another model while the app-wide Whisper lease is held."
   },
@@ -1215,7 +1215,7 @@
   "@vsModel": {
     "description": "External transcription: Model. User-added services only; no upload before consent."
   },
-  "vsKey": "مفتاح الخدمة",
+  "vsKey": "مفتاح API",
   "@vsKey": {
     "description": "External transcription: Key. User-added services only; no upload before consent."
   },
@@ -1268,7 +1268,7 @@
       }
     }
   },
-  "vsConsentBody": "التسجيلات هتتبعت لـ«{service}» على {host} عشان يفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.",
+  "vsConsentBody": "التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.",
   "@vsConsentBody": {
     "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1308,7 +1308,7 @@
   "@vsLoadError": {
     "description": "External transcription: LoadError. User-added services only; no upload before consent."
   },
-  "vsRemoteIntro": "التسجيلات هتتبعت لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.",
+  "vsRemoteIntro": "التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. الخدمة ممكن تحاسبك على الاستخدام.",
   "@vsRemoteIntro": {
     "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1317,7 +1317,7 @@
       }
     }
   },
-  "vsRemoteData": "ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت لـ«{service}» عشان تتفرّغ.",
+  "vsRemoteData": "ملاحظاتك وملفاتك محفوظة على الموبايل، بس التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.",
   "@vsRemoteData": {
     "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1343,7 +1343,7 @@
   "@vsLiveLocal": {
     "description": "External transcription: LiveLocal. User-added services only; no upload before consent."
   },
-  "vsRemoteAutoHint": "التسجيلات الجديدة هتتبعت لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.",
+  "vsRemoteAutoHint": "التسجيلات الجديدة هتتبعت برّه الموبايل لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.",
   "@vsRemoteAutoHint": {
     "description": "External transcription: RemoteAutoHint. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1352,7 +1352,7 @@
       }
     }
   },
-  "vsOffline": "مفيش اتصال بالخدمة. راجع النت وجرّب تاني.",
+  "vsOffline": "مقدرناش نوصل للخدمة. اتأكد من الاتصال وجرّب تاني.",
   "@vsOffline": {
     "description": "External transcription: Offline. User-added services only; no upload before consent."
   },
@@ -1376,11 +1376,11 @@
   "@vsUnexpected": {
     "description": "External transcription: Unexpected. User-added services only; no upload before consent."
   },
-  "vsTimeout": "الخدمة اتأخرت في الرد. راجع الاتصال وجرّب تاني.",
+  "vsTimeout": "الخدمة اتأخرت في الرد. اتأكد من الاتصال وجرّب تاني.",
   "@vsTimeout": {
     "description": "External transcription: Timeout. User-added services only; no upload before consent."
   },
-  "vsNeedsConsent": "وافق على إرسال التسجيلات من إعدادات الصوت الأول.",
+  "vsNeedsConsent": "وافق إن التسجيلات تتبعت برّه الموبايل من إعدادات الصوت الأول.",
   "@vsNeedsConsent": {
     "description": "External transcription: NeedsConsent. User-added services only; no upload before consent."
   },
@@ -1396,7 +1396,7 @@
   "@vsBeijing": {
     "description": "External transcription: Beijing. User-added services only; no upload before consent."
   },
-  "vsOpenAiKeyHint": "هات المفتاح والعنوان والنموذج من مزوّد الخدمة، زي OpenAI أو Groq أو SiliconFlow.",
+  "vsOpenAiKeyHint": "هات المفتاح والعنوان والنموذج من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.",
   "@vsOpenAiKeyHint": {
     "description": "External transcription: OpenAiKeyHint. User-added services only; no upload before consent."
   },

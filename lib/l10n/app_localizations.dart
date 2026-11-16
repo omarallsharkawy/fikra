@@ -2153,7 +2153,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtSmallHint.
   ///
   /// In ar, this message translates to:
-  /// **'دقة أعلى متوقعة، بس أبطأ وحجمه أكبر.'**
+  /// **'ممكن يكون أدق، بس أبطأ وحجمه أكبر.'**
   String get vtSmallHint;
 
   /// No description provided for @vtFullHint.
@@ -2279,7 +2279,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtNoRecordings.
   ///
   /// In ar, this message translates to:
-  /// **'سجّل كام كلمة عشان تجرّب التحويل. آخر 10 تسجيلات بيفضلوا هنا.'**
+  /// **'سجّل كام كلمة عشان تجرّب التفريغ. آخر 10 تسجيلات بيفضلوا هنا.'**
   String get vtNoRecordings;
 
   /// No description provided for @vtClip.
@@ -2297,19 +2297,19 @@ abstract class AppLocalizations {
   /// No description provided for @vtTranscribe.
   ///
   /// In ar, this message translates to:
-  /// **'حوّل لنص'**
+  /// **'فرّغ الصوت'**
   String get vtTranscribe;
 
   /// No description provided for @vtWorking.
   ///
   /// In ar, this message translates to:
-  /// **'بنحوّل الصوت لنص…'**
+  /// **'بيفرّغ الصوت…'**
   String get vtWorking;
 
   /// No description provided for @vtCannotCancel.
   ///
   /// In ar, this message translates to:
-  /// **'بعد ما التحويل يبدأ، لازم نستنى لحد ما يخلص.'**
+  /// **'بعد ما التفريغ يبدأ، استنى لحد ما يخلص.'**
   String get vtCannotCancel;
 
   /// No description provided for @vtWait.
@@ -2351,13 +2351,13 @@ abstract class AppLocalizations {
   /// No description provided for @vtFaster.
   ///
   /// In ar, this message translates to:
-  /// **'أسرع من الكلام {times} مرات'**
+  /// **'أسرع من الكلام {times} مرة'**
   String vtFaster(String times);
 
   /// No description provided for @vtSlower.
   ///
   /// In ar, this message translates to:
-  /// **'أبطأ من الكلام {times} مرات'**
+  /// **'أبطأ من الكلام {times} مرة'**
   String vtSlower(String times);
 
   /// No description provided for @vtFactor.
@@ -2393,7 +2393,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtEstimate.
   ///
   /// In ar, this message translates to:
-  /// **'النص وتحميل النموذج، تقريبًا: {ms}'**
+  /// **'التفريغ وتشغيل النموذج، تقريبًا: {ms}'**
   String vtEstimate(String ms);
 
   /// No description provided for @vtModelLoad.
@@ -2405,7 +2405,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtTimingHint.
   ///
   /// In ar, this message translates to:
-  /// **'الوقت بيشمل تجهيز الصوت وتحميل النموذج. الذاكرة للتطبيق كله.'**
+  /// **'الوقت بيشمل تجهيز الصوت وتشغيل النموذج. الذاكرة للتطبيق كله.'**
   String get vtTimingHint;
 
   /// No description provided for @vtHistory.
@@ -2423,19 +2423,19 @@ abstract class AppLocalizations {
   /// No description provided for @vtLiveHint.
   ///
   /// In ar, this message translates to:
-  /// **'النص بيتعدّل وإنت بتتكلم. الوقف ممكن ياخد شوية وقت.'**
+  /// **'النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.'**
   String get vtLiveHint;
 
   /// No description provided for @vtLiveStart.
   ///
   /// In ar, this message translates to:
-  /// **'ابدأ التحويل المباشر'**
+  /// **'ابدأ التفريغ المباشر'**
   String get vtLiveStart;
 
   /// No description provided for @vtLiveTiming.
   ///
   /// In ar, this message translates to:
-  /// **'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التحويل.'**
+  /// **'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.'**
   String get vtLiveTiming;
 
   /// No description provided for @vtNetworkError.
@@ -2465,7 +2465,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtTranscriptionError.
   ///
   /// In ar, this message translates to:
-  /// **'مقدرناش نحوّل الصوت لنص. جرّب تسجيل أقصر أو نموذج أصغر.'**
+  /// **'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو نموذج أصغر.'**
   String get vtTranscriptionError;
 
   /// No description provided for @vtStorageError.
@@ -2531,7 +2531,7 @@ abstract class AppLocalizations {
   /// Voice setting: transcribe only new recordings after a note save.
   ///
   /// In ar, this message translates to:
-  /// **'فرّغ التسجيلات لوحدها'**
+  /// **'فرّغ التسجيلات تلقائي'**
   String get trAutomatic;
 
   /// Hint below automatic recording transcription setting.
@@ -2543,7 +2543,7 @@ abstract class AppLocalizations {
   /// Explains why automatic transcription cannot be enabled without an installed model.
   ///
   /// In ar, this message translates to:
-  /// **'نزّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.'**
+  /// **'حمّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.'**
   String get trDownloadFirst;
 
   /// Toggle on a new recording draft; no inference runs before saving.
@@ -2591,7 +2591,7 @@ abstract class AppLocalizations {
   /// Transcription failure with an action opening voice settings.
   ///
   /// In ar, this message translates to:
-  /// **'النموذج مش موجود أو ملفه بايظ. نزّله من إعدادات الصوت وجرّب تاني.'**
+  /// **'النموذج مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.'**
   String get trModelMissing;
 
   /// Timed out waiting for the process-wide local engine lease.
@@ -2633,7 +2633,7 @@ abstract class AppLocalizations {
   /// One-line explanation shown just before Android asks for notification permission, the first time a recording is queued for transcription.
   ///
   /// In ar, this message translates to:
-  /// **'اسمح بالإشعارات عشان تتابع التفريغ وانت برّه التطبيق.'**
+  /// **'اسمح بالإشعارات عشان تتابع التفريغ وإنت برّه التطبيق.'**
   String get trNotificationWhy;
 
   /// Open the model and speech settings after a missing-model failure.
@@ -2657,7 +2657,7 @@ abstract class AppLocalizations {
   /// The test screen cannot start another model while the app-wide Whisper lease is held.
   ///
   /// In ar, this message translates to:
-  /// **'في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.'**
+  /// **'فيه تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.'**
   String get vtEngineBusy;
 
   /// External transcription: Engine. User-added services only; no upload before consent.
@@ -2717,7 +2717,7 @@ abstract class AppLocalizations {
   /// External transcription: Key. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'مفتاح الخدمة'**
+  /// **'مفتاح API'**
   String get vsKey;
 
   /// External transcription: KeyKeep. User-added services only; no upload before consent.
@@ -2789,7 +2789,7 @@ abstract class AppLocalizations {
   /// External transcription: ConsentBody. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'التسجيلات هتتبعت لـ«{service}» على {host} عشان يفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.'**
+  /// **'التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.'**
   String vsConsentBody(String service, String host);
 
   /// External transcription: ConsentConfirm. User-added services only; no upload before consent.
@@ -2837,13 +2837,13 @@ abstract class AppLocalizations {
   /// External transcription: RemoteIntro. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'التسجيلات هتتبعت لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.'**
+  /// **'التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. الخدمة ممكن تحاسبك على الاستخدام.'**
   String vsRemoteIntro(String service);
 
   /// External transcription: RemoteData. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت لـ«{service}» عشان تتفرّغ.'**
+  /// **'ملاحظاتك وملفاتك محفوظة على الموبايل، بس التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.'**
   String vsRemoteData(String service);
 
   /// External transcription: Via. User-added services only; no upload before consent.
@@ -2867,13 +2867,13 @@ abstract class AppLocalizations {
   /// External transcription: RemoteAutoHint. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'التسجيلات الجديدة هتتبعت لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.'**
+  /// **'التسجيلات الجديدة هتتبعت برّه الموبايل لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.'**
   String vsRemoteAutoHint(String service);
 
   /// External transcription: Offline. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'مفيش اتصال بالخدمة. راجع النت وجرّب تاني.'**
+  /// **'مقدرناش نوصل للخدمة. اتأكد من الاتصال وجرّب تاني.'**
   String get vsOffline;
 
   /// External transcription: KeyRejected. User-added services only; no upload before consent.
@@ -2909,13 +2909,13 @@ abstract class AppLocalizations {
   /// External transcription: Timeout. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'الخدمة اتأخرت في الرد. راجع الاتصال وجرّب تاني.'**
+  /// **'الخدمة اتأخرت في الرد. اتأكد من الاتصال وجرّب تاني.'**
   String get vsTimeout;
 
   /// External transcription: NeedsConsent. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'وافق على إرسال التسجيلات من إعدادات الصوت الأول.'**
+  /// **'وافق إن التسجيلات تتبعت برّه الموبايل من إعدادات الصوت الأول.'**
   String get vsNeedsConsent;
 
   /// External transcription: Region. User-added services only; no upload before consent.
@@ -2939,7 +2939,7 @@ abstract class AppLocalizations {
   /// External transcription: OpenAiKeyHint. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'هات المفتاح والعنوان والنموذج من مزوّد الخدمة، زي OpenAI أو Groq أو SiliconFlow.'**
+  /// **'هات المفتاح والعنوان والنموذج من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.'**
   String get vsOpenAiKeyHint;
 
   /// External transcription: GeminiKeyHint. User-added services only; no upload before consent.
