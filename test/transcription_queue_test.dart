@@ -54,7 +54,10 @@ void main() {
     title: 'note',
     text: text,
     source: NoteSource.voice,
-    attachments: [for (var i = 0; i < voices; i++) AttachmentDraft(kind: AttachmentKind.voice, path: '/$i.m4a')],
+    attachments: [
+      for (var i = 0; i < voices; i++)
+        AttachmentDraft(kind: AttachmentKind.voice, path: '/$i.m4a', policy: TranscriptionPolicy.afterSave),
+    ],
   );
   Future<List<NoteAttachment>> files(Note n) => notes.watchAttachments(n.id).first;
   Future<Note> live(Note n) async => (await notes.watchNote(n.id).first)!;
@@ -279,12 +282,24 @@ void main() {
   });
 
   test('resumeInterrupted recovers queued and running only, repeated calls are idempotent', () async {
-    final n = await seed(voices: 3);
+    final n = await seed(voices: 6);
     final a = await files(n);
-    for (final (i, status) in [TranscriptionStatus.queued, TranscriptionStatus.running].indexed) {
-      await (db.update(
-        db.noteAttachments,
-      )..where((f) => f.id.equals(a[i].id))).write(NoteAttachmentsCompanion(transcriptionStatus: Value(status)));
+    // Build each state explicitly: afterSave drafts start queued on insertion.
+    final states = [
+      TranscriptionStatus.queued,
+      TranscriptionStatus.running,
+      TranscriptionStatus.none,
+      TranscriptionStatus.queued,
+      TranscriptionStatus.done,
+      TranscriptionStatus.failed,
+    ];
+    for (final (i, status) in states.indexed) {
+      await (db.update(db.noteAttachments)..where((r) => r.id.equals(a[i].id))).write(
+        NoteAttachmentsCompanion(
+          transcriptionStatus: Value(status),
+          transcriptionPolicy: Value(i == 3 ? TranscriptionPolicy.off : TranscriptionPolicy.afterSave),
+        ),
+      );
     }
     final started = Completer<void>();
     final release = releaseGate();
@@ -301,7 +316,8 @@ void main() {
     release.complete('first');
     await queue.drained;
     expect(engine.paths, a.take(2).map((a) => a.path));
-    expect((await files(n))[2].transcriptionStatus, TranscriptionStatus.none);
+    expect((await files(n)).skip(2).map((a) => a.transcriptionStatus), states.skip(2));
+    expect((await files(n))[3].transcriptionPolicy, TranscriptionPolicy.off);
   });
   test('normal enqueue ignores completed rows; save wake-up is restricted to newly copied paths', () async {
     final n = await seed(voices: 2);

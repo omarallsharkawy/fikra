@@ -35,8 +35,8 @@ class TranscriptionQueue {
   Future<void> _keep(Future<void> Function() action) async {
     try {
       await action();
-    } catch (error, stack) {
-      developer.log('Transcription keep-alive failed', name: 'FIKRA_TRANSCRIPTION', error: error, stackTrace: stack);
+    } catch (_) {
+      developer.log('Transcription keep-alive failed', name: 'FIKRA_TRANSCRIPTION');
     }
   }
 
@@ -61,13 +61,8 @@ class TranscriptionQueue {
           _kept = true;
           await _run(id);
         }
-      } catch (error, stack) {
-        developer.log(
-          'Transcription state could not be saved',
-          name: 'FIKRA_TRANSCRIPTION',
-          error: error,
-          stackTrace: stack,
-        );
+      } catch (_) {
+        developer.log('Transcription state could not be saved', name: 'FIKRA_TRANSCRIPTION');
         // A database failure must not poison later jobs. Durable queued/running
         // state is recovered on launch if even the failure write was impossible.
       } finally {
@@ -83,6 +78,7 @@ class TranscriptionQueue {
       final accepted = await db.transaction(() async {
         final a = await _attachment(id);
         if (a == null || a.kind != AttachmentKind.voice || await _note(a.noteId) == null) return false;
+        if (!manual && a.transcriptionPolicy == TranscriptionPolicy.off) return false;
         if (!redo && a.transcriptionStatus == TranscriptionStatus.done) return false;
         await (db.update(db.noteAttachments)..where((a) => a.id.equals(id))).write(
           NoteAttachmentsCompanion(
@@ -93,6 +89,7 @@ class TranscriptionQueue {
                   ? a.transcriptionOrder
                   : await nextTranscriptionOrder(db),
             ),
+            transcriptionPolicy: manual ? const Value(TranscriptionPolicy.afterSave) : const Value.absent(),
             transcriptionStatus: const Value(TranscriptionStatus.queued),
             transcriptionFailure: const Value(null),
             transcriptionAttempts: manual ? const Value(0) : const Value.absent(),
@@ -136,6 +133,7 @@ class TranscriptionQueue {
               ]))
             .get();
     for (final row in rows) {
+      if (row.transcriptionPolicy == TranscriptionPolicy.off) continue;
       if (row.transcriptionAttempts >= maxInterruptedAttempts) {
         // Both runs ended with the app closing. Stop until the user asks again.
         await (db.update(db.noteAttachments)..where((a) => a.id.equals(row.id))).write(
@@ -155,7 +153,12 @@ class TranscriptionQueue {
     try {
       final a = await db.transaction(() async {
         final live = await _attachment(id);
-        if (live == null || live.kind != AttachmentKind.voice || await _note(live.noteId) == null) return null;
+        if (live == null ||
+            live.kind != AttachmentKind.voice ||
+            live.transcriptionPolicy == TranscriptionPolicy.off ||
+            await _note(live.noteId) == null) {
+          return null;
+        }
         // Persisted before inference: a crash inside native code still counts.
         await (db.update(db.noteAttachments)..where((a) => a.id.equals(id))).write(
           NoteAttachmentsCompanion(
@@ -173,17 +176,28 @@ class TranscriptionQueue {
       if (text.isEmpty) throw const TranscriptionFailure(TranscriptionFailureReason.audioUnreadable);
       final noteId = await db.transaction(() async {
         final live = await _attachment(id);
-        if (live == null || live.kind != AttachmentKind.voice) return null;
+        if (live == null || live.kind != AttachmentKind.voice || live.transcriptionPolicy == TranscriptionPolicy.off) {
+          return null;
+        }
         final note = await _note(live.noteId);
         if (note == null) return null;
         final current = note.displayText;
         final previous = live.transcriptNoteText ?? live.transcript;
         final previousPresent = previous != null && previous.isNotEmpty && current.contains(previous);
-        final append = !current.contains(text) && !previousPresent;
+        final append = live.transcriptCorrection == null && !current.contains(text) && !previousPresent;
         await (db.update(db.noteAttachments)..where((a) => a.id.equals(id))).write(
           NoteAttachmentsCompanion(
             transcript: Value(text),
-            transcriptNoteText: Value(previousPresent ? previous : text),
+            transcriptRevision: Value(
+              nextTranscriptRevision(live.transcriptRevision, newerMachine: live.transcriptCorrection != null),
+            ),
+            transcriptNoteText: Value(
+              live.transcriptCorrection != null
+                  ? live.transcriptNoteText
+                  : previousPresent
+                  ? previous
+                  : text,
+            ),
             transcriptionStatus: const Value(TranscriptionStatus.done),
             transcriptionFailure: const Value(null),
             transcriptionEngine: Value(selected.id),
@@ -219,27 +233,19 @@ class TranscriptionQueue {
         // A scheduling failure must not change a successfully saved transcript.
         try {
           unawaited(
-            processNote(noteId).catchError((Object error, StackTrace stack) {
-              developer.log(
-                'Note analysis will resume on launch',
-                name: 'FIKRA_TRANSCRIPTION',
-                error: error,
-                stackTrace: stack,
-              );
+            processNote(noteId).catchError((Object _) {
+              developer.log('Note analysis will resume on launch', name: 'FIKRA_TRANSCRIPTION');
             }),
           );
-        } catch (error, stack) {
-          developer.log(
-            'Note analysis will resume on launch',
-            name: 'FIKRA_TRANSCRIPTION',
-            error: error,
-            stackTrace: stack,
-          );
+        } catch (_) {
+          developer.log('Note analysis will resume on launch', name: 'FIKRA_TRANSCRIPTION');
         }
       }
     } catch (error) {
       final reason = error is TranscriptionFailure ? error.reason : TranscriptionFailureReason.other;
-      await (db.update(db.noteAttachments)..where((a) => a.id.equals(id) & a.kind.equals('voice'))).write(
+      await (db.update(
+        db.noteAttachments,
+      )..where((a) => a.id.equals(id) & a.kind.equals('voice') & a.transcriptionPolicy.equals('off').not())).write(
         NoteAttachmentsCompanion(
           transcriptionStatus: const Value(TranscriptionStatus.failed),
           transcriptionFailure: Value(reason.name),

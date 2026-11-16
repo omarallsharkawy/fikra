@@ -52,15 +52,28 @@ class WhisperRun {
     if (private) {
       final text = values['text'] as String? ?? '';
       // ignore: avoid_print
-      print(whisperLogLine({...values, 'text': null, 'text_chars': text.length}));
+      print(
+        whisperLogLine({
+          ...values,
+          'text': null,
+          'text_chars': text.length,
+          'error': values['error'] == null ? null : 'transcription_failed',
+        }),
+      );
       return Map.unmodifiable(values);
     }
-    var line = whisperLogLine(values);
+    final safe = {
+      ...values,
+      'text': null,
+      'text_chars': (values['text'] as String? ?? '').length,
+      'error': values['error'] == null ? null : 'transcription_failed',
+    };
+    var line = whisperLogLine(safe);
     try {
       await recordings.appendRun(line);
-    } catch (e) {
-      values['history_storage_error'] = e.toString();
-      line = whisperLogLine(values);
+    } catch (_) {
+      values['history_storage_error'] = 'storage_failed';
+      line = whisperLogLine({...safe, 'history_storage_error': 'storage_failed'});
     }
     // One unthrottled JSON line per attempted run, including failures.
     // ignore: avoid_print

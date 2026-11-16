@@ -1249,7 +1249,7 @@
       }
     }
   },
-  "vsConsentBody": "Recordings will be sent to {service} at {host} for transcription. The service may retain them and charge for use. Nothing is sent until you agree.",
+  "vsConsentBody": "Recordings will be sent outside your phone to {service} at {host} for transcription. The service may retain them and charge for use. Nothing is sent until you agree.",
   "@vsConsentBody": {
     "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1289,7 +1289,7 @@
   "@vsLoadError": {
     "description": "External transcription: LoadError. User-added services only; no upload before consent."
   },
-  "vsRemoteIntro": "Recordings are sent to {service} for transcription. The service may charge for use.",
+  "vsRemoteIntro": "Recordings are sent outside your phone to {service} for transcription. The service may charge for use.",
   "@vsRemoteIntro": {
     "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1298,7 +1298,7 @@
       }
     }
   },
-  "vsRemoteData": "Your notes and files are stored on your phone. Recordings are sent to {service} for transcription.",
+  "vsRemoteData": "Your notes and files are stored on your phone. Recordings are sent outside your phone to {service} for transcription.",
   "@vsRemoteData": {
     "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1324,7 +1324,7 @@
   "@vsLiveLocal": {
     "description": "External transcription: LiveLocal. User-added services only; no upload before consent."
   },
-  "vsRemoteAutoHint": "New recordings are sent to {service} after saving and can take a while.",
+  "vsRemoteAutoHint": "New recordings are sent outside your phone to {service} after saving and can take a while.",
   "@vsRemoteAutoHint": {
     "description": "External transcription: RemoteAutoHint. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1411,5 +1411,119 @@
   "vsRemoteTiming": "Time includes uploading and waiting for the service. Memory is for the whole app.",
   "@vsRemoteTiming": {
     "description": "Technical trial measurements for a remote engine: network/service wall time and whole-process RSS."
+  },
+  "v2Off": "No transcription",
+  "@v2Off": {
+    "description": "Per-recording off policy."
+  },
+  "v2Recommended": "Recommended",
+  "@v2Recommended": {
+    "description": "Recommended catalog group."
+  },
+  "v2Other": "Other",
+  "@v2Other": {
+    "description": "Other supported models group."
+  },
+  "v2Legacy": "Legacy",
+  "@v2Legacy": {
+    "description": "Legacy models group."
+  },
+  "v2Shutdown": "Legacy model. Shuts down on {date}. Choose a recommended model if you can.",
+  "@v2Shutdown": {
+    "description": "Known provider shutdown warning.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v2LegacyUnknown": "Legacy model. No shutdown date has been announced.",
+  "@v2LegacyUnknown": {
+    "description": "Legacy without a published shutdown date."
+  },
+  "v2Arabic": "Supports Arabic. Try it with mixed Egyptian Arabic and English.",
+  "@v2Arabic": {
+    "description": "Arabic suitability; no unmeasured quality claim."
+  },
+  "v2Generative": "Understands Arabic, but may rephrase speech. Check the transcript.",
+  "@v2Generative": {
+    "description": "Generative model suitability caveat."
+  },
+  "v2Unsupported": "Not supported here yet",
+  "@v2Unsupported": {
+    "description": "Catalog entry requires a different API."
+  },
+  "v2Custom": "Custom model",
+  "@v2Custom": {
+    "description": "Collapsed custom model ID field."
+  },
+  "v2Refresh": "Refresh list",
+  "@v2Refresh": {
+    "description": "Explicit model discovery action."
+  },
+  "v2Refreshing": "Refreshing list…",
+  "@v2Refreshing": {
+    "description": "Discovery working state."
+  },
+  "v2Available": "Available in your account",
+  "@v2Available": {
+    "description": "Discovered catalog ID."
+  },
+  "v2Checked": "Last checked: {time}",
+  "@v2Checked": {
+    "description": "Discovery cache timestamp.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v2DiscoveryHint": "Checks models with the service outside your phone, without sending audio.",
+  "@v2DiscoveryHint": {
+    "description": "Discovery privacy explanation."
+  },
+  "v2DiscoveryQwen": "Model discovery is unavailable for Qwen here. Use the recommended model or enter an ID.",
+  "@v2DiscoveryQwen": {
+    "description": "Qwen discovery skipped without workspace context."
+  },
+  "v2EditTranscript": "Edit transcript",
+  "@v2EditTranscript": {
+    "description": "Transcript correction action and editor title."
+  },
+  "v2RestoreTranscript": "Restore machine transcript",
+  "@v2RestoreTranscript": {
+    "description": "Clear correction without changing machine output."
+  },
+  "v2NewTranscript": "New transcript available",
+  "@v2NewTranscript": {
+    "description": "Redo completed while a correction exists."
+  },
+  "v2UseTranscript": "Use it",
+  "@v2UseTranscript": {
+    "description": "Adopt new machine output, clearing correction."
+  },
+  "v2CopyUnchanged": "Transcript saved. The note text was left unchanged because it was edited.",
+  "@v2CopyUnchanged": {
+    "description": "Unsafe paragraph replacement outcome."
+  },
+  "v2AppendTranscript": "Append to note",
+  "@v2AppendTranscript": {
+    "description": "Explicit append after an unsafe replacement."
+  },
+  "v2TranscriptConflict": "The transcript changed while you were editing. Go back and reopen it.",
+  "@v2TranscriptConflict": {
+    "description": "Optimistic revision conflict; draft retained."
+  },
+  "v2TranscriptFailed": "Couldn’t save the transcript. Try again.",
+  "@v2TranscriptFailed": {
+    "description": "Correction save failure."
+  },
+  "v2TranscriptEmpty": "Enter the transcript first.",
+  "@v2TranscriptEmpty": {
+    "description": "Empty correction validation."
+  },
+  "v2TranscriptSaved": "Transcript saved",
+  "@v2TranscriptSaved": {
+    "description": "Correction success feedback."
   }
 }

@@ -1,3 +1,5 @@
+import 'model_catalog.dart';
+
 import 'dart:convert';
 
 import '../processing/transcription_engine.dart';
@@ -15,6 +17,9 @@ Future<RemoteRequest> buildTranscriptionRequest(
   String boundary = 'fikra-audio-boundary',
 }) async {
   service.validate();
+  if (transcriptionCatalogUnsupported(service)) {
+    throw const TranscriptionFailure(TranscriptionFailureReason.unexpectedResponse);
+  }
   final hint = service.language ?? (language == 'auto' ? null : language);
   final bearer = {'Authorization': 'Bearer $key'};
   final multipart = {'Content-Type': 'multipart/form-data; boundary=$boundary'};
@@ -26,9 +31,10 @@ Future<RemoteRequest> buildTranscriptionRequest(
         serviceEndpoint(service, 'audio/transcriptions'),
         {...bearer, ...multipart},
         {
-          'model': service.model,
+          'model': service.batchModel,
           'response_format': 'json',
-          (service.model == 'gpt-transcribe' ? 'languages[]' : 'language'): ?hint,
+          (service.batchModel == 'gpt-transcribe' ? 'languages[]' : 'language'): ?hint,
+          if (service.batchModel == 'gpt-4o-transcribe-diarize') 'chunking_strategy': 'auto',
         },
         audio,
         boundary,
@@ -40,7 +46,7 @@ Future<RemoteRequest> buildTranscriptionRequest(
         serviceEndpoint(service, 'speech-to-text'),
         {'xi-api-key': key, ...multipart},
         {
-          'model_id': service.model,
+          'model_id': service.batchModel,
           'language_code': ?hint,
           'tag_audio_events': 'false',
           'diarize': 'false',
@@ -53,7 +59,7 @@ Future<RemoteRequest> buildTranscriptionRequest(
       // https://aistudio.google.com/api-reference/generate-content
       // https://aistudio.google.com/docs/audio (M4A: audio/m4a, AAC: audio/aac)
       return RemoteRequest.json(
-        serviceEndpoint(service, 'models/${Uri.encodeComponent(service.model)}:generateContent'),
+        serviceEndpoint(service, 'models/${Uri.encodeComponent(service.batchModel)}:generateContent'),
         {'x-goog-api-key': key, 'Content-Type': 'application/json'},
         {
           'contents': [
@@ -86,7 +92,7 @@ Future<RemoteRequest> buildTranscriptionRequest(
         serviceEndpoint(service, 'chat/completions'),
         {...bearer, 'Content-Type': 'application/json'},
         {
-          'model': service.model,
+          'model': service.batchModel,
           'stream': false,
           'messages': [
             {
@@ -158,3 +164,8 @@ bool rejectedAudioFormat(RemoteResponse response) =>
           r'((unsupported|unrecogni[sz]ed).{0,35}(audio|format|mime)|invalid.{0,15}(audio format|file format|mime))',
           caseSensitive: false,
         ).hasMatch(response.body));
+
+bool transcriptionCatalogUnsupported(TranscriptionService service) =>
+    transcriptionCatalogModel(service)?.supported == false;
+CatalogModel? transcriptionCatalogModel(TranscriptionService service) =>
+    transcriptionCatalogMatch(service.type, service.batchModel);

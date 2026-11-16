@@ -6,6 +6,9 @@ import '../l10n/app_localizations.dart';
 abstract final class Fmt {
   static String time(AppLocalizations l10n, DateTime d) => _ascii(DateFormat('h:mm a', l10n.localeName).format(d));
 
+  /// A calendar date in the current locale, e.g. "Feb 26, 2027" / "26 فبراير 2027".
+  static String date(AppLocalizations l10n, DateTime d) => _ascii(DateFormat.yMMMd(l10n.localeName).format(d));
+
   static String dayHeader(AppLocalizations l10n, DateTime d, {DateTime? now}) {
     now ??= DateTime.now();
     final today = DateTime(now.year, now.month, now.day);

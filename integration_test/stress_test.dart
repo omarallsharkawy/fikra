@@ -175,6 +175,8 @@ void main() {
                     kind: AttachmentKind.values[j ~/ 2],
                     transcriptionStatus: TranscriptionStatus.none,
                     transcriptionAttempts: 0,
+                    transcriptionPolicy: TranscriptionPolicy.off,
+                    transcriptRevision: 0,
                     path: '/stress/$id-$j',
                     name: 'file-$j.pdf',
                     bytes: 12345,

@@ -29,7 +29,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `integratio
 
 - A note is stored before analysis runs, so an analysis failure never loses it (`lib/features/add`, `lib/data/processing`).
 - A note with no typed text (recording transcripts count as typed text) goes straight to `ready` without calling `AiService` (`lib/data/processing`).
-- `Notes.originalText` is never overwritten (`lib/data/local`).
+- `Notes.originalText` preserves typed text except explicit safe transcript corrections and recording appends (`lib/data/local`).
 - `applyInsights` treats AI output as untrusted and validates link targets (`lib/data`).
 - Every migration step must be atomic and safe to re-run (`lib/data/local`).
 - Pushed routes must use `_pushed` in `lib/app/router.dart`, or go_router falls back to no transition.

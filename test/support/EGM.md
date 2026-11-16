@@ -25,3 +25,7 @@ Saved transcription: fikraTest accepts an optional TranscriptionEngine and alway
 `fikraTest` closes the database with `pumpFuture` in the test's zone. Work a test does not wait for, such as the note analysis a finished transcription starts, can still hold drift's lock; closing from `runAsync` waited for it forever and hung the file.
 
 Phase 3 fake_external_transcription.dart supplies MemoryServiceKeys, FakeTranscriptionTransport and standalone MemoryTranscriptionServices with zone-owned, tear-down-safe watch streams. external_service_fixture.dart shares keyed engine/form/field/type actions through transcription_scroll; its dropdown taps do not use first/last/at. app_harness injects fake keys and HTTP for every test and a fake local engine even when selectedEngineFactory enables the real selection logic. No test can fall through to real HTTP/native Whisper. Pending queue/processor jobs must finish before the existing pumpFuture database close.
+
+## Voice 2a
+
+voice2_fixture.dart seeds realistic machine/correction/copy-marker/revision states and provides keyed bottom-sheet scrolling with an explicit vertical scrollable. Screen scrolling keeps the existing keyed outer-page helper. All sheet-opening tests pump the slide before interacting. New DB-backed editor tests await processor work before the existing pumpFuture database close.

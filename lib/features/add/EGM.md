@@ -11,3 +11,7 @@ Toolbar keys remain `add-mic`, `add-pdf`, `add-image`, `add-save`, `add-stop`, `
 Verification: `flutter analyze`, `flutter test`, screenshot suite. `attachment_flows_test.dart` covers repeated multi-PDF picking, retained drafts after failed saves and file-only titles; `multi_attachments_test.dart` covers six-file saves and rollback.
 
 Phase 2 snapshots auto-transcription at save and combines it with per-new-voice draft toggles through transcriptionDraft. The attachment insert persists queued status atomically; after commit saved(noteId, newPaths) wakes the app-wide transcription queue without awaiting native work. Existing IDs are never re-queued. A failed wake-up uses trQueueFailed, leaves the saved note/files intact and is recovered at launch. When the save queued at least one recording, `askTranscriptionNotificationsOnce` (features/shared) runs unawaited after the saved toast and before navigating away; it never delays or fails the save.
+
+## Voice 2a
+
+Save resolves only unresolved new-recording defaults; an explicit off chip overrides global auto. New requested voice paths alone wake the queue after commit. Saved IDs never produce save requests. Capture UI always exposes the off/after-save choice with the shared chips; no capture format or lifecycle change is made.

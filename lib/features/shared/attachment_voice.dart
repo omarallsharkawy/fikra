@@ -104,6 +104,17 @@ extension AttachmentVoice<T extends ConsumerStatefulWidget> on AttachmentEditing
       } else if (!mounted) {
         await AttachmentStore.deleteQuietly([path]);
       } else {
+        // Unreadable setting: leave the policy unset so save resolves it, but keep the recording.
+        TranscriptionPolicy? policy;
+        try {
+          policy = await ref.read(settingsRepoProvider).readAutoTranscribe()
+              ? TranscriptionPolicy.afterSave
+              : TranscriptionPolicy.off;
+        } catch (_) {}
+        if (!mounted) {
+          await AttachmentStore.deleteQuietly([path]);
+          return;
+        }
         updateDraft(
           () => draftFiles = [
             ...draftFiles,
@@ -112,6 +123,7 @@ extension AttachmentVoice<T extends ConsumerStatefulWidget> on AttachmentEditing
               path: path!,
               name: p.basename(path),
               durationMs: elapsed.inMilliseconds,
+              policy: policy,
             ),
           ],
         );

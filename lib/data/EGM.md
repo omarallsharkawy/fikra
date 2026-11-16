@@ -42,7 +42,7 @@ Notes:
 
 - `create` trims title and text and starts the note as `processing`, `RewriteStatus.none`, with empty concepts. Saving and AI completion are separate states.
 - Every update through `_write` bumps `updatedAt`.
-- `originalText` is never changed after `create`.
+- `originalText` keeps the typed baseline, except recording appends and explicit safe transcript corrections.
 - `edit` keeps a title when the replacement is blank. Changed body text retains the existing edit/original behavior and clears a pending proposal; attachment-only edits leave analysis and proposals intact. It never calls AI. A draft with no body text and no files throws `EmptyNoteException`, regardless of title.
 - `edit(..., attachments:)` atomically replaces the attachment draft with the text edit, validates existing attachment IDs belong to that note, and deletes removed disk files only after commit. Cleanup catches all errors so a successful transaction never triggers copy rollback; leftovers are swept later. The optional `deleteFiles` callback is a cleanup-failure test seam. Omitting attachments leaves them intact. Source is recomputed from the resulting files within the same transaction, independently of analysis.
 - `acceptRewrite` moves `proposedText` to `editedText`, and is a no-op without a proposal. `acceptRewrite` and `edit` throw if the note does not exist.
@@ -118,3 +118,9 @@ A nullable transcriptionOrder allocated transactionally preserves FIFO on launch
 ## External transcription services (phase 3)
 
 transcription/ owns TranscriptionServices/LocalTranscriptionServices, typed non-secret config, ServiceKeyStore/SecureServiceKeys, request builders, the fakeable HttpClient transport and RemoteTranscriptionEngine. See transcription/EGM.md for API docs, limits, timeout and consent contracts. No new database schema is required. LocalSettingsRepository accepts an optional TranscriptionServices boundary and wipes service keys/config/selection before deleting ordinary data. Theme, language, model and auto preferences retain their existing wipe behavior. Credential failure prevents a successful wipe and leaves the service manifest discoverable for retry. Notes and attachment repositories never receive keys or provider request bodies.
+
+## Voice 2a drafts and correction writes
+
+AttachmentDraft.policy is the effective per-recording choice; nullable is only an unresolved new-draft default. transcriptionDraft resolves new defaults from auto while preserving explicit off. transcribe is a save request only for new voice files, never for saved rows or other file kinds. policyChanged distinguishes an explicit saved-row choice from a stale snapshot; withPolicy sets it. Attachment replacement re-reads live rows and carries policy, correction, correctedAt, revision and all earlier transcription metadata. Untouched stale drafts cannot overwrite newer policy/corrections. Explicit off changes cancel queued/running status without deleting a completed transcript. No old attachment is auto-enqueued by Edit.
+
+The approved exception to the originalText baseline is recording transcript append and an explicit transcript correction's safe paragraph update; ordinary note edits still use editedText. TranscriptCorrections lives in processing and drives normal analysis after a safe note change.
