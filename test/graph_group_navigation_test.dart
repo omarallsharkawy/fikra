@@ -198,7 +198,7 @@ void main() {
     await t.tap(navKey(f.notes[4].id));
     await navPump(t);
     expect(iconColor(t, collapse), iconColor(t, options));
-    expect(iconColor(t, collapse), isNot(t.element(card).colors.textSecondary));
+    expect(iconColor(t, collapse), t.element(card).colors.textSecondary); // Pearl keeps muted controls readable.
   });
 
   fikraTest(

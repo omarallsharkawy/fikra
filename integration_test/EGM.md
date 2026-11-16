@@ -5,3 +5,20 @@
 Stress link seed rows explicitly include v6 origin ai, dismissed false and createdAt; the UI and stress workload are unchanged.
 
 The stress attachment seed now explicitly sets v7 transcriptionStatus.none, matching the generated required row constructor; no inference or workload change is introduced.
+
+## Pearl glass profile scenario
+
+FIKRA_GLASS_PERF=true selects glass_perf_scenario.dart after the same stress DB
+seed and notes-list open, skipping the unrelated stress steps. The exact profile
+drive command is at the top of both files. The package remains
+com.fikra.app.stress, and no production DB/files are touched. A stationary debug
+GlassReviewPanel overlays the scrolling notes. Each requested solid/frosted/
+optical tier gets two seconds of warm-up then six 2-second scroll traversals.
+traceAction and FrameTiming report per-tier build/raster p50/p90/p95/p99,
+phase-budget and display-budget exceedances, refresh Hz, requested/effective
+tier and live-refraction support into reportData (JSON driver output).
+Only the benchmark disables automatic watchdog drops via an injected no-op
+timings source; real battery/reduce-motion caps still apply and a mismatch
+fails rather than silently reporting the wrong tier. Release has no override.
+Timers/listeners/DB/file cleanup use addTearDown. Do not run on-device from the
+restricted sandbox; owner runs the command on the phone later.

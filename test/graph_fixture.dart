@@ -90,5 +90,5 @@ bool graphCardDimmed(WidgetTester tester, String id) {
   expect(tester.widget(key), isNot(isA<Opacity>()));
   final color = graphCardText(tester, id).style!.color!;
   final palette = tester.element(key).colors;
-  return color != palette.textPrimary && color != palette.textOnSelected;
+  return color != palette.textPrimary && color != palette.accent;
 }

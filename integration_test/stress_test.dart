@@ -4,6 +4,11 @@
 //   flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //     --driver=test_driver/integration_test.dart --target=integration_test/stress_test.dart
 //
+// Glass foundation comparison (same stress app ID, fixed 12-second scroll per tier):
+//   flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
+//     --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
+//     --target=integration_test/stress_test.dart
+//
 // Results: build/integration_response_data.json. Uses its own database file and
 // never touches the app's real data or attachment files. Profile builds install
 // as com.fikra.app.stress (android/app/build.gradle.kts), a separate app.
@@ -15,6 +20,8 @@ import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/motion/motion.dart';
+import 'package:fikra/core/widgets/glass_preview.dart';
+import 'package:fikra/core/widgets/glass_watchdog.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/local/database.dart';
@@ -29,6 +36,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'glass_perf_scenario.dart';
+
+const _glassPerf = bool.fromEnvironment('FIKRA_GLASS_PERF');
 
 const _n = int.fromEnvironment('FIKRA_STRESS_N', defaultValue: 1000);
 
@@ -128,6 +139,10 @@ void main() {
     final file = File('${dir.path}/fikra_stress.sqlite');
     if (file.existsSync()) file.deleteSync();
     final db = FikraDatabase(NativeDatabase.createInBackground(file));
+    addTearDown(() {
+      if (file.existsSync()) file.deleteSync();
+    });
+    addTearDown(db.close);
     final rnd = Random(42);
 
     Future<double> time(Future<void> Function() f) async {
@@ -244,6 +259,7 @@ void main() {
     final timings = <FrameTiming>[];
     void collect(List<FrameTiming> t) => timings.addAll(t);
     SchedulerBinding.instance.addTimingsCallback(collect);
+    addTearDown(() => SchedulerBinding.instance.removeTimingsCallback(collect));
     Future<Map<String, Object>> frames(Future<void> Function() f) async {
       timings.clear();
       await f();
@@ -262,13 +278,27 @@ void main() {
     report['open_app_to_list_ms'] = await time(() async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [databaseProvider.overrideWithValue(db), attachmentStoreProvider.overrideWithValue(_NoFiles())],
+          overrides: [
+            databaseProvider.overrideWithValue(db),
+            attachmentStoreProvider.overrideWithValue(_NoFiles()),
+            if (_glassPerf) glassPreviewEnabledProvider.overrideWithValue(true),
+            if (_glassPerf) glassTimingsSourceProvider.overrideWithValue(MeasurementGlassTimings()),
+          ],
           child: const FikraApp(),
         ),
       );
       await until(find.byType(NoteCard).hitTestable(), maxMs: 120000);
     });
     report['rss_after_list_mb'] = ProcessInfo.currentRss ~/ (1024 * 1024);
+    if (_glassPerf) {
+      SchedulerBinding.instance.removeTimingsCallback(collect);
+      final container = ProviderScope.containerOf(tester.element(find.byType(NoteCard).first));
+      await runGlassPerformance(tester, binding, container);
+      binding.reportData = {...?binding.reportData, ...report};
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      return;
+    }
 
     final list = find.byType(Scrollable).last;
     report['scroll_notes'] = await frames(() async {
@@ -438,7 +468,5 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));
-    await db.close();
-    file.deleteSync();
   }, timeout: const Timeout(Duration(minutes: 20)));
 }

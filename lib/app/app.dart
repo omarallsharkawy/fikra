@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/fikra_theme.dart';
 import '../core/theme/tokens.dart';
+import '../core/widgets/glass_preview.dart';
 import 'providers.dart';
 import 'router.dart';
 
@@ -41,7 +42,7 @@ class FikraApp extends ConsumerWidget {
             systemNavigationBarColor: context.colors.canvas,
             systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
           ),
-          child: child!,
+          child: GlassDebugOverlay(child: child!),
         );
       },
       locale: ref.watch(appLocaleProvider),

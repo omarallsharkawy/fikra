@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 enum FikraButtonStyle { primary, secondary, danger }
 
@@ -61,18 +61,8 @@ class FikraButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !loading;
     final (Gradient? gradient, Color? color, Color fg, TextStyle text) = switch (style) {
-      FikraButtonStyle.primary => (
-        context.colors.primaryGradient,
-        null,
-        context.colors.textOnLight,
-        context.text.button,
-      ),
-      FikraButtonStyle.secondary => (
-        context.colors.glassGradient,
-        null,
-        context.colors.textPrimary,
-        context.text.section,
-      ),
+      FikraButtonStyle.primary => (context.colors.addGradient, null, context.colors.onAccent, context.text.button),
+      FikraButtonStyle.secondary => (null, context.colors.surface, context.colors.textPrimary, context.text.section),
       FikraButtonStyle.danger => (null, context.colors.dangerBg, context.colors.danger, context.text.section),
     };
     final content = Row(
@@ -110,7 +100,7 @@ class FikraButton extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(FikraRadius.full),
             border: style == FikraButtonStyle.secondary
-                ? Border.all(color: context.colors.border, width: FikraSpace.hairline)
+                ? Border.all(color: context.colors.line, width: FikraSpace.hairline)
                 : null,
           ),
           // `alignment` would make the container fill the available width,
@@ -123,24 +113,14 @@ class FikraButton extends StatelessWidget {
   }
 }
 
-/// Round glass icon button (back, more, zoom…). [label] is read by screen
+/// Round solid icon button (back, more, zoom…). [label] is read by screen
 /// readers; the hit area is at least 48 dp whatever the visual [size].
 class FikraIconButton extends StatelessWidget {
-  const FikraIconButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.size = 44,
-    this.solid = false,
-  });
+  const FikraIconButton({super.key, required this.icon, required this.label, required this.onTap, this.size = 44});
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
   final double size;
-
-  /// Opaque background, for buttons floating over content.
-  final bool solid;
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +128,11 @@ class FikraIconButton extends StatelessWidget {
       onTap: onTap,
       semanticLabel: label,
       minTarget: true,
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.full,
         width: size,
         height: size,
         padding: EdgeInsets.zero,
-        color: solid ? context.colors.glass : null,
         child: Icon(icon, size: size * 0.48),
       ),
     );

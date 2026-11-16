@@ -53,6 +53,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   whisper_ggml: ^2.9.0
+  liquid_glass_easy: 5.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

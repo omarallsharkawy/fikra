@@ -253,7 +253,7 @@ class _LinksScreenState extends ConsumerState<LinksScreen> with SingleTickerProv
                 if (_searchOpen)
                   Positioned.fill(
                     child: Material(
-                      color: context.colors.screen,
+                      color: context.colors.canvas,
                       child: _GraphSearchPanel(
                         controller: _search,
                         index: _searchIndex,

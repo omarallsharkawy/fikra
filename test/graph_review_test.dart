@@ -56,11 +56,11 @@ void main() {
           final containers = tester.widgetList<Container>(find.descendant(of: node, matching: find.byType(Container)));
           final bg = (containers.firstWhere((c) => c.decoration is BoxDecoration).decoration as BoxDecoration).color!;
           expect(fg.a, 1);
-          expect(contrast(fg, bg), greaterThanOrEqualTo(3));
+          expect(contrast(fg, bg), greaterThanOrEqualTo(4.5));
         }
         final label = tester.widget<Text>(find.byKey(const ValueKey('graph-cluster-2')));
-        expect(label.style!.color, isNot(originalLabel));
-        expect(contrast(label.style!.color!, tester.element(graphPaint).colors.screen), greaterThanOrEqualTo(3));
+        expect(label.style!.color, originalLabel); // Pearl mutes borders, not secondary text contrast.
+        expect(contrast(label.style!.color!, tester.element(graphPaint).colors.canvas), greaterThanOrEqualTo(4.5));
       },
     );
   }

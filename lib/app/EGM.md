@@ -75,7 +75,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 ### `shell.dart`: tab shell and transition
 
 - `class AppShell extends StatefulWidget`: takes a `StatefulNavigationShell`
-  (`shell`). Hosts the gradient background and the nav bar.
+  (`shell`). Hosts the static Pearl background and the nav bar.
 - `class ShellBackground extends InheritedWidget`: exposes the background
   `GlobalKey` through `ShellBackground.maybeOf(context)`.
 - `class FikraNavBar extends StatefulWidget`: `items`, `index`, `onTap`. Each
@@ -83,7 +83,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 - `class FikraBranchContainer extends StatefulWidget`: `index`, `children`.
   Passed to `StatefulShellRoute.navigatorContainerBuilder`.
 - `class TabVeil extends LeafRenderObjectWidget` (`@visibleForTesting`):
-  `opacity`, `gradient`, `anchor`, `screen`.
+  `opacity`, `palette`, `anchor`, `screen`.
 - `class RenderTabVeil extends RenderBox`: render object for `TabVeil`.
 
 ### `storage_error_screen.dart`: storage failure screen
@@ -161,13 +161,13 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 - `FikraBranchContainer` keeps every navigator in its original slot. Unselected
   branches are `Offstage`, have `TickerMode` disabled, and are wrapped in
   `ExcludeFocus`. Each branch has its own `RepaintBoundary`.
-- The tab transition is a veil in the background gradient that clears over the
+- The tab transition is a veil in the Pearl canvas that clears over the
   new tab. It must not scale or fade the tab itself. Per the comment in
   `FikraBranchContainer.build`, rescaling re-rasterised the tab's text every
   frame on GLES (for example Adreno 650) and missed the 144 Hz budget on about
   20% of frames.
 - The tabs are transparent over the `AppShell` background, so the veil paints the
-  gradient in the anchor box's rectangle, not its own. Without a usable anchor,
+  two static blooms in the anchor box's rectangle, not its own. Without a usable anchor,
   `RenderTabVeil` assumes a `screen`-sized background at the view origin.
 - `RenderTabVeil` never takes hits (`hitTestSelf` returns `false`), and the veil
   sits inside `IgnorePointer`.
@@ -236,3 +236,11 @@ whisperLockProvider supplies the process-wide lease; transcriptionEngineProvider
 serviceKeysProvider, transcriptionServicesProvider/stateProvider, transcriptionTransportProvider and remoteAudioConverterProvider inject storage/HTTP/native conversion. localTranscriptionEngineProvider retains the local adapter; transcriptionEngineProvider reads the current selection and valid destination consent at job start, choosing local or a remote adapter. Credential reads are bound to the captured service origin/type. Queue construction, foreground service and launch crash-loop recovery are unchanged.
 
 /settings/voice-text/service/new and /settings/voice-text/service/:id push ServiceFormScreen via _pushed/MaterialPage. Secrets are absent from routes, Riverpod service snapshots and SQLite. Tests override the transport/secure store and local factory, including selection tests, so native Whisper or real HTTP cannot run.
+
+## Pearl foundation
+
+Shell and pushed-page scaffolds use PearlCanvas (static warm/cool blooms).
+The existing nav remains in bottomNavigationBar, with an opaque surface,
+selected fill and accent labels. Layout, spring and branch state are unchanged.
+App builder adds GlassDebugOverlay only when its opt-in provider is enabled
+in debug/profile; release excludes it. No phase-2 navigation or Add control.

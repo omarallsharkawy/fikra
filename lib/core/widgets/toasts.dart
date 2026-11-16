@@ -33,7 +33,7 @@ void showToast(BuildContext context, String message, {String? actionLabel, VoidC
         action: action
             ? SnackBarAction(
                 label: actionLabel,
-                textColor: context.colors.accentLight,
+                textColor: context.colors.accent,
                 onPressed: () {
                   pressed = true;
                   onAction();

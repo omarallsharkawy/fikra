@@ -22,7 +22,7 @@ holds no domain, storage or network logic.
   - [theme](./theme/EGM.md): `buildFikraTheme`, `FikraPalette`, `FikraRadius`,
     `FikraSpace`, `FikraText`, and the `context.colors` and `context.text`
     getters.
-  - [widgets](./widgets/EGM.md): `Glass`, `FikraButton`, `FikraField`,
+  - [widgets](./widgets/EGM.md): `SolidSurface`, `Glass`, `GlassLens`, `PearlCanvas`, `FikraButton`, `FikraField`,
     `FikraChip`, `FikraBadge`, `StatusBanner`, `EmptyState`, `SegmentedPill`,
     `SheetOption`, `FikraScaffold`, `FikraIconButton`, `AsyncBody`,
     `LoadErrorView`, `FillScroll`, `VoicePlayer`, and the functions
@@ -31,7 +31,7 @@ holds no domain, storage or network logic.
 ## Invariants
 
 - `lib/core` imports nothing from `lib/app`, `lib/data` or `lib/features`. Its
-  external packages are Flutter, `intl`, `flutter_riverpod` and `just_audio`; localized strings come from `lib/l10n`.
+  external packages are Flutter, `intl`, `flutter_riverpod`, `just_audio` and the approved MIT `liquid_glass_easy`; localized strings come from `lib/l10n`.
 - Internal dependencies point one way: `widgets` depends on `theme`, `motion` and
   `format.dart`, and `theme` depends on `motion`. `motion` depends on no other
   core package.
@@ -46,7 +46,7 @@ holds no domain, storage or network logic.
 - `Fmt.dayHeader` and `Fmt.relative` read the device clock through `DateTime.now`.
   unless `now` is supplied. `Fmt` is otherwise pure.
 - Subpackage side effects are listed in their contracts. Runtime resources are
-  limited to widget-owned controllers, a `WidgetsBindingObserver`, modal routes,
+  limited to widget-owned controllers, a `WidgetsBindingObserver`, the glass power MethodChannel subscription and visibility-scoped SchedulerBinding timings callback, modal routes,
   snackbars, and the audio player in `VoicePlayer`.
 
 ## Verification

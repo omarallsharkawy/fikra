@@ -1766,25 +1766,25 @@ abstract class AppLocalizations {
   /// **'من غير لون'**
   String get colorNone;
 
-  /// No description provided for @colorBlue.
+  /// Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'أزرق'**
   String get colorBlue;
 
-  /// No description provided for @colorGreen.
+  /// Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'أخضر'**
   String get colorGreen;
 
-  /// No description provided for @colorYellow.
+  /// Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'أصفر'**
   String get colorYellow;
 
-  /// No description provided for @colorGray.
+  /// Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'رمادي'**

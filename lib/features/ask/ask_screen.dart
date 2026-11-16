@@ -190,16 +190,13 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                               ? Align(
                                   key: const ValueKey('thinking'),
                                   alignment: AlignmentDirectional.centerEnd,
-                                  child: Glass(
+                                  child: SolidSurface(
                                     radius: FikraRadius.lg,
                                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                                     child: SizedBox(
                                       width: 18,
                                       height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: context.colors.accentLight,
-                                      ),
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
                                     ),
                                   ),
                                 )
@@ -233,8 +230,8 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                   child: Container(
                     width: FikraSpace.field,
                     height: FikraSpace.field,
-                    decoration: BoxDecoration(gradient: context.colors.sendGradient, shape: BoxShape.circle),
-                    child: Icon(Icons.arrow_upward_rounded, color: context.colors.textOnSend),
+                    decoration: BoxDecoration(gradient: context.colors.addGradient, shape: BoxShape.circle),
+                    child: Icon(Icons.arrow_upward_rounded, color: context.colors.onAccent),
                   ),
                 ),
               ),
@@ -259,10 +256,11 @@ class _UserBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            gradient: context.colors.selectedGradient,
+            color: context.colors.chip,
+            border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
             borderRadius: BorderRadius.circular(FikraRadius.md),
           ),
-          child: Text(text, style: context.text.body.copyWith(color: context.colors.textOnSelected)),
+          child: Text(text, style: context.text.body),
         ),
       ),
     );
@@ -281,9 +279,9 @@ class _AnswerBubble extends StatelessWidget {
       alignment: AlignmentDirectional.centerEnd,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.88),
-        child: Glass(
+        child: SolidSurface(
           radius: FikraRadius.lg,
-          borderColor: entry.found ? context.colors.border : context.colors.warning.withValues(alpha: 0.5),
+          borderColor: entry.found ? context.colors.line : context.colors.warning.withValues(alpha: 0.5),
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,29 +338,28 @@ class _SourceRow extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(minHeight: Pressable.minTargetSize),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(color: context.colors.pressed, borderRadius: BorderRadius.circular(FikraRadius.sm)),
+        decoration: BoxDecoration(color: context.colors.chip, borderRadius: BorderRadius.circular(FikraRadius.sm)),
         child: Row(
           children: [
             Container(
               width: 22,
               height: 22,
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: context.colors.selectedEnd, shape: BoxShape.circle),
-              child: Text(
-                '$index',
-                style: context.text.meta.copyWith(color: context.colors.textOnSelected, height: 1.1),
-              ),
+              decoration: BoxDecoration(color: context.colors.selected, shape: BoxShape.circle),
+              child: Text('$index', style: context.text.meta.copyWith(color: context.colors.accent, height: 1.1)),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 n == null ? context.l10n.sourceMissing : noteTitle(context, n),
-                style: context.text.chip.copyWith(color: n == null ? context.colors.textMeta : context.colors.textLink),
+                style: context.text.chip.copyWith(
+                  color: n == null ? context.colors.textSecondary : context.colors.accent,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (n != null) Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textMeta),
+            if (n != null) Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textSecondary),
           ],
         ),
       ),

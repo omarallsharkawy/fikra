@@ -37,3 +37,11 @@ Suggestions and source semantics use typed localized placeholders. Stored questi
 ## Verification
 
 - Run: `flutter analyze && flutter test`
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+User bubbles and source rows are opaque neutral chip; assistant answers are opaque surface.

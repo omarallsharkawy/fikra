@@ -4,6 +4,8 @@ import 'package:fikra/core/motion/motion.dart';
 import 'package:fikra/core/motion/page_transitions.dart';
 import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/theme/tokens.dart';
+import 'package:fikra/core/widgets/pearl_canvas.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary, SemanticsAction;
@@ -181,11 +183,9 @@ void main() {
     tester.view.physicalSize = const Size(200, 400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    const gradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [Color(0xFF000000), Color(0xFFFFFFFF)],
-    );
+    final palette = FikraPalette.light.copyWith(bloomCoolAlpha: .8, bloomWarmAlpha: .6);
+    final cover = ValueNotifier(false);
+    addTearDown(cover.dispose);
     final capture = GlobalKey();
     final background = GlobalKey();
     await tester.pumpWidget(
@@ -199,10 +199,7 @@ void main() {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: DecoratedBox(
-                    key: background,
-                    decoration: const BoxDecoration(gradient: gradient),
-                  ),
+                  child: CustomPaint(key: background, painter: PearlCanvasPainter(palette)),
                 ),
                 // A tab body below a status bar, with red content under the veil.
                 Positioned(
@@ -210,9 +207,19 @@ void main() {
                   left: 0,
                   right: 0,
                   height: 100,
-                  child: ColoredBox(
-                    color: const Color(0xFFFF0000),
-                    child: TabVeil(opacity: 1, gradient: gradient, anchor: background, screen: const Size(200, 400)),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: cover,
+                    builder: (_, shown, _) => shown
+                        ? ColoredBox(
+                            color: const Color(0xFFFF0000),
+                            child: TabVeil(
+                              opacity: 1,
+                              palette: palette,
+                              anchor: background,
+                              screen: const Size(200, 400),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                 ),
               ],
@@ -221,18 +228,26 @@ void main() {
         ),
       ),
     );
-    final bytes = (await tester.runAsync(() async {
+    Future<ByteData> captureBytes() async => (await tester.runAsync(() async {
       final image = await (capture.currentContext!.findRenderObject()! as RenderRepaintBoundary).toImage();
-      return image.toByteData();
+      final bytes = await image.toByteData();
+      image.dispose();
+      return bytes;
     }))!;
-    int pixel(int x, int y) => bytes.getUint8((y * 200 + x) * 4); // red channel
-    // Local y = 150 is drawn at 30 + 0.9 * 150 = 165. There the background is
-    // 37.5 % white. A veil stretched over its own box would be 50 %; one
-    // anchored to the view origin would be ~46 %.
-    expect(pixel(90, 165), closeTo(0.375 * 255, 4));
-    // No seam at the veil's top (drawn at y = 120) or bottom (y = 210).
-    expect(pixel(90, 122), closeTo(pixel(90, 118), 4));
-    expect(pixel(90, 208), closeTo(pixel(90, 212), 4));
+    final reference = await captureBytes();
+    cover.value = true;
+    await tester.pump();
+    final covered = await captureBytes();
+    // Compare the Pearl blooms against the unobscured full canvas through the
+    // same transform. A bloom fitted to the tab body would fail this grid.
+    for (var y = 122; y < 210; y += 8) {
+      for (var x = 24; x < 176; x += 12) {
+        for (var channel = 0; channel < 3; channel++) {
+          final index = (y * 200 + x) * 4 + channel;
+          expect(covered.getUint8(index), closeTo(reference.getUint8(index), 2));
+        }
+      }
+    }
   });
 
   for (final reduced in [false, true]) {

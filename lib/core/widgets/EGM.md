@@ -2,7 +2,7 @@
 
 ## Overview
 
-Shared UI kit for FIKRA screens: glass surfaces, buttons, fields, chips, badges,
+Shared UI kit for FIKRA screens: opaque reading surfaces, tiered floating glass, buttons, fields, chips, badges,
 banners, empty and error states, the segmented control, sheet and dialog
 helpers, toasts, the async body wrapper, and the local audio player. It is built
 on [theme](../theme/EGM.md) tokens and [motion](../motion/EGM.md) primitives.
@@ -15,10 +15,45 @@ User-facing default strings resolve from `context.l10n`, in
 
 - `fikra_widgets.dart`: barrel that exports every file below except
   `photo_thumb.dart` and `voice_player.dart`. Screens import this barrel.
-- `glass.dart`
-  - `Glass`: gradient surface with a hairline border. Takes `child`, `radius`,
-    `padding`, `borderColor`, `borderWidth`, `gradient`, `color`, `width`,
-    `height`.
+- `solid_surface.dart`: `SolidSurface(child, radius, padding, borderColor,
+  borderWidth, color, width, height)`; an opaque surface plus line hairline.
+- `glass.dart`: `Glass(child, radius, padding)` for existing floating controls
+  only. Solid uses opaque surface; frosted/optical backing uses 90% surface and
+  exactly one BackdropFilter.grouped with sigma 24. Non-overlapping siblings
+  must share a BackdropGroup; overlapping lenses must not share that key.
+- `glass_lens.dart`: `GlassLens(child, radius)` is an optical overlay above a
+  backed Glass, with the package's LiquidGlassLens/LiquidGlassStyle API. Blur 7,
+  surface tint 20%, saturation/refractionIndex 1.02, no dispersion, touch,
+  adaptation or new animation. Other tiers return the child without optics.
+  Impeller samples the live backdrop; Skia without a capture view falls back
+  to frosting. It is currently used only by glass_preview.dart.
+- `glass_edge.dart`: static one-pixel neutral/spectral rings, specular line,
+  inset light/contact, lens inner rim/lower reflection and material shadows;
+  no ShaderMask or saveLayer.
+- `glass_quality.dart`: GlassTier {solid,frosted,optical}, debug/profile
+  glassTierOverrideProvider, and glassTierProvider(disableAnimations).
+  The single motion input is MediaQuery.disableAnimations. Effective tier is
+  the minimum of watchdog ceiling, battery (solid), motion (frosted), and
+  override. Release ignores overrides; no product override UI exists.
+- `glass_power.dart`: fakeable GlassPowerSource; initial/broadcast state comes
+  from fikra/glass_power. Unknown state caps at solid; missing plugin defaults
+  to false for non-Android hosts, platform error to true. Disposal cancels the
+  handler/subscription; stale initial responses cannot overwrite broadcasts.
+  Riverpod 3 pauses the stream while nothing listens, so a bare
+  `container.read(glassTierProvider(..))` stays solid; watch or listen to it.
+- `glass_watchdog.dart`: fakeable GlassTimingsSource, session Notifier and fixed
+  120-frame raster ring/scratch buffers. Only mounted, route-current,
+  TickerMode-enabled Glass registers addTimingsCallback. Every 120 samples,
+  p95 above 6.5*120/refreshHz ms drops one tier; no session promotion. Hiding
+  all glass removes the callback and resets samples on reshow, not the ceiling.
+  Raw timestamp subtraction avoids allocating a Duration per frame.
+- `pearl_canvas.dart`: PearlCanvas behind screen content, static CustomPaint in
+  RepaintBoundary. Exactly warm (0%,90%, stop52%) then cool (100%,97%, stop50%)
+  over canvas, using CSS farthest-corner ellipse geometry. The existing tab
+  transition veil reuses this paint with its shell anchor; no new animation.
+- `glass_preview.dart`: release-excluded opt-in debug overlay and stationary
+  GlassReviewPanel used by the screenshot/perf harness. No navigation gesture,
+  floating Add button or phase-2 tab bar is implemented.
 - `layout.dart`
   - `FikraScaffold({child, safeBottom = true})`: full-screen page outside the
     tab shell.
@@ -28,7 +63,7 @@ User-facing default strings resolve from `context.l10n`, in
   - `FikraButton({label, onPressed, icon, style, expand = true, loading = false, horizontalPadding = 24, maxLines, growForText = false})`,
     with the constructors `FikraButton.secondary` and `FikraButton.danger`, and
     the enum `FikraButtonStyle { primary, secondary, danger }`.
-  - `FikraIconButton({icon, label, onTap, size = 44, solid = false})`.
+  - `FikraIconButton({icon, label, onTap, size = 44})`.
 - `fikra_field.dart`
   - `FikraField`: pill-shaped text input. Takes `controller`, `hint`, `icon`,
     `onChanged`, `onSubmitted`, `autofocus`, `error`, `keyboardType`,
@@ -61,8 +96,10 @@ User-facing default strings resolve from `context.l10n`, in
 
 ## Invariants
 
-- `Glass.color`, when set, replaces the gradient entirely. `gradient` and the
-  default `glassGradient` apply only when `color` is null.
+- SolidSurface rejects translucent custom fills. Reading cards, rows, dialogs,
+  sheet content, fields, chat and settings must use it or opaque chip/surface
+  decorations, never Glass. Glass has a RepaintBoundary and only adds blur
+  when its effective tier needs it.
 - `FikraButton` is disabled when `onPressed` is null or `loading` is true, and
   renders at 0.4 opacity. Compact buttons (`expand: false`) leave `alignment`
   null, because setting it would make the container fill the available width.
@@ -98,7 +135,10 @@ User-facing default strings resolve from `context.l10n`, in
   the height above the bottom safe area (less the keyboard inset when that is
   smaller), pads its footer above that safe area (not while the keyboard covers
   it), and gives `builder` that bounded height with no scroll view, for lazy
-  lists with a footer. Non-tall sheets are unchanged.
+  lists with a footer. Non-tall sheets are unchanged. The shell's fill is the
+  opaque `surface`, so its content sits in a transparent `Material` above that
+  fill; otherwise ListTile and InkWell ink would paint under it, invisible (and
+  ListTile asserts in debug).
 - `confirmDestructive` resolves the default confirm label before pushing its route. `runAction` resolves its default failure message before awaiting.
 - `runAction` catches every exception and error thrown by `action`. It returns
   true only after `action` completes, and shows `success` only then. It captures
@@ -153,3 +193,13 @@ User-facing default strings resolve from `context.l10n`, in
 
 - `showToast` with both `actionLabel` and `onAction` adds one `SnackBarAction` (Undo) and stays `toastActionDuration` (6 s) instead of 3 s; without them it is unchanged. The messenger reads `persist` once, so the Undo toast is shown with `persist: true` and its text (`_TimedToast`) times it out itself: it follows `MediaQuery.accessibleNavigationOf` while shown, waiting for the next toast while a screen reader is on and leaving 6 s after it is turned off (or after it was shown). The timer does nothing once the button was pressed or a newer `showToast` replaced it. The SnackBar's own live region announces it. A newer toast replaces it (`hideCurrentSnackBar`), so its Undo can no longer be pressed.
 - The action text uses `colors.accentLight`: the default (`inversePrimary`) was invisible on the white light-theme toast. `test/toast_test.dart` checks 4.5:1 contrast in both themes, the timings, the screen reader turned on and off mid-toast, and replacement.
+
+## Pearl verification
+
+`test/glass_quality_test.dart` covers each input/minimum, fake native stream,
+watchdog windows/refresh budgets, callback lifecycle and no promotion.
+`test/glass_widget_test.dart` covers opaque/no-blur reading, each material tier,
+shared sibling backdrop keys, battery/reduced-motion caps, lens settings and
+offstage listener removal. Screenshot gallery: light/dark Arabic side by side.
+The graph minimap is the only product Glass consumer; preview/page-counter
+reading content stays solid, and the existing tab bar still reserves space.

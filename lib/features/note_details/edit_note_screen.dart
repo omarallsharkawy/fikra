@@ -201,7 +201,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
                     maxLength: 80,
                   ),
                   const SizedBox(height: 12),
-                  Glass(
+                  SolidSurface(
                     radius: FikraRadius.lg,
                     padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
                     child: Semantics(

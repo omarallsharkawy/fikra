@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 enum BadgeKind { demo, saved, processing, failed }
 
@@ -15,9 +15,9 @@ class FikraBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (String text, Color fg, Color bg) = switch (kind) {
-      BadgeKind.demo => (context.l10n.badgeSampleData, context.colors.accentLight, context.colors.glassHighlight),
+      BadgeKind.demo => (context.l10n.badgeSampleData, context.colors.textSecondary, context.colors.chip),
       BadgeKind.saved => (context.l10n.badgeSaved, context.colors.success, context.colors.successBg),
-      BadgeKind.processing => (context.l10n.badgeAnalyzing, context.colors.accentLight, context.colors.glassHighlight),
+      BadgeKind.processing => (context.l10n.badgeAnalyzing, context.colors.textSecondary, context.colors.chip),
       BadgeKind.failed => (context.l10n.badgeFailed, context.colors.danger, context.colors.dangerBg),
     };
     return Container(
@@ -38,11 +38,11 @@ class StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (IconData icon, Color fg, Color bg) = switch (kind) {
-      BannerKind.offline => (Icons.wifi_off_rounded, context.colors.warning, context.colors.glassHighlight),
+      BannerKind.offline => (Icons.wifi_off_rounded, context.colors.warning, context.colors.warningBg),
       BannerKind.error => (Icons.error_outline_rounded, context.colors.danger, context.colors.dangerBg),
-      BannerKind.info => (Icons.auto_awesome_outlined, context.colors.accentLight, context.colors.glassHighlight),
+      BannerKind.info => (Icons.auto_awesome_outlined, context.colors.textSecondary, context.colors.chip),
     };
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.md,
       color: bg,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

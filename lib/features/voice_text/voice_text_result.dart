@@ -33,7 +33,7 @@ class VoiceTextResult extends StatelessWidget {
       padding: const EdgeInsets.only(top: FikraSpace.s4),
       child: Text(label, style: context.text.caption),
     );
-    return Glass(
+    return SolidSurface(
       key: const ValueKey('vt-result-card'),
       radius: FikraRadius.md,
       padding: const EdgeInsets.all(FikraSpace.s16),
@@ -104,7 +104,7 @@ class VoiceTextTranscript extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = run['text'] as String? ?? '';
     final seconds = ((run['wall_ms'] as num) / 1000).toStringAsFixed(2);
-    return Glass(
+    return SolidSurface(
       key: const ValueKey('vt-last-result'),
       radius: FikraRadius.md,
       padding: const EdgeInsets.all(FikraSpace.s16),

@@ -1,82 +1,46 @@
 # Theme
 
-## Overview
+Pearl is the app's Arabic-first, near-neutral colour system. Typography remains
+NotoSansArabic with Roboto fallback, no letter spacing, and the existing sizes,
+weights, radii, spacing and motion.
 
-Design tokens and the Material theme for FIKRA: a semantic color palette with
-dark and light variants, radius and spacing scales, the text styles, and the
-`ThemeData` factory that installs them. Widgets reach the tokens through the
-`context.colors` and `context.text` extension getters.
+`buildFikraTheme(Brightness)` installs `FikraPalette.light/dark` as a
+ThemeExtension. `context.colors` requires this theme; `context.text` constructs
+FikraText from it. Every palette field participates in constructor, copyWith
+and lerp, including material alphas.
 
-## Interface
+## Palette contract
 
-- `fikra_theme.dart`
-  - `ThemeData buildFikraTheme(Brightness brightness)`: Material 3 theme with
-    the matching `FikraPalette` installed as a theme extension. Called from
-    `lib/app/app.dart` for both `theme` and `darkTheme`.
-- `tokens.dart`
-  - `FikraPalette` (`ThemeExtension<FikraPalette>`, `@immutable`), with the
-    constants `FikraPalette.dark` and `FikraPalette.light`, plus `copyWith` and
-    `lerp`. Fields:
-    - Surfaces: `canvas`, `screen`, `glass`, `glassHighlight`, `pressed`,
-      `scrim`, `selection`.
-    - Text: `textPrimary`, `textSecondary`, `textBodyMuted`, `textPlaceholder`,
-      `textMeta`, `textOnLight`, `textLink`, `textOnSelected`, `textOnSend`.
-    - Borders: `border`, `borderGraph`, `borderFocus`.
-    - Accent and selection: `accent`, `accentLight`, `selectedStart`,
-      `selectedEnd`, `graphEdge`.
-    - Status: `danger`, `dangerBg`, `success`, `successBg`, `warning`.
-    - Gradients (`LinearGradient`): `screenGradient`, `glassGradient`,
-      `selectedGradient`, `primaryGradient`, `sendGradient`.
-  - `extension FikraThemeContext on BuildContext`: `colors` (`FikraPalette`) and
-    `text` (`FikraText`).
-  - `FikraRadius` (`abstract final`): `sm`, `md`, `lg`, `xl`, `xxl`, `full`.
-  - `FikraSpace` (`abstract final`): `s4`, `s8`, `s10`, `s12`, `s16`, `s20`,
-    `s24`, `s32`, plus the named sizes `screen` (gutter), `button`, `nav`,
-    `field` and `hairline`.
-  - `FikraText(FikraPalette colors)`: `TextStyle` getters `title`, `cardTitle`,
-    `cardTitleSmall`, `section`, `bodyLarge`, `answer`, `body`, `field`,
-    `caption`, `nav`, `button`, `chip`, `meta`. The font family constant is
-    `FikraText.family`.
-
-## Invariants
-
-- `context.colors` force-unwraps the theme extension. Any widget using it, and
-  any widget test, needs a `ThemeData` from `buildFikraTheme` (or one that
-  otherwise carries a `FikraPalette`) above it.
-- A new `FikraPalette` field must be added to the constructor, `dark`, `light`,
-  `copyWith` and `lerp`. Theme animation relies on `lerp` covering every field.
-- Color literals use the `AARRGGBB` form. `FikraPalette.dark` preserves the
-  original FIKRA tokens exactly.
-- `FikraPalette.light` uses darker accent and status colors for AA contrast.
-  Check contrast when changing them.
-- `sendGradient`, `textOnSelected` and `textOnSend` have the same values in both
-  palettes.
-- `textOnLight` is a legacy name: it is the inverse label color for the primary
-  button, so it is dark in the dark palette and light in the light palette.
-- Do not add letter spacing to `FikraText` styles, because negative tracking
-  breaks Arabic letter joining.
-- `FikraText` and `buildFikraTheme` set `NotoSansArabic` with a `Roboto`
-  fallback, because the Arabic font has no Latin glyphs. The font family name
-  must match the `fonts:` entry in `pubspec.yaml`, which declares weights 400,
-  500, 600 and 700.
-- The theme disables ripples (`NoSplash.splashFactory` with transparent splash,
-  highlight and hover colors). Press feedback belongs to `Pressable` in
-  [motion](../motion/EGM.md).
-- `dialogTheme` and `bottomSheetTheme` use transparent backgrounds with no
-  elevation. `confirmDestructive` and `showFikraSheet` in
-  [widgets](../widgets/EGM.md) paint their own surfaces.
-- `pageTransitionsTheme` registers `FikraPageTransitionsBuilder` for
-  `TargetPlatform.android` only.
-
-## Side Effects
-
-- None. Tokens are constants, and `buildFikraTheme` is a pure factory.
-- `context.colors` and `context.text` read `Theme.of`, so the calling widget
-  rebuilds when the theme changes. Each `context.text` read allocates a new
-  `FikraText`.
+- Opaque surfaces: canvas, surface, chip, selected. Reading content has no blur
+  or translucent fill. line is the quiet hairline.
+- Text: textPrimary, textSecondary, accent, onAccent. The old muted/meta/link,
+  screen/glass, inverse-label and selected-gradient aliases are removed.
+- One accent hue: blue. addTop → accent is the sole action gradient (145deg).
+  `addGradient` replaces both primaryGradient and sendGradient. Selected controls
+  use selected plus accent labels, never a gradient.
+- Semantic status text/backgrounds: danger/dangerBg, success/successBg,
+  warning/warningBg. They pass 4.5:1 on surface and their backgrounds in each
+  theme. Status backgrounds are opaque. graphEdge and borderGraph are neutral.
+- Material RGB: shadow, rim, highlight, lensRim, lensNeutral, bloomCool,
+  bloomWarm, spectrumCool/Warm/Sage. All theme-dependent alpha parameters are
+  explicit fields. Shared glassBackingAlpha=.90, lensTintAlpha=.20 and
+  lensSpectrumGain=1.15 are constants. washAlpha=0 enforces the no-wash invariant; frameShadowAlpha is used only
+  by the screenshot review frame, never product chrome. No finger marker exists.
+- scrim and selection remain interaction overlays, never reading surfaces.
+- Group markers: groupBlue, groupSage, groupSand, groupGray (stored group
+  colour IDs 0..3). Calm, muted but distinct hues; each reaches 3:1 non-text
+  contrast on surface and canvas in both themes (light gray was darkened in
+  HSL lightness only, from #8E9599 to #878E92, to clear 3:1 on canvas).
+- No purple, violet, lavender, magenta or pink palette values.
+- Material scheme uses onAccent on primary/secondary; app-specific surfaces
+  and labels always use these semantic tokens. No ripples; existing spring
+  press feedback is unchanged.
 
 ## Verification
 
-- Run: `flutter analyze && flutter test`
-- `test/motion_test.dart` builds screens with `buildFikraTheme`. No test asserts
-  palette values or `lerp`.
+`test/pearl_contrast_test.dart` implements the spec's exact WCAG method: composite
+sRGB, round channels to 8-bit, linearise at .04045, compare at normal-text AA
+4.5:1 (3:1 non-text for the group markers on surface and canvas). It checks all reading fills, 90% glass over black/white, status pairs,
+canvas and conservative overlapping blooms, and 1001 Add-gradient positions. PearlGradientAngle preserves physical CSS angles
+for non-square capsules; an explicit geometry test covers 125/135/145 degrees.
+Run `flutter analyze` and the tests outside the socket-restricted sandbox.

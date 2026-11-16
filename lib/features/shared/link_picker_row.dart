@@ -20,10 +20,10 @@ class _PickRow extends StatelessWidget {
         : null;
     final snippet = note.displayText.trim().split('\n').first;
     final (IconData icon, Color iconColor) = linked
-        ? (Icons.link_rounded, context.colors.textMeta)
+        ? (Icons.link_rounded, context.colors.textSecondary)
         : picked
-        ? (Icons.check_circle_rounded, context.colors.accentLight)
-        : (Icons.radio_button_unchecked_rounded, context.colors.textMeta);
+        ? (Icons.check_circle_rounded, context.colors.accent)
+        : (Icons.radio_button_unchecked_rounded, context.colors.textSecondary);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Semantics(
@@ -35,9 +35,9 @@ class _PickRow extends StatelessWidget {
           semanticLabel: detail == null ? title : context.l10n.linkRowA11y(title, detail),
           child: Opacity(
             opacity: linked ? 0.6 : 1,
-            child: Glass(
+            child: SolidSurface(
               radius: FikraRadius.md,
-              borderColor: picked ? context.colors.borderFocus : null,
+              borderColor: picked ? context.colors.accent : null,
               borderWidth: picked ? 1 : FikraSpace.hairline,
               padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 14, 10),
               child: ConstrainedBox(

@@ -77,17 +77,17 @@ class ProjectRow extends StatelessWidget {
       onTap: onTap,
       pressedScale: 0.98,
       selected: selected,
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.md,
-        gradient: selected ? context.colors.selectedGradient : context.colors.glassGradient,
-        borderColor: selected ? Colors.transparent : context.colors.border,
+        color: selected ? context.colors.selected : context.colors.surface,
+        borderColor: selected ? Colors.transparent : context.colors.line,
         padding: EdgeInsetsDirectional.fromSTEB(onMore == null ? 16 : 8, 12, 16, 12),
         child: Row(
           children: [
             Icon(
               selected ? Icons.check_circle_rounded : Icons.folder_outlined,
               size: 20,
-              color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+              color: selected ? context.colors.accent : context.colors.textPrimary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -98,13 +98,13 @@ class ProjectRow extends StatelessWidget {
                     project.name,
                     style: context.text.section.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+                      color: selected ? context.colors.accent : context.colors.textPrimary,
                     ),
                   ),
                   Text(
                     Fmt.notes(context.l10n, count),
                     style: context.text.meta.copyWith(
-                      color: selected ? context.colors.textOnSelected : context.colors.textSecondary,
+                      color: selected ? context.colors.accent : context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -119,7 +119,7 @@ class ProjectRow extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   child: Icon(
                     Icons.more_horiz_rounded,
-                    color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+                    color: selected ? context.colors.accent : context.colors.textPrimary,
                   ),
                 ),
               ),

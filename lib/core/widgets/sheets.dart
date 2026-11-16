@@ -6,7 +6,7 @@ import '../motion/motion.dart';
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 /// Bottom sheet shell: top radius 38, handle, title, fit to content.
 ///
@@ -50,14 +50,16 @@ Future<T?> showFikraSheet<T>(
         child: Container(
           height: height,
           decoration: BoxDecoration(
-            gradient: context.colors.screenGradient,
+            color: context.colors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
             border: Border(
-              top: BorderSide(color: context.colors.border, width: FikraSpace.hairline),
+              top: BorderSide(color: context.colors.line, width: FikraSpace.hairline),
             ),
           ),
           padding: EdgeInsets.fromLTRB(22, 12, 22, 28 + safeBottom),
-          child: content,
+          // The route's own Material is transparent and sits under this opaque
+          // fill, so rows (ListTile, InkWell) need a Material above it for ink.
+          child: Material(type: MaterialType.transparency, child: content),
         ),
       );
       if (!tall) {
@@ -111,7 +113,7 @@ class SheetOption extends StatelessWidget {
       child: Pressable(
         onTap: onTap,
         pressedScale: 0.98,
-        child: Glass(
+        child: SolidSurface(
           radius: FikraRadius.md,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           child: Row(

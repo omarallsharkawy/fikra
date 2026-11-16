@@ -95,3 +95,27 @@ transcription_widgets_test covers card/attachment queued/running, done collapsed
 remote_transcription_test checks all four builders against cited official docs, multipart file parts, inline MIME/base64, parsing, limits, timeout/offline/status mapping, no credential echoes/logging, consent before file/key access and one rejected-format conversion/cleanup. transcription_services_test uses a real in-memory database and fake key store for add/edit/reopen/delete, origin-bound key reads, stale consent, serialized updates and wipe. transcription_engine_selection_test holds WhisperLock while remote queue/trial jobs finish, changes selection between queued jobs, checks provenance and finishes pending processors before database teardown.
 
 external_transcription_widgets_test covers consent/cancel before any send, one-time agreement after a probe, obscured/show/hide key, service save/delete, partial/invalid/LAN URLs and regions, truthful Settings privacy text, attribution after delete and every remote failure action. screenshots/external_transcription_test covers engine choice, each service form, consent and the remote Settings line in both locales/themes. All HTTP/keys/local inference are faked. New scroll calls use the existing keyed outer-page helper and no first/last/at finder. Flutter tests/rendering are blocked by sandbox localhost restrictions; native/provider account checks remain with the orchestrator.
+
+## Pearl foundation
+
+- pearl_contrast_test: exact rounded-sRGB WCAG checks across both palettes,
+  every text-bearing fill, statuses, glass extremes, blooms, 1001 Add samples and
+  3:1 group markers on surface and canvas.
+- glass_quality_test + glass_test_fakes: power source injection, every cap/minimum,
+  p95 windows, refresh scaling, visibility subscription and no session promotion.
+- glass_widget_test: no blur on opaque reading/solid controls, one blur for
+  frosting, shared sibling backdrop keys, native battery/motion caps, optical
+  package parameters and offstage callback removal. Teardown owns resources.
+- motion_test: the existing transformed/anchored veil regression now compares
+  Pearl bloom pixels to an unobscured reference instead of a removed grayscale
+  gradient. Existing tab transition tests remain.
+- graph_fixture and graph_review_test: renamed selected foreground/canvas roles;
+  no readability regression was deleted. Graph muted text is now secondary;
+  graph_group_navigation_test expects that readable neutral, and graph_review_test
+  tightens the muted-node/label threshold from 3:1 to normal-text AA 4.5:1.
+- graph_minimap_navigation_test: injects power/timings for the new glass consumer;
+  existing geometry, pointer isolation, viewport and cached-content checks remain.
+- screenshots/glass_tiers_test: light/dark Arabic material review gallery.
+
+Flutter tests and screenshot rendering must run outside the socket-restricted
+sandbox. The profile harness is explicitly reserved for the owner's phone run.

@@ -107,7 +107,7 @@ class GroupRow extends StatelessWidget {
       semanticLabel: parent == null
           ? context.l10n.linkRowA11y(group.name, notes)
           : context.l10n.subGroupA11y(group.name, parent.name, notes),
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.md,
         padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 12),
         child: Row(

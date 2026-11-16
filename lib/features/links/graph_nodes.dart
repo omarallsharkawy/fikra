@@ -6,8 +6,7 @@ String _graphTitle(BuildContext context, GraphNote note) => noteTitleText(contex
 
 // Opaque composited token colours: subdued controls remain readable without
 // allocating a compositing layer per card. Contrast is tested in both themes.
-Color _mutedGraphText(BuildContext context) =>
-    Color.alphaBlend(context.colors.textMeta.withValues(alpha: context.colors.textMeta.a * 0.8), context.colors.screen);
+Color _mutedGraphText(BuildContext context) => context.colors.textSecondary;
 
 class _OverflowNode extends StatelessWidget {
   const _OverflowNode({
@@ -28,10 +27,9 @@ class _OverflowNode extends StatelessWidget {
   Widget build(BuildContext context) => Pressable(
     onTap: onTap,
     semanticLabel: semanticLabel ?? label,
-    child: Glass(
+    child: SolidSurface(
       radius: FikraRadius.sm,
-      color: dimmed || onTap == null ? context.colors.screen : null,
-      gradient: dimmed || onTap == null ? null : context.colors.glassGradient,
+      color: dimmed || onTap == null ? context.colors.canvas : null,
       child: Center(
         child: Text(
           label,
@@ -56,9 +54,9 @@ class _NodePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.xl,
-      color: context.colors.glass,
+      color: context.colors.surface,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,12 +80,12 @@ class _NodePreview extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Row(
                   children: [
-                    Icon(Icons.link_rounded, size: 14, color: context.colors.textLink),
+                    Icon(Icons.link_rounded, size: 14, color: context.colors.accent),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         r,
-                        style: context.text.caption.copyWith(color: context.colors.textLink),
+                        style: context.text.caption.copyWith(color: context.colors.accent),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -138,22 +136,17 @@ class _Node extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           alignment: AlignmentDirectional.centerStart,
           decoration: BoxDecoration(
-            gradient: selected
-                ? context.colors.selectedGradient
-                : dimmed
-                ? null
-                : context.colors.glassGradient,
             color: selected
-                ? null
+                ? context.colors.selected
                 : dimmed
-                ? context.colors.screen
-                : context.colors.glass,
+                ? context.colors.canvas
+                : context.colors.surface,
             borderRadius: BorderRadius.circular(FikraRadius.sm),
             border: Border.all(
               color: selected
-                  ? context.colors.accentLight
+                  ? context.colors.accent
                   : dimmed
-                  ? context.colors.border
+                  ? context.colors.line
                   : context.colors.borderGraph,
               width: selected ? 1.2 : FikraSpace.hairline,
             ),
@@ -165,7 +158,7 @@ class _Node extends StatelessWidget {
                   selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
                   key: ValueKey('graph-check-${note.id}'),
                   size: 20,
-                  color: selected ? context.colors.textOnSelected : context.colors.textSecondary,
+                  color: selected ? context.colors.accent : context.colors.textSecondary,
                 ),
                 const SizedBox(width: 6),
               ],
@@ -174,7 +167,7 @@ class _Node extends StatelessWidget {
                   _graphTitle(context, note),
                   style: context.text.chip.copyWith(
                     color: selected
-                        ? context.colors.textOnSelected
+                        ? context.colors.accent
                         : dimmed
                         ? _mutedGraphText(context)
                         : context.colors.textPrimary,

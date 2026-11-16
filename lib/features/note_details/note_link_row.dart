@@ -48,7 +48,7 @@ class _LinkRow extends StatelessWidget {
                 child: Icon(
                   suggestion ? Icons.auto_awesome_outlined : Icons.link_rounded,
                   size: 18,
-                  color: suggestion ? context.colors.textMeta : context.colors.accentLight,
+                  color: suggestion ? context.colors.textSecondary : context.colors.accent,
                 ),
               ),
               const SizedBox(width: 10),
@@ -58,7 +58,7 @@ class _LinkRow extends StatelessWidget {
                   children: [
                     Text(title, style: context.text.body.copyWith(fontWeight: FontWeight.w600)),
                     if (reason.isNotEmpty)
-                      Text(reason, style: context.text.meta.copyWith(color: context.colors.textLink)),
+                      Text(reason, style: context.text.meta.copyWith(color: context.colors.accent)),
                   ],
                 ),
               ),
@@ -75,7 +75,7 @@ class _LinkRow extends StatelessWidget {
     if (!suggestion) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Glass(
+        child: SolidSurface(
           radius: FikraRadius.md,
           padding: EdgeInsets.zero,
           child: Row(
@@ -155,7 +155,7 @@ class _InlineAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = primary ? context.colors.textOnLight : context.colors.textPrimary;
+    final fg = context.colors.textPrimary;
     return Opacity(
       opacity: onTap == null ? 0.4 : 1,
       child: Pressable(
@@ -168,9 +168,9 @@ class _InlineAction extends StatelessWidget {
             height: 36,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              gradient: primary ? context.colors.primaryGradient : context.colors.glassGradient,
+              color: context.colors.chip,
               borderRadius: BorderRadius.circular(FikraRadius.full),
-              border: primary ? null : Border.all(color: context.colors.border, width: FikraSpace.hairline),
+              border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

@@ -1,12 +1,17 @@
 import 'dart:math' as math;
 
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/widgets/glass_power.dart';
+import 'package:fikra/core/widgets/glass_watchdog.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:fikra/features/links/graph_layout.dart';
 import 'package:fikra/features/links/graph_minimap.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'glass_test_fakes.dart';
 import 'graph_layout_test.dart' show note;
 import 'graph_navigation_fixture.dart';
 
@@ -24,42 +29,55 @@ void main() {
       // The host measures the viewport in its layout pass; start unknown.
       final size = ValueNotifier(Size.zero);
       addTearDown(size.dispose);
+      final container = ProviderContainer(
+        overrides: [
+          glassPowerSaveProvider.overrideWithValue(const AsyncData(false)),
+          glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(() async {
+        await t.pumpWidget(const SizedBox.shrink());
+      });
       var underneath = 0;
       await t.pumpWidget(
-        MaterialApp(
-          theme: buildFikraTheme(Brightness.dark),
-          locale: Locale(rtl ? 'ar' : 'en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Stack(
-            children: [
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () => underneath++,
-                  child: const ColoredBox(color: Colors.transparent),
-                ),
-              ),
-              PositionedDirectional(
-                top: 20,
-                end: 20,
-                child: ValueListenableBuilder<Size>(
-                  valueListenable: size,
-                  builder: (context, viewportSize, _) => GraphMinimap(
-                    layout: layout,
-                    controller: tc,
-                    viewportSize: viewportSize,
-                    onMove: (p) {
-                      final s = tc.value.entry(0, 0);
-                      tc.value = Matrix4.translationValues(
-                        viewport.width / 2 - p.dx * s,
-                        viewport.height / 2 - p.dy * s,
-                        0,
-                      )..scaleByDouble(s, s, s, 1);
-                    },
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: buildFikraTheme(Brightness.dark),
+            locale: Locale(rtl ? 'ar' : 'en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () => underneath++,
+                    child: const ColoredBox(color: Colors.transparent),
                   ),
                 ),
-              ),
-            ],
+                PositionedDirectional(
+                  top: 20,
+                  end: 20,
+                  child: ValueListenableBuilder<Size>(
+                    valueListenable: size,
+                    builder: (context, viewportSize, _) => GraphMinimap(
+                      layout: layout,
+                      controller: tc,
+                      viewportSize: viewportSize,
+                      onMove: (p) {
+                        final s = tc.value.entry(0, 0);
+                        tc.value = Matrix4.translationValues(
+                          viewport.width / 2 - p.dx * s,
+                          viewport.height / 2 - p.dy * s,
+                          0,
+                        )..scaleByDouble(s, s, s, 1);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );

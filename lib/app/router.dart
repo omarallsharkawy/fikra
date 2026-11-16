@@ -57,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, _) => ColoredBox(color: context.colors.screen),
+        builder: (context, _) => ColoredBox(color: context.colors.canvas),
       ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
       GoRoute(path: '/storage-error', builder: (_, _) => const StorageErrorScreen()),

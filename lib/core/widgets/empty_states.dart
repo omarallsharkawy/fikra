@@ -6,7 +6,7 @@ import '../motion/motion.dart';
 import '../theme/tokens.dart';
 
 import 'buttons.dart';
-import 'glass.dart';
+import 'solid_surface.dart';
 import 'layout.dart';
 
 /// Icon + title + description (+ action). Carries the screen gutter itself;
@@ -33,7 +33,7 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Glass(
+          SolidSurface(
             radius: 36,
             width: 72,
             height: 72,

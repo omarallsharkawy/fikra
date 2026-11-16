@@ -109,13 +109,13 @@ class _ReasonCapsule extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 160),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: context.colors.glass,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(FikraRadius.full),
           border: Border.all(color: context.colors.borderGraph),
         ),
         child: Text(
           label,
-          style: context.text.meta.copyWith(color: context.colors.textLink),
+          style: context.text.meta.copyWith(color: context.colors.accent),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

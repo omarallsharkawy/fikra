@@ -93,12 +93,12 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => context.push('/settings/voice-text'),
                 ),
                 section(context.l10n.dataSection),
-                Glass(
+                SolidSurface(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(Icons.phone_android_rounded, size: 20, color: c.accentLight),
+                      Icon(Icons.phone_android_rounded, size: 20, color: c.accent),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -128,7 +128,7 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => _wipe(context, ref),
                 ),
                 section(context.l10n.aboutSection),
-                Glass(
+                SolidSurface(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
                   child: Row(

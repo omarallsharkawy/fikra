@@ -80,14 +80,14 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
                 curve: FikraMotion.enterCurve,
                 padding: const EdgeInsetsDirectional.fromSTEB(10, 4, 16, 10),
                 decoration: BoxDecoration(
-                  gradient: c.glassGradient,
+                  color: c.surface,
                   borderRadius: BorderRadius.circular(FikraRadius.xl),
                   border: Border.all(
                     color: recording
                         ? c.danger.withValues(alpha: 0.55)
                         : focused
-                        ? c.borderFocus.withValues(alpha: 0.6)
-                        : c.border,
+                        ? c.accent.withValues(alpha: 0.6)
+                        : c.line,
                     width: recording || focused ? 1 : FikraSpace.hairline,
                   ),
                 ),
@@ -107,10 +107,10 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
                         border: InputBorder.none,
                         counterText: '',
                         hintText: context.l10n.titleOptionalHint,
-                        hintStyle: context.text.cardTitleSmall.copyWith(color: c.textPlaceholder),
+                        hintStyle: context.text.cardTitleSmall.copyWith(color: c.textSecondary),
                       ),
                     ),
-                    Container(height: FikraSpace.hairline, color: c.border),
+                    Container(height: FikraSpace.hairline, color: c.line),
                     FikraSwitcher(
                       animateSize: true,
                       child: recording
@@ -129,7 +129,7 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
                                 border: InputBorder.none,
                                 counterText: '',
                                 hintText: hasAttachment ? context.l10n.bodyHintWithFileLinks : context.l10n.bodyHint,
-                                hintStyle: context.text.bodyLarge.copyWith(color: c.textPlaceholder),
+                                hintStyle: context.text.bodyLarge.copyWith(color: c.textSecondary),
                               ),
                             ),
                     ),

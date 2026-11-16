@@ -111,3 +111,11 @@ A transcript counts as text the user wrote: it is in originalText (and editedTex
 `interruptedTwice` failures show `trInterruptedTwice` and offer both retry and voice settings (a smaller model is one way out). The details button's transcribe/retry/redo is a manual request, so it resets the attempt count.
 
 Phase 3 TranscriptionSource renders remote:<serviceId> as the localized Via <name>, retaining attribution after config/key deletion through the alias archive. Stable remote failure codes show plain localized offline/auth/quota/size/service/response/timeout/consent messages. Failed recordings offer both retry and voice settings; existing manual enqueue/crash-attempt reset and local transcript behavior remain unchanged. No key or provider request body reaches details.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+Graph-related note rows, rewrite/read cards, transcripts, edit areas and the PDF page counter remain solid reading surfaces.

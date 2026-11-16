@@ -55,7 +55,7 @@ class VoiceTextModels extends StatelessWidget {
     final selected = c.choices.loaded && c.model == model;
     return Padding(
       padding: const EdgeInsets.only(bottom: FikraSpace.s8),
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.md,
         padding: const EdgeInsets.all(FikraSpace.s12),
         child: Column(
@@ -70,7 +70,7 @@ class VoiceTextModels extends StatelessWidget {
                 children: [
                   Icon(
                     selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                    color: context.colors.accentLight,
+                    color: selected ? context.colors.accent : context.colors.textSecondary,
                   ),
                   const SizedBox(width: FikraSpace.s12),
                   Expanded(
@@ -158,8 +158,8 @@ class VoiceTextProgress extends StatelessWidget {
       borderRadius: BorderRadius.circular(FikraRadius.full),
       child: LinearProgressIndicator(
         value: value ?? (MediaQuery.disableAnimationsOf(context) ? 0 : null),
-        color: context.colors.accentLight,
-        backgroundColor: context.colors.border,
+        color: context.colors.textSecondary,
+        backgroundColor: context.colors.line,
       ),
     ),
   );

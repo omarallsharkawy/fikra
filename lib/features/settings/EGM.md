@@ -39,3 +39,10 @@ Language uses the same `SegmentedPill` and persisted-stream pattern as appearanc
 A SheetOption under its own Voice section, after language and before local data, opens `/settings/voice-text`; its label includes the localized Experimental tag. It uses the existing row treatment. The feature also configures saved-recording transcription and wipe removes its services/keys; see ../voice_text/EGM.md.
 
 Phase 3 the data-location line watches the non-secret service snapshot. Local choice retains dataStaysLocal; a remote choice uses vsRemoteData naming the selected service. Loading/error shows a truthful pending/error label instead of briefly claiming local-only storage. Erase-all confirmation now names transcription services and their keys; the repository removes both configs and secure credentials.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.

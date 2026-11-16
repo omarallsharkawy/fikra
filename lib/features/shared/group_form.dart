@@ -173,14 +173,14 @@ class GroupColorPicker extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: groupColor(context, c),
                     border: Border.all(
-                      color: c == selected ? context.colors.textPrimary : context.colors.border,
+                      color: c == selected ? context.colors.textPrimary : context.colors.line,
                       width: c == selected ? 2.5 : 1,
                     ),
                   ),
                   child: c == null
                       ? Icon(Icons.block_rounded, size: 18, color: context.colors.textSecondary)
                       : c == selected
-                      ? Icon(Icons.check_rounded, size: 18, color: context.colors.screen)
+                      ? Icon(Icons.check_rounded, size: 18, color: _groupCheckColor(context, c))
                       : null,
                 ),
               ),
@@ -189,6 +189,19 @@ class GroupColorPicker extends StatelessWidget {
       ],
     );
   }
+}
+
+// The neutral shade can be lighter or darker than the canvas in either theme.
+Color _groupCheckColor(BuildContext context, int color) {
+  final bg = groupColor(context, color)!.computeLuminance();
+  double ratio(Color fg) {
+    final value = fg.computeLuminance();
+    return value > bg ? (value + .05) / (bg + .05) : (bg + .05) / (value + .05);
+  }
+
+  final body = context.colors.textPrimary;
+  final canvas = context.colors.canvas;
+  return ratio(body) >= ratio(canvas) ? body : canvas;
 }
 
 /// A selectable tag that grows with large text instead of clipping, with an
@@ -217,7 +230,7 @@ class ChoiceTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = selected ? context.colors.textOnSelected : context.colors.textPrimary;
+    final fg = selected ? context.colors.accent : context.colors.textPrimary;
     return Pressable(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -228,10 +241,9 @@ class ChoiceTag extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 36),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          gradient: selected ? context.colors.selectedGradient : null,
-          color: selected ? null : context.colors.glassHighlight,
+          color: selected ? context.colors.selected : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
-          border: selected ? null : Border.all(color: context.colors.border, width: FikraSpace.hairline),
+          border: selected ? null : Border.all(color: context.colors.line, width: FikraSpace.hairline),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

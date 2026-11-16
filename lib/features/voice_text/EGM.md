@@ -14,7 +14,7 @@ An installed saved model wins. Otherwise choose installed Egyptian, small, base,
 - Try it: file recording, explicit transcription of the selected trial clip, live partials, and last trial transcript with elapsed seconds. Shared InlineRecorder and VoicePlayer behavior is preserved; this is not automatic transcription.
 - For testing: collapsed by default with expanded semantics. It expands through AnimatedSize with FikraMotion.expand; under Reduce Motion it appears at once without AnimatedSize, because a zero-duration AnimatedSize re-dirties itself during its own layout (a debug assertion). Contains format, threads, inventory refresh, uncompressed variants, ten recent playable/deletable recordings, re-run and all five run-history entries with technical numbers. An active uncompressed model is promoted into the main list so no restored selection is hidden; other full variants stay here.
 
-Every surface uses FikraScaffold, Glass, Pressable, SheetOption/showFikraSheet, FikraButton/IconButton, the app confirmation dialog, badges, StatusBanner/showToast and existing tokens. The title/tag gap uses FikraSpace.s8. Error actions and asynchronous capture failures show a toast and scroll to the persistent error banner with existing motion tokens, including a static jump under reduced motion. After a long jump the lazy list corrects its offset by the newly inserted banner's height, so the jump repeats (at most twice) on the following frames until the list rests at the top. Millisecond values and their Latin unit use a non-breaking space and one direction isolate.
+Every surface uses FikraScaffold, SolidSurface, Pressable, SheetOption/showFikraSheet, FikraButton/IconButton, the app confirmation dialog, badges, StatusBanner/showToast and existing tokens. The title/tag gap uses FikraSpace.s8. Error actions and asynchronous capture failures show a toast and scroll to the persistent error banner with existing motion tokens, including a static jump under reduced motion. After a long jump the lazy list corrects its offset by the newly inserted banner's height, so the jump repeats (at most twice) on the following frames until the list rests at the top. Millisecond values and their Latin unit use a non-breaking space and one direction isolate.
 
 ## Native/file boundaries
 
@@ -53,3 +53,10 @@ Try it reads the current selected service, uses the same engine factory as the q
 Remote format rejection alone may use remote_audio_converter.dart: the existing bundled FFmpeg 16 kHz mono PCM path, quiet logs, arguments passed separately, a unique temp file and cleanup. Saved-note requests retain their keep-alive and crash-loop protection. No audio is sent merely by opening settings, saving a service, selecting an agreed service or enabling auto mode.
 
 TranscriptionSource labels local models as before and remote IDs as Via <service alias>. Deleted-service aliases remain in non-secret settings until wipe; IDs do not encode model revisions. All visible text lives in ARB, including provider product labels.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.

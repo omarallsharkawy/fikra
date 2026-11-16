@@ -66,3 +66,9 @@ Phase 2 adds described trAutomatic/trAutomaticHint/trDownloadFirst/trAfterSave, 
 Background transcription adds described `trNotificationChannel` (the Android notification channel name), `trNotificationLeft` (plural count of recordings left, including the one running; Arabic has =1/=2/few/other forms) and `trNotificationWhy` (one-line reason shown before the notification permission prompt). The notification title reuses `trWorking`. Arabic copy awaits the Hydrogen review.
 
 Phase 3 adds described vs* keys in both ARBs for engine/service forms, destination consent and LAN warning, key visibility and origin changes, per-provider key guidance, remote attribution/privacy and mapped HTTP errors. eraseAllBody now includes services and secure keys. Provider product names are ARB values too; URLs/model IDs and protocol-only transcription prompts are technical config, not translated copy. gen-l10n output is regenerated, then formatted. Docs/plans remain unchanged pending the owner's later language review.
+
+Pearl foundation keeps the four group colour labels (colorBlue/Green/Yellow/Gray:
+«أزرق», «أخضر», «أصفر», «رمادي»; Blue, Green, Yellow, Gray), since the markers
+are still four distinct muted hues; both ARBs describe them as colour picker
+names. Internal keys and stored IDs stay stable. Generated lookups were
+refreshed with flutter gen-l10n.

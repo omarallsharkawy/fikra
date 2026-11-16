@@ -50,3 +50,10 @@ Cards share `projectAttachmentsProvider(projectId)`, one joined attachment query
 - Verification: `test/selection_mode_test.dart`, `test/selection_actions_test.dart`, `test/note_groups_list_test.dart`; screenshots `45`–`56` in `test/screenshots/selection_test.dart`.
 
 Phase 2 uses the existing batched project attachment stream to add trWorking in FikraBadge/processing style when any voice recording is queued or running. No per-card query or native job is started. Current displayText already participates in card previews and search, so appended transcripts are searchable through the existing path.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.

@@ -8,7 +8,7 @@ class _MicPermissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.lg,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       child: Column(

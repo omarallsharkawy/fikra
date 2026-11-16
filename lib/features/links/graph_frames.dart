@@ -73,7 +73,7 @@ extension _GraphFrames on _LinksScreenState {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(frame.collapsed ? FikraRadius.full : FikraRadius.lg),
-          border: Border.all(color: dim ? Color.alphaBlend(border.withValues(alpha: 0.16), colors.screen) : border),
+          border: Border.all(color: dim ? Color.alphaBlend(border.withValues(alpha: 0.16), colors.canvas) : border),
         ),
         alignment: Alignment.topCenter,
         child: SizedBox(

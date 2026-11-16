@@ -119,7 +119,7 @@ extension _LinksViewport on _LinksScreenState {
                               container: true,
                               sortKey: _graphSort(layout, label.bounds),
                               child: ColoredBox(
-                                color: context.colors.screen,
+                                color: context.colors.canvas,
                                 child: label.row == null
                                     ? Text(
                                         context.l10n.suggestedTopics,

@@ -49,7 +49,7 @@ class InlineRecorder extends StatelessWidget {
           SizedBox(
             height: 72,
             child: CustomPaint(
-              painter: _LevelsPainter(levels, context.colors.accentLight, Directionality.of(context)),
+              painter: _LevelsPainter(levels, context.colors.textSecondary, Directionality.of(context)),
               size: Size.infinite,
             ),
           ),

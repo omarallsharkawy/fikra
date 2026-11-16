@@ -127,3 +127,20 @@ New verification keys: `graph-frame-<groupId>`, `graph-group-options-<groupId>`,
 - No new localization key: removed search pairs reuse `linkRemoved` (English “Link removed”; Arabic “الرابط اتشال”).
 - Performance against commit `2b87dc1`: the same 240-note/1000-link fixture, full `GraphLayout.compute` + `GraphEdgePaths`, six warm-up pairs and 21 alternating timed pairs in one engine process. Before → after medians: no groups 24.668 → 25.530 ms (+3.5%); expanded five groups 19.947 → 21.650 ms (+8.5%); folded g1/g3 9.351 → 10.226 ms (+9.4%). All remain within 10%. Long frameless direct cubics use a few strict interior-card point probes only as early positive collision proofs; inconclusive probes still use full collision checks. This avoids flattening discarded direct routes. Segmented reserved-rectangle checks also cull each cubic's hull before walking points. These are host regression numbers, not phone frame budgets.
 - Pan raster (2026-11-14, Realme RMX3851, 5,000 notes): cause and fix in `docs/scalability.md` (Graph pan on Impeller). The obstacle clip, endpoint dots and minimap were measured with on/off probes in the same run and were within run-to-run noise, so they stay.
+
+## Pearl foundation (redesign phase 1)
+
+Graph nodes, previews, label capsules and groups are solid neutral reading
+surfaces. Text dimming uses opaque secondary to retain normal-text AA; borders
+can still mute. graphEdge/borderGraph are neutral and user-link ink retains the
+single accent. Group marker IDs map to the calm group hues (blue, sage, sand, gray).
+The minimap is the only existing floating control over the pan/zoom content:
+its outer container uses Glass with a one-pixel inset, retaining its geometry,
+keys, gesture coordinate system and cached content/viewport RepaintBoundaries.
+The default optical tier has a frosted backing here; the separate refraction
+lens is debug/screenshot-only until phase 2. No layouts were made floating.
+
+Minimap material is a stable AnimatedBuilder child. Pan/zoom updates only its
+visibility decision and the viewport painter, without rebuilding filters,
+shadows or static edge paint each frame. Standalone minimap tests now inject
+power/timings alongside the existing real-app tests.

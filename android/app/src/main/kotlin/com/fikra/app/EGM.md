@@ -9,3 +9,13 @@ MainActivity retains FlutterActivity plugin registration. The experimental voice
 Verify with the Android build and a phone download attempt, including insufficient storage. Widget tests fake the feature's backend; Android StatFs needs device verification.
 
 Phase 3 adds INTERNET to the main manifest (previously debug/profile only), with the scope comment: model downloads and services the user adds. No activity/service/notification logic or service types change. Remote jobs use the existing keep-alive. HTTP uses Dart-owned sockets with explicit HTTPS/private-address validation; no app-wide native cleartext override is added.
+
+## Glass power cap
+
+MainActivity adds fikra/glass_power: isPowerSaveMode reads
+PowerManager.isPowerSaveMode. A receiver for ACTION_POWER_SAVE_MODE_CHANGED
+invokes powerSaveModeChanged(bool) on the same channel. API 33+ uses
+RECEIVER_NOT_EXPORTED. onDestroy unregisters the receiver and clears the channel
+handler. No permission, service, DB, package or build configuration change.
+Dart GlassPowerSource is injectable; unit/widget tests use a fake stream.
+Native broadcast delivery/recreation requires a phone check.

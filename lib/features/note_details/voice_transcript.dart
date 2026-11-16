@@ -54,7 +54,7 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
     final settings = failure != null;
     final transcript = a.transcript;
     final engine = a.transcriptionEngine;
-    return Glass(
+    return SolidSurface(
       key: ValueKey('transcript-${a.id}'),
       radius: FikraRadius.lg,
       padding: const EdgeInsets.all(FikraSpace.s16),

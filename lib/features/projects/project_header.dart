@@ -33,7 +33,7 @@ class ProjectHeader extends ConsumerWidget {
       onTap: () => showProjectSwitcher(context, ref),
       minTarget: true,
       semanticLabel: context.l10n.projectPillA11y(project?.name ?? context.l10n.noProject),
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.full,
         padding: compact
             ? const EdgeInsets.symmetric(horizontal: 4, vertical: 8)
@@ -42,7 +42,7 @@ class ProjectHeader extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!compact) ...[
-              Icon(Icons.folder_outlined, size: 18, color: context.colors.accentLight),
+              Icon(Icons.folder_outlined, size: 18, color: context.colors.textSecondary),
               const SizedBox(width: 6),
             ],
             Flexible(

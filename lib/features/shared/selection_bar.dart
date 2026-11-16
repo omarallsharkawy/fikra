@@ -77,7 +77,7 @@ class SelectionActionBar extends StatelessWidget {
     final note = this.note;
     return Padding(
       padding: const EdgeInsets.fromLTRB(FikraSpace.screen - 8, 6, FikraSpace.screen - 8, 8),
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.lg,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         child: Column(

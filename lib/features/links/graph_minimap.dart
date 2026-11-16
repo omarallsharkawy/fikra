@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/glass.dart';
 import '../../l10n/localizations.dart';
 import 'graph_layout.dart';
 
@@ -55,54 +56,58 @@ class _GraphMinimapState extends State<GraphMinimap> {
     final ink = RepaintBoundary(
       child: CustomPaint(key: const ValueKey('graph-minimap-content'), size: GraphMinimap.mapSize, painter: content),
     );
+    // Material and recorded content are stable across pan/zoom frames. Only
+    // visibility and the small viewport painter listen to the transform.
+    final control = Semantics(
+      label: context.l10n.graphMinimap,
+      button: true,
+      onTap: () => widget.onMove(Offset(layout.width / 2, layout.height / 2)),
+      child: Glass(
+        key: const ValueKey('graph-minimap'),
+        padding: const EdgeInsets.all(1),
+        radius: FikraRadius.sm,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          excludeFromSemantics: true,
+          onTapDown: (d) => move(d.localPosition),
+          onPanStart: (d) => move(d.localPosition),
+          onPanUpdate: (d) => move(d.localPosition),
+          child: SizedBox.fromSize(
+            size: GraphMinimap.mapSize,
+            child: Stack(
+              children: [
+                Positioned.fill(child: ink),
+                Positioned.fill(
+                  child: RepaintBoundary(
+                    child: AnimatedBuilder(
+                      animation: widget.controller,
+                      builder: (context, _) => CustomPaint(
+                        key: const ValueKey('graph-minimap-viewport'),
+                        painter: GraphMinimapViewport(
+                          content.toMap(graphViewportRect(widget.controller.value, widget.viewportSize)),
+                          colors.accent,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
     return AnimatedBuilder(
       animation: widget.controller,
-      child: ink,
+      child: control,
       builder: (context, child) {
         final viewport = widget.viewportSize;
-        // Unknown size, or the whole graph already in view: nothing to map.
         if (widget.obscured || viewport.isEmpty) return const SizedBox.shrink();
         final visible = graphViewportRect(widget.controller.value, viewport);
         if (layout.width <= visible.width + 0.5 && layout.height <= visible.height + 0.5) {
           return const SizedBox.shrink();
         }
-        return Semantics(
-          label: context.l10n.graphMinimap,
-          button: true,
-          onTap: () => widget.onMove(Offset(layout.width / 2, layout.height / 2)),
-          child: Container(
-            key: const ValueKey('graph-minimap'),
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              color: colors.screen,
-              border: Border.all(color: colors.borderGraph),
-              borderRadius: BorderRadius.circular(FikraRadius.sm),
-            ),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              excludeFromSemantics: true,
-              onTapDown: (d) => move(d.localPosition),
-              onPanStart: (d) => move(d.localPosition),
-              onPanUpdate: (d) => move(d.localPosition),
-              child: SizedBox.fromSize(
-                size: GraphMinimap.mapSize,
-                child: Stack(
-                  children: [
-                    Positioned.fill(child: child!),
-                    Positioned.fill(
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          key: const ValueKey('graph-minimap-viewport'),
-                          painter: GraphMinimapViewport(content.toMap(visible), colors.accentLight),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
+        return child!;
       },
     );
   }

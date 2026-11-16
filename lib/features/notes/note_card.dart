@@ -41,10 +41,10 @@ class NoteCard extends ConsumerWidget {
       onLongPress: onLongPress,
       selected: selected,
       pressedScale: 0.98,
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.lg,
         padding: EdgeInsets.fromLTRB(18 - inset, 16 - inset, 18 - inset, 16 - inset),
-        borderColor: on ? context.colors.accentLight : null,
+        borderColor: on ? context.colors.accent : null,
         borderWidth: on ? 2 : FikraSpace.hairline,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,12 +56,12 @@ class NoteCard extends ConsumerWidget {
                     selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
                     key: ValueKey('note-check-${note.id}'),
                     size: 22,
-                    color: selected ? context.colors.accentLight : context.colors.textSecondary,
+                    color: selected ? context.colors.accent : context.colors.textSecondary,
                   ),
                   const SizedBox(width: 10),
                 ],
                 for (final item in attachmentIcons(note, attachments)) ...[
-                  Icon(item.icon, size: 18, color: context.colors.accentLight),
+                  Icon(item.icon, size: 18, color: context.colors.textSecondary),
                   if (item.count > 1) Text(' ${item.count}', style: context.text.meta),
                   const SizedBox(width: 6),
                 ],
@@ -137,9 +137,9 @@ class _ConceptTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: context.colors.pressed,
+        color: context.colors.chip,
         borderRadius: BorderRadius.circular(FikraRadius.full),
-        border: Border.all(color: context.colors.border, width: FikraSpace.hairline),
+        border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
       ),
       child: Text(label, style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 11.5)),
     );

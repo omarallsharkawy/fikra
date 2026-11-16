@@ -20,7 +20,7 @@ class _Body extends ConsumerWidget {
         Row(
           children: [
             for (final icon in sourceIcons(note, attachments.value ?? const [])) ...[
-              Icon(icon, size: 16, color: context.colors.textMeta),
+              Icon(icon, size: 16, color: context.colors.textSecondary),
               const SizedBox(width: 6),
             ],
             Flexible(
@@ -104,7 +104,7 @@ class _ProcessingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.lg,
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -112,7 +112,7 @@ class _ProcessingCard extends StatelessWidget {
           SizedBox(
             width: 20,
             height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accentLight),
+            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
           ),
           const SizedBox(width: 12),
           Expanded(child: Text(context.l10n.analyzingBody, style: context.text.caption)),

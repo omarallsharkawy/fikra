@@ -82,7 +82,7 @@ class VoiceTextRecordings extends StatelessWidget {
         for (var i = 0; i < c.clips.length; i++)
           Padding(
             padding: const EdgeInsets.only(bottom: FikraSpace.s8),
-            child: Glass(
+            child: SolidSurface(
               radius: FikraRadius.md,
               padding: const EdgeInsets.all(FikraSpace.s8),
               child: Column(

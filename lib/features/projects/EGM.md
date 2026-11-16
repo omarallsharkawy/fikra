@@ -54,3 +54,10 @@ Header, sheets and welcome copy use `context.l10n`; project names remain stored 
 - The title `deleteProjectTitle` gets the name through `Fmt.isolate` (FSI/PDI) so a mixed name such as "2026 Work" keeps its order inside Arabic.
 - Project rows come from `ProjectRow` in [shared](../shared/EGM.md).
 - Verification: `test/project_moves_test.dart` (UX-16, UX-17, delete numbers, chat-only empty project, double tap and cancel reset, dismissed sheet, re-shown changed numbers, mixed-name bidi) and `test/repositories_test.dart` (`deleteImpact`, only the deleted project's files leave the disk); screenshots `39`–`41` in `test/screenshots/projects_test.dart`.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.

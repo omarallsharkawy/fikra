@@ -7,27 +7,30 @@ ThemeData buildFikraTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
   final colors = dark ? FikraPalette.dark : FikraPalette.light;
   final text = FikraText(colors);
-  final scheme = dark
-      ? ColorScheme.dark(
-          primary: colors.accent,
-          onPrimary: colors.textPrimary,
-          secondary: colors.accentLight,
-          surface: colors.screen,
-          onSurface: colors.textPrimary,
-          error: colors.danger,
-        )
-      : ColorScheme.light(
-          primary: colors.accent,
-          onPrimary: colors.textOnSelected,
-          secondary: colors.accentLight,
-          onSecondary: colors.textOnSelected,
-          surface: colors.screen,
-          onSurface: colors.textPrimary,
-          error: colors.danger,
-          onError: colors.textOnSelected,
-          outline: colors.border,
-          scrim: colors.scrim,
-        );
+  final scheme = ColorScheme(
+    brightness: brightness,
+    primary: colors.accent,
+    onPrimary: colors.onAccent,
+    secondary: colors.accent,
+    onSecondary: colors.onAccent,
+    surface: colors.surface,
+    onSurface: colors.textPrimary,
+    error: colors.danger,
+    onError: colors.dangerBg,
+    primaryContainer: colors.selected,
+    onPrimaryContainer: colors.accent,
+    secondaryContainer: colors.chip,
+    onSecondaryContainer: colors.textPrimary,
+    tertiary: colors.textSecondary,
+    onTertiary: colors.surface,
+    tertiaryContainer: colors.chip,
+    onTertiaryContainer: colors.textPrimary,
+    errorContainer: colors.dangerBg,
+    onErrorContainer: colors.danger,
+    surfaceTint: Colors.transparent,
+    outline: colors.line,
+    scrim: colors.scrim,
+  );
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
@@ -35,25 +38,25 @@ ThemeData buildFikraTheme(Brightness brightness) {
     extensions: [colors],
     fontFamily: FikraText.family,
     fontFamilyFallback: const ['Roboto'],
-    scaffoldBackgroundColor: colors.screen,
-    canvasColor: colors.screen,
+    scaffoldBackgroundColor: colors.canvas,
+    canvasColor: colors.canvas,
     // Plasma: no ripples, press feedback is a spring scale instead.
     splashFactory: NoSplash.splashFactory,
     splashColor: Colors.transparent,
     highlightColor: Colors.transparent,
     hoverColor: Colors.transparent,
     textSelectionTheme: TextSelectionThemeData(
-      cursorColor: colors.accentLight,
+      cursorColor: colors.accent,
       selectionColor: colors.selection,
-      selectionHandleColor: colors.accentLight,
+      selectionHandleColor: colors.accent,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: colors.glassHighlight,
+      backgroundColor: colors.chip,
       contentTextStyle: text.body,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(FikraRadius.md),
-        side: BorderSide(color: colors.border, width: FikraSpace.hairline),
+        side: BorderSide(color: colors.line, width: FikraSpace.hairline),
       ),
     ),
     dialogTheme: const DialogThemeData(backgroundColor: Colors.transparent, elevation: 0),

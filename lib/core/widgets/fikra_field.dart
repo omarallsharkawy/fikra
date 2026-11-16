@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 /// 48px pill input on glass. Icon sits at the end (left in RTL), like the design.
 class FikraField extends StatefulWidget {
@@ -58,11 +58,11 @@ class _FikraFieldState extends State<FikraField> {
     final border = widget.error
         ? context.colors.danger
         : _focus.hasFocus
-        ? context.colors.borderFocus
+        ? context.colors.accent
         : light
         ? context.colors.borderGraph
-        : context.colors.border;
-    return Glass(
+        : context.colors.line;
+    return SolidSurface(
       radius: FikraRadius.full,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       borderColor: border,
@@ -88,7 +88,7 @@ class _FikraFieldState extends State<FikraField> {
                 border: InputBorder.none,
                 counterText: '',
                 hintText: widget.hint,
-                hintStyle: context.text.field.copyWith(color: context.colors.textPlaceholder),
+                hintStyle: context.text.field.copyWith(color: context.colors.textSecondary),
               ),
             ),
           ),

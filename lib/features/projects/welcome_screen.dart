@@ -71,10 +71,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       width: 84,
                       height: 84,
                       decoration: BoxDecoration(
-                        gradient: context.colors.selectedGradient,
+                        color: context.colors.selected,
                         borderRadius: BorderRadius.circular(FikraRadius.xl),
                       ),
-                      child: Icon(Icons.lightbulb_outline_rounded, size: 42, color: context.colors.textOnSelected),
+                      child: Icon(Icons.lightbulb_outline_rounded, size: 42, color: context.colors.textSecondary),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -132,12 +132,12 @@ class _Point extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.md,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, color: context.colors.accentLight, size: 22),
+            Icon(icon, color: context.colors.textSecondary, size: 22),
             const SizedBox(width: 12),
             Expanded(child: Text(text, style: context.text.body)),
           ],

@@ -4,7 +4,7 @@ import 'package:flutter/physics.dart';
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 class FikraChip extends StatelessWidget {
   const FikraChip({super.key, required this.label, this.selected = false, this.onTap});
@@ -22,18 +22,15 @@ class FikraChip extends StatelessWidget {
         height: onTap == null ? 30 : 36,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          gradient: selected ? context.colors.selectedGradient : null,
-          color: selected ? null : context.colors.glassHighlight,
+          color: selected ? context.colors.selected : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
-          border: selected ? null : Border.all(color: context.colors.border, width: FikraSpace.hairline),
+          border: selected ? null : Border.all(color: context.colors.line, width: FikraSpace.hairline),
         ),
         child: Center(
           widthFactor: 1,
           child: Text(
             label,
-            style: context.text.chip.copyWith(
-              color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
-            ),
+            style: context.text.chip.copyWith(color: selected ? context.colors.accent : context.colors.textPrimary),
           ),
         ),
       ),
@@ -76,7 +73,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.full,
       padding: const EdgeInsets.all(4),
       height: Pressable.minTargetSize + 10,
@@ -96,7 +93,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                   width: w,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: context.colors.selectedGradient,
+                      color: context.colors.selected,
                       borderRadius: BorderRadius.all(Radius.circular(FikraRadius.full)),
                     ),
                   ),
@@ -121,7 +118,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                                 style: context.text.chip.copyWith(
                                   color: Color.lerp(
                                     context.colors.textSecondary,
-                                    context.colors.textOnSelected,
+                                    context.colors.accent,
                                     (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
                                   ),
                                 ),

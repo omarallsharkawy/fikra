@@ -33,3 +33,10 @@ All reveals use shared revealVoiceText/tapVoiceText with plain keyed targets and
 Phase 2 transcription_test.dart adds real-router phone fixtures in AR/EN × light/dark: saved transcript collapsed/expanded, model-missing failure and settings action, selected Add draft toggle, and the voice-settings auto toggle off/on with an installed Egyptian model. All native inference is faked by the app harness. Keyed outer-page scrolling is shared through support/transcription_scroll.dart. These images require the orchestrator's socket-capable Flutter test runner; rendering/visual inspection is not claimed from the restricted sandbox.
 
 Phase 3 external_transcription_test.dart adds AR/EN x light/dark fixtures: engine choices, each of the four prefilled service forms (top and obscured key), upload consent and Settings' named recipient line. It uses real router/SQLite with fake keys and HTTP, and never sends a probe or user recording. Every scroll target is a plain key through the shared explicit-outer-scrollable helper. Images cannot be rendered/inspected in this socket-blocked sandbox.
+
+Pearl foundation: all existing fixtures change visually with the palette and
+solid reading surfaces. glass_tiers_test.dart adds ar/glass_tiers.png, a single
+1200x900 Arabic gallery with solid/frosted/optical columns and dark/light rows,
+using real fonts and the stationary review lens. Widget-host Skia may frost the
+package lens rather than refract; the profile phone overlay verifies Impeller.
+Run with the same screenshot command above; no image is claimed rendered here.
