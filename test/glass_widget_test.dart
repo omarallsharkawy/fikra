@@ -97,7 +97,7 @@ void main() {
   });
   testWidgets('MediaQuery reduce motion caps optical at frosted', (tester) async {
     await host(tester, const Glass(child: GlassLens(child: Text('تحكم'))), reduced: true);
-    expect(find.byType(BackdropFilter), findsOneWidget);
+    expect(find.byType(BackdropFilter), findsNWidgets(2));
     expect(find.byType(LiquidGlassLens), findsNothing);
   });
   testWidgets('optical wrapper supplies the Pearl package lens recipe', (tester) async {
@@ -118,6 +118,28 @@ void main() {
     expect(lens.touch, isNull);
     expect(lens.style.adaptivity, isNull);
   });
+  testWidgets('optical fade uses shader opacity without isolating the backdrop', (tester) async {
+    await host(tester, const SizedBox(width: 108, height: 88, child: GlassLens(opacity: .5, child: SizedBox.expand())));
+    final lens = tester.widget<LiquidGlassLens>(find.byType(LiquidGlassLens));
+    expect(lens.opacity, .5);
+    expect(lens.style.blur, 3.5);
+    // Only GlassLens's own subtree: every route wraps its page in an Opacity.
+    final isolating = find.ancestor(of: find.byType(LiquidGlassLens), matching: find.byType(Opacity));
+    expect(find.descendant(of: find.byType(GlassLens), matching: isolating), findsNothing);
+  });
+  for (final tier in [GlassTier.solid, GlassTier.frosted]) {
+    testWidgets('lens stays visible with its capsule material at $tier', (tester) async {
+      await host(
+        tester,
+        const SizedBox(width: 108, height: 88, child: GlassLens(child: SizedBox.expand())),
+        tier: tier,
+      );
+      expect(find.byType(Glass), findsOneWidget);
+      expect(find.byType(LiquidGlassLens), findsNothing);
+      expect(find.byType(BackdropFilter), tier == GlassTier.solid ? findsNothing : findsOneWidget);
+      expect(tester.getSize(find.byType(Glass)), const Size(108, 88));
+    });
+  }
   testWidgets('offstage glass stops watchdog collection without resetting its ceiling', (tester) async {
     final source = FakeGlassTimings();
     final container = ProviderContainer(

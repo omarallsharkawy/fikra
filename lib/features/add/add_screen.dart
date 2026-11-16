@@ -71,7 +71,7 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
         ProjectHeader(title: context.l10n.addTitle),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 24),
+            padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 24 + NavigationInset.of(context)),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
               permissionCard(),

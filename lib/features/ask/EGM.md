@@ -45,3 +45,7 @@ hairline; all old gradient Glass call sites are migrated. Selected controls
 use opaque selected fill with accent labels; primary/send actions use the
 single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 User bubbles and source rows are opaque neutral chip; assistant answers are opaque surface.
+
+## Floating navigation (redesign phase 2)
+
+The complete chat/composer column consumes NavigationInset.of(context), keeping its fixed input row and both message/empty scroll lists above the floating bar. With the keyboard open the shell supplies zero clearance and hides navigation; Scaffold still handles the IME resize.

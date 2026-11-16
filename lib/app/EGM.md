@@ -5,8 +5,8 @@
 Composition root of the FIKRA Flutter app. This package reads the build mode,
 wires `lib/data` implementations into Riverpod providers, defines the go_router
 route table and its redirects, and builds the root `MaterialApp.router` and the
-four-tab shell. Feature screens live in `lib/features` and are only referenced
-here as route targets; the local transcription adapter is also wired here behind the data engine interface. This directory has no subdirectories.
+four-branch shell with three visible tabs and a floating Add button. Feature screens live in `lib/features` and are only referenced
+here as route targets; the local transcription adapter is also wired here behind the data engine interface. Floating controls live in [tab_bar](tab_bar/EGM.md).
 
 ## Interface
 
@@ -75,11 +75,15 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 ### `shell.dart`: tab shell and transition
 
 - `class AppShell extends StatefulWidget`: takes a `StatefulNavigationShell`
-  (`shell`). Hosts the static Pearl background and the nav bar.
+  (`shell`). Hosts the static Pearl background, full-height body and floating controls.
+  Supplies `NavigationInset` (92 dp plus bottom safe area, zero with the IME).
 - `class ShellBackground extends InheritedWidget`: exposes the background
   `GlobalKey` through `ShellBackground.maybeOf(context)`.
-- `class FikraNavBar extends StatefulWidget`: `items`, `index`, `onTap`. Each
-  item has the key `ValueKey('nav-$i')`.
+- `FikraNavBar` is re-exported from [tab_bar/sliding_tab_bar.dart](tab_bar/sliding_tab_bar.dart):
+  `items`, visible `index` (-1 for Add), `onSelect(index, reselect)`, `enabled`.
+  Keys `nav-0..2` refer to Notes/Links/Ask; `nav-add` identifies the separate button.
+- `FloatingNavigation`: maps visible tabs to unchanged branch IDs 1..3; Add is 0.
+  Receives `keyboardOpen` from above Scaffold, which strips body viewInsets.
 - `class FikraBranchContainer extends StatefulWidget`: `index`, `children`.
   Passed to `StatefulShellRoute.navigatorContainerBuilder`.
 - `class TabVeil extends LeafRenderObjectWidget` (`@visibleForTesting`):
@@ -151,8 +155,17 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 
 ### Shell
 
-- The order of `AppShell._tabs` must match the order of the
-  `StatefulShellBranch` list in `router.dart`: add, notes, links, ask.
+- Branch IDs remain add=0, notes=1, links=2, ask=3. The visible tab order is
+  notes, links, ask, mirrored in RTL; Add sits at the logical trailing side.
+  Startup still redirects to Notes. Add remains mounted with its draft state.
+- There is no bottomNavigationBar slot: content extends under the controls.
+  One NavigationInset supplies bar (72), gap (12), lens overhang (8) and safe area.
+  Notes/Add add it to scroll padding; Ask/Links keep fixed tools above it;
+  FillScroll uses it for empty/error states and Notes offsets its selection footer.
+  The shell-local SnackBarTheme adds the same clearance to toast margins so
+  existing Undo actions and tab taps stay reachable.
+- Keyboard changes disable input/semantics immediately and fade/slide both controls
+  in 100 ms. Reduce Motion removes the slide.
 - The `nav-$i` keys are used by `test/support/app_harness.dart` and
   `integration_test/stress_test.dart`.
 - Tapping the current tab calls `goBranch` with `initialLocation: true`, which
@@ -171,8 +184,8 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
   `RenderTabVeil` assumes a `screen`-sized background at the view origin.
 - `RenderTabVeil` never takes hits (`hitTestSelf` returns `false`), and the veil
   sits inside `IgnorePointer`.
-- Reduced motion is respected. `FikraNavBar` snaps to the new index instead of
-  running its spring. `FikraBranchContainer` uses `FikraMotion.reducedFade` with
+- Reduced motion is respected. `FikraNavBar` tracks without scale and snaps on release instead of
+  running its 420/24/mass-1 spring. `FikraBranchContainer` uses `FikraMotion.reducedFade` with
   a linear curve.
 - `FikraNavBar` positions the selected pill from the right in RTL and from the
   left otherwise.
@@ -197,7 +210,8 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 - `FikraApp` sets the system status bar and navigation bar styles through
   `AnnotatedRegion<SystemUiOverlayStyle>`.
 - `app_config.dart`, `router.dart` redirects, and `shell.dart` perform no disk or
-  network access.
+  network access. The tab bar calls selectionClick once per changed tab during touch.
+  Position/fade controllers and the hover notifier are widget-owned and disposed.
 
 ## Locale and clock providers
 

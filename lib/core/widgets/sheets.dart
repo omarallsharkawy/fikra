@@ -22,6 +22,8 @@ Future<T?> showFikraSheet<T>(
 }) {
   return showModalBottomSheet<T>(
     context: context,
+    // Above the shell's floating navigation, which would cover the sheet's footer.
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     sheetAnimationStyle: FikraMotion.reduced(context)

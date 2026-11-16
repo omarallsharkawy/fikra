@@ -1,3 +1,4 @@
+// Scroll + press/slide workloads on the real floating controls, per glass tier.
 // Invoked by stress_test.dart after its isolated DB seed and notes-list open.
 // flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //   --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
@@ -70,6 +71,11 @@ Future<void> runGlassPerformance(
   final reduced = MediaQuery.disableAnimationsOf(tester.element(find.byType(Scrollable).last));
   for (final tier in GlassTier.values) {
     container.read(glassTierOverrideProvider.notifier).force(tier);
+    // Load all three persistent branches before collecting frames.
+    for (final tab in [2, 1, 0]) {
+      await tester.tap(find.byKey(ValueKey('nav-$tab')));
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+    }
     position.jumpTo(0);
     // Warm shader/loading and flush previous FrameTiming batches outside trace.
     await Future<void>.delayed(const Duration(seconds: 2));
@@ -82,7 +88,7 @@ Future<void> runGlassPerformance(
     timings.clear();
     await binding.traceAction(() async {
       // Six identical 2-second traversals = 12 seconds of continuous scrolling
-      // per tier, including the optical lens above the same scrolling notes.
+      // per tier, beneath the real floating glass bar and Add button.
       for (var sweep = 0; sweep < 6; sweep++) {
         await position.animateTo(
           sweep.isEven ? math.min(6000, position.maxScrollExtent) : 0,
@@ -93,12 +99,37 @@ Future<void> runGlassPerformance(
     }, reportKey: 'glass_trace_${tier.name}');
     await Future<void>.delayed(const Duration(milliseconds: 500));
     expect(timings, isNotEmpty, reason: 'FrameTiming must be delivered in the profile drive.');
+    final scroll = glassFrameReport(timings, hz);
+    timings.clear();
+    await binding.traceAction(() async {
+      final centres = [for (var i = 0; i < 3; i++) tester.getCenter(find.byKey(ValueKey('nav-$i')))];
+      final gesture = await tester.startGesture(centres[0]);
+      try {
+        var from = centres[0];
+        for (var cycle = 0; cycle < 6; cycle++) {
+          for (final tab in [1, 2, 1, 0]) {
+            final to = centres[tab];
+            for (var step = 1; step <= 12; step++) {
+              await gesture.moveTo(Offset.lerp(from, to, step / 12)!);
+              await Future<void>.delayed(const Duration(milliseconds: 16));
+            }
+            from = to;
+          }
+        }
+      } finally {
+        await gesture.up();
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 650)); // final spring + fade
+    }, reportKey: 'glass_slide_trace_${tier.name}');
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    expect(timings, isNotEmpty, reason: 'Slide frames must be delivered in the profile drive.');
     results[tier.name] = {
       'requested_tier': tier.name,
       'effective_tier': effective.name,
       'scroll_duration_seconds': 12,
       'live_refraction_supported': ui.ImageFilter.isShaderFilterSupported,
-      ...glassFrameReport(timings, hz),
+      ...scroll,
+      'slide_across_tabs': {'cycles': 6, 'moves_per_segment': 12, ...glassFrameReport(timings, hz)},
     };
   }
   SchedulerBinding.instance.removeTimingsCallback(collect);

@@ -61,7 +61,7 @@ void main() {
             tester.element(find.text('Save project')).push('/note/${existing!.id}/edit');
             await pumpUntil(tester, find.text(l.editNoteTitle));
           } else {
-            await tester.tap(Tabs.finder(Tabs.add));
+            await tester.tap(Tabs.addButton);
             await pumpUntil(tester, find.byType(AddScreen));
           }
           final type = editing ? EditNoteScreen : AddScreen;
@@ -130,7 +130,7 @@ void main() {
 
   // Saves one voice recording from Add with auto transcription on.
   Future<void> saveVoiceFromAdd(WidgetTester tester, String path) async {
-    await tester.tap(Tabs.finder(Tabs.add));
+    await tester.tap(Tabs.addButton);
     await pumpUntil(tester, find.byType(AddScreen));
     final dynamic editor = tester.state(find.byType(AddScreen));
     editor.updateDraft(() {

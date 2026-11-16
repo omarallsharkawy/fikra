@@ -44,3 +44,15 @@ Run with the same screenshot command above; no image is claimed rendered here.
 ## Voice 2a
 
 voice2_test.dart captures the catalog picker sheet, recording off/after-save chips, transcript editor and newer-machine-result state in AR/EN × dark/light, using existing real-router/DB fixtures and fake native/services. It never sends audio or performs discovery. Explicit keyed scroll helpers avoid first/last/at wrappers. Rendering/visual inspection require the orchestrator's socket-capable runner.
+
+## Floating navigation (redesign phase 2)
+
+floating_navigation_test.dart captures Arabic/English × light/dark: home, a held
+mid-slide lens over Links, Add selected, focused Add with keyboard inset, and the
+end of a 35-note list. It forces frosting for deterministic widget-host rendering;
+optical settings/fallback are covered separately and optics are measured on the
+phone. The keyboard capture reuses saveWithKeyboard’s drawn test keyboard.
+The pointer is released only after the mid-slide capture. All view/pointer cleanup
+uses addTearDown. Existing screens_test, transcription_test and voice2_test enter
+Add through Tabs.addButton. Render these fixtures with the existing screenshots
+command; no images have been rendered or visually approved in this environment.

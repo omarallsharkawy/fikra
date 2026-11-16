@@ -8,7 +8,7 @@ Shared feature boundaries: `add`, `ask`, `links`, and `notes` use `ProjectHeader
 
 ## Subdirectories & Boundaries
 
-- add: [./add/EGM.md](./add/EGM.md) - Composer tab at `/add`: text, voice recording, and PDF capture, with save-then-analyze ordering.
+- add: [./add/EGM.md](./add/EGM.md) - Composer branch at `/add`, entered by the floating Add button: text, voice recording, and PDF capture, with save-then-analyze ordering.
 - ask: [./ask/EGM.md](./ask/EGM.md) - Chat tab at `/ask`: questions answered from the selected project's notes, with sources.
 - links: [./links/EGM.md](./links/EGM.md) - Graph tab at `/links`: pure capped layout, moved to an isolate for large projects.
 - note_details: [./note_details/EGM.md](./note_details/EGM.md) - Pushed read view, editor, and local PDF viewer at `/note/:id`, `/note/:id/edit`, and `/note/:id/pdf/:attachmentId`.
@@ -29,4 +29,6 @@ Phase 3 voice settings adds user service forms and explicit recipient consent. S
 
 Pearl foundation: feature reading surfaces are opaque surface/chip with line
 hairlines; selected fills and action colours come from the consolidated palette.
-The graph minimap alone uses floating Glass. No phase-2 layout or gesture is added.
+The graph minimap and shell navigation use floating Glass. Notes/Add scroll
+beneath the shell controls using NavigationInset; Ask/Links keep fixed tools
+above the same shared clearance. No data or route topology changes are made.

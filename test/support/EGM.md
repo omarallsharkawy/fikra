@@ -29,3 +29,11 @@ Phase 3 fake_external_transcription.dart supplies MemoryServiceKeys, FakeTranscr
 ## Voice 2a
 
 voice2_fixture.dart seeds realistic machine/correction/copy-marker/revision states and provides keyed bottom-sheet scrolling with an explicit vertical scrollable. Screen scrolling keeps the existing keyed outer-page helper. All sheet-opening tests pump the slide before interacting. New DB-backed editor tests await processor work before the existing pumpFuture database close.
+
+## Floating navigation (redesign phase 2)
+
+Tabs.finder supports three visible indices: notes=0, links=1, ask=2. Add is
+Tabs.addButton (nav-add), never a tab index. All existing Add callers are updated.
+The harness optionally accepts glassTier for deterministic frosted screenshots;
+production automatic tier selection is unchanged. Existing DB/resource teardown
+remains inside the test zone, with no new close-after-unmount awaits.

@@ -189,85 +189,87 @@ class _LinksScreenState extends ConsumerState<LinksScreen> with SingleTickerProv
           }
         }
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _navigationHeader(groups),
-          Expanded(
-            key: const ValueKey('links-content'),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: ExcludeSemantics(
-                    excluding: _searchOpen,
-                    child: IgnorePointer(
-                      ignoring: _searchOpen,
-                      child: FikraSwitcher(
-                        child: KeyedSubtree(
-                          key: ValueKey(
-                            loadError
-                                ? 'error'
+      child: NavigationInsetPadding(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _navigationHeader(groups),
+            Expanded(
+              key: const ValueKey('links-content'),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ExcludeSemantics(
+                      excluding: _searchOpen,
+                      child: IgnorePointer(
+                        ignoring: _searchOpen,
+                        child: FikraSwitcher(
+                          child: KeyedSubtree(
+                            key: ValueKey(
+                              loadError
+                                  ? 'error'
+                                  : loading
+                                  ? 'loading'
+                                  : empty
+                                  ? 'empty'
+                                  : 'graph',
+                            ),
+                            child: loadError
+                                ? LoadErrorView(
+                                    onRetry: () {
+                                      setState(() {
+                                        _input = null;
+                                        _notesSource = null;
+                                        _linksSource = null;
+                                        _groupsSource = null;
+                                        _layoutError = false;
+                                      });
+                                      ref.invalidate(selectedNotesProvider);
+                                      ref.invalidate(selectedLinksProvider);
+                                      if (projectId != null) ref.invalidate(groupsOfProjectProvider(projectId));
+                                    },
+                                  )
                                 : loading
-                                ? 'loading'
+                                ? const SizedBox.shrink()
                                 : empty
-                                ? 'empty'
-                                : 'graph',
-                          ),
-                          child: loadError
-                              ? LoadErrorView(
-                                  onRetry: () {
-                                    setState(() {
-                                      _input = null;
-                                      _notesSource = null;
-                                      _linksSource = null;
-                                      _groupsSource = null;
-                                      _layoutError = false;
-                                    });
-                                    ref.invalidate(selectedNotesProvider);
-                                    ref.invalidate(selectedLinksProvider);
-                                    if (projectId != null) ref.invalidate(groupsOfProjectProvider(projectId));
-                                  },
-                                )
-                              : loading
-                              ? const SizedBox.shrink()
-                              : empty
-                              ? FillScroll(
-                                  child: EmptyState(
-                                    icon: Icons.hub_outlined,
-                                    title: context.l10n.linksEmptyTitle,
-                                    description: context.l10n.linksEmptyBody,
-                                    action: FikraButton(
-                                      label: context.l10n.addNote,
-                                      icon: Icons.add_rounded,
-                                      expand: false,
-                                      onPressed: () => context.go('/add'),
+                                ? FillScroll(
+                                    child: EmptyState(
+                                      icon: Icons.hub_outlined,
+                                      title: context.l10n.linksEmptyTitle,
+                                      description: context.l10n.linksEmptyBody,
+                                      action: FikraButton(
+                                        label: context.l10n.addNote,
+                                        icon: Icons.add_rounded,
+                                        expand: false,
+                                        onPressed: () => context.go('/add'),
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : _surface(layout, notes, links, selected, reasons),
+                                  )
+                                : _surface(layout, notes, links, selected, reasons),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                if (_searchOpen)
-                  Positioned.fill(
-                    child: Material(
-                      color: context.colors.canvas,
-                      child: _GraphSearchPanel(
-                        controller: _search,
-                        index: _searchIndex,
-                        enabled: _navigationReady,
-                        onPick: _pickSearch,
-                        onClose: _closeSearch,
+                  if (_searchOpen)
+                    Positioned.fill(
+                      child: Material(
+                        color: context.colors.canvas,
+                        child: _GraphSearchPanel(
+                          controller: _search,
+                          index: _searchIndex,
+                          enabled: _navigationReady,
+                          onPick: _pickSearch,
+                          onClose: _closeSearch,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (_selection != null) _selectionBar(_selection!.length),
-        ],
+            if (_selection != null) _selectionBar(_selection!.length),
+          ],
+        ),
       ),
     );
   }

@@ -235,7 +235,7 @@ void main() {
           ctx().go('/notes');
           await pumpUntil(tester, find.text(l10n.sample7Title));
 
-          await tester.tap(Tabs.finder(Tabs.add));
+          await tester.tap(Tabs.addButton);
           await pumpUntil(tester, find.byKey(const ValueKey('add-mic')));
           await capture('08_add_empty');
           await tester.enterText(find.byType(TextField).last, l10n.sample1Body);

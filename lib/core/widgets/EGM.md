@@ -21,13 +21,17 @@ User-facing default strings resolve from `context.l10n`, in
   only. Solid uses opaque surface; frosted/optical backing uses 90% surface and
   exactly one BackdropFilter.grouped with sigma 24. Non-overlapping siblings
   must share a BackdropGroup; overlapping lenses must not share that key.
-- `glass_lens.dart`: `GlassLens(child, radius)` is an optical overlay above a
+- `glass_lens.dart`: `GlassLens(child, radius, opacity)` is an optical overlay above a
   backed Glass, with the package's LiquidGlassLens/LiquidGlassStyle API. Blur 7,
   surface tint 20%, saturation/refractionIndex 1.02, no dispersion, touch,
-  adaptation or new animation. Other tiers return the child without optics.
+  adaptation or animation controllers. Lower tiers draw a visible capsule with
+  Glass (solid/frosted), using a separate BackdropGroup because the lens overlaps
+  its backing. Optical fading uses native package opacity and scaled blur/edge/
+  shadow alpha, avoiding an isolating parent Opacity layer.
   Impeller samples the live backdrop; Skia without a capture view falls back
-  to frosting. It is currently used only by glass_preview.dart.
-- `glass_edge.dart`: static one-pixel neutral/spectral rings, specular line,
+  to frosting; first-load shaders also briefly use that fallback. It is used by
+  the floating tab bar and the debug glass preview.
+- `glass_edge.dart`: one-pixel neutral/spectral rings, specular line,
   inset light/contact, lens inner rim/lower reflection and material shadows;
   no ShaderMask or saveLayer.
 - `glass_quality.dart`: GlassTier {solid,frosted,optical}, debug/profile
@@ -114,7 +118,10 @@ User-facing default strings resolve from `context.l10n`, in
   Under Reduce Motion it jumps instead of springing.
 - `SegmentedPill` label colors are interpolated from the animation value, so a
   label is never light-on-light mid-slide.
-- `FillScroll` uses the incoming `maxHeight` as its minimum height, so its parent
+- `NavigationInset(bottom, child)` exposes one shell-owned bottom clearance;
+  `of(context)` returns zero outside the shell. It is exported by fikra_widgets.
+- `FillScroll` pads by NavigationInset and uses `maxHeight - inset` (clamped at zero)
+  as its minimum height, so its parent
   must give it a bounded height. `LoadErrorView`, and therefore the error branch
   of `AsyncBody`, inherits this requirement.
 - Use `LoadErrorView` rather than `EmptyState` when a query failed, so a failure
@@ -129,7 +136,9 @@ User-facing default strings resolve from `context.l10n`, in
   context.
 - `_FikraDialogRoute` uses the `FikraMotion` enter and exit tokens, or
   `reducedFade` with a plain fade under Reduce Motion.
-- `showFikraSheet` resolves to the value popped by the sheet, or null. It uses no
+- `showFikraSheet` resolves to the value popped by the sheet, or null. It pushes on
+  the root navigator, so the sheet covers the shell's floating navigation instead of
+  sitting under it and gets no `NavigationInset`. It uses no
   animation under Reduce Motion, and applies the keyboard inset as bottom padding.
   The default sheet fits its content in a scroll view. A `tall` sheet is 90 % of
   the height above the bottom safe area (less the keyboard inset when that is
@@ -203,3 +212,11 @@ shared sibling backdrop keys, battery/reduced-motion caps, lens settings and
 offstage listener removal. Screenshot gallery: light/dark Arabic side by side.
 The graph minimap is the only product Glass consumer; preview/page-counter
 reading content stays solid, and the existing tab bar still reserves space.
+
+## Floating navigation (redesign phase 2)
+
+GlassEdge accepts an opacity multiplier for the lens release fade; it still owns
+no ticker, shader mask or saveLayer. Unchanged default opacity preserves every
+other material. The bar and Add share a backdrop key; an overlapping lens uses
+its independent optical/frosted pass. FillScroll applies the shell clearance to
+empty/error scrolling. Keyboard/reduce-motion selection stays with the caller.

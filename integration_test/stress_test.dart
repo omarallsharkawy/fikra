@@ -4,7 +4,7 @@
 //   flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //     --driver=test_driver/integration_test.dart --target=integration_test/stress_test.dart
 //
-// Glass foundation comparison (same stress app ID, fixed 12-second scroll per tier):
+// Glass comparison: 12-second scroll + six held slides across tabs per tier:
 //   flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //     --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
 //     --target=integration_test/stress_test.dart
@@ -20,7 +20,6 @@ import 'package:drift/native.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/motion/motion.dart';
-import 'package:fikra/core/widgets/glass_preview.dart';
 import 'package:fikra/core/widgets/glass_watchdog.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/files/attachment_store.dart';
@@ -283,7 +282,6 @@ void main() {
           overrides: [
             databaseProvider.overrideWithValue(db),
             attachmentStoreProvider.overrideWithValue(_NoFiles()),
-            if (_glassPerf) glassPreviewEnabledProvider.overrideWithValue(true),
             if (_glassPerf) glassTimingsSourceProvider.overrideWithValue(MeasurementGlassTimings()),
           ],
           child: const FikraApp(),
@@ -324,7 +322,7 @@ void main() {
 
     // Links graph
     report['open_links_ms'] = await time(() async {
-      await tester.tap(find.byKey(const ValueKey('nav-2')));
+      await tester.tap(find.byKey(const ValueKey('nav-1')));
       await until(find.byType(InteractiveViewer));
       await tester.pump();
     });
@@ -339,7 +337,7 @@ void main() {
 
     // Ask tab (chat history)
     report['open_ask_ms'] = await time(() async {
-      await tester.tap(find.byKey(const ValueKey('nav-3')));
+      await tester.tap(find.byKey(const ValueKey('nav-2')));
       await tester.pumpAndSettle();
     });
 
@@ -400,7 +398,7 @@ void main() {
 
     Future<void> wait(int ms) => Future<void>.delayed(Duration(milliseconds: ms));
 
-    await tester.tap(find.byKey(const ValueKey('nav-1')));
+    await tester.tap(find.byKey(const ValueKey('nav-0')));
     await wait(800);
     final notesScroll = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
     report['fps_notes_scroll'] = await live('notes_scroll', () async {
@@ -423,15 +421,15 @@ void main() {
       }
     });
     report['fps_tabs'] = await live('tabs', () async {
-      for (final tab in [2, 3, 0, 1, 2, 1]) {
+      for (final branch in [2, 3, 0, 1, 2, 1]) {
         await during(() async {
-          await tester.tap(find.byKey(ValueKey('nav-$tab')));
+          await tester.tap(find.byKey(ValueKey(branch == 0 ? 'nav-add' : 'nav-${branch - 1}')));
           await wait(FikraMotion.enter.inMilliseconds);
         });
         await wait(450);
       }
     });
-    await tester.tap(find.byKey(const ValueKey('nav-2')));
+    await tester.tap(find.byKey(const ValueKey('nav-1')));
     await wait(1200);
     report['fps_graph_pan'] = await live('graph_pan', () async {
       for (var i = 0; i < 3; i++) {
@@ -445,7 +443,7 @@ void main() {
         await wait(500);
       }
     });
-    await tester.tap(find.byKey(const ValueKey('nav-1')));
+    await tester.tap(find.byKey(const ValueKey('nav-0')));
     await wait(800);
     report['fps_open_note'] = await live('open_note', () async {
       for (var i = 0; i < 3; i++) {

@@ -93,7 +93,7 @@ void main() {
     await tester.tap(find.text(l10n.trySampleProject));
     await pumpUntil(tester, find.text(l10n.sample7Title));
 
-    await tester.tap(Tabs.finder(Tabs.add));
+    await tester.tap(Tabs.addButton);
     final save = find.byKey(const ValueKey('add-save'));
     await pumpUntil(tester, save);
     expect(find.byKey(const ValueKey('add-mic')), findsOneWidget);

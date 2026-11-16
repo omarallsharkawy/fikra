@@ -127,3 +127,27 @@ model_catalog_discovery_test covers the explicit builder allowlist/defaults, old
 voice2_widgets_test covers model groups/warnings/custom persistence, discovery consent and cached availability without audio, editor save/append/cancel and adopting a newer machine result. Existing save tests prove visible choices with auto on/off on Add/Edit and off overriding auto, plus saved metadata/policy retention. Recovery fixtures explicitly seed none/done/failed/off rows so status and policy filters are independently tested. Repository analysis fixtures make a manual transcription request; both transcript-only and typed+edited notes retain their unchanged analyze-once assertions. No real network/key store/Whisper is used.
 
 The real runner previously reported 589 passing and five failures in the partial work. Fixes mark explicit policy changes, separate new save requests from durable saved policy, and correct outdated recovery/manual-request fixtures; assertions for analysis and retention are preserved/strengthened. Flutter tests remain unavailable in this sandbox; the orchestrator must rerun them.
+
+## Floating navigation (redesign phase 2)
+
+floating_navigation_test covers immediate down visibility, ordered live changes
+and exact selectionClick calls, shared/independent backdrop keys, end clamping,
+no extra branch-child builds, spring/release,
+pointer cancel and vertical leave/reentry, quick taps/reselection, reduced motion,
+TalkBack activation/selection, keyboard hiding, RTL/LTR placement and 3× text.
+floating_shell_test covers a complete last Notes card above controls/safe area,
+a real details widget pushed on Notes’ branch navigator plus scroll preservation,
+Add draft retention with a keyboard visibility change, and toast clearance
+without blocking tab taps. Hidden controls are checked by hit testing and the
+live semantics tree (`find.semantics`): `find.bySemanticsLabel` can still match a
+node that ExcludeSemantics dropped mid-test. The bar/Add backdrop key is static and
+is checked to stay the same across a tab switch. Production details
+routes remain above the shell as before; the branch-stack fixture is explicit.
+
+glass_widget_test now expects the frosted fallback’s own backdrop pass and adds
+solid/frosted visible-capsule and native shader-opacity checks. app_flow_test and
+transcription_save_test replace old Add-tab taps with Tabs.addButton, preserving
+their existing assertions. selection_mode_test references the visible Notes tab
+for its footer-clearance assertion. No test is removed. Screenshots are described
+in screenshots/EGM.md. The native-opacity check looks only inside GlassLens,
+because every route already wraps its page in an Opacity at 1.0.

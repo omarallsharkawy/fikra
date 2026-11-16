@@ -4,10 +4,11 @@ import '../theme/tokens.dart';
 
 /// Static paint only: no ShaderMask, saveLayer, or animation controller.
 class GlassEdge extends CustomPainter {
-  const GlassEdge(this.colors, this.radius, {this.lens = false});
+  const GlassEdge(this.colors, this.radius, {this.lens = false, this.opacity = 1});
   final FikraPalette colors;
   final double radius;
   final bool lens;
+  final double opacity;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -16,9 +17,9 @@ class GlassEdge extends CustomPainter {
     final inner = outer.deflate(1);
     final rim = lens ? colors.lensRim : colors.rim;
     final alpha = lens ? colors.lensRimAlpha : colors.rimAlpha;
-    canvas.drawDRRect(outer, inner, Paint()..color = rim.withValues(alpha: alpha));
+    canvas.drawDRRect(outer, inner, Paint()..color = rim.withValues(alpha: alpha * opacity));
     final gain = lens ? FikraPalette.lensSpectrumGain : 1.0;
-    final a = colors.spectrumAlpha * gain;
+    final a = colors.spectrumAlpha * gain * opacity;
     // CSS 125deg, masked by the geometry of this one-pixel ring.
     final gradient = LinearGradient(
       begin: Alignment.centerLeft,
@@ -41,14 +42,18 @@ class GlassEdge extends CustomPainter {
       const Offset(1, 1.5),
       Offset(size.width - 1, 1.5),
       Paint()
-        ..color = colors.highlight.withValues(alpha: lens ? colors.lensHighlightAlpha : colors.highlightAlpha)
+        ..color = colors.highlight.withValues(
+          alpha: (lens ? colors.lensHighlightAlpha : colors.highlightAlpha) * opacity,
+        )
         ..strokeWidth = 1,
     );
     canvas.drawLine(
       Offset(1, size.height - 1.5),
       Offset(size.width - 1, size.height - 1.5),
       Paint()
-        ..color = (lens ? colors.lensNeutral : colors.shadow).withValues(alpha: lens ? .14 : colors.contactAlpha)
+        ..color = (lens ? colors.lensNeutral : colors.shadow).withValues(
+          alpha: (lens ? .14 : colors.contactAlpha) * opacity,
+        )
         ..strokeWidth = 1,
     );
     final top = Rect.fromLTWH(0, 1, size.width, 1);
@@ -58,7 +63,7 @@ class GlassEdge extends CustomPainter {
         ..shader = LinearGradient(
           colors: [
             Colors.transparent,
-            colors.highlight.withValues(alpha: colors.specularAlpha),
+            colors.highlight.withValues(alpha: colors.specularAlpha * opacity),
             Colors.transparent,
           ],
           stops: const [0, .48, 1],
@@ -68,7 +73,7 @@ class GlassEdge extends CustomPainter {
       canvas.drawRRect(
         inner.deflate(1),
         Paint()
-          ..color = colors.highlight.withValues(alpha: colors.lensInnerAlpha)
+          ..color = colors.highlight.withValues(alpha: colors.lensInnerAlpha * opacity)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1,
       );
@@ -77,7 +82,8 @@ class GlassEdge extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(GlassEdge old) => old.colors != colors || old.radius != radius || old.lens != lens;
+  bool shouldRepaint(GlassEdge old) =>
+      old.colors != colors || old.radius != radius || old.lens != lens || old.opacity != opacity;
 }
 
 List<BoxShadow> glassShadows(FikraPalette c, {bool lens = false}) => [

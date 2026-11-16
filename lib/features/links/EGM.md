@@ -144,3 +144,7 @@ Minimap material is a stable AnimatedBuilder child. Pan/zoom updates only its
 visibility decision and the viewport painter, without rebuilding filters,
 shadows or static edge paint each frame. Standalone minimap tests now inject
 power/timings alongside the existing real-app tests.
+
+## Floating navigation (redesign phase 2)
+
+The complete graph/search/selection column consumes NavigationInset.of(context). Graph preview, minimap, selection actions, empty/error views and search-result lists therefore remain above the floating navigation. The inset is zero with the keyboard open. Graph pan/selection gestures and the branch stack are unchanged.

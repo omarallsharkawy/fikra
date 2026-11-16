@@ -36,7 +36,7 @@ void main() {
     expect(tester.getSemantics(card(b.id)).flagsCollection.isSelected, Tristate.isFalse);
     // The action bar is above the tab bar, not under it.
     final bar = tester.getRect(find.byType(SelectionActionBar));
-    expect(bar.bottom, lessThanOrEqualTo(tester.getRect(find.byKey(const ValueKey('nav-0'))).top));
+    expect(bar.bottom, lessThanOrEqualTo(tester.getRect(Tabs.finder(Tabs.notes)).top));
 
     await tester.tap(card(b.id));
     await tester.pump();

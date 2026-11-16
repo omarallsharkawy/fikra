@@ -25,7 +25,7 @@ holds no domain, storage or network logic.
   - [widgets](./widgets/EGM.md): `SolidSurface`, `Glass`, `GlassLens`, `PearlCanvas`, `FikraButton`, `FikraField`,
     `FikraChip`, `FikraBadge`, `StatusBanner`, `EmptyState`, `SegmentedPill`,
     `SheetOption`, `FikraScaffold`, `FikraIconButton`, `AsyncBody`,
-    `LoadErrorView`, `FillScroll`, `VoicePlayer`, and the functions
+    `LoadErrorView`, `FillScroll`, `NavigationInset`, `VoicePlayer`, and the functions
     `showFikraSheet`, `confirmDestructive`, `showToast`, `runAction`.
 
 ## Invariants

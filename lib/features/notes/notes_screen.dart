@@ -241,7 +241,12 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
                       )
                     // Built lazily: only the visible rows exist, whatever the size.
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          FikraSpace.screen,
+                          4,
+                          FikraSpace.screen,
+                          24 + NavigationInset.of(context),
+                        ),
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         itemCount: rows.length,
                         findChildIndexCallback: (key) => key is ValueKey<String> ? _rowOf[key.value] : null,
@@ -275,7 +280,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
               ),
             ),
           ),
-          if (selection != null) _actionBar(context, selection.length),
+          if (selection != null) NavigationInsetPadding(child: _actionBar(context, selection.length)),
         ],
       ),
     );

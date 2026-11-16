@@ -6,7 +6,7 @@ Picking, recording, previews, permission UI and the toolbar are extracted into [
 
 Saving is disabled while recording, picking or already saving; file actions and removal are locked during saving or recording. The mic and PDF buttons stay enabled after earlier files. Each recording has its own player/removal; consecutive photos share the existing strip. Copy/insert failure removes destination copies, keeps the draft and source recordings, and uses `noteSaveFailed`. Success cleans temporary recordings/cache copies, clears the draft and navigates to notes. Dispose cleans unsaved recordings, including a recording still starting or stopping.
 
-Toolbar keys remain `add-mic`, `add-pdf`, `add-image`, `add-save`, `add-stop`, `add-cancel-rec`. Multiple previews use attachment identity/path keys. Fonts, motion tokens and tab order are unchanged; colours now use Pearl. PDF sizes render explicitly LTR in either locale.
+Toolbar keys remain `add-mic`, `add-pdf`, `add-image`, `add-save`, `add-stop`, `add-cancel-rec`. Multiple previews use attachment identity/path keys. Fonts and composer motion tokens are unchanged; colours now use Pearl. PDF sizes render explicitly LTR in either locale.
 
 Verification: `flutter analyze`, `flutter test`, screenshot suite. `attachment_flows_test.dart` covers repeated multi-PDF picking, retained drafts after failed saves and file-only titles; `multi_attachments_test.dart` covers six-file saves and rollback.
 
@@ -22,3 +22,7 @@ single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 ## Voice 2a
 
 Save resolves only unresolved new-recording defaults; an explicit off chip overrides global auto. New requested voice paths alone wake the queue after commit. Saved IDs never produce save requests. Capture UI always exposes the off/after-save choice with the shared chips; no capture format or lifecycle change is made.
+
+## Floating navigation (redesign phase 2)
+
+Add is entered through nav-add, a floating gradient button; its StatefulShellBranch and draft lifecycle remain unchanged. The composer ListView adds NavigationInset.of(context) to its existing 24 dp bottom padding. The shell hides both floating controls while the keyboard is open and reduces the inset to zero.

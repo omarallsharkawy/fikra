@@ -15,3 +15,5 @@ export 'toasts.dart';
 export 'glass.dart';
 export 'glass_lens.dart';
 export 'glass_quality.dart';
+
+export 'navigation_inset.dart';

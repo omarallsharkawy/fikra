@@ -19,7 +19,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `integratio
 ## Subdirectories & System Boundaries
 
 - lib: [./lib/EGM.md](./lib/EGM.md) - All application source and the `main()` entry point.
-- lib/app: [./lib/app/EGM.md](./lib/app/EGM.md) - Build mode, providers, routes, and the four-tab shell.
+- lib/app: [./lib/app/EGM.md](./lib/app/EGM.md) - Build mode, providers, routes, and the three-tab shell with a separate Add button.
 - lib/core: [./lib/core/EGM.md](./lib/core/EGM.md) - Formatting, theme, motion, and shared widgets. Imports nothing from `app`, `data`, or `features`.
 - lib/data: [./lib/data/EGM.md](./lib/data/EGM.md) - Repositories, schema, files, analysis queue, and the AI boundary.
 - lib/l10n: [./lib/l10n/EGM.md](./lib/l10n/EGM.md) - Approved Arabic/English copy, generated lookups, and demo vocabulary.

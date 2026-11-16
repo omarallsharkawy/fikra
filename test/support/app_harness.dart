@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:fikra/core/widgets/glass_quality.dart';
+
 import 'fake_transcription_engine.dart';
 import 'fake_external_transcription.dart';
 
@@ -37,9 +39,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-/// Tab indexes in AppShell (right to left in RTL).
+/// Visible tab indexes, independent of the four persistent shell branches.
 abstract final class Tabs {
-  static const add = 0, notes = 1, links = 2, ask = 3;
+  static const notes = 0, links = 1, ask = 2;
+  static Finder get addButton => find.byKey(const ValueKey('nav-add'));
   static Finder finder(int i) => find.byKey(ValueKey('nav-$i'));
 }
 
@@ -52,6 +55,7 @@ void fikraTest(
   String description,
   Future<void> Function(WidgetTester tester, FikraDatabase db) body, {
   Object? tags,
+  GlassTier? glassTier,
   Brightness brightness = Brightness.dark,
   FileOpener? opener,
   Locale locale = const Locale('ar'),
@@ -91,6 +95,7 @@ void fikraTest(
         key: appBoundaryKey,
         child: ProviderScope(
           overrides: [
+            if (glassTier != null) glassTierProvider(false).overrideWith((ref) => glassTier),
             databaseProvider.overrideWithValue(db),
             serviceKeysProvider.overrideWithValue(serviceKeys ?? MemoryServiceKeys()),
             transcriptionTransportProvider.overrideWithValue(transcriptionTransport ?? FakeTranscriptionTransport()),
@@ -158,13 +163,28 @@ const appBoundaryKey = ValueKey('app-boundary');
 Future<void> saveScreenshot(WidgetTester tester, String name) async {
   await tester.pump(const Duration(milliseconds: 400)); // let springs settle
   final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(appBoundaryKey));
-  await tester.runAsync(() async {
-    final image = await boundary.toImage(pixelRatio: tester.view.devicePixelRatio);
-    final png = await image.toByteData(format: ImageByteFormat.png);
-    final file = File('build/screenshots/$name.png');
-    await file.parent.create(recursive: true);
-    await file.writeAsBytes(png!.buffer.asUint8List());
-  });
+  // flutter_test paints shadows as hard solid shapes; screenshots show the real soft shadows.
+  void repaint(RenderObject o) {
+    o.markNeedsPaint();
+    o.visitChildren(repaint);
+  }
+
+  debugDisableShadows = false;
+  try {
+    repaint(boundary);
+    await tester.pump();
+    await tester.runAsync(() async {
+      final image = await boundary.toImage(pixelRatio: tester.view.devicePixelRatio);
+      final png = await image.toByteData(format: ImageByteFormat.png);
+      final file = File('build/screenshots/$name.png');
+      await file.parent.create(recursive: true);
+      await file.writeAsBytes(png!.buffer.asUint8List());
+    });
+  } finally {
+    debugDisableShadows = true;
+    repaint(boundary);
+    await tester.pump();
+  }
 }
 
 /// Pumps until [finder] matches, letting real async work (drift) run in

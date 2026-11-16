@@ -57,3 +57,7 @@ Reading content now uses opaque SolidSurface/surface or chip plus the line
 hairline; all old gradient Glass call sites are migrated. Selected controls
 use opaque selected fill with accent labels; primary/send actions use the
 single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+
+## Floating navigation (redesign phase 2)
+
+The lazy list adds NavigationInset.of(context) to its existing 24 dp bottom padding, so its final card scrolls above the bar, lens and Add button. The selection footer is offset by the same shared inset. Empty/error scroll states use FillScroll’s shared clearance. Keyboard opening reduces the inset to zero; no per-screen bar dimensions are used.

@@ -113,132 +113,134 @@ class _AskScreenState extends ConsumerState<AskScreen> {
       for (final n in notes.where((n) => n.title.trim().isNotEmpty).take(3)) context.l10n.askSuggestion(n.title.trim()),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ProjectHeader(
-          title: context.l10n.askTitle,
-          trailing: entries.isEmpty || _thinking
-              ? null
-              : Pressable(
-                  onTap: _clear,
-                  minTarget: true,
-                  semanticLabel: context.l10n.clearChatA11y,
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Icon(Icons.delete_sweep_outlined, color: context.colors.textSecondary),
+    return NavigationInsetPadding(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ProjectHeader(
+            title: context.l10n.askTitle,
+            trailing: entries.isEmpty || _thinking
+                ? null
+                : Pressable(
+                    onTap: _clear,
+                    minTarget: true,
+                    semanticLabel: context.l10n.clearChatA11y,
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Icon(Icons.delete_sweep_outlined, color: context.colors.textSecondary),
+                    ),
                   ),
-                ),
-        ),
-        if (isDemo)
-          Padding(
-            padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.askDemoBadge),
-            ),
           ),
-        Expanded(
-          child: FikraSwitcher(
-            child: KeyedSubtree(
-              key: ValueKey(
-                chatAsync.hasError && !chatAsync.hasValue
-                    ? 'error'
-                    : entries.isEmpty && !_thinking
-                    ? 'empty'
-                    : 'chat',
+          if (isDemo)
+            Padding(
+              padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.askDemoBadge),
               ),
-              child: chatAsync.hasError && !chatAsync.hasValue
-                  ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
-                  : entries.isEmpty && !_thinking
-                  ? ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-                      children: [
-                        EmptyState(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          icon: Icons.chat_bubble_outline_rounded,
-                          title: context.l10n.askEmptyTitle,
-                          description: notes.isEmpty ? context.l10n.askEmptyNoNotes : context.l10n.askEmptyBody,
-                        ),
-                        if (suggestions.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
+            ),
+          Expanded(
+            child: FikraSwitcher(
+              child: KeyedSubtree(
+                key: ValueKey(
+                  chatAsync.hasError && !chatAsync.hasValue
+                      ? 'error'
+                      : entries.isEmpty && !_thinking
+                      ? 'empty'
+                      : 'chat',
+                ),
+                child: chatAsync.hasError && !chatAsync.hasValue
+                    ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
+                    : entries.isEmpty && !_thinking
+                    ? ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+                        children: [
+                          EmptyState(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            icon: Icons.chat_bubble_outline_rounded,
+                            title: context.l10n.askEmptyTitle,
+                            description: notes.isEmpty ? context.l10n.askEmptyNoNotes : context.l10n.askEmptyBody,
+                          ),
+                          if (suggestions.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
+                            ),
+                          ],
+                        ],
+                      )
+                    : ListView(
+                        controller: _scroll,
+                        padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        children: [
+                          for (final e in entries)
+                            Padding(
+                              key: ValueKey(e.id),
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _MessageEnter(
+                                animate: newMessages.contains(e.id),
+                                child: e.isUser ? _UserBubble(e.body) : _AnswerBubble(entry: e, notesById: notesById),
+                              ),
+                            ),
+                          FikraSwitcher(
+                            child: _thinking
+                                ? Align(
+                                    key: const ValueKey('thinking'),
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: SolidSurface(
+                                      radius: FikraRadius.lg,
+                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                                      child: SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(key: ValueKey('idle')),
                           ),
                         ],
-                      ],
-                    )
-                  : ListView(
-                      controller: _scroll,
-                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      children: [
-                        for (final e in entries)
-                          Padding(
-                            key: ValueKey(e.id),
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _MessageEnter(
-                              animate: newMessages.contains(e.id),
-                              child: e.isUser ? _UserBubble(e.body) : _AnswerBubble(entry: e, notesById: notesById),
-                            ),
-                          ),
-                        FikraSwitcher(
-                          child: _thinking
-                              ? Align(
-                                  key: const ValueKey('thinking'),
-                                  alignment: AlignmentDirectional.centerEnd,
-                                  child: SolidSurface(
-                                    radius: FikraRadius.lg,
-                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                                    child: SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox.shrink(key: ValueKey('idle')),
-                        ),
-                      ],
-                    ),
+                      ),
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: FikraField(
-                  controller: _input,
-                  hint: context.l10n.askHint,
-                  textInputAction: TextInputAction.send,
-                  maxLength: 500,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _send(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Opacity(
-                opacity: _input.text.trim().isEmpty || _thinking ? 0.4 : 1,
-                child: Pressable(
-                  onTap: _input.text.trim().isEmpty || _thinking ? null : _send,
-                  semanticLabel: context.l10n.send,
-                  child: Container(
-                    width: FikraSpace.field,
-                    height: FikraSpace.field,
-                    decoration: BoxDecoration(gradient: context.colors.addGradient, shape: BoxShape.circle),
-                    child: Icon(Icons.arrow_upward_rounded, color: context.colors.onAccent),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FikraField(
+                    controller: _input,
+                    hint: context.l10n.askHint,
+                    textInputAction: TextInputAction.send,
+                    maxLength: 500,
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (_) => _send(),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Opacity(
+                  opacity: _input.text.trim().isEmpty || _thinking ? 0.4 : 1,
+                  child: Pressable(
+                    onTap: _input.text.trim().isEmpty || _thinking ? null : _send,
+                    semanticLabel: context.l10n.send,
+                    child: Container(
+                      width: FikraSpace.field,
+                      height: FikraSpace.field,
+                      decoration: BoxDecoration(gradient: context.colors.addGradient, shape: BoxShape.circle),
+                      child: Icon(Icons.arrow_upward_rounded, color: context.colors.onAccent),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
