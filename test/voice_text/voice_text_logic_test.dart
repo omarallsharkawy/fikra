@@ -26,7 +26,9 @@ void main() {
     expect(printed, hasLength(1));
     expect(printed.single.startsWith('FIKRA_WHISPER '), isTrue);
     expect(printed.single.split('\n'), hasLength(1));
-    expect(jsonDecode(printed.single.substring(14)), result);
+    final logged = jsonDecode(printed.single.substring(14)) as Map<String, dynamic>;
+    expect(logged['text'], isNull);
+    expect(logged['text_chars'], (result['text'] as String).length);
     expect(await File('${dir.path}/runs.jsonl').readAsLines(), printed);
   });
 

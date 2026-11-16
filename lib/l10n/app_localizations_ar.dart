@@ -1291,10 +1291,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtExperimental => 'تجريبي';
 
   @override
-  String get vtIntro => 'النموذج بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.';
+  String get vtIntro => 'الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.';
 
   @override
-  String get vtModel => 'النموذج';
+  String get vtModel => 'الموديل';
 
   @override
   String get vtTiny => 'صغير جدًا';
@@ -1330,7 +1330,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vtUsed(String size) {
-    return 'المساحة المستخدمة للنماذج: $size';
+    return 'المساحة المستخدمة للموديلات: $size';
   }
 
   @override
@@ -1339,7 +1339,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get vtDownloadTitle => 'تحمّل النموذج؟';
+  String get vtDownloadTitle => 'تحمّل الموديل؟';
 
   @override
   String vtDownloadBody(String size) {
@@ -1350,10 +1350,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtDownloadConfirm => 'حمّل';
 
   @override
-  String get vtDeleteModel => 'احذف النموذج';
+  String get vtDeleteModel => 'احذف الموديل';
 
   @override
-  String get vtDeleteModelTitle => 'تحذف النموذج؟';
+  String get vtDeleteModelTitle => 'تحذف الموديل؟';
 
   @override
   String get vtDeleteModelBody => 'هتحتاج تحمّله تاني عشان تستخدمه.';
@@ -1468,16 +1468,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vtEstimate(String ms) {
-    return 'التفريغ وتشغيل النموذج، تقريبًا: $ms';
+    return 'التفريغ وتشغيل الموديل، تقريبًا: $ms';
   }
 
   @override
   String vtModelLoad(String ms) {
-    return 'بداية النموذج: $ms';
+    return 'بداية الموديل: $ms';
   }
 
   @override
-  String get vtTimingHint => 'الوقت بيشمل تجهيز الصوت وتشغيل النموذج. الذاكرة للتطبيق كله.';
+  String get vtTimingHint => 'الوقت بيشمل تجهيز الصوت وتشغيل الموديل. الذاكرة للتطبيق كله.';
 
   @override
   String get vtHistory => 'تجارب قبل كده';
@@ -1495,22 +1495,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtLiveTiming => 'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.';
 
   @override
-  String get vtNetworkError => 'مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.';
+  String get vtNetworkError => 'مقدرناش نحمّل الموديل. اتأكد من الإنترنت وجرّب تاني.';
 
   @override
   String get vtInterruptedError => 'التحميل أو التسجيل اتقطع. جرّب تاني.';
 
   @override
-  String get vtCorruptError => 'مقدرناش نقرا النموذج. احذفه وحمّله تاني.';
+  String get vtCorruptError => 'مقدرناش نقرا الموديل. احذفه وحمّله تاني.';
 
   @override
   String get vtEmptyError => 'التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.';
 
   @override
-  String get vtTranscriptionError => 'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو نموذج أصغر.';
+  String get vtTranscriptionError => 'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو موديل أصغر.';
 
   @override
-  String get vtStorageError => 'المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.';
+  String get vtStorageError => 'المساحة مش كفاية. فضّي مساحة أو اختار موديل أصغر وجرّب تاني.';
 
   @override
   String get vtStorageCheckError => 'مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.';
@@ -1534,10 +1534,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtTesting => 'للقياس';
 
   @override
-  String get vtFullModels => 'نماذج من غير ضغط';
+  String get vtFullModels => 'موديلات من غير ضغط';
 
   @override
-  String get vtRefreshModels => 'حدّث قائمة النماذج';
+  String get vtRefreshModels => 'حدّث ليستة الموديلات';
 
   @override
   String get trAutomatic => 'فرّغ التسجيلات تلقائي';
@@ -1546,7 +1546,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trAutomaticHint => 'بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.';
 
   @override
-  String get trDownloadFirst => 'حمّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.';
+  String get trDownloadFirst => 'حمّل موديل الأول عشان تفرّغ التسجيلات على الموبايل.';
 
   @override
   String get trAfterSave => 'فرّغه بعد الحفظ';
@@ -1572,7 +1572,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get trModelMissing => 'النموذج مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.';
+  String get trModelMissing => 'الموديل مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.';
 
   @override
   String get trBusy => 'تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.';
@@ -1584,7 +1584,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trFailed => 'مقدرناش نفرّغ التسجيل. جرّب تاني.';
 
   @override
-  String get trInterruptedTwice => 'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.';
+  String get trInterruptedTwice => 'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار موديل أصغر.';
 
   @override
   String get trNotificationChannel => 'تفريغ الصوت';
@@ -1642,7 +1642,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsBaseUrl => 'عنوان الخدمة';
 
   @override
-  String get vsModel => 'اسم النموذج';
+  String get vsModel => 'اسم الموديل';
 
   @override
   String get vsKey => 'مفتاح API';
@@ -1684,7 +1684,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vsConsentBody(String service, String host) {
-    return 'التسجيلات هتتبعت برّه الموبايل لـ«$service» على $host عشان تفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.';
+    return 'التسجيلات هتتبعت برّه الموبايل لـ«$service» على $host عشان تتفرّغ. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.';
   }
 
   @override
@@ -1697,7 +1697,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsInvalidUrl => 'اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.';
 
   @override
-  String get vsInvalidFields => 'راجع الاسم والنموذج وكود اللغة.';
+  String get vsInvalidFields => 'راجع الاسم والموديل وكود اللغة.';
 
   @override
   String get vsKeyRequired => 'اكتب مفتاح للخدمة دي الأول.';
@@ -1710,12 +1710,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vsRemoteIntro(String service) {
-    return 'التسجيلات بتتبعت برّه الموبايل لـ«$service» عشان تتفرّغ. الخدمة ممكن تحاسبك على الاستخدام.';
+    return 'التسجيلات هتتبعت برّه الموبايل لـ«$service» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.';
   }
 
   @override
   String vsRemoteData(String service) {
-    return 'ملاحظاتك وملفاتك محفوظة على الموبايل، بس التسجيلات بتتبعت برّه الموبايل لـ«$service» عشان تتفرّغ.';
+    return 'ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت برّه الموبايل لـ«$service» عشان تتفرّغ.';
   }
 
   @override
@@ -1750,7 +1750,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsServiceError => 'الخدمة عندها مشكلة دلوقتي. جرّب بعد شوية.';
 
   @override
-  String get vsUnexpected => 'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.';
+  String get vsUnexpected => 'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والموديل في إعدادات الصوت.';
 
   @override
   String get vsTimeout => 'الخدمة اتأخرت في الرد. اتأكد من الاتصال وجرّب تاني.';
@@ -1769,7 +1769,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vsOpenAiKeyHint =>
-      'هات المفتاح والعنوان والنموذج من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.';
+      'هات المفتاح والعنوان والموديل من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.';
 
   @override
   String get vsGeminiKeyHint => 'هات المفتاح من Google AI Studio.';
@@ -1792,4 +1792,86 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vsRemoteTiming => 'الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.';
+
+  @override
+  String get v2Off => 'من غير تفريغ';
+
+  @override
+  String get v2Recommended => 'مقترح';
+
+  @override
+  String get v2Other => 'موديلات تانية';
+
+  @override
+  String get v2Legacy => 'قديم';
+
+  @override
+  String v2Shutdown(String date) {
+    return 'موديل قديم، وهيقف يوم $date. اختار موديل مقترح لو تقدر.';
+  }
+
+  @override
+  String get v2LegacyUnknown => 'موديل قديم. لسه مفيش ميعاد هيقف فيه.';
+
+  @override
+  String get v2Arabic => 'بيدعم العربي. جرّبه على المصري والإنجليزي مع بعض.';
+
+  @override
+  String get v2Generative => 'بيفهم العربي، بس ممكن يعيد صياغة الكلام. راجع التفريغ.';
+
+  @override
+  String get v2Unsupported => 'لسه مش مدعوم هنا';
+
+  @override
+  String get v2Custom => 'اكتب اسم موديل';
+
+  @override
+  String get v2Refresh => 'حدّث الليستة';
+
+  @override
+  String get v2Refreshing => 'بيحدّث الليستة…';
+
+  @override
+  String get v2Available => 'متاح في حسابك';
+
+  @override
+  String v2Checked(String time) {
+    return 'آخر مراجعة: $time';
+  }
+
+  @override
+  String get v2DiscoveryHint => 'بيراجع الموديلات عند الخدمة برّه الموبايل، من غير ما يبعت صوت.';
+
+  @override
+  String get v2DiscoveryQwen => 'مراجعة الموديلات مش متاحة لـQwen هنا. استخدم الموديل المقترح أو اكتب اسم الموديل.';
+
+  @override
+  String get v2EditTranscript => 'عدّل التفريغ';
+
+  @override
+  String get v2RestoreTranscript => 'رجّع التفريغ الأصلي';
+
+  @override
+  String get v2NewTranscript => 'فيه تفريغ جديد';
+
+  @override
+  String get v2UseTranscript => 'استخدمه';
+
+  @override
+  String get v2CopyUnchanged => 'التفريغ اتحفظ، بس نص الملاحظة متغيّرش عشان اتعدّل قبل كده.';
+
+  @override
+  String get v2AppendTranscript => 'ضيفه للملاحظة';
+
+  @override
+  String get v2TranscriptConflict => 'التفريغ اتغيّر وإنت بتعدّل. ارجع وافتحه تاني.';
+
+  @override
+  String get v2TranscriptFailed => 'مقدرناش نحفظ التفريغ. جرّب تاني.';
+
+  @override
+  String get v2TranscriptEmpty => 'اكتب التفريغ الأول.';
+
+  @override
+  String get v2TranscriptSaved => 'التفريغ اتحفظ';
 }

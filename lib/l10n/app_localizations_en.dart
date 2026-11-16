@@ -1638,7 +1638,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String vsConsentBody(String service, String host) {
-    return 'Recordings will be sent to $service at $host for transcription. The service may retain them and charge for use. Nothing is sent until you agree.';
+    return 'Recordings will be sent outside your phone to $service at $host for transcription. The service may retain them and charge for use. Nothing is sent until you agree.';
   }
 
   @override
@@ -1664,12 +1664,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String vsRemoteIntro(String service) {
-    return 'Recordings are sent to $service for transcription. The service may charge for use.';
+    return 'Recordings are sent outside your phone to $service for transcription. The service may charge for use.';
   }
 
   @override
   String vsRemoteData(String service) {
-    return 'Your notes and files are stored on your phone. Recordings are sent to $service for transcription.';
+    return 'Your notes and files are stored on your phone. Recordings are sent outside your phone to $service for transcription.';
   }
 
   @override
@@ -1685,7 +1685,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String vsRemoteAutoHint(String service) {
-    return 'New recordings are sent to $service after saving and can take a while.';
+    return 'New recordings are sent outside your phone to $service after saving and can take a while.';
   }
 
   @override
@@ -1746,4 +1746,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vsRemoteTiming => 'Time includes uploading and waiting for the service. Memory is for the whole app.';
+
+  @override
+  String get v2Off => 'No transcription';
+
+  @override
+  String get v2Recommended => 'Recommended';
+
+  @override
+  String get v2Other => 'Other';
+
+  @override
+  String get v2Legacy => 'Legacy';
+
+  @override
+  String v2Shutdown(String date) {
+    return 'Legacy model. Shuts down on $date. Choose a recommended model if you can.';
+  }
+
+  @override
+  String get v2LegacyUnknown => 'Legacy model. No shutdown date has been announced.';
+
+  @override
+  String get v2Arabic => 'Supports Arabic. Try it with mixed Egyptian Arabic and English.';
+
+  @override
+  String get v2Generative => 'Understands Arabic, but may rephrase speech. Check the transcript.';
+
+  @override
+  String get v2Unsupported => 'Not supported here yet';
+
+  @override
+  String get v2Custom => 'Custom model';
+
+  @override
+  String get v2Refresh => 'Refresh list';
+
+  @override
+  String get v2Refreshing => 'Refreshing list…';
+
+  @override
+  String get v2Available => 'Available in your account';
+
+  @override
+  String v2Checked(String time) {
+    return 'Last checked: $time';
+  }
+
+  @override
+  String get v2DiscoveryHint => 'Checks models with the service outside your phone, without sending audio.';
+
+  @override
+  String get v2DiscoveryQwen =>
+      'Model discovery is unavailable for Qwen here. Use the recommended model or enter an ID.';
+
+  @override
+  String get v2EditTranscript => 'Edit transcript';
+
+  @override
+  String get v2RestoreTranscript => 'Restore machine transcript';
+
+  @override
+  String get v2NewTranscript => 'New transcript available';
+
+  @override
+  String get v2UseTranscript => 'Use it';
+
+  @override
+  String get v2CopyUnchanged => 'Transcript saved. The note text was left unchanged because it was edited.';
+
+  @override
+  String get v2AppendTranscript => 'Append to note';
+
+  @override
+  String get v2TranscriptConflict => 'The transcript changed while you were editing. Go back and reopen it.';
+
+  @override
+  String get v2TranscriptFailed => 'Couldn’t save the transcript. Try again.';
+
+  @override
+  String get v2TranscriptEmpty => 'Enter the transcript first.';
+
+  @override
+  String get v2TranscriptSaved => 'Transcript saved';
 }

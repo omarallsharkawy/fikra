@@ -1,7 +1,10 @@
+import 'package:drift/drift.dart';
+
 import 'dart:convert';
 
 import '../local/database.dart';
 import 'service_config.dart';
+import 'model_discovery.dart';
 import 'service_keys.dart';
 
 class TranscriptionServicesState {
@@ -157,6 +160,10 @@ class LocalTranscriptionServices implements TranscriptionServices {
   @override
   Future<void> delete(String id) => _change(() async {
     final state = await _read();
+    final cacheKeys = (await db.select(db.settings).get())
+        .where((r) => r.key.startsWith('${ModelDiscovery.prefix}$id.'))
+        .map((r) => r.key);
+    await (db.delete(db.settings)..where((r) => r.key.isIn(cacheKeys))).go();
     await keys.delete(id); // On failure retain the manifest for a safe retry.
     await _write(
       TranscriptionServicesState(
@@ -171,6 +178,8 @@ class LocalTranscriptionServices implements TranscriptionServices {
   Future<void> wipe() => _change(() async {
     final manifest = await (db.select(db.settings)..where((s) => s.key.equals(configKey))).getSingleOrNull();
     if (manifest != null) await keys.clear();
-    await (db.delete(db.settings)..where((s) => s.key.isIn([configKey, engineKey]))).go();
+    await (db.delete(
+      db.settings,
+    )..where((s) => s.key.isIn([configKey, engineKey]) | s.key.like('${ModelDiscovery.prefix}%'))).go();
   });
 }

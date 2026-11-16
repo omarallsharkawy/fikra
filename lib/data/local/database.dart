@@ -7,6 +7,8 @@ enum NoteSource { text, voice, pdf }
 
 enum AttachmentKind { pdf, voice, image }
 
+enum TranscriptionPolicy { off, afterSave, live }
+
 enum LinkOrigin { ai, user }
 
 enum TranscriptionStatus { none, queued, running, done, failed }
@@ -120,6 +122,11 @@ class NoteAttachments extends Table {
   /// begins, so a native crash or out-of-memory kill still counts.
   IntColumn get transcriptionAttempts => integer().withDefault(const Constant(0))();
 
+  TextColumn get transcriptionPolicy => textEnum<TranscriptionPolicy>().withDefault(const Constant('off'))();
+  TextColumn get transcriptCorrection => text().nullable()();
+  DateTimeColumn get correctedAt => dateTime().nullable()();
+  IntColumn get transcriptRevision => integer().withDefault(const Constant(0))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -176,7 +183,7 @@ class FikraDatabase extends _$FikraDatabase {
   FikraDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'fikra'));
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -333,6 +340,27 @@ class FikraDatabase extends _$FikraDatabase {
           }
         });
       }
+      if (from < 8) {
+        await transaction(() async {
+          final columns = await customSelect('PRAGMA table_info(note_attachments)').get();
+          final hasPolicy = columns.any((c) => c.read<String>('name') == 'transcription_policy');
+          for (final column in <GeneratedColumn<Object>>[
+            noteAttachments.transcriptionPolicy,
+            noteAttachments.transcriptCorrection,
+            noteAttachments.correctedAt,
+            noteAttachments.transcriptRevision,
+          ]) {
+            if (!columns.any((c) => c.read<String>('name') == column.$name)) await m.addColumn(noteAttachments, column);
+          }
+          // Only backfill when adding the column: a rerun must preserve explicit off.
+          if (!hasPolicy) {
+            await customStatement(
+              "UPDATE note_attachments SET transcription_policy = CASE WHEN kind = 'voice' AND transcription_status != 'none' "
+              "THEN 'afterSave' ELSE 'off' END",
+            );
+          }
+        });
+      }
     },
     beforeOpen: (details) async => customStatement('PRAGMA foreign_keys = ON'),
   );
@@ -357,3 +385,15 @@ extension ChatEntryX on ChatEntry {
   List<String> get sourceList => sourceIds.isEmpty ? const [] : sourceIds.split('|');
   bool get isUser => role == 'user';
 }
+
+extension TranscriptAttachmentX on NoteAttachment {
+  String? get displayedTranscript => transcriptCorrection ?? transcript;
+  // Revision is an opaque monotonic token. Its low bit marks an unseen machine
+  // result under a correction; correction mutations advance to the next even token.
+  bool get hasNewTranscript => transcriptCorrection != null && transcriptRevision.isOdd;
+}
+
+/// The only way to advance transcriptRevision, so the low-bit flag stays
+/// consistent: always strictly greater, odd only for a newer machine result.
+int nextTranscriptRevision(int current, {bool newerMachine = false}) =>
+    ((current ~/ 2) + 1) * 2 + (newerMachine ? 1 : 0);

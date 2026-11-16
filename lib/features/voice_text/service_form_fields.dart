@@ -14,7 +14,7 @@ class ServiceFormFields extends StatelessWidget {
     required this.type,
     required this.name,
     required this.url,
-    required this.model,
+    required this.modelPicker,
     required this.keyText,
     required this.language,
     required this.obscured,
@@ -24,7 +24,8 @@ class ServiceFormFields extends StatelessWidget {
     required this.keepKey,
   });
   final TranscriptionServiceType type;
-  final TextEditingController name, url, model, keyText, language;
+  final TextEditingController name, url, keyText, language;
+  final Widget modelPicker;
   final bool obscured, keepKey;
   final VoidCallback onShowKey, onChanged;
   final ValueChanged<TranscriptionServiceType> onType;
@@ -109,7 +110,7 @@ class ServiceFormFields extends StatelessWidget {
           StatusBanner(kind: BannerKind.info, message: l.vsHttpWarning),
         ],
         label(l.vsModel),
-        field('vs-model', model, l.vsModel),
+        modelPicker,
         label(l.vsKey),
         Row(
           children: [

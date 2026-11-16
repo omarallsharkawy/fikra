@@ -111,3 +111,11 @@ A transcript counts as text the user wrote: it is in originalText (and editedTex
 `interruptedTwice` failures show `trInterruptedTwice` and offer both retry and voice settings (a smaller model is one way out). The details button's transcribe/retry/redo is a manual request, so it resets the attempt count.
 
 Phase 3 TranscriptionSource renders remote:<serviceId> as the localized Via <name>, retaining attribution after config/key deletion through the alias archive. Stable remote failure codes show plain localized offline/auth/quota/size/service/response/timeout/consent messages. Failed recordings offer both retry and voice settings; existing manual enqueue/crash-attempt reset and local transcript behavior remain unchanged. No key or provider request body reaches details.
+
+## Voice 2a transcript editing
+
+VoiceTranscript displays correction ?? machine transcript, retaining machine source attribution. TranscriptActions opens /note/:id/transcript/:attachmentId (MaterialPage), and shows New transcript available / Use it after a redo while correction is retained. Use calls the same revision-checked correction service with null correction; unsafe note copies show an append action.
+
+TranscriptEditorScreen initializes its long text controller once, automatically chooses RTL/LTR, and uses existing Glass/TextField/buttons/banners/sheets. Save/cancel and the existing save/discard/stay guard protect unsaved edits. Restore machine transcript clears correction. A conflict keeps the draft with a plain reopen message. A safe save that changes the note schedules the processor without awaiting it (an identical body is not rewritten); unsafe replacement keeps the editor and offers explicit append. Machine text is never overwritten by editing. All actions use stable keys; no text/correction is logged.
+
+Edit's policy-only changes participate in the dirty guard. Attachment replacement preserves current transcription metadata from the live row; only explicit chip changes override live policy. Reopening an old recording never auto-queues it.

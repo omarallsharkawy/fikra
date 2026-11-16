@@ -16,7 +16,7 @@ From `database.dart`:
 - Enums: `NoteSource { text, voice, pdf }`, `ProcessingStatus { processing, ready, failed }`, `RewriteStatus { none, pending, accepted, rejected }`, `AttachmentKind { pdf, voice, image }`.
 - `class FikraDatabase`
   - `FikraDatabase([QueryExecutor? executor])`: defaults to `driftDatabase(name: 'fikra')`; tests inject an executor.
-  - `schemaVersion` is 7.
+  - `schemaVersion` is 8.
 - `extension NoteX on Note`: `conceptList`, `originalContent`, `displayText`, `hasImprovedVersion`.
 - `extension ChatEntryX on ChatEntry`: `sourceList`, `isUser`.
 
@@ -39,7 +39,7 @@ Indexes: `notes_project_created`, `notes_status`, `note_links_project`,
 
 Column semantics:
 
-- `Notes.originalText` is exactly what the user typed and is never overwritten.
+- `Notes.originalText` keeps typed text plus recording transcripts; only explicit, revision-checked transcript corrections can safely replace their copied paragraph.
 - `Notes.editedText` is the version shown when set: an accepted AI rewrite or a user edit. `Notes.proposedText` is an AI rewrite awaiting accept or reject.
 - `Notes.source` names the main content: `pdf` when a PDF is attached (a voice memo may sit beside it), `voice` for a recording alone, otherwise `text`.
 - `NoteAttachments` owns all live files, with kind, path, optional name/bytes/duration, position and createdAt. Position preserves the draft order; `noteId` is indexed and cascades on note deletion.
@@ -76,7 +76,7 @@ One transaction guards table creation, creates the note index with IF NOT EXISTS
 
 ## v6 migration and API
 
-`schemaVersion` is 7. `LinkOrigin { ai, user }` describes link provenance; links also have dismissed (false by default) and nullable createdAt. Labels remain NOT NULL, as in v5; no reason is represented by `''`. Existing label values are preserved without rebuilding the link table.
+`schemaVersion` is 8. `LinkOrigin { ai, user }` describes link provenance; links also have dismissed (false by default) and nullable createdAt. Labels remain NOT NULL, as in v5; no reason is represented by `''`. Existing label values are preserved without rebuilding the link table.
 
 `NoteGroups` (`NoteGroup`) has id, projectId (cascade), parentId (self FK, set null), name, nullable color, position and createdAt; project and parent indexes support lookup. `Notes.groupId` is nullable, indexed and references groups with set null. New installs create the group table before notes. groupId is declared after all legacy Notes columns so fresh and upgraded column order matches.
 
@@ -93,3 +93,9 @@ One transaction guards each v7 column with PRAGMA table_info. The v5 legacy back
 transcription_order.dart allocates MAX(transcription_order)+1 inside the caller transaction. New save requests and manual enqueues persist this order; recovery retains it for interrupted jobs. No audio data is stored in SQLite.
 
 Schema v7 also adds `note_attachments.transcription_attempts` (INTEGER NOT NULL DEFAULT 0). It is in the same idempotent v7 step: each column is added only if `PRAGMA table_info` lacks it, so a partial or repeated upgrade keeps existing counts.
+
+## v8 recording choices and transcript corrections
+
+Schema v8 appends transcription_policy (TEXT NOT NULL, off), transcript_correction (nullable TEXT), corrected_at (nullable timestamp) and transcript_revision (INTEGER NOT NULL, 0). TranscriptionPolicy is off / afterSave / live; live is reserved and not offered. The guarded transaction backfills old voice rows with any non-none status to afterSave, otherwise off. Backfill only runs when the policy column is newly added, so re-running preserves later explicit off choices. Partial column additions and every earlier upgrade remain supported. v8 JSON/fixture and the dispatcher are generated with the same drift commands as v7.
+
+transcript remains machine output; display uses correction ?? transcript. transcriptNoteText is the exact copied block used for safe correction updates. Revision is an opaque increasing conflict token; its low bit means newer machine output is waiting while a correction exists. Correction/restore clears that bit; redo retains the correction and sets it. This avoids a timestamp race within SQLite's second resolution, without another schema column.

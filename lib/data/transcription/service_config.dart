@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'model_catalog.dart';
+
 enum TranscriptionServiceType { openAi, gemini, elevenLabs, qwen }
 
 enum ServiceConfigIssue { invalidUrl, invalidFields, keyRequired, consentRequired }
@@ -16,11 +18,17 @@ class TranscriptionService {
     required this.type,
     required this.name,
     required this.baseUrl,
-    required this.model,
+    String? batchModel,
+    String? model,
+    this.liveModel,
     this.language,
     this.consentedFor,
-  });
-  final String id, name, baseUrl, model;
+  }) : _batchModel = batchModel ?? model;
+  final String id, name, baseUrl;
+  final String? _batchModel, liveModel;
+  String get batchModel => _batchModel ?? catalogDefault(type, url: baseUrl);
+  // Source compatibility for existing callers; stored JSON only writes the new shape.
+  String get model => batchModel;
   final TranscriptionServiceType type;
   final String? language, consentedFor;
   String get engineId => 'remote:$id';
@@ -32,7 +40,8 @@ class TranscriptionService {
     type: type,
     name: name,
     baseUrl: baseUrl,
-    model: model,
+    batchModel: batchModel,
+    liveModel: liveModel,
     language: language,
     consentedFor: consentIdentity,
   );
@@ -41,7 +50,8 @@ class TranscriptionService {
     'type': type.name,
     'name': name,
     'baseUrl': baseUrl,
-    'model': model,
+    'batchModel': batchModel,
+    'liveModel': liveModel ?? catalogLiveDefault(type),
     'language': language,
     'consentedFor': consentedFor,
   };
@@ -50,7 +60,8 @@ class TranscriptionService {
     type: TranscriptionServiceType.values.byName(value['type'] as String),
     name: value['name'] as String,
     baseUrl: value['baseUrl'] as String,
-    model: value['model'] as String,
+    batchModel: (value['batchModel'] ?? value['model']) as String?,
+    liveModel: value['liveModel'] as String?,
     language: value['language'] as String?,
     consentedFor: value['consentedFor'] as String?,
   );
@@ -59,7 +70,8 @@ class TranscriptionService {
     if (!RegExp(r'^[a-zA-Z0-9_-]{1,80}$').hasMatch(id) ||
         name.trim().isEmpty ||
         name.length > 80 ||
-        !RegExp(r'^[a-zA-Z0-9._:/-]{1,160}$').hasMatch(model) ||
+        !RegExp(r'^[a-zA-Z0-9._:/-]{1,160}$').hasMatch(batchModel) ||
+        (liveModel != null && !RegExp(r'^[a-zA-Z0-9._:/-]{1,160}$').hasMatch(liveModel!)) ||
         (language != null && !RegExp(r'^[a-zA-Z-]{2,30}$').hasMatch(language!))) {
       throw const ServiceConfigException(ServiceConfigIssue.invalidFields);
     }
@@ -81,12 +93,7 @@ String defaultServiceUrl(TranscriptionServiceType type) => switch (type) {
 };
 const qwenInternationalUrl = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';
 const qwenMainlandUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
-String defaultServiceModel(TranscriptionServiceType type) => switch (type) {
-  TranscriptionServiceType.openAi => 'gpt-transcribe',
-  TranscriptionServiceType.gemini => 'gemini-3.5-flash-lite',
-  TranscriptionServiceType.elevenLabs => 'scribe_v3',
-  TranscriptionServiceType.qwen => 'qwen3-asr-flash',
-};
+String defaultServiceModel(TranscriptionServiceType type) => catalogDefault(type);
 
 bool validServiceUrl(Uri uri) =>
     uri.hasAuthority &&

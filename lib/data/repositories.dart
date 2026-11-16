@@ -262,6 +262,9 @@ class LocalNotesRepository implements NotesRepository {
         : 0;
     await (db.delete(db.noteAttachments)..where((a) => a.noteId.equals(noteId))).go();
     for (final (position, a) in attachments.indexed) {
+      final policy = a.id != null && !a.policyChanged
+          ? byId[a.id]!.transcriptionPolicy
+          : a.policy ?? (a.transcribe ? TranscriptionPolicy.afterSave : TranscriptionPolicy.off);
       await db
           .into(db.noteAttachments)
           .insert(
@@ -276,12 +279,22 @@ class LocalNotesRepository implements NotesRepository {
               position: position,
               createdAt: byId[a.id]?.createdAt ?? DateTime.now(),
               transcript: byId[a.id]?.transcript,
+              transcriptionPolicy: policy,
+              transcriptCorrection: byId[a.id]?.transcriptCorrection,
+              correctedAt: byId[a.id]?.correctedAt,
+              transcriptRevision: byId[a.id]?.transcriptRevision ?? 0,
               transcriptNoteText: byId[a.id]?.transcriptNoteText,
               transcriptionOrder:
                   byId[a.id]?.transcriptionOrder ??
                   (a.id == null && a.kind == AttachmentKind.voice && a.transcribe ? requestOrder++ : null),
               transcriptionStatus:
-                  byId[a.id]?.transcriptionStatus ??
+                  (policy == TranscriptionPolicy.off &&
+                          const [
+                            TranscriptionStatus.queued,
+                            TranscriptionStatus.running,
+                          ].contains(byId[a.id]?.transcriptionStatus)
+                      ? TranscriptionStatus.none
+                      : byId[a.id]?.transcriptionStatus) ??
                   (a.kind == AttachmentKind.voice && a.transcribe
                       ? TranscriptionStatus.queued
                       : TranscriptionStatus.none),

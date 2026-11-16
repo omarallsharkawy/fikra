@@ -46,6 +46,9 @@ void main() {
     expect(Fmt.bytes(ar, 1536), ar.sizeKb('2'));
     expect(Fmt.bytes(en, 1572864), en.sizeMb('1.5'));
     expect(Fmt.dayHeader(ar, now.subtract(const Duration(days: 3)), now: now), isNot(matches(RegExp(r'[٠-٩]'))));
+    expect(Fmt.date(en, DateTime(2027, 2, 26)), 'Feb 26, 2027');
+    expect(Fmt.date(ar, DateTime(2027, 2, 26)), allOf(contains('26'), contains('2027'), contains('فبراير')));
+    expect(Fmt.date(ar, DateTime(2027, 2, 26)), isNot(contains('-')));
   });
 
   fikraTest('language choice switches the entire app at runtime and persists', (tester, db) async {

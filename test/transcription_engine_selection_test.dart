@@ -57,7 +57,10 @@ void main() {
       title: 'note',
       text: 'typed',
       source: NoteSource.voice,
-      attachments: [for (var i = 0; i < count; i++) AttachmentDraft(kind: AttachmentKind.voice, path: path)],
+      attachments: [
+        for (var i = 0; i < count; i++)
+          AttachmentDraft(kind: AttachmentKind.voice, path: path, policy: TranscriptionPolicy.afterSave),
+      ],
     );
   }
 

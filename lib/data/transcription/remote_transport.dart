@@ -14,16 +14,23 @@ class HttpTranscriptionTransport implements TranscriptionTransport {
   const HttpTranscriptionTransport();
   @override
   Future<RemoteResponse> send(RemoteRequest request, {required Duration timeout}) async {
-    if (!validServiceUrl(request.uri)) throw const TranscriptionFailure(TranscriptionFailureReason.unexpectedResponse);
+    if (!validServiceUrl(Uri.parse(request.uri.toString().split('?').first)) ||
+        (request.uri.hasQuery &&
+            (request.method != 'GET' ||
+                request.uri.queryParameters.keys.any((k) => !const ['pageToken', 'pageSize'].contains(k))))) {
+      throw const TranscriptionFailure(TranscriptionFailureReason.unexpectedResponse);
+    }
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 15);
     try {
       return await (() async {
-        final upload = await client.postUrl(request.uri);
+        final upload = await client.openUrl(request.method, request.uri);
         // Never forward an API key or audio to an unconsented redirect target.
         upload.followRedirects = false;
         request.headers.forEach(upload.headers.set);
-        upload.contentLength = request.contentLength;
-        await upload.addStream(request.body());
+        if (request.method != 'GET') {
+          upload.contentLength = request.contentLength;
+          await upload.addStream(request.body());
+        }
         final response = await upload.close();
         final bytes = <int>[];
         await for (final chunk in response) {

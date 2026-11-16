@@ -109,33 +109,35 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
                       embedded: true,
                       onDelete: attachmentBusy ? null : () => removeDraft(a),
                     ),
-                    if (a.id == null && !(ref.watch(autoTranscribeProvider).value ?? false))
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: ChoiceTag(
-                          key: ValueKey('transcribe-draft-${a.path}'),
-                          label: context.l10n.trAfterSave,
-                          selected: a.transcribe,
-                          onTap: attachmentBusy
-                              ? null
-                              : () => updateDraft(() {
-                                  draftFiles = [
-                                    for (final file in draftFiles)
-                                      if (identical(file, a))
-                                        AttachmentDraft(
-                                          kind: a.kind,
-                                          path: a.path,
-                                          name: a.name,
-                                          bytes: a.bytes,
-                                          durationMs: a.durationMs,
-                                          transcribe: !a.transcribe,
-                                        )
-                                      else
-                                        file,
-                                  ];
-                                }),
-                        ),
-                      ),
+                    Wrap(
+                      spacing: FikraSpace.s8,
+                      runSpacing: FikraSpace.s8,
+                      children: [
+                        for (final policy in [TranscriptionPolicy.off, TranscriptionPolicy.afterSave])
+                          ChoiceTag(
+                            key: ValueKey(
+                              policy == TranscriptionPolicy.afterSave
+                                  ? 'transcribe-draft-${a.path}'
+                                  : 'transcribe-off-${a.path}',
+                            ),
+                            label: policy == TranscriptionPolicy.off ? context.l10n.v2Off : context.l10n.trAfterSave,
+                            selected:
+                                (a.policy ??
+                                    ((ref.watch(autoTranscribeProvider).value ?? false)
+                                        ? TranscriptionPolicy.afterSave
+                                        : TranscriptionPolicy.off)) ==
+                                policy,
+                            onTap: attachmentBusy
+                                ? null
+                                : () => updateDraft(() {
+                                    draftFiles = [
+                                      for (final file in draftFiles)
+                                        identical(file, a) ? file.withPolicy(policy) : file,
+                                    ];
+                                  }),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
                 AttachmentKind.image => _ImageStrip(

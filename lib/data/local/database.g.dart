@@ -1758,6 +1758,44 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
     defaultValue: const Constant(0),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<TranscriptionPolicy, String> transcriptionPolicy =
+      GeneratedColumn<String>(
+        'transcription_policy',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('off'),
+      ).withConverter<TranscriptionPolicy>($NoteAttachmentsTable.$convertertranscriptionPolicy);
+  static const VerificationMeta _transcriptCorrectionMeta = const VerificationMeta('transcriptCorrection');
+  @override
+  late final GeneratedColumn<String> transcriptCorrection = GeneratedColumn<String>(
+    'transcript_correction',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _correctedAtMeta = const VerificationMeta('correctedAt');
+  @override
+  late final GeneratedColumn<DateTime> correctedAt = GeneratedColumn<DateTime>(
+    'corrected_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transcriptRevisionMeta = const VerificationMeta('transcriptRevision');
+  @override
+  late final GeneratedColumn<int> transcriptRevision = GeneratedColumn<int>(
+    'transcript_revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     noteId,
@@ -1776,6 +1814,10 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
     transcriptionEngine,
     transcribedAt,
     transcriptionAttempts,
+    transcriptionPolicy,
+    transcriptCorrection,
+    correctedAt,
+    transcriptRevision,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1859,6 +1901,21 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
         transcriptionAttempts.isAcceptableOrUnknown(data['transcription_attempts']!, _transcriptionAttemptsMeta),
       );
     }
+    if (data.containsKey('transcript_correction')) {
+      context.handle(
+        _transcriptCorrectionMeta,
+        transcriptCorrection.isAcceptableOrUnknown(data['transcript_correction']!, _transcriptCorrectionMeta),
+      );
+    }
+    if (data.containsKey('corrected_at')) {
+      context.handle(_correctedAtMeta, correctedAt.isAcceptableOrUnknown(data['corrected_at']!, _correctedAtMeta));
+    }
+    if (data.containsKey('transcript_revision')) {
+      context.handle(
+        _transcriptRevisionMeta,
+        transcriptRevision.isAcceptableOrUnknown(data['transcript_revision']!, _transcriptRevisionMeta),
+      );
+    }
     return context;
   }
 
@@ -1904,6 +1961,18 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
         DriftSqlType.int,
         data['${effectivePrefix}transcription_attempts'],
       )!,
+      transcriptionPolicy: $NoteAttachmentsTable.$convertertranscriptionPolicy.fromSql(
+        attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}transcription_policy'])!,
+      ),
+      transcriptCorrection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transcript_correction'],
+      ),
+      correctedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}corrected_at']),
+      transcriptRevision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}transcript_revision'],
+      )!,
     );
   }
 
@@ -1917,6 +1986,8 @@ class $NoteAttachmentsTable extends NoteAttachments with TableInfo<$NoteAttachme
   );
   static JsonTypeConverter2<TranscriptionStatus, String, String> $convertertranscriptionStatus =
       const EnumNameConverter<TranscriptionStatus>(TranscriptionStatus.values);
+  static JsonTypeConverter2<TranscriptionPolicy, String, String> $convertertranscriptionPolicy =
+      const EnumNameConverter<TranscriptionPolicy>(TranscriptionPolicy.values);
 }
 
 class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
@@ -1943,6 +2014,10 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
   /// Runs started since the last manual request, written before inference
   /// begins, so a native crash or out-of-memory kill still counts.
   final int transcriptionAttempts;
+  final TranscriptionPolicy transcriptionPolicy;
+  final String? transcriptCorrection;
+  final DateTime? correctedAt;
+  final int transcriptRevision;
   const NoteAttachment({
     required this.id,
     required this.noteId,
@@ -1961,6 +2036,10 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     this.transcriptionEngine,
     this.transcribedAt,
     required this.transcriptionAttempts,
+    required this.transcriptionPolicy,
+    this.transcriptCorrection,
+    this.correctedAt,
+    required this.transcriptRevision,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2006,6 +2085,18 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       map['transcribed_at'] = Variable<DateTime>(transcribedAt);
     }
     map['transcription_attempts'] = Variable<int>(transcriptionAttempts);
+    {
+      map['transcription_policy'] = Variable<String>(
+        $NoteAttachmentsTable.$convertertranscriptionPolicy.toSql(transcriptionPolicy),
+      );
+    }
+    if (!nullToAbsent || transcriptCorrection != null) {
+      map['transcript_correction'] = Variable<String>(transcriptCorrection);
+    }
+    if (!nullToAbsent || correctedAt != null) {
+      map['corrected_at'] = Variable<DateTime>(correctedAt);
+    }
+    map['transcript_revision'] = Variable<int>(transcriptRevision);
     return map;
   }
 
@@ -2032,6 +2123,12 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
           : Value(transcriptionEngine),
       transcribedAt: transcribedAt == null && nullToAbsent ? const Value.absent() : Value(transcribedAt),
       transcriptionAttempts: Value(transcriptionAttempts),
+      transcriptionPolicy: Value(transcriptionPolicy),
+      transcriptCorrection: transcriptCorrection == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transcriptCorrection),
+      correctedAt: correctedAt == null && nullToAbsent ? const Value.absent() : Value(correctedAt),
+      transcriptRevision: Value(transcriptRevision),
     );
   }
 
@@ -2057,6 +2154,12 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       transcriptionEngine: serializer.fromJson<String?>(json['transcriptionEngine']),
       transcribedAt: serializer.fromJson<DateTime?>(json['transcribedAt']),
       transcriptionAttempts: serializer.fromJson<int>(json['transcriptionAttempts']),
+      transcriptionPolicy: $NoteAttachmentsTable.$convertertranscriptionPolicy.fromJson(
+        serializer.fromJson<String>(json['transcriptionPolicy']),
+      ),
+      transcriptCorrection: serializer.fromJson<String?>(json['transcriptCorrection']),
+      correctedAt: serializer.fromJson<DateTime?>(json['correctedAt']),
+      transcriptRevision: serializer.fromJson<int>(json['transcriptRevision']),
     );
   }
   @override
@@ -2082,6 +2185,12 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       'transcriptionEngine': serializer.toJson<String?>(transcriptionEngine),
       'transcribedAt': serializer.toJson<DateTime?>(transcribedAt),
       'transcriptionAttempts': serializer.toJson<int>(transcriptionAttempts),
+      'transcriptionPolicy': serializer.toJson<String>(
+        $NoteAttachmentsTable.$convertertranscriptionPolicy.toJson(transcriptionPolicy),
+      ),
+      'transcriptCorrection': serializer.toJson<String?>(transcriptCorrection),
+      'correctedAt': serializer.toJson<DateTime?>(correctedAt),
+      'transcriptRevision': serializer.toJson<int>(transcriptRevision),
     };
   }
 
@@ -2103,6 +2212,10 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     Value<String?> transcriptionEngine = const Value.absent(),
     Value<DateTime?> transcribedAt = const Value.absent(),
     int? transcriptionAttempts,
+    TranscriptionPolicy? transcriptionPolicy,
+    Value<String?> transcriptCorrection = const Value.absent(),
+    Value<DateTime?> correctedAt = const Value.absent(),
+    int? transcriptRevision,
   }) => NoteAttachment(
     id: id ?? this.id,
     noteId: noteId ?? this.noteId,
@@ -2121,6 +2234,10 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     transcriptionEngine: transcriptionEngine.present ? transcriptionEngine.value : this.transcriptionEngine,
     transcribedAt: transcribedAt.present ? transcribedAt.value : this.transcribedAt,
     transcriptionAttempts: transcriptionAttempts ?? this.transcriptionAttempts,
+    transcriptionPolicy: transcriptionPolicy ?? this.transcriptionPolicy,
+    transcriptCorrection: transcriptCorrection.present ? transcriptCorrection.value : this.transcriptCorrection,
+    correctedAt: correctedAt.present ? correctedAt.value : this.correctedAt,
+    transcriptRevision: transcriptRevision ?? this.transcriptRevision,
   );
   NoteAttachment copyWithCompanion(NoteAttachmentsCompanion data) {
     return NoteAttachment(
@@ -2145,6 +2262,12 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
       transcriptionAttempts: data.transcriptionAttempts.present
           ? data.transcriptionAttempts.value
           : this.transcriptionAttempts,
+      transcriptionPolicy: data.transcriptionPolicy.present ? data.transcriptionPolicy.value : this.transcriptionPolicy,
+      transcriptCorrection: data.transcriptCorrection.present
+          ? data.transcriptCorrection.value
+          : this.transcriptCorrection,
+      correctedAt: data.correctedAt.present ? data.correctedAt.value : this.correctedAt,
+      transcriptRevision: data.transcriptRevision.present ? data.transcriptRevision.value : this.transcriptRevision,
     );
   }
 
@@ -2167,13 +2290,17 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
           ..write('transcriptionFailure: $transcriptionFailure, ')
           ..write('transcriptionEngine: $transcriptionEngine, ')
           ..write('transcribedAt: $transcribedAt, ')
-          ..write('transcriptionAttempts: $transcriptionAttempts')
+          ..write('transcriptionAttempts: $transcriptionAttempts, ')
+          ..write('transcriptionPolicy: $transcriptionPolicy, ')
+          ..write('transcriptCorrection: $transcriptCorrection, ')
+          ..write('correctedAt: $correctedAt, ')
+          ..write('transcriptRevision: $transcriptRevision')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     noteId,
     kind,
@@ -2191,7 +2318,11 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
     transcriptionEngine,
     transcribedAt,
     transcriptionAttempts,
-  );
+    transcriptionPolicy,
+    transcriptCorrection,
+    correctedAt,
+    transcriptRevision,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2212,7 +2343,11 @@ class NoteAttachment extends DataClass implements Insertable<NoteAttachment> {
           other.transcriptionFailure == this.transcriptionFailure &&
           other.transcriptionEngine == this.transcriptionEngine &&
           other.transcribedAt == this.transcribedAt &&
-          other.transcriptionAttempts == this.transcriptionAttempts);
+          other.transcriptionAttempts == this.transcriptionAttempts &&
+          other.transcriptionPolicy == this.transcriptionPolicy &&
+          other.transcriptCorrection == this.transcriptCorrection &&
+          other.correctedAt == this.correctedAt &&
+          other.transcriptRevision == this.transcriptRevision);
 }
 
 class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
@@ -2233,6 +2368,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
   final Value<String?> transcriptionEngine;
   final Value<DateTime?> transcribedAt;
   final Value<int> transcriptionAttempts;
+  final Value<TranscriptionPolicy> transcriptionPolicy;
+  final Value<String?> transcriptCorrection;
+  final Value<DateTime?> correctedAt;
+  final Value<int> transcriptRevision;
   final Value<int> rowid;
   const NoteAttachmentsCompanion({
     this.id = const Value.absent(),
@@ -2252,6 +2391,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     this.transcriptionEngine = const Value.absent(),
     this.transcribedAt = const Value.absent(),
     this.transcriptionAttempts = const Value.absent(),
+    this.transcriptionPolicy = const Value.absent(),
+    this.transcriptCorrection = const Value.absent(),
+    this.correctedAt = const Value.absent(),
+    this.transcriptRevision = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NoteAttachmentsCompanion.insert({
@@ -2272,6 +2415,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     this.transcriptionEngine = const Value.absent(),
     this.transcribedAt = const Value.absent(),
     this.transcriptionAttempts = const Value.absent(),
+    this.transcriptionPolicy = const Value.absent(),
+    this.transcriptCorrection = const Value.absent(),
+    this.correctedAt = const Value.absent(),
+    this.transcriptRevision = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        noteId = Value(noteId),
@@ -2297,6 +2444,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     Expression<String>? transcriptionEngine,
     Expression<DateTime>? transcribedAt,
     Expression<int>? transcriptionAttempts,
+    Expression<String>? transcriptionPolicy,
+    Expression<String>? transcriptCorrection,
+    Expression<DateTime>? correctedAt,
+    Expression<int>? transcriptRevision,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2317,6 +2468,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
       if (transcriptionEngine != null) 'transcription_engine': transcriptionEngine,
       if (transcribedAt != null) 'transcribed_at': transcribedAt,
       if (transcriptionAttempts != null) 'transcription_attempts': transcriptionAttempts,
+      if (transcriptionPolicy != null) 'transcription_policy': transcriptionPolicy,
+      if (transcriptCorrection != null) 'transcript_correction': transcriptCorrection,
+      if (correctedAt != null) 'corrected_at': correctedAt,
+      if (transcriptRevision != null) 'transcript_revision': transcriptRevision,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2339,6 +2494,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     Value<String?>? transcriptionEngine,
     Value<DateTime?>? transcribedAt,
     Value<int>? transcriptionAttempts,
+    Value<TranscriptionPolicy>? transcriptionPolicy,
+    Value<String?>? transcriptCorrection,
+    Value<DateTime?>? correctedAt,
+    Value<int>? transcriptRevision,
     Value<int>? rowid,
   }) {
     return NoteAttachmentsCompanion(
@@ -2359,6 +2518,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
       transcriptionEngine: transcriptionEngine ?? this.transcriptionEngine,
       transcribedAt: transcribedAt ?? this.transcribedAt,
       transcriptionAttempts: transcriptionAttempts ?? this.transcriptionAttempts,
+      transcriptionPolicy: transcriptionPolicy ?? this.transcriptionPolicy,
+      transcriptCorrection: transcriptCorrection ?? this.transcriptCorrection,
+      correctedAt: correctedAt ?? this.correctedAt,
+      transcriptRevision: transcriptRevision ?? this.transcriptRevision,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2419,6 +2582,20 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
     if (transcriptionAttempts.present) {
       map['transcription_attempts'] = Variable<int>(transcriptionAttempts.value);
     }
+    if (transcriptionPolicy.present) {
+      map['transcription_policy'] = Variable<String>(
+        $NoteAttachmentsTable.$convertertranscriptionPolicy.toSql(transcriptionPolicy.value),
+      );
+    }
+    if (transcriptCorrection.present) {
+      map['transcript_correction'] = Variable<String>(transcriptCorrection.value);
+    }
+    if (correctedAt.present) {
+      map['corrected_at'] = Variable<DateTime>(correctedAt.value);
+    }
+    if (transcriptRevision.present) {
+      map['transcript_revision'] = Variable<int>(transcriptRevision.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2445,6 +2622,10 @@ class NoteAttachmentsCompanion extends UpdateCompanion<NoteAttachment> {
           ..write('transcriptionEngine: $transcriptionEngine, ')
           ..write('transcribedAt: $transcribedAt, ')
           ..write('transcriptionAttempts: $transcriptionAttempts, ')
+          ..write('transcriptionPolicy: $transcriptionPolicy, ')
+          ..write('transcriptCorrection: $transcriptCorrection, ')
+          ..write('correctedAt: $correctedAt, ')
+          ..write('transcriptRevision: $transcriptRevision, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5141,6 +5322,10 @@ typedef $$NoteAttachmentsTableCreateCompanionBuilder = NoteAttachmentsCompanion 
   Value<String?> transcriptionEngine,
   Value<DateTime?> transcribedAt,
   Value<int> transcriptionAttempts,
+  Value<TranscriptionPolicy> transcriptionPolicy,
+  Value<String?> transcriptCorrection,
+  Value<DateTime?> correctedAt,
+  Value<int> transcriptRevision,
   Value<int> rowid,
 });
 typedef $$NoteAttachmentsTableUpdateCompanionBuilder = NoteAttachmentsCompanion Function({
@@ -5161,6 +5346,10 @@ typedef $$NoteAttachmentsTableUpdateCompanionBuilder = NoteAttachmentsCompanion 
   Value<String?> transcriptionEngine,
   Value<DateTime?> transcribedAt,
   Value<int> transcriptionAttempts,
+  Value<TranscriptionPolicy> transcriptionPolicy,
+  Value<String?> transcriptCorrection,
+  Value<DateTime?> correctedAt,
+  Value<int> transcriptRevision,
   Value<int> rowid,
 });
 
@@ -5234,6 +5423,21 @@ class $$NoteAttachmentsTableFilterComposer extends Composer<_$FikraDatabase, $No
 
   ColumnFilters<int> get transcriptionAttempts =>
       $composableBuilder(column: $table.transcriptionAttempts, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<TranscriptionPolicy, TranscriptionPolicy, String> get transcriptionPolicy =>
+      $composableBuilder(
+        column: $table.transcriptionPolicy,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get transcriptCorrection =>
+      $composableBuilder(column: $table.transcriptCorrection, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get correctedAt =>
+      $composableBuilder(column: $table.correctedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get transcriptRevision =>
+      $composableBuilder(column: $table.transcriptRevision, builder: (column) => ColumnFilters(column));
 
   $$NotesTableFilterComposer get noteId {
     final $$NotesTableFilterComposer composer = $composerBuilder(
@@ -5309,6 +5513,18 @@ class $$NoteAttachmentsTableOrderingComposer extends Composer<_$FikraDatabase, $
   ColumnOrderings<int> get transcriptionAttempts =>
       $composableBuilder(column: $table.transcriptionAttempts, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get transcriptionPolicy =>
+      $composableBuilder(column: $table.transcriptionPolicy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transcriptCorrection =>
+      $composableBuilder(column: $table.transcriptCorrection, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get correctedAt =>
+      $composableBuilder(column: $table.correctedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get transcriptRevision =>
+      $composableBuilder(column: $table.transcriptRevision, builder: (column) => ColumnOrderings(column));
+
   $$NotesTableOrderingComposer get noteId {
     final $$NotesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -5376,6 +5592,18 @@ class $$NoteAttachmentsTableAnnotationComposer extends Composer<_$FikraDatabase,
   GeneratedColumn<int> get transcriptionAttempts =>
       $composableBuilder(column: $table.transcriptionAttempts, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<TranscriptionPolicy, String> get transcriptionPolicy =>
+      $composableBuilder(column: $table.transcriptionPolicy, builder: (column) => column);
+
+  GeneratedColumn<String> get transcriptCorrection =>
+      $composableBuilder(column: $table.transcriptCorrection, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get correctedAt =>
+      $composableBuilder(column: $table.correctedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get transcriptRevision =>
+      $composableBuilder(column: $table.transcriptRevision, builder: (column) => column);
+
   $$NotesTableAnnotationComposer get noteId {
     final $$NotesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -5437,6 +5665,10 @@ class $$NoteAttachmentsTableTableManager
                 Value<String?> transcriptionEngine = const Value.absent(),
                 Value<DateTime?> transcribedAt = const Value.absent(),
                 Value<int> transcriptionAttempts = const Value.absent(),
+                Value<TranscriptionPolicy> transcriptionPolicy = const Value.absent(),
+                Value<String?> transcriptCorrection = const Value.absent(),
+                Value<DateTime?> correctedAt = const Value.absent(),
+                Value<int> transcriptRevision = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NoteAttachmentsCompanion(
                 id: id,
@@ -5456,6 +5688,10 @@ class $$NoteAttachmentsTableTableManager
                 transcriptionEngine: transcriptionEngine,
                 transcribedAt: transcribedAt,
                 transcriptionAttempts: transcriptionAttempts,
+                transcriptionPolicy: transcriptionPolicy,
+                transcriptCorrection: transcriptCorrection,
+                correctedAt: correctedAt,
+                transcriptRevision: transcriptRevision,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5477,6 +5713,10 @@ class $$NoteAttachmentsTableTableManager
                 Value<String?> transcriptionEngine = const Value.absent(),
                 Value<DateTime?> transcribedAt = const Value.absent(),
                 Value<int> transcriptionAttempts = const Value.absent(),
+                Value<TranscriptionPolicy> transcriptionPolicy = const Value.absent(),
+                Value<String?> transcriptCorrection = const Value.absent(),
+                Value<DateTime?> correctedAt = const Value.absent(),
+                Value<int> transcriptRevision = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NoteAttachmentsCompanion.insert(
                 id: id,
@@ -5496,6 +5736,10 @@ class $$NoteAttachmentsTableTableManager
                 transcriptionEngine: transcriptionEngine,
                 transcribedAt: transcribedAt,
                 transcriptionAttempts: transcriptionAttempts,
+                transcriptionPolicy: transcriptionPolicy,
+                transcriptCorrection: transcriptCorrection,
+                correctedAt: correctedAt,
+                transcriptRevision: transcriptRevision,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

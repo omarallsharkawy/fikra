@@ -236,3 +236,7 @@ whisperLockProvider supplies the process-wide lease; transcriptionEngineProvider
 serviceKeysProvider, transcriptionServicesProvider/stateProvider, transcriptionTransportProvider and remoteAudioConverterProvider inject storage/HTTP/native conversion. localTranscriptionEngineProvider retains the local adapter; transcriptionEngineProvider reads the current selection and valid destination consent at job start, choosing local or a remote adapter. Credential reads are bound to the captured service origin/type. Queue construction, foreground service and launch crash-loop recovery are unchanged.
 
 /settings/voice-text/service/new and /settings/voice-text/service/:id push ServiceFormScreen via _pushed/MaterialPage. Secrets are absent from routes, Riverpod service snapshots and SQLite. Tests override the transport/secure store and local factory, including selection tests, so native Whisper or real HTTP cannot run.
+
+## Voice 2a
+
+modelDiscoveryProvider supplies fakeable transport plus database-backed availability cache. transcriptCorrectionsProvider supplies the transactional correction service and normal processor callback. The pushed /note/:id/transcript/:attachmentId route uses _pushed/MaterialPage and looks up the live attachment within its note; no correction/audio is placed in navigation arguments.
