@@ -161,7 +161,7 @@
   "sources": "Sources",
   "sourceA11y": "Source {index}: {title}",
   "eraseAllTitle": "Erase all data?",
-  "eraseAllBody": "All projects, notes, recordings, files and chats will be erased from this phone. You can't undo this.",
+  "eraseAllBody": "All projects, notes, recordings, files, chats, transcription services and their keys will be erased from this phone. You can't undo this.",
   "eraseAllConfirm": "Erase everything",
   "eraseAllDone": "All data erased",
   "eraseAllPartial": "Your data was erased, but a few files are left. They'll be removed next time you open the app.",
@@ -1159,5 +1159,257 @@
   },
   "@originalKeptHint": {
     "description": "Applies to every note source. Saved recordings can be transcribed locally after saving."
+  },
+  "vsEngine": "Transcription engine",
+  "@vsEngine": {
+    "description": "External transcription: Engine. User-added services only; no upload before consent."
+  },
+  "vsLocal": "On your phone",
+  "@vsLocal": {
+    "description": "External transcription: Local. User-added services only; no upload before consent."
+  },
+  "vsAdd": "Add a service",
+  "@vsAdd": {
+    "description": "External transcription: Add. User-added services only; no upload before consent."
+  },
+  "vsEdit": "Edit service",
+  "@vsEdit": {
+    "description": "External transcription: Edit. User-added services only; no upload before consent."
+  },
+  "vsType": "Service type",
+  "@vsType": {
+    "description": "External transcription: Type. User-added services only; no upload before consent."
+  },
+  "vsOpenAi": "OpenAI-compatible",
+  "@vsOpenAi": {
+    "description": "External transcription: OpenAi. User-added services only; no upload before consent."
+  },
+  "vsName": "Service name",
+  "@vsName": {
+    "description": "External transcription: Name. User-added services only; no upload before consent."
+  },
+  "vsBaseUrl": "Base URL",
+  "@vsBaseUrl": {
+    "description": "External transcription: BaseUrl. User-added services only; no upload before consent."
+  },
+  "vsModel": "Model ID",
+  "@vsModel": {
+    "description": "External transcription: Model. User-added services only; no upload before consent."
+  },
+  "vsKey": "API key",
+  "@vsKey": {
+    "description": "External transcription: Key. User-added services only; no upload before consent."
+  },
+  "vsKeyKeep": "Leave blank to keep the saved key.",
+  "@vsKeyKeep": {
+    "description": "External transcription: KeyKeep. User-added services only; no upload before consent."
+  },
+  "vsLanguageHint": "Language hint (optional)",
+  "@vsLanguageHint": {
+    "description": "External transcription: LanguageHint. User-added services only; no upload before consent."
+  },
+  "vsLanguageHelp": "Use a code such as ar or en. Leave blank to use the selected speech language.",
+  "@vsLanguageHelp": {
+    "description": "External transcription: LanguageHelp. User-added services only; no upload before consent."
+  },
+  "vsShowKey": "Show key",
+  "@vsShowKey": {
+    "description": "External transcription: ShowKey. User-added services only; no upload before consent."
+  },
+  "vsHideKey": "Hide key",
+  "@vsHideKey": {
+    "description": "External transcription: HideKey. User-added services only; no upload before consent."
+  },
+  "vsTest": "Test connection",
+  "@vsTest": {
+    "description": "External transcription: Test. User-added services only; no upload before consent."
+  },
+  "vsTesting": "Testing connection…",
+  "@vsTesting": {
+    "description": "External transcription: Testing. User-added services only; no upload before consent."
+  },
+  "vsConnected": "Connection works.",
+  "@vsConnected": {
+    "description": "External transcription: Connected. User-added services only; no upload before consent."
+  },
+  "vsDeleteTitle": "Delete this service?",
+  "@vsDeleteTitle": {
+    "description": "External transcription: DeleteTitle. User-added services only; no upload before consent."
+  },
+  "vsDeleteBody": "Its key will be deleted. If selected, transcription switches back to your phone.",
+  "@vsDeleteBody": {
+    "description": "External transcription: DeleteBody. User-added services only; no upload before consent."
+  },
+  "vsConsentTitle": "Send recordings to {service}?",
+  "@vsConsentTitle": {
+    "description": "External transcription: ConsentTitle. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentBody": "Recordings will be sent to {service} at {host} for transcription. The service may retain them and charge for use. Nothing is sent until you agree.",
+  "@vsConsentBody": {
+    "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentConfirm": "Agree",
+  "@vsConsentConfirm": {
+    "description": "External transcription: ConsentConfirm. User-added services only; no upload before consent."
+  },
+  "vsHttpWarning": "This connection is unencrypted. Use it only on a trusted local network.",
+  "@vsHttpWarning": {
+    "description": "External transcription: HttpWarning. User-added services only; no upload before consent."
+  },
+  "vsInvalidUrl": "Use HTTPS, or HTTP to localhost or a private LAN address.",
+  "@vsInvalidUrl": {
+    "description": "External transcription: InvalidUrl. User-added services only; no upload before consent."
+  },
+  "vsInvalidFields": "Check the name, model and language code.",
+  "@vsInvalidFields": {
+    "description": "External transcription: InvalidFields. User-added services only; no upload before consent."
+  },
+  "vsKeyRequired": "Enter a key for this service first.",
+  "@vsKeyRequired": {
+    "description": "External transcription: KeyRequired. User-added services only; no upload before consent."
+  },
+  "vsSaveError": "We couldn’t save the service. Try again.",
+  "@vsSaveError": {
+    "description": "External transcription: SaveError. User-added services only; no upload before consent."
+  },
+  "vsLoadError": "We couldn’t read the service settings. Try again.",
+  "@vsLoadError": {
+    "description": "External transcription: LoadError. User-added services only; no upload before consent."
+  },
+  "vsRemoteIntro": "Recordings are sent to {service} for transcription. The service may charge for use.",
+  "@vsRemoteIntro": {
+    "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemoteData": "Your notes and files are stored on your phone. Recordings are sent to {service} for transcription.",
+  "@vsRemoteData": {
+    "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsVia": "Via {service}",
+  "@vsVia": {
+    "description": "External transcription: Via. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemovedService": "Deleted service",
+  "@vsRemovedService": {
+    "description": "External transcription: RemovedService. User-added services only; no upload before consent."
+  },
+  "vsLiveLocal": "Live text is available only on your phone. Switch engines to try it.",
+  "@vsLiveLocal": {
+    "description": "External transcription: LiveLocal. User-added services only; no upload before consent."
+  },
+  "vsRemoteAutoHint": "New recordings are sent to {service} after saving and can take a while.",
+  "@vsRemoteAutoHint": {
+    "description": "External transcription: RemoteAutoHint. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsOffline": "We couldn’t reach the service. Check your connection and try again.",
+  "@vsOffline": {
+    "description": "External transcription: Offline. User-added services only; no upload before consent."
+  },
+  "vsKeyRejected": "The service rejected the key. Check it in voice settings.",
+  "@vsKeyRejected": {
+    "description": "External transcription: KeyRejected. User-added services only; no upload before consent."
+  },
+  "vsRateLimited": "You reached a usage limit or ran out of credit. Check your account or try later.",
+  "@vsRateLimited": {
+    "description": "External transcription: RateLimited. User-added services only; no upload before consent."
+  },
+  "vsTooLarge": "The recording is too large or long for this service. Try a shorter recording or another service.",
+  "@vsTooLarge": {
+    "description": "External transcription: TooLarge. User-added services only; no upload before consent."
+  },
+  "vsServiceError": "The service is having a problem. Try later.",
+  "@vsServiceError": {
+    "description": "External transcription: ServiceError. User-added services only; no upload before consent."
+  },
+  "vsUnexpected": "The service returned an unexpected response. Check its URL and model in voice settings.",
+  "@vsUnexpected": {
+    "description": "External transcription: Unexpected. User-added services only; no upload before consent."
+  },
+  "vsTimeout": "The service took too long to respond. Check your connection and try again.",
+  "@vsTimeout": {
+    "description": "External transcription: Timeout. User-added services only; no upload before consent."
+  },
+  "vsNeedsConsent": "Agree to send recordings in voice settings first.",
+  "@vsNeedsConsent": {
+    "description": "External transcription: NeedsConsent. User-added services only; no upload before consent."
+  },
+  "vsRegion": "Region",
+  "@vsRegion": {
+    "description": "External transcription: Region. User-added services only; no upload before consent."
+  },
+  "vsSingapore": "International (Singapore)",
+  "@vsSingapore": {
+    "description": "External transcription: Singapore. User-added services only; no upload before consent."
+  },
+  "vsBeijing": "Mainland China (Beijing)",
+  "@vsBeijing": {
+    "description": "External transcription: Beijing. User-added services only; no upload before consent."
+  },
+  "vsOpenAiKeyHint": "Get the key, URL and model from your provider, such as OpenAI, Groq or SiliconFlow.",
+  "@vsOpenAiKeyHint": {
+    "description": "External transcription: OpenAiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGeminiKeyHint": "Get a key from Google AI Studio.",
+  "@vsGeminiKeyHint": {
+    "description": "External transcription: GeminiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsElevenKeyHint": "Get a key from your ElevenLabs account settings.",
+  "@vsElevenKeyHint": {
+    "description": "External transcription: ElevenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsQwenKeyHint": "Get a key for the same region from Alibaba Cloud Model Studio. Workspace URLs are also supported.",
+  "@vsQwenKeyHint": {
+    "description": "External transcription: QwenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGemini": "Google Gemini",
+  "@vsGemini": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsElevenLabs": "ElevenLabs",
+  "@vsElevenLabs": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsQwen": "Qwen ASR",
+  "@vsQwen": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "@eraseAllBody": {
+    "description": "Local wipe confirmation. Includes user-added transcription configuration and secure API keys; does not delete copies held by providers."
+  },
+  "vsRemoteTiming": "Time includes uploading and waiting for the service. Memory is for the whole app.",
+  "@vsRemoteTiming": {
+    "description": "Technical trial measurements for a remote engine: network/service wall time and whole-process RSS."
   }
 }

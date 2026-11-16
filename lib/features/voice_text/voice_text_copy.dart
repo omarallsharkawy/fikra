@@ -24,6 +24,7 @@ String modelHint(AppLocalizations l, SpikeModel model) => model.localOnly
         _ => l.vtSmallHint,
       };
 String issueMessage(AppLocalizations l, VoiceTextIssue issue) => switch (issue) {
+  VoiceTextIssue.remote => l.trFailed,
   VoiceTextIssue.busy => l.vtEngineBusy,
   VoiceTextIssue.network => l.vtNetworkError,
   VoiceTextIssue.interrupted => l.vtInterruptedError,

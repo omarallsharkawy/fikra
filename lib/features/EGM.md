@@ -24,3 +24,5 @@ Every feature uses generated `AppLocalizations` through `context.l10n`; user con
 Add and Edit both use `shared/attachment_editor.dart`; all live attachments come from the v5 table through repository streams.
 
 - voice_text: [./voice_text/EGM.md](./voice_text/EGM.md) - Settings-only on-device transcription experiment. It owns application-support models/trial recordings and the native adapter for the durable saved-recording queue. Settings and saved attachments use the shared database.
+
+Phase 3 voice settings adds user service forms and explicit recipient consent. Settings reflects the selected recipient; note details attributes remote results and maps remote failure codes to retry/settings actions. No feature sends recordings directly: both saved-note jobs and trials use the injected transcription engine boundary.

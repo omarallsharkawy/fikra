@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/tokens.dart';
+import '../../core/format.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../l10n/localizations.dart';
 import 'voice_text_controller.dart';
@@ -13,7 +14,7 @@ class VoiceTextAuto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = controller;
-    final enabled = c.idle && (c.usedBytes > 0 || c.autoTranscribe);
+    final enabled = c.idle && (c.isRemote || c.usedBytes > 0 || c.autoTranscribe);
     Future<void> toggle() async {
       await act(() => c.setAutoTranscribe(!c.autoTranscribe));
       onChanged();
@@ -39,7 +40,11 @@ class VoiceTextAuto extends StatelessWidget {
           ),
         ),
         Text(
-          c.usedBytes > 0 ? context.l10n.trAutomaticHint : context.l10n.trDownloadFirst,
+          c.isRemote
+              ? context.l10n.vsRemoteAutoHint(Fmt.isolate(c.remoteService?.name ?? context.l10n.vsRemovedService))
+              : c.usedBytes > 0
+              ? context.l10n.trAutomaticHint
+              : context.l10n.trDownloadFirst,
           style: context.text.caption,
         ),
       ],

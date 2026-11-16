@@ -1,5 +1,7 @@
 import 'files/attachment_store.dart';
 import 'local/database.dart';
+import 'transcription/services_repository.dart';
+import 'transcription/service_keys.dart';
 
 /// Appearance choice. Kept free of Flutter types; the app maps it to ThemeMode.
 enum AppTheme { system, light, dark }
@@ -45,7 +47,9 @@ class WipeFilesException implements Exception {
 }
 
 class LocalSettingsRepository implements SettingsRepository {
-  LocalSettingsRepository(this.db, this.files);
+  LocalSettingsRepository(this.db, this.files, {TranscriptionServices? transcriptionServices})
+    : transcriptionServices = transcriptionServices ?? LocalTranscriptionServices(db, const SecureServiceKeys());
+  final TranscriptionServices transcriptionServices;
   final FikraDatabase db;
   final AttachmentStore files;
 
@@ -128,6 +132,7 @@ class LocalSettingsRepository implements SettingsRepository {
 
   @override
   Future<void> wipeAllData() async {
+    await transcriptionServices.wipe();
     await db.transaction(() async {
       await db.delete(db.chatEntries).go();
       await db.delete(db.noteLinks).go();

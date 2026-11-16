@@ -45,7 +45,7 @@ Depends on `NotesRepository` from [`../EGM.md`](../EGM.md) and `AiService` from
 
 ## Recording transcription queue
 
-TranscriptionEngine has id and transcribe(audioPath, language); TranscriptionEngineFactory resolves the current adapter/settings at each job start. TranscriptionQueue depends only on this seam, the existing key/value settings and SQLite, not Whisper or provider request formats. Phase 3 can replace the factory without changing queue/UI calls. Demo and connected wiring select local transcription independently of the existing unsupported connected AI/backend mode.
+TranscriptionEngine has id and transcribe(audioPath, language); TranscriptionEngineFactory resolves the current adapter/settings at each job start. TranscriptionQueue depends only on this seam, the existing key/value settings and SQLite, not Whisper or provider request formats. Phase 3 resolves the selected, consented local/remote adapter in the factory without changing queue calls. This remains independent of the existing unsupported connected AI/backend mode.
 
 Enqueue reserves its FIFO slot synchronously, deduplicates queued/running attachment IDs in-process, persists queued with a transactionally allocated request order and returns without waiting for inference. saved(noteId, newPaths) wakes the queued requests already atomically saved with new attachment rows. Start re-reads attachment and parent inside a transaction; deleted rows/notes and non-voice attachments are skipped without job writes. Jobs run serially; failures persist stable codes (modelMissing, busy, audioUnreadable, other) and never poison the next slot. Database-write failures are logged, leaving durable queued/running rows for recovery rather than resurrecting deleted data.
 
@@ -60,3 +60,7 @@ WhisperLock is one process-wide FIFO lease shared by local attachment inference,
 Note recordings run as private Whisper runs: the FIKRA_WHISPER log line omits the text (it records `text_chars`) and nothing is added to the experiment's runs.jsonl.
 
 Crash-loop guard: `transcriptionAttempts` counts runs started since the user last asked. The start transaction writes `running` and the incremented count before inference, so a native crash or out-of-memory kill still counts. `resumeInterrupted` re-queues a queued/running row only while attempts < `maxInterruptedAttempts` (2); otherwise it marks the row failed with `interruptedTwice` and does not start the engine. Only a manual request (`enqueue(manual: true)`: transcribe, retry, redo from details) resets the count to 0. Launch recovery and save wake-ups keep it, and edits that rewrite attachment rows carry it over.
+
+## External adapters (phase 3)
+
+The queue, persisted request order, keep-alive and interruptedTwice attempt guard are unchanged. TranscriptionFailureReason additionally supports offline, keyRejected, rateLimited, tooLarge, serviceError, unexpectedResponse, remoteTimeout and consentRequired; the queue stores only these codes. Remote adapters have id remote:<serviceId>, never acquire WhisperLock, and discard provider exception/body text before it can reach queue diagnostics. Engine/config/key selection happens at job start through app providers, not at enqueue time. Success still follows the same append, provenance and normal-analysis transaction.

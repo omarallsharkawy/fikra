@@ -1,6 +1,6 @@
 # Voice to text experiment — local settings, trials and saved-note adapter
 
-Settings' Voice section pushes `/settings/voice-text` through the existing MaterialPage helper. Phase 1 adds persisted model/speech-language choices and the three-part trial layout. Phase 2 adds optional saved-note transcription through the data-layer queue; external engines remain unimplemented.
+Settings' Voice section pushes `/settings/voice-text` through the existing MaterialPage helper. Phase 1 adds persisted model/speech-language choices and the three-part trial layout. Phase 2 adds optional saved-note transcription through the data-layer queue; phase 3 adds user-consented external engines.
 
 ## Preferences and selection
 
@@ -24,7 +24,7 @@ Six downloadable files retain their exact owner-supplied size labels. Downloads 
 
 `ggml-small-egy-cs-q5_1.bin` remains an optional local file with the normal small Q5_1 header validation and actual disk size. It has no download/delete controls. `FIKRA_WHISPER_DIR <absolute path>` prints once per native backend initialization. The testing area's refresh action replaces the old sheet's implicit rescan. Disappearing or invalid selected local files fall back and repair the preference.
 
-Every run still prints one `FIKRA_WHISPER {json}` line and appends recordings/runs.jsonl. Local-only model_url is null. FFmpeg conversion duration is separate; transcription-plus-load remains approximate; live startup and finalization are measured, and live RTF includes listening. RSS is whole-process and peak is lifetime maximum.
+Every local trial still prints one `FIKRA_WHISPER {json}` line and appends recordings/runs.jsonl. Remote trials keep only the visible in-memory history and never print or append text/audio/keys. Local-only model_url is null. FFmpeg conversion duration is separate; transcription-plus-load remains approximate; live startup and finalization are measured, and live RTF includes listening. RSS is whole-process and peak is lifetime maximum.
 
 ## Verification
 
@@ -39,3 +39,17 @@ LocalTranscriptionEngine implements the provider-neutral data interface, prepare
 The controller's capture methods now live in voice_text_capture.dart (part/extension) to keep files small. File trials, the entire live session and model deletion claim the same process-wide WhisperLock used by the saved-recording adapter. Trials decline immediately with vtEngineBusy; queued local jobs wait up to ten minutes. Lease lifetime covers real inference shutdown and disposal. FFmpeg decoder probing moved from screen initialization into lease-protected trial start so it cannot disturb another job's global FFmpeg session/timing. Microphone recording alone need not hold the model lease.
 
 `transcription_service.dart`: `AndroidTranscriptionKeepAlive` implements the data layer's `TranscriptionKeepAlive` over MethodChannel `fikra/transcription_service` (see android/app/src/main/kotlin/com/fikra/app/EGM.md), sending the localized channel name (`trNotificationChannel`), title (`trWorking`) and count (`trNotificationLeft`); a false result (Android refused, app already in background) is logged and work continues. `TranscriptionNotificationPermission` / `PluginNotificationPermission` wrap permission_handler's notification permission (`canAsk` = status is denied but still askable).
+
+## External service choice and forms (phase 3)
+
+User settings begins with VoiceTextEngines: On your phone or any saved service, with selected semantics, edit controls and Add. The on-phone model list is visible only for local choice; speech language remains shared. Auto mode does not require a downloaded local model for a remote choice and its hint names the recipient. Intro text is destination-specific, and loading/error states never claim that files stay local before the service snapshot is known.
+
+ServiceFormScreen (+ ServiceFormFields) uses FikraScaffold, FikraField, SheetOption/showFikraSheet, VoiceTextChoice, ChoiceTag region presets, existing buttons/icons, StatusBanner/toast, tokens and route motion. It edits name/type/base URL/model/optional language hint and an obscured key with accessible show/hide. Fixed providers show their actual URL read-only; OpenAI-compatible and Qwen URLs are editable, with Singapore/Beijing presets and an HTTP LAN warning. Blank key retains the stored credential only when type/origin are unchanged. No stored key is populated into a text field. Partial URLs remain safe while editing. Save/delete complete storage before allowing the route to pop; delete requires confirmation.
+
+service_consent.dart uses the existing confirmation dialog, naming the service and URL, explicitly describing upload, possible retention/charges and unencrypted LAN transport where relevant. It is required before first external selection or probe. Consent is persisted per type/URL destination identity; editing that destination requires fresh agreement; renaming or changing a model does not. A stale dialog cannot authorize a different stored destination. A successful explicit probe may carry its agreement into Save, so later selection does not ask again.
+
+Try it reads the current selected service, uses the same engine factory as the queue, and skips WhisperLock for remote requests. Remote results/measurements are UI-only and include attribution; raw provider errors are never retained. Existing trial native work still uses the lease. Live text is explicitly local-only and disabled for a remote engine; this phase implements file APIs, not remote streaming. voice_text_remote.dart keeps the controller near 300 lines.
+
+Remote format rejection alone may use remote_audio_converter.dart: the existing bundled FFmpeg 16 kHz mono PCM path, quiet logs, arguments passed separately, a unique temp file and cleanup. Saved-note requests retain their keep-alive and crash-loop protection. No audio is sent merely by opening settings, saving a service, selecting an agreed service or enabling auto mode.
+
+TranscriptionSource labels local models as before and remote IDs as Via <service alias>. Deleted-service aliases remain in non-secret settings until wipe; IDs do not encode model revisions. All visible text lives in ARB, including provider product labels.

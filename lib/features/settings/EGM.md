@@ -36,4 +36,6 @@ Language uses the same `SegmentedPill` and persisted-stream pattern as appearanc
 
 ## Voice to text experiment
 
-A SheetOption under its own Voice section, after language and before local data, opens `/settings/voice-text`; its label includes the localized Experimental tag. It uses the existing row treatment. The feature is independent of note-saving and data wipe behavior; see ../voice_text/EGM.md.
+A SheetOption under its own Voice section, after language and before local data, opens `/settings/voice-text`; its label includes the localized Experimental tag. It uses the existing row treatment. The feature also configures saved-recording transcription and wipe removes its services/keys; see ../voice_text/EGM.md.
+
+Phase 3 the data-location line watches the non-secret service snapshot. Local choice retains dataStaysLocal; a remote choice uses vsRemoteData naming the selected service. Loading/error shows a truthful pending/error label instead of briefly claiming local-only storage. Erase-all confirmation now names transcription services and their keys; the repository removes both configs and secure credentials.

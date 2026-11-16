@@ -5,16 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
-import '../../core/format.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../../data/processing/transcription_engine.dart';
 import '../../l10n/localizations.dart';
 import '../shared/transcription_notifications.dart';
-import '../voice_text/voice_text_copy.dart';
+import '../voice_text/service_copy.dart';
+import '../voice_text/transcription_source.dart';
 import '../voice_text/whisper_metrics.dart';
-import '../voice_text/whisper_models.dart';
 
 /// A saved recording's durable state. No native engine calls from presentation.
 class VoiceTranscript extends ConsumerStatefulWidget {
@@ -51,12 +50,10 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
         a.transcriptionStatus == TranscriptionStatus.queued || a.transcriptionStatus == TranscriptionStatus.running;
     final failure = a.transcriptionFailure;
     // A smaller model is one way out of repeated closing, so offer settings too.
-    final settings =
-        failure == TranscriptionFailureReason.modelMissing.name ||
-        failure == TranscriptionFailureReason.interruptedTwice.name;
+    final reason = TranscriptionFailureReason.values.asNameMap()[failure] ?? TranscriptionFailureReason.other;
+    final settings = failure != null;
     final transcript = a.transcript;
     final engine = a.transcriptionEngine;
-    final localModel = allSpikeModels.where((m) => 'local:${m.filename}' == engine).firstOrNull;
     return Glass(
       key: ValueKey('transcript-${a.id}'),
       radius: FikraRadius.lg,
@@ -98,24 +95,9 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
               onPressed: () => setState(() => _expanded = !_expanded),
             ),
           ],
-          if (engine != null) ...[
-            Text(
-              localModel != null ? l.trLocalEngine(modelName(l, localModel)) : Fmt.isolate(engine),
-              key: ValueKey('transcript-engine-${a.id}'),
-              style: context.text.meta,
-            ),
-          ],
+          if (engine != null) ...[TranscriptionSource(key: ValueKey('transcript-engine-${a.id}'), engineId: engine)],
           if (a.transcriptionStatus == TranscriptionStatus.failed) ...[
-            StatusBanner(
-              kind: BannerKind.error,
-              message: switch (a.transcriptionFailure) {
-                'modelMissing' => l.trModelMissing,
-                'busy' => l.trBusy,
-                'audioUnreadable' => l.trAudioUnreadable,
-                'interruptedTwice' => l.trInterruptedTwice,
-                _ => l.trFailed,
-              },
-            ),
+            StatusBanner(kind: BannerKind.error, message: transcriptionFailureMessage(l, reason)),
             if (settings)
               FikraButton.secondary(
                 key: ValueKey('transcript-settings-${a.id}'),

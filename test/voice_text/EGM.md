@@ -13,3 +13,5 @@ All scrolling uses revealVoiceText/tapVoiceText with a plain keyed target and ex
 Run flutter test test/voice_text; screenshots are in ../screenshots/voice_text_test.dart. The sandbox cannot run the Flutter runner's localhost socket. Tests do not establish phone recognition quality or native performance.
 
 Phase 2 FakeVoiceTextSettings mirrors readAutoTranscribe/setAutoTranscribe with a false default. Trial controller tests share an injectable WhisperLock with saved-recording fake engines; capture methods remain imported through the controller library's part extension. No fake invokes native Whisper.
+
+Phase 3 the standalone fixture overrides TranscriptionServices with an owned in-memory fake and registers its stream cleanup with addTearDown. Existing local trial tests remain isolated from Drift, secure storage and network while the screen adds engine selection. Remote trial/queue selection is covered in transcription_engine_selection_test, without native inference.

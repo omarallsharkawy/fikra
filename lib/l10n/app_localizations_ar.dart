@@ -529,7 +529,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get eraseAllBody =>
-      'كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هتعرف ترجّعها.';
+      'كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات وخدمات التفريغ ومفاتيحها هتتمسح من الموبايل، ومش هتعرف ترجّعها.';
 
   @override
   String get eraseAllConfirm => 'امسح كل حاجة';
@@ -1616,4 +1616,179 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vtEngineBusy => 'في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.';
+
+  @override
+  String get vsEngine => 'طريقة التفريغ';
+
+  @override
+  String get vsLocal => 'على الموبايل';
+
+  @override
+  String get vsAdd => 'ضيف خدمة';
+
+  @override
+  String get vsEdit => 'عدّل الخدمة';
+
+  @override
+  String get vsType => 'نوع الخدمة';
+
+  @override
+  String get vsOpenAi => 'خدمة متوافقة مع OpenAI';
+
+  @override
+  String get vsName => 'اسم الخدمة';
+
+  @override
+  String get vsBaseUrl => 'عنوان الخدمة';
+
+  @override
+  String get vsModel => 'اسم النموذج';
+
+  @override
+  String get vsKey => 'مفتاح الخدمة';
+
+  @override
+  String get vsKeyKeep => 'سيبه فاضي لو هتستخدم نفس المفتاح.';
+
+  @override
+  String get vsLanguageHint => 'لغة متوقعة (اختياري)';
+
+  @override
+  String get vsLanguageHelp => 'كود زي ar أو en. سيبه فاضي عشان تستخدم لغة الكلام المختارة.';
+
+  @override
+  String get vsShowKey => 'اعرض المفتاح';
+
+  @override
+  String get vsHideKey => 'اخفي المفتاح';
+
+  @override
+  String get vsTest => 'جرّب الاتصال';
+
+  @override
+  String get vsTesting => 'بيجرّب الاتصال…';
+
+  @override
+  String get vsConnected => 'الاتصال شغّال.';
+
+  @override
+  String get vsDeleteTitle => 'تحذف الخدمة دي؟';
+
+  @override
+  String get vsDeleteBody => 'المفتاح هيتمسح، والتفريغ هيرجع للموبايل لو الخدمة دي متختارة.';
+
+  @override
+  String vsConsentTitle(String service) {
+    return 'تبعت التسجيلات لـ«$service»؟';
+  }
+
+  @override
+  String vsConsentBody(String service, String host) {
+    return 'التسجيلات هتتبعت لـ«$service» على $host عشان يفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.';
+  }
+
+  @override
+  String get vsConsentConfirm => 'موافق';
+
+  @override
+  String get vsHttpWarning => 'الاتصال ده من غير تشفير. استخدمه على شبكة محلية موثوقة بس.';
+
+  @override
+  String get vsInvalidUrl => 'اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.';
+
+  @override
+  String get vsInvalidFields => 'راجع الاسم والنموذج وكود اللغة.';
+
+  @override
+  String get vsKeyRequired => 'اكتب مفتاح للخدمة دي الأول.';
+
+  @override
+  String get vsSaveError => 'مقدرناش نحفظ الخدمة. جرّب تاني.';
+
+  @override
+  String get vsLoadError => 'مقدرناش نقرا إعدادات الخدمات. جرّب تاني.';
+
+  @override
+  String vsRemoteIntro(String service) {
+    return 'التسجيلات هتتبعت لـ«$service» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.';
+  }
+
+  @override
+  String vsRemoteData(String service) {
+    return 'ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت لـ«$service» عشان تتفرّغ.';
+  }
+
+  @override
+  String vsVia(String service) {
+    return 'عن طريق $service';
+  }
+
+  @override
+  String get vsRemovedService => 'خدمة اتحذفت';
+
+  @override
+  String get vsLiveLocal => 'النص وقت الكلام متاح على الموبايل بس. غيّر طريقة التفريغ عشان تجرّبه.';
+
+  @override
+  String vsRemoteAutoHint(String service) {
+    return 'التسجيلات الجديدة هتتبعت لـ«$service» بعد الحفظ، وممكن تاخد شوية وقت.';
+  }
+
+  @override
+  String get vsOffline => 'مفيش اتصال بالخدمة. راجع النت وجرّب تاني.';
+
+  @override
+  String get vsKeyRejected => 'الخدمة رفضت المفتاح. راجعه في إعدادات الصوت.';
+
+  @override
+  String get vsRateLimited => 'وصلت لحد الاستخدام أو الرصيد خلص. راجع حسابك أو جرّب بعد شوية.';
+
+  @override
+  String get vsTooLarge => 'التسجيل كبير أو طويل على الخدمة دي. جرّب تسجيل أقصر أو خدمة تانية.';
+
+  @override
+  String get vsServiceError => 'الخدمة عندها مشكلة دلوقتي. جرّب بعد شوية.';
+
+  @override
+  String get vsUnexpected => 'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.';
+
+  @override
+  String get vsTimeout => 'الخدمة اتأخرت في الرد. راجع الاتصال وجرّب تاني.';
+
+  @override
+  String get vsNeedsConsent => 'وافق على إرسال التسجيلات من إعدادات الصوت الأول.';
+
+  @override
+  String get vsRegion => 'المنطقة';
+
+  @override
+  String get vsSingapore => 'دولي (سنغافورة)';
+
+  @override
+  String get vsBeijing => 'الصين (بكين)';
+
+  @override
+  String get vsOpenAiKeyHint => 'هات المفتاح والعنوان والنموذج من مزوّد الخدمة، زي OpenAI أو Groq أو SiliconFlow.';
+
+  @override
+  String get vsGeminiKeyHint => 'هات المفتاح من Google AI Studio.';
+
+  @override
+  String get vsElevenKeyHint => 'هات المفتاح من إعدادات حسابك في ElevenLabs.';
+
+  @override
+  String get vsQwenKeyHint =>
+      'هات مفتاح لنفس المنطقة من Alibaba Cloud Model Studio. تقدر تستخدم عنوان مساحة العمل كمان.';
+
+  @override
+  String get vsGemini => 'Google Gemini';
+
+  @override
+  String get vsElevenLabs => 'ElevenLabs';
+
+  @override
+  String get vsQwen => 'Qwen ASR';
+
+  @override
+  String get vsRemoteTiming => 'الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.';
 }

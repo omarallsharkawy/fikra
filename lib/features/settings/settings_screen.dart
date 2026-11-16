@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/format.dart';
 import '../../core/widgets/fikra_widgets.dart';
 
 /// Appearance, local data and what this build is.
@@ -44,6 +45,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(appThemeProvider).value ?? AppTheme.system;
     final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
+    final services = ref.watch(transcriptionServicesStateProvider);
     final c = context.colors;
     final t = context.text;
 
@@ -98,7 +100,23 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Icon(Icons.phone_android_rounded, size: 20, color: c.accentLight),
                       const SizedBox(width: 12),
-                      Expanded(child: Text(context.l10n.dataStaysLocal, style: t.caption)),
+                      Expanded(
+                        child: Text(
+                          services.hasError
+                              ? context.l10n.vsLoadError
+                              : !services.hasValue
+                              ? context.l10n.vtWait
+                              : services.requireValue.selected == 'local'
+                              ? context.l10n.dataStaysLocal
+                              : context.l10n.vsRemoteData(
+                                  Fmt.isolate(
+                                    services.requireValue.selectedService?.name ?? context.l10n.vsRemovedService,
+                                  ),
+                                ),
+                          key: const ValueKey('settings-data-location'),
+                          style: t.caption,
+                        ),
+                      ),
                     ],
                   ),
                 ),

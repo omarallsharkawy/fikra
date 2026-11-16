@@ -1,6 +1,10 @@
 import 'dart:io';
 
 import 'fake_transcription_engine.dart';
+import 'fake_external_transcription.dart';
+
+import 'package:fikra/data/transcription/remote_transport.dart';
+import 'package:fikra/data/transcription/service_keys.dart';
 
 import 'package:fikra/data/processing/transcription_engine.dart';
 import 'package:fikra/data/processing/transcription_keep_alive.dart';
@@ -65,6 +69,9 @@ void fikraTest(
   Future<void> Function(String path)? pauseAudio,
   VoiceTextBackend? voiceTextBackend,
   TranscriptionEngine? transcriptionEngine,
+  TranscriptionTransport? transcriptionTransport,
+  ServiceKeyStore? serviceKeys,
+  bool selectedEngineFactory = false,
   TranscriptionKeepAlive? keepAlive,
   TranscriptionNotificationPermission? notificationPermission,
 }) {
@@ -85,8 +92,17 @@ void fikraTest(
         child: ProviderScope(
           overrides: [
             databaseProvider.overrideWithValue(db),
+            serviceKeysProvider.overrideWithValue(serviceKeys ?? MemoryServiceKeys()),
+            transcriptionTransportProvider.overrideWithValue(transcriptionTransport ?? FakeTranscriptionTransport()),
+            // Even selector tests cannot fall through to native Whisper.
+            localTranscriptionEngineProvider.overrideWithValue(
+              () async => transcriptionEngine ?? FakeTranscriptionEngine(),
+            ),
             // No test, including startup recovery, may load a real model.
-            transcriptionEngineProvider.overrideWithValue(() async => transcriptionEngine ?? FakeTranscriptionEngine()),
+            if (!selectedEngineFactory)
+              transcriptionEngineProvider.overrideWithValue(
+                () async => transcriptionEngine ?? FakeTranscriptionEngine(),
+              ),
             // No test touches the foreground-service or permission channels.
             transcriptionKeepAliveProvider.overrideWithValue(keepAlive ?? FakeTranscriptionKeepAlive()),
             transcriptionNotificationPermissionProvider.overrideWithValue(

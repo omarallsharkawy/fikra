@@ -17,6 +17,8 @@ final voiceTextControllerProvider = Provider.autoDispose<VoiceTextController>((r
     ref.watch(voiceTextBackendProvider),
     settings: ref.watch(voiceTextSettingsProvider),
     whisperLock: ref.watch(whisperLockProvider),
+    services: ref.watch(transcriptionServicesProvider),
+    externalEngineFactory: ref.watch(transcriptionEngineProvider),
     claimMicrophone: () => activity.claim(owner),
     releaseMicrophone: () => activity.release(owner),
   );

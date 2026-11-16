@@ -28,6 +28,7 @@ extension VoiceTextCapture on VoiceTextController {
 
   Future<void> start({bool live = false}) {
     if (!idle) return Future.value();
+    if (live && isRemote) return Future.value();
     if (live) {
       _liveLease = _claimWhisper();
       if (_liveLease == null) return Future.value();

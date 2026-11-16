@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
 import '../../core/widgets/voice_player.dart';
 import '../../data/settings_repository.dart';
+import '../../data/processing/transcription_engine.dart';
+import '../../data/transcription/service_config.dart';
+import '../../data/transcription/services_repository.dart';
+import 'whisper_metrics.dart';
 import '../../data/processing/whisper_lock.dart';
 import '../shared/inline_recorder.dart';
 import 'voice_text_backend.dart';
@@ -11,6 +16,7 @@ import 'whisper_live_engine.dart';
 import 'voice_text_preferences.dart';
 
 part 'voice_text_capture.dart';
+part 'voice_text_remote.dart';
 
 enum VoiceTextPhase { loading, idle, downloading, starting, recording, stopping, transcribing, live }
 
@@ -21,8 +27,30 @@ class VoiceTextController extends ChangeNotifier {
     required this.claimMicrophone,
     required this.releaseMicrophone,
     WhisperLock? whisperLock,
+    this.services,
+    this.externalEngineFactory,
   }) : choices = VoiceTextPreferences(settings),
-       whisperLock = whisperLock ?? appWhisperLock;
+       whisperLock = whisperLock ?? appWhisperLock {
+    _servicesSubscription = services?.watch().listen(
+      (state) {
+        selectedEngine = state.selected;
+        remoteService = state.selectedService;
+        _notify();
+      },
+      onError: (Object error) {
+        issue = VoiceTextIssue.unknown;
+        _notify();
+      },
+    );
+  }
+  final TranscriptionServices? services;
+  final TranscriptionEngineFactory? externalEngineFactory;
+  StreamSubscription<TranscriptionServicesState>? _servicesSubscription;
+  String selectedEngine = 'local';
+  TranscriptionService? remoteService;
+  TranscriptionFailureReason? remoteFailure;
+  bool get isRemote => selectedEngine != 'local';
+  bool get canTranscribe => isRemote || downloaded;
   final VoiceTextPreferences choices;
   final WhisperLock whisperLock;
   WhisperLease? _liveLease;
@@ -116,6 +144,15 @@ class VoiceTextController extends ChangeNotifier {
   }
 
   Future<void> _refresh() async {
+    final state = await services?.read();
+    if (state != null) {
+      if (selectedEngine != state.selected && idle) {
+        issue = null;
+        remoteFailure = null;
+      }
+      selectedEngine = state.selected;
+      remoteService = state.selectedService;
+    }
     autoTranscribe = await choices.settings.readAutoTranscribe();
     final wasInstalled = downloaded;
     final inventory = await backend.load();
@@ -133,12 +170,14 @@ class VoiceTextController extends ChangeNotifier {
   Future<void> _perform(VoiceTextPhase next, Future<void> Function() action) {
     phase = next;
     issue = null;
+    remoteFailure = null;
     _notify();
     return _pending = () async {
       try {
         await action();
       } catch (e) {
         if (e is VoiceTextRunFailure) _addRun(e.run);
+        if (e is TranscriptionFailure) remoteFailure = e.reason;
         issue = voiceTextIssue(e);
       } finally {
         if (phase != VoiceTextPhase.recording && phase != VoiceTextPhase.live) phase = VoiceTextPhase.idle;
@@ -225,18 +264,31 @@ class VoiceTextController extends ChangeNotifier {
     }
   }
 
-  Future<void> transcribe() async {
-    if (!idle || selected == null || !downloaded) return;
-    final lease = _claimWhisper();
-    if (lease == null) return;
-    try {
-      await _perform(VoiceTextPhase.transcribing, () async {
+  Future<void> transcribe() {
+    if (!idle || selected == null || !canTranscribe) return Future.value();
+    // Retain the existing synchronous local claim, before playback/native I/O.
+    final initialLease = isRemote ? null : _claimWhisper();
+    if (!isRemote && initialLease == null) return Future.value();
+    return _perform(VoiceTextPhase.transcribing, () async {
+      try {
         await voicePlaybackCoordinator.stop();
-        _addRun(await backend.transcribe(model, selected!, language, threads));
-      });
-    } finally {
-      lease.release();
-    }
+        final state = await services?.read();
+        if (state != null && state.selected != 'local') {
+          initialLease?.release();
+          await _runRemote(selected!, state.selectedService);
+          return;
+        }
+        final lease = initialLease ?? _claimWhisper();
+        if (lease == null) return;
+        try {
+          _addRun(await backend.transcribe(model, selected!, language, threads));
+        } finally {
+          lease.release();
+        }
+      } finally {
+        initialLease?.release();
+      }
+    });
   }
 
   @override
@@ -247,6 +299,7 @@ class VoiceTextController extends ChangeNotifier {
     unawaited(() async {
       try {
         await _pending;
+        await _servicesSubscription?.cancel();
         await _amplitude?.cancel();
         await _partials?.cancel();
         await backend.dispose();

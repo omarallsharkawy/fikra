@@ -105,7 +105,7 @@ Files and ordering:
 
 ## Voice preferences (phase 1)
 
-The existing key/value settings table also stores voice_text_model (modelName) and voice_text_language (ar/en/auto). Reads return a nullable pair so the feature can choose an installed-model fallback; writes use insertOnConflictUpdate. Speech language is independent of app language, and invalid values are rejected. Wipe retains both keys alongside theme/language; only current_project is removed. Phase 2 adds schema v7 and optional saved-recording transcription; external engines remain unimplemented. Tests cover reopening, overwrites, validation and wipe retention in test/settings_test.dart; feature tests use a matching in-memory VoiceTextSettings fake.
+The existing key/value settings table also stores voice_text_model (modelName) and voice_text_language (ar/en/auto). Reads return a nullable pair so the feature can choose an installed-model fallback; writes use insertOnConflictUpdate. Speech language is independent of app language, and invalid values are rejected. Wipe retains both keys alongside theme/language; only current_project is removed. Phase 2 adds schema v7 and optional saved-recording transcription; phase 3 adds user-consented external engines. Tests cover reopening, overwrites, validation and wipe retention in test/settings_test.dart; feature tests use a matching in-memory VoiceTextSettings fake.
 
 ## Saved recording transcription (phase 2)
 
@@ -114,3 +114,7 @@ VoiceTextSettings also exposes readAutoTranscribe/setAutoTranscribe, using voice
 TranscriptionQueue in processing owns attachment state and atomically appends transcript text, as text the user wrote, to freshly read Notes.originalText and, when the note has an edit, to Notes.editedText, so displayText holds it once and restoreOriginal keeps it. extractedText is untouched. transcriptNoteText remembers what is already represented in the note body across multiple different redos; deleting an attachment does not erase text the user may have edited. Notes.status becomes processing in the same success transaction so the normal AI pass also survives a killed wake-up.
 
 A nullable transcriptionOrder allocated transactionally preserves FIFO on launch recovery. transcriptionAttempts (NOT NULL, default 0) counts runs started since the last manual request; replacing attachments on edit preserves it. save wake-ups take only new copied/requested paths; ordinary enqueue ignores done attachments unless redo is explicit.
+
+## External transcription services (phase 3)
+
+transcription/ owns TranscriptionServices/LocalTranscriptionServices, typed non-secret config, ServiceKeyStore/SecureServiceKeys, request builders, the fakeable HttpClient transport and RemoteTranscriptionEngine. See transcription/EGM.md for API docs, limits, timeout and consent contracts. No new database schema is required. LocalSettingsRepository accepts an optional TranscriptionServices boundary and wipes service keys/config/selection before deleting ordinary data. Theme, language, model and auto preferences retain their existing wipe behavior. Credential failure prevents a successful wipe and leaves the service manifest discoverable for retry. Notes and attachment repositories never receive keys or provider request bodies.

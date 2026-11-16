@@ -55,34 +55,35 @@ class VoiceTextTesting extends StatelessWidget {
             ),
           ),
         ),
-        IgnorePointer(
-          ignoring: !c.idle,
-          child: ExcludeSemantics(
-            excluding: !c.idle,
-            child: SheetOption(
-              key: const ValueKey('vt-advanced'),
-              label: l.vtThreads('${c.threads}'),
-              icon: Icons.tune_rounded,
-              onTap: () => showFikraSheet<void>(
-                context,
-                title: l.vtAdvanced,
-                builder: (sheet) => Column(
-                  children: [
-                    for (final threads in [2, 4, 6])
-                      VoiceTextChoice(
-                        label: l.vtThreads('$threads'),
-                        selected: c.threads == threads,
-                        onTap: () {
-                          c.chooseThreads(threads);
-                          Navigator.pop(sheet);
-                        },
-                      ),
-                  ],
+        if (!c.isRemote)
+          IgnorePointer(
+            ignoring: !c.idle,
+            child: ExcludeSemantics(
+              excluding: !c.idle,
+              child: SheetOption(
+                key: const ValueKey('vt-advanced'),
+                label: l.vtThreads('${c.threads}'),
+                icon: Icons.tune_rounded,
+                onTap: () => showFikraSheet<void>(
+                  context,
+                  title: l.vtAdvanced,
+                  builder: (sheet) => Column(
+                    children: [
+                      for (final threads in [2, 4, 6])
+                        VoiceTextChoice(
+                          label: l.vtThreads('$threads'),
+                          selected: c.threads == threads,
+                          onTap: () {
+                            c.chooseThreads(threads);
+                            Navigator.pop(sheet);
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
         FikraButton.secondary(
           key: const ValueKey('vt-refresh-models'),
           label: l.vtRefreshModels,
@@ -90,7 +91,7 @@ class VoiceTextTesting extends StatelessWidget {
           icon: Icons.refresh_rounded,
           onPressed: c.idle ? () => act(c.initialize) : null,
         ),
-        if (fullModels.isNotEmpty) ...[
+        if (!c.isRemote && fullModels.isNotEmpty) ...[
           section(l.vtFullModels),
           VoiceTextModels(controller: c, act: act, models: fullModels, showStorage: false),
         ],
@@ -101,7 +102,7 @@ class VoiceTextTesting extends StatelessWidget {
           growForText: true,
           label: c.phase == VoiceTextPhase.transcribing ? l.vtWorking : l.vtTranscribe,
           icon: Icons.text_fields_rounded,
-          onPressed: c.idle && c.selected != null && c.downloaded ? () => act(c.transcribe) : null,
+          onPressed: c.idle && c.selected != null && c.canTranscribe ? () => act(c.transcribe) : null,
         ),
         const SizedBox(height: FikraSpace.s8),
         Text(l.vtCannotCancel, style: context.text.caption),

@@ -1058,10 +1058,10 @@ abstract class AppLocalizations {
   /// **'تمسح كل البيانات؟'**
   String get eraseAllTitle;
 
-  /// No description provided for @eraseAllBody.
+  /// Local wipe confirmation. Includes user-added transcription configuration and secure API keys; does not delete copies held by providers.
   ///
   /// In ar, this message translates to:
-  /// **'كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هتعرف ترجّعها.'**
+  /// **'كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات وخدمات التفريغ ومفاتيحها هتتمسح من الموبايل، ومش هتعرف ترجّعها.'**
   String get eraseAllBody;
 
   /// No description provided for @eraseAllConfirm.
@@ -2659,6 +2659,330 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.'**
   String get vtEngineBusy;
+
+  /// External transcription: Engine. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'طريقة التفريغ'**
+  String get vsEngine;
+
+  /// External transcription: Local. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'على الموبايل'**
+  String get vsLocal;
+
+  /// External transcription: Add. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضيف خدمة'**
+  String get vsAdd;
+
+  /// External transcription: Edit. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدّل الخدمة'**
+  String get vsEdit;
+
+  /// External transcription: Type. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع الخدمة'**
+  String get vsType;
+
+  /// External transcription: OpenAi. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'خدمة متوافقة مع OpenAI'**
+  String get vsOpenAi;
+
+  /// External transcription: Name. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم الخدمة'**
+  String get vsName;
+
+  /// External transcription: BaseUrl. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'عنوان الخدمة'**
+  String get vsBaseUrl;
+
+  /// External transcription: Model. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم النموذج'**
+  String get vsModel;
+
+  /// External transcription: Key. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتاح الخدمة'**
+  String get vsKey;
+
+  /// External transcription: KeyKeep. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيبه فاضي لو هتستخدم نفس المفتاح.'**
+  String get vsKeyKeep;
+
+  /// External transcription: LanguageHint. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'لغة متوقعة (اختياري)'**
+  String get vsLanguageHint;
+
+  /// External transcription: LanguageHelp. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'كود زي ar أو en. سيبه فاضي عشان تستخدم لغة الكلام المختارة.'**
+  String get vsLanguageHelp;
+
+  /// External transcription: ShowKey. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض المفتاح'**
+  String get vsShowKey;
+
+  /// External transcription: HideKey. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'اخفي المفتاح'**
+  String get vsHideKey;
+
+  /// External transcription: Test. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'جرّب الاتصال'**
+  String get vsTest;
+
+  /// External transcription: Testing. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيجرّب الاتصال…'**
+  String get vsTesting;
+
+  /// External transcription: Connected. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاتصال شغّال.'**
+  String get vsConnected;
+
+  /// External transcription: DeleteTitle. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحذف الخدمة دي؟'**
+  String get vsDeleteTitle;
+
+  /// External transcription: DeleteBody. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'المفتاح هيتمسح، والتفريغ هيرجع للموبايل لو الخدمة دي متختارة.'**
+  String get vsDeleteBody;
+
+  /// External transcription: ConsentTitle. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبعت التسجيلات لـ«{service}»؟'**
+  String vsConsentTitle(String service);
+
+  /// External transcription: ConsentBody. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيلات هتتبعت لـ«{service}» على {host} عشان يفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.'**
+  String vsConsentBody(String service, String host);
+
+  /// External transcription: ConsentConfirm. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'موافق'**
+  String get vsConsentConfirm;
+
+  /// External transcription: HttpWarning. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاتصال ده من غير تشفير. استخدمه على شبكة محلية موثوقة بس.'**
+  String get vsHttpWarning;
+
+  /// External transcription: InvalidUrl. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.'**
+  String get vsInvalidUrl;
+
+  /// External transcription: InvalidFields. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع الاسم والنموذج وكود اللغة.'**
+  String get vsInvalidFields;
+
+  /// External transcription: KeyRequired. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب مفتاح للخدمة دي الأول.'**
+  String get vsKeyRequired;
+
+  /// External transcription: SaveError. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نحفظ الخدمة. جرّب تاني.'**
+  String get vsSaveError;
+
+  /// External transcription: LoadError. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نقرا إعدادات الخدمات. جرّب تاني.'**
+  String get vsLoadError;
+
+  /// External transcription: RemoteIntro. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيلات هتتبعت لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.'**
+  String vsRemoteIntro(String service);
+
+  /// External transcription: RemoteData. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت لـ«{service}» عشان تتفرّغ.'**
+  String vsRemoteData(String service);
+
+  /// External transcription: Via. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'عن طريق {service}'**
+  String vsVia(String service);
+
+  /// External transcription: RemovedService. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'خدمة اتحذفت'**
+  String get vsRemovedService;
+
+  /// External transcription: LiveLocal. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'النص وقت الكلام متاح على الموبايل بس. غيّر طريقة التفريغ عشان تجرّبه.'**
+  String get vsLiveLocal;
+
+  /// External transcription: RemoteAutoHint. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيلات الجديدة هتتبعت لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.'**
+  String vsRemoteAutoHint(String service);
+
+  /// External transcription: Offline. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش اتصال بالخدمة. راجع النت وجرّب تاني.'**
+  String get vsOffline;
+
+  /// External transcription: KeyRejected. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمة رفضت المفتاح. راجعه في إعدادات الصوت.'**
+  String get vsKeyRejected;
+
+  /// External transcription: RateLimited. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصلت لحد الاستخدام أو الرصيد خلص. راجع حسابك أو جرّب بعد شوية.'**
+  String get vsRateLimited;
+
+  /// External transcription: TooLarge. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيل كبير أو طويل على الخدمة دي. جرّب تسجيل أقصر أو خدمة تانية.'**
+  String get vsTooLarge;
+
+  /// External transcription: ServiceError. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمة عندها مشكلة دلوقتي. جرّب بعد شوية.'**
+  String get vsServiceError;
+
+  /// External transcription: Unexpected. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.'**
+  String get vsUnexpected;
+
+  /// External transcription: Timeout. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمة اتأخرت في الرد. راجع الاتصال وجرّب تاني.'**
+  String get vsTimeout;
+
+  /// External transcription: NeedsConsent. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'وافق على إرسال التسجيلات من إعدادات الصوت الأول.'**
+  String get vsNeedsConsent;
+
+  /// External transcription: Region. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنطقة'**
+  String get vsRegion;
+
+  /// External transcription: Singapore. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'دولي (سنغافورة)'**
+  String get vsSingapore;
+
+  /// External transcription: Beijing. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصين (بكين)'**
+  String get vsBeijing;
+
+  /// External transcription: OpenAiKeyHint. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'هات المفتاح والعنوان والنموذج من مزوّد الخدمة، زي OpenAI أو Groq أو SiliconFlow.'**
+  String get vsOpenAiKeyHint;
+
+  /// External transcription: GeminiKeyHint. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'هات المفتاح من Google AI Studio.'**
+  String get vsGeminiKeyHint;
+
+  /// External transcription: ElevenKeyHint. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'هات المفتاح من إعدادات حسابك في ElevenLabs.'**
+  String get vsElevenKeyHint;
+
+  /// External transcription: QwenKeyHint. User-added services only; no upload before consent.
+  ///
+  /// In ar, this message translates to:
+  /// **'هات مفتاح لنفس المنطقة من Alibaba Cloud Model Studio. تقدر تستخدم عنوان مساحة العمل كمان.'**
+  String get vsQwenKeyHint;
+
+  /// External transcription service type; product name, identical in both languages.
+  ///
+  /// In ar, this message translates to:
+  /// **'Google Gemini'**
+  String get vsGemini;
+
+  /// External transcription service type; product name, identical in both languages.
+  ///
+  /// In ar, this message translates to:
+  /// **'ElevenLabs'**
+  String get vsElevenLabs;
+
+  /// External transcription service type; product name, identical in both languages.
+  ///
+  /// In ar, this message translates to:
+  /// **'Qwen ASR'**
+  String get vsQwen;
+
+  /// Technical trial measurements for a remote engine: network/service wall time and whole-process RSS.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.'**
+  String get vsRemoteTiming;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

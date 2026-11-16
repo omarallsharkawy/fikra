@@ -11,6 +11,14 @@ enum TranscriptionFailureReason {
 
   /// The app closed during this recording's transcription twice in a row.
   interruptedTwice,
+  offline,
+  keyRejected,
+  rateLimited,
+  tooLarge,
+  serviceError,
+  unexpectedResponse,
+  remoteTimeout,
+  consentRequired,
   other,
 }
 

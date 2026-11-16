@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import '../../data/processing/transcription_engine.dart';
 import 'whisper_models.dart';
 import 'whisper_recordings.dart';
 
@@ -8,6 +9,7 @@ export 'whisper_models.dart';
 export 'whisper_recordings.dart' show SpikeRecording;
 
 enum VoiceTextIssue {
+  remote,
   busy,
   network,
   interrupted,
@@ -27,6 +29,7 @@ class VoiceTextFailure implements Exception {
 }
 
 VoiceTextIssue voiceTextIssue(Object error) {
+  if (error is TranscriptionFailure) return VoiceTextIssue.remote;
   if (error is VoiceTextFailure) return error.issue;
   if (error is SocketException || error is HttpException) return VoiceTextIssue.network;
   if (error is TimeoutException) return VoiceTextIssue.interrupted;

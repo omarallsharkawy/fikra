@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import 'voice_text_auto.dart';
+import 'voice_text_engines.dart';
+import 'service_copy.dart';
+import '../../core/format.dart';
 import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -37,7 +40,12 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _errorQueued = false;
       if (!mounted || c.issue == null) return;
-      showToast(context, issueMessage(context.l10n, c.issue!));
+      showToast(
+        context,
+        c.remoteFailure != null
+            ? transcriptionFailureMessage(context.l10n, c.remoteFailure!)
+            : issueMessage(context.l10n, c.issue!),
+      );
       if (!_scroll.hasClients) return;
       // The banner can be unbuilt while a lazy list shows a bottom action.
       // Return to the banner, rather than relying on a null GlobalKey context.
@@ -147,7 +155,16 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                         child: FikraBadge(kind: BadgeKind.demo, label: l.vtExperimental),
                       ),
                       const SizedBox(height: FikraSpace.s12),
-                      Text(l.vtIntro, style: context.text.body),
+                      Text(
+                        c.phase == VoiceTextPhase.loading
+                            ? l.vtWait
+                            : c.isRemote
+                            ? l.vsRemoteIntro(Fmt.isolate(c.remoteService?.name ?? l.vsRemovedService))
+                            : l.vtIntro,
+                        style: context.text.body,
+                      ),
+                      section(l.vsEngine),
+                      VoiceTextEngines(enabled: c.idle),
                       if (c.issue != null)
                         Padding(
                           padding: const EdgeInsets.only(top: FikraSpace.s12),
@@ -156,7 +173,9 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                             child: StatusBanner(
                               key: const ValueKey('vt-error'),
                               kind: BannerKind.error,
-                              message: issueMessage(l, c.issue!),
+                              message: c.remoteFailure != null
+                                  ? transcriptionFailureMessage(l, c.remoteFailure!)
+                                  : issueMessage(l, c.issue!),
                             ),
                           ),
                         ),
@@ -167,12 +186,13 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                           padding: const EdgeInsets.only(top: FikraSpace.s12),
                           child: VoiceTextProgress(label: l.vtWait),
                         ),
-                      section(l.vtModel),
-                      VoiceTextModels(
-                        controller: c,
-                        act: act,
-                        models: c.models.where((m) => m.quantized || m == c.model).toList(),
-                      ),
+                      if (!c.isRemote) section(l.vtModel),
+                      if (!c.isRemote)
+                        VoiceTextModels(
+                          controller: c,
+                          act: act,
+                          models: c.models.where((m) => m.quantized || m == c.model).toList(),
+                        ),
                       section(l.vtLanguage),
                       IgnorePointer(
                         ignoring: !c.idle,
@@ -199,13 +219,13 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                         key: const ValueKey('vt-try-transcribe'),
                         growForText: true,
                         label: c.phase == VoiceTextPhase.transcribing ? l.vtWorking : l.vtTranscribe,
-                        onPressed: c.idle && c.selected != null && c.downloaded ? () => act(c.transcribe) : null,
+                        onPressed: c.idle && c.selected != null && c.canTranscribe ? () => act(c.transcribe) : null,
                       ),
                       const SizedBox(height: FikraSpace.s8),
                       Text(l.vtCannotCancel, style: context.text.caption),
                       if (c.phase == VoiceTextPhase.transcribing) VoiceTextProgress(label: l.vtWorking),
                       section(l.vtLive),
-                      Text(l.vtLiveHint, style: context.text.caption),
+                      Text(c.isRemote ? l.vsLiveLocal : l.vtLiveHint, style: context.text.caption),
                       if (live) ...[
                         InlineRecorder(
                           levels: List.of(c.levels),
@@ -227,7 +247,7 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                         icon: live ? Icons.stop_rounded : Icons.mic_none_rounded,
                         onPressed: live
                             ? () => act(c.stop)
-                            : c.idle && c.downloaded
+                            : c.idle && !c.isRemote && c.downloaded
                             ? () => act(() => c.start(live: true))
                             : null,
                       ),

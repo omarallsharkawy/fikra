@@ -22,6 +22,11 @@ import '../data/processing/whisper_lock.dart';
 import '../features/voice_text/local_transcription_engine.dart';
 import '../data/repositories.dart';
 import '../data/settings_repository.dart';
+import '../data/transcription/service_keys.dart';
+import '../data/transcription/services_repository.dart';
+import '../data/transcription/remote_engine.dart';
+import '../data/transcription/remote_transport.dart';
+import '../features/voice_text/remote_audio_converter.dart';
 import '../l10n/app_localizations.dart';
 import 'app_config.dart';
 
@@ -44,7 +49,11 @@ final linksRepoProvider = Provider<LinksRepository>((ref) => LocalLinksRepositor
 final groupsRepoProvider = Provider<GroupsRepository>((ref) => LocalGroupsRepository(ref.watch(databaseProvider)));
 final chatRepoProvider = Provider<ChatRepository>((ref) => LocalChatRepository(ref.watch(databaseProvider)));
 final settingsRepoProvider = Provider<SettingsRepository>(
-  (ref) => LocalSettingsRepository(ref.watch(databaseProvider), ref.watch(attachmentStoreProvider)),
+  (ref) => LocalSettingsRepository(
+    ref.watch(databaseProvider),
+    ref.watch(attachmentStoreProvider),
+    transcriptionServices: ref.watch(transcriptionServicesProvider),
+  ),
 );
 
 /// Saved appearance; `system` until the user picks one (and while loading).
@@ -101,11 +110,42 @@ final noteProcessorProvider = Provider<NoteProcessor>(
   (ref) => NoteProcessor(ref.watch(notesRepoProvider), ref.watch(aiServiceProvider)),
 );
 
-/// Local transcription is available in both modes, independently of AI/backend.
-final whisperLockProvider = Provider<WhisperLock>((ref) => appWhisperLock);
-final transcriptionEngineProvider = Provider<TranscriptionEngineFactory>(
+final serviceKeysProvider = Provider<ServiceKeyStore>((ref) => const SecureServiceKeys());
+final transcriptionServicesProvider = Provider<TranscriptionServices>(
+  (ref) => LocalTranscriptionServices(ref.watch(databaseProvider), ref.watch(serviceKeysProvider)),
+);
+final transcriptionServicesStateProvider = StreamProvider<TranscriptionServicesState>(
+  (ref) => ref.watch(transcriptionServicesProvider).watch(),
+);
+final transcriptionTransportProvider = Provider<TranscriptionTransport>((ref) => const HttpTranscriptionTransport());
+final remoteAudioConverterProvider = Provider<AudioFormatFallback>((ref) => convertRemoteAudio);
+
+final localTranscriptionEngineProvider = Provider<TranscriptionEngineFactory>(
   (ref) =>
       () => LocalTranscriptionEngine.prepare(ref.read(settingsRepoProvider), ref.read(whisperLockProvider)),
+);
+
+/// Resolve the choice at job start. Neither the queue nor keep-alive cares
+/// whether inference uses the phone or a user-authorized external service.
+final whisperLockProvider = Provider<WhisperLock>((ref) => appWhisperLock);
+final transcriptionEngineProvider = Provider<TranscriptionEngineFactory>(
+  (ref) => () async {
+    final services = ref.read(transcriptionServicesProvider);
+    final state = await services.read();
+    if (state.selected == 'local') {
+      return ref.read(localTranscriptionEngineProvider)();
+    }
+    final service = state.selectedService;
+    if (service == null || !service.consented) {
+      throw const TranscriptionFailure(TranscriptionFailureReason.consentRequired);
+    }
+    return RemoteTranscriptionEngine(
+      service,
+      (id) => services.readKey(id, forService: service),
+      ref.read(transcriptionTransportProvider),
+      convert: ref.read(remoteAudioConverterProvider),
+    );
+  },
 );
 
 /// Android foreground service while the queue has work; tests use a fake.

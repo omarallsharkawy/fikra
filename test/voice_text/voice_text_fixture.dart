@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/app_harness.dart';
+import '../support/fake_external_transcription.dart';
 import 'fake_voice_text_backend.dart';
 
 Future<void> pumpVoiceText(
@@ -20,10 +21,13 @@ Future<void> pumpVoiceText(
   double width = 390,
   double scale = 1,
   FakeVoiceTextSettings? settings,
+  MemoryTranscriptionServices? services,
 }) async {
   addTearDown(() {
     unawaited(backend.dispose());
   });
+  final external = services ?? MemoryTranscriptionServices();
+  addTearDown(external.dispose);
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = Size(width, 844);
   await tester.pumpWidget(
@@ -33,6 +37,7 @@ Future<void> pumpVoiceText(
         key: ObjectKey(backend),
         overrides: [
           voiceTextBackendProvider.overrideWithValue(backend),
+          transcriptionServicesProvider.overrideWithValue(external),
           voiceTextSettingsProvider.overrideWithValue(settings ?? FakeVoiceTextSettings()),
           appThemeProvider.overrideWith((_) => Stream.value(AppTheme.dark)),
           appLanguageProvider.overrideWith((_) => Stream.value(AppLanguage.en)),

@@ -5,6 +5,9 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../l10n/localizations.dart';
 import 'voice_text_backend.dart';
+import 'transcription_source.dart';
+import '../../data/processing/transcription_engine.dart';
+import 'service_copy.dart';
 import 'voice_text_copy.dart';
 import 'whisper_metrics.dart';
 
@@ -37,10 +40,22 @@ class VoiceTextResult extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (run['engine_id'] case final String engine)
+            TranscriptionSource(engineId: engine, serviceName: run['service_name'] as String?),
           if (model != null)
             Text(modelLabel(l, model, bytes: (run['model_bytes'] as num?)?.toInt()), style: context.text.section),
           const SizedBox(height: FikraSpace.s8),
-          if (run['error'] != null) StatusBanner(kind: BannerKind.error, message: issueMessage(l, issue)),
+          if (run['error'] != null)
+            StatusBanner(
+              kind: BannerKind.error,
+              message: run['failure_reason'] != null
+                  ? transcriptionFailureMessage(
+                      l,
+                      TranscriptionFailureReason.values.asNameMap()[run['failure_reason']] ??
+                          TranscriptionFailureReason.other,
+                    )
+                  : issueMessage(l, issue),
+            ),
           if (text.isNotEmpty || run['error'] == null)
             SelectableText(
               text.isEmpty ? l.vtNoSpeech : text,
@@ -66,7 +81,14 @@ class VoiceTextResult extends StatelessWidget {
             number(l.vtEstimate(_ms(l, 'transcription_wall_ms_estimate'))),
           if (run['model_load_ms'] != null) number(l.vtModelLoad(_ms(l, 'model_load_ms'))),
           const SizedBox(height: FikraSpace.s8),
-          Text(live ? l.vtLiveTiming : l.vtTimingHint, style: context.text.caption),
+          Text(
+            live
+                ? l.vtLiveTiming
+                : run['mode'] == 'remote'
+                ? l.vsRemoteTiming
+                : l.vtTimingHint,
+            style: context.text.caption,
+          ),
         ],
       ),
     );
@@ -89,6 +111,8 @@ class VoiceTextTranscript extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if ((run['engine_id'] ?? (run['model'] == null ? null : 'local:${run['model']}')) case final String engine)
+            TranscriptionSource(engineId: engine, serviceName: run['service_name'] as String?),
           if (text.isNotEmpty || run['error'] == null)
             SelectableText(
               text.isEmpty ? context.l10n.vtNoSpeech : text,

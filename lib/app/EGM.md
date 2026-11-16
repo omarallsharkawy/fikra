@@ -230,3 +230,9 @@ Local data services include `linksRepoProvider` (`Provider<LinksRepository>`) an
 ## Saved recording transcription (phase 2)
 
 whisperLockProvider supplies the process-wide lease; transcriptionEngineProvider is a replaceable asynchronous factory (local in both modes); transcriptionQueueProvider is app-scoped and schedules normal NoteProcessor.retry after success. Startup resumes attachment queued/running work next to NoteProcessor.resumeInterrupted before orphan maintenance. autoTranscribeProvider exposes the off-by-default persisted setting to draft chips and is invalidated after the voice-settings control changes it. transcriptionKeepAliveProvider supplies the queue's keep-alive (`AndroidTranscriptionKeepAlive`, notification text from `lookupAppLocalizations(appLocaleProvider)` at each call) and transcriptionNotificationPermissionProvider the Android 13+ notification permission (`PluginNotificationPermission`, permission_handler); tests override both. No connected AI/backend support or external transcription provider is added.
+
+## User-added transcription (phase 3)
+
+serviceKeysProvider, transcriptionServicesProvider/stateProvider, transcriptionTransportProvider and remoteAudioConverterProvider inject storage/HTTP/native conversion. localTranscriptionEngineProvider retains the local adapter; transcriptionEngineProvider reads the current selection and valid destination consent at job start, choosing local or a remote adapter. Credential reads are bound to the captured service origin/type. Queue construction, foreground service and launch crash-loop recovery are unchanged.
+
+/settings/voice-text/service/new and /settings/voice-text/service/:id push ServiceFormScreen via _pushed/MaterialPage. Secrets are absent from routes, Riverpod service snapshots and SQLite. Tests override the transport/secure store and local factory, including selection tests, so native Whisper or real HTTP cannot run.

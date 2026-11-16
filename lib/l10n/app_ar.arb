@@ -161,7 +161,7 @@
   "sources": "المصادر",
   "sourceA11y": "مصدر {index}: {title}",
   "eraseAllTitle": "تمسح كل البيانات؟",
-  "eraseAllBody": "كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات هتتمسح من الموبايل، ومش هتعرف ترجّعها.",
+  "eraseAllBody": "كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات وخدمات التفريغ ومفاتيحها هتتمسح من الموبايل، ومش هتعرف ترجّعها.",
   "eraseAllConfirm": "امسح كل حاجة",
   "eraseAllDone": "كل حاجة اتمسحت",
   "eraseAllPartial": "البيانات اتمسحت، بس فيه ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني.",
@@ -1178,5 +1178,257 @@
   "vtEngineBusy": "في تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.",
   "@vtEngineBusy": {
     "description": "The test screen cannot start another model while the app-wide Whisper lease is held."
+  },
+  "vsEngine": "طريقة التفريغ",
+  "@vsEngine": {
+    "description": "External transcription: Engine. User-added services only; no upload before consent."
+  },
+  "vsLocal": "على الموبايل",
+  "@vsLocal": {
+    "description": "External transcription: Local. User-added services only; no upload before consent."
+  },
+  "vsAdd": "ضيف خدمة",
+  "@vsAdd": {
+    "description": "External transcription: Add. User-added services only; no upload before consent."
+  },
+  "vsEdit": "عدّل الخدمة",
+  "@vsEdit": {
+    "description": "External transcription: Edit. User-added services only; no upload before consent."
+  },
+  "vsType": "نوع الخدمة",
+  "@vsType": {
+    "description": "External transcription: Type. User-added services only; no upload before consent."
+  },
+  "vsOpenAi": "خدمة متوافقة مع OpenAI",
+  "@vsOpenAi": {
+    "description": "External transcription: OpenAi. User-added services only; no upload before consent."
+  },
+  "vsName": "اسم الخدمة",
+  "@vsName": {
+    "description": "External transcription: Name. User-added services only; no upload before consent."
+  },
+  "vsBaseUrl": "عنوان الخدمة",
+  "@vsBaseUrl": {
+    "description": "External transcription: BaseUrl. User-added services only; no upload before consent."
+  },
+  "vsModel": "اسم النموذج",
+  "@vsModel": {
+    "description": "External transcription: Model. User-added services only; no upload before consent."
+  },
+  "vsKey": "مفتاح الخدمة",
+  "@vsKey": {
+    "description": "External transcription: Key. User-added services only; no upload before consent."
+  },
+  "vsKeyKeep": "سيبه فاضي لو هتستخدم نفس المفتاح.",
+  "@vsKeyKeep": {
+    "description": "External transcription: KeyKeep. User-added services only; no upload before consent."
+  },
+  "vsLanguageHint": "لغة متوقعة (اختياري)",
+  "@vsLanguageHint": {
+    "description": "External transcription: LanguageHint. User-added services only; no upload before consent."
+  },
+  "vsLanguageHelp": "كود زي ar أو en. سيبه فاضي عشان تستخدم لغة الكلام المختارة.",
+  "@vsLanguageHelp": {
+    "description": "External transcription: LanguageHelp. User-added services only; no upload before consent."
+  },
+  "vsShowKey": "اعرض المفتاح",
+  "@vsShowKey": {
+    "description": "External transcription: ShowKey. User-added services only; no upload before consent."
+  },
+  "vsHideKey": "اخفي المفتاح",
+  "@vsHideKey": {
+    "description": "External transcription: HideKey. User-added services only; no upload before consent."
+  },
+  "vsTest": "جرّب الاتصال",
+  "@vsTest": {
+    "description": "External transcription: Test. User-added services only; no upload before consent."
+  },
+  "vsTesting": "بيجرّب الاتصال…",
+  "@vsTesting": {
+    "description": "External transcription: Testing. User-added services only; no upload before consent."
+  },
+  "vsConnected": "الاتصال شغّال.",
+  "@vsConnected": {
+    "description": "External transcription: Connected. User-added services only; no upload before consent."
+  },
+  "vsDeleteTitle": "تحذف الخدمة دي؟",
+  "@vsDeleteTitle": {
+    "description": "External transcription: DeleteTitle. User-added services only; no upload before consent."
+  },
+  "vsDeleteBody": "المفتاح هيتمسح، والتفريغ هيرجع للموبايل لو الخدمة دي متختارة.",
+  "@vsDeleteBody": {
+    "description": "External transcription: DeleteBody. User-added services only; no upload before consent."
+  },
+  "vsConsentTitle": "تبعت التسجيلات لـ«{service}»؟",
+  "@vsConsentTitle": {
+    "description": "External transcription: ConsentTitle. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentBody": "التسجيلات هتتبعت لـ«{service}» على {host} عشان يفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.",
+  "@vsConsentBody": {
+    "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentConfirm": "موافق",
+  "@vsConsentConfirm": {
+    "description": "External transcription: ConsentConfirm. User-added services only; no upload before consent."
+  },
+  "vsHttpWarning": "الاتصال ده من غير تشفير. استخدمه على شبكة محلية موثوقة بس.",
+  "@vsHttpWarning": {
+    "description": "External transcription: HttpWarning. User-added services only; no upload before consent."
+  },
+  "vsInvalidUrl": "اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.",
+  "@vsInvalidUrl": {
+    "description": "External transcription: InvalidUrl. User-added services only; no upload before consent."
+  },
+  "vsInvalidFields": "راجع الاسم والنموذج وكود اللغة.",
+  "@vsInvalidFields": {
+    "description": "External transcription: InvalidFields. User-added services only; no upload before consent."
+  },
+  "vsKeyRequired": "اكتب مفتاح للخدمة دي الأول.",
+  "@vsKeyRequired": {
+    "description": "External transcription: KeyRequired. User-added services only; no upload before consent."
+  },
+  "vsSaveError": "مقدرناش نحفظ الخدمة. جرّب تاني.",
+  "@vsSaveError": {
+    "description": "External transcription: SaveError. User-added services only; no upload before consent."
+  },
+  "vsLoadError": "مقدرناش نقرا إعدادات الخدمات. جرّب تاني.",
+  "@vsLoadError": {
+    "description": "External transcription: LoadError. User-added services only; no upload before consent."
+  },
+  "vsRemoteIntro": "التسجيلات هتتبعت لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.",
+  "@vsRemoteIntro": {
+    "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemoteData": "ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت لـ«{service}» عشان تتفرّغ.",
+  "@vsRemoteData": {
+    "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsVia": "عن طريق {service}",
+  "@vsVia": {
+    "description": "External transcription: Via. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemovedService": "خدمة اتحذفت",
+  "@vsRemovedService": {
+    "description": "External transcription: RemovedService. User-added services only; no upload before consent."
+  },
+  "vsLiveLocal": "النص وقت الكلام متاح على الموبايل بس. غيّر طريقة التفريغ عشان تجرّبه.",
+  "@vsLiveLocal": {
+    "description": "External transcription: LiveLocal. User-added services only; no upload before consent."
+  },
+  "vsRemoteAutoHint": "التسجيلات الجديدة هتتبعت لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.",
+  "@vsRemoteAutoHint": {
+    "description": "External transcription: RemoteAutoHint. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsOffline": "مفيش اتصال بالخدمة. راجع النت وجرّب تاني.",
+  "@vsOffline": {
+    "description": "External transcription: Offline. User-added services only; no upload before consent."
+  },
+  "vsKeyRejected": "الخدمة رفضت المفتاح. راجعه في إعدادات الصوت.",
+  "@vsKeyRejected": {
+    "description": "External transcription: KeyRejected. User-added services only; no upload before consent."
+  },
+  "vsRateLimited": "وصلت لحد الاستخدام أو الرصيد خلص. راجع حسابك أو جرّب بعد شوية.",
+  "@vsRateLimited": {
+    "description": "External transcription: RateLimited. User-added services only; no upload before consent."
+  },
+  "vsTooLarge": "التسجيل كبير أو طويل على الخدمة دي. جرّب تسجيل أقصر أو خدمة تانية.",
+  "@vsTooLarge": {
+    "description": "External transcription: TooLarge. User-added services only; no upload before consent."
+  },
+  "vsServiceError": "الخدمة عندها مشكلة دلوقتي. جرّب بعد شوية.",
+  "@vsServiceError": {
+    "description": "External transcription: ServiceError. User-added services only; no upload before consent."
+  },
+  "vsUnexpected": "الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.",
+  "@vsUnexpected": {
+    "description": "External transcription: Unexpected. User-added services only; no upload before consent."
+  },
+  "vsTimeout": "الخدمة اتأخرت في الرد. راجع الاتصال وجرّب تاني.",
+  "@vsTimeout": {
+    "description": "External transcription: Timeout. User-added services only; no upload before consent."
+  },
+  "vsNeedsConsent": "وافق على إرسال التسجيلات من إعدادات الصوت الأول.",
+  "@vsNeedsConsent": {
+    "description": "External transcription: NeedsConsent. User-added services only; no upload before consent."
+  },
+  "vsRegion": "المنطقة",
+  "@vsRegion": {
+    "description": "External transcription: Region. User-added services only; no upload before consent."
+  },
+  "vsSingapore": "دولي (سنغافورة)",
+  "@vsSingapore": {
+    "description": "External transcription: Singapore. User-added services only; no upload before consent."
+  },
+  "vsBeijing": "الصين (بكين)",
+  "@vsBeijing": {
+    "description": "External transcription: Beijing. User-added services only; no upload before consent."
+  },
+  "vsOpenAiKeyHint": "هات المفتاح والعنوان والنموذج من مزوّد الخدمة، زي OpenAI أو Groq أو SiliconFlow.",
+  "@vsOpenAiKeyHint": {
+    "description": "External transcription: OpenAiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGeminiKeyHint": "هات المفتاح من Google AI Studio.",
+  "@vsGeminiKeyHint": {
+    "description": "External transcription: GeminiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsElevenKeyHint": "هات المفتاح من إعدادات حسابك في ElevenLabs.",
+  "@vsElevenKeyHint": {
+    "description": "External transcription: ElevenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsQwenKeyHint": "هات مفتاح لنفس المنطقة من Alibaba Cloud Model Studio. تقدر تستخدم عنوان مساحة العمل كمان.",
+  "@vsQwenKeyHint": {
+    "description": "External transcription: QwenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGemini": "Google Gemini",
+  "@vsGemini": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsElevenLabs": "ElevenLabs",
+  "@vsElevenLabs": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsQwen": "Qwen ASR",
+  "@vsQwen": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "@eraseAllBody": {
+    "description": "Local wipe confirmation. Includes user-added transcription configuration and secure API keys; does not delete copies held by providers."
+  },
+  "vsRemoteTiming": "الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.",
+  "@vsRemoteTiming": {
+    "description": "Technical trial measurements for a remote engine: network/service wall time and whole-process RSS."
   }
 }

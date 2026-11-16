@@ -533,7 +533,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eraseAllBody =>
-      'All projects, notes, recordings, files and chats will be erased from this phone. You can\'t undo this.';
+      'All projects, notes, recordings, files, chats, transcription services and their keys will be erased from this phone. You can\'t undo this.';
 
   @override
   String get eraseAllConfirm => 'Erase everything';
@@ -1570,4 +1570,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vtEngineBusy => 'A recording is being transcribed. Wait for it to finish and try again.';
+
+  @override
+  String get vsEngine => 'Transcription engine';
+
+  @override
+  String get vsLocal => 'On your phone';
+
+  @override
+  String get vsAdd => 'Add a service';
+
+  @override
+  String get vsEdit => 'Edit service';
+
+  @override
+  String get vsType => 'Service type';
+
+  @override
+  String get vsOpenAi => 'OpenAI-compatible';
+
+  @override
+  String get vsName => 'Service name';
+
+  @override
+  String get vsBaseUrl => 'Base URL';
+
+  @override
+  String get vsModel => 'Model ID';
+
+  @override
+  String get vsKey => 'API key';
+
+  @override
+  String get vsKeyKeep => 'Leave blank to keep the saved key.';
+
+  @override
+  String get vsLanguageHint => 'Language hint (optional)';
+
+  @override
+  String get vsLanguageHelp => 'Use a code such as ar or en. Leave blank to use the selected speech language.';
+
+  @override
+  String get vsShowKey => 'Show key';
+
+  @override
+  String get vsHideKey => 'Hide key';
+
+  @override
+  String get vsTest => 'Test connection';
+
+  @override
+  String get vsTesting => 'Testing connection…';
+
+  @override
+  String get vsConnected => 'Connection works.';
+
+  @override
+  String get vsDeleteTitle => 'Delete this service?';
+
+  @override
+  String get vsDeleteBody => 'Its key will be deleted. If selected, transcription switches back to your phone.';
+
+  @override
+  String vsConsentTitle(String service) {
+    return 'Send recordings to $service?';
+  }
+
+  @override
+  String vsConsentBody(String service, String host) {
+    return 'Recordings will be sent to $service at $host for transcription. The service may retain them and charge for use. Nothing is sent until you agree.';
+  }
+
+  @override
+  String get vsConsentConfirm => 'Agree';
+
+  @override
+  String get vsHttpWarning => 'This connection is unencrypted. Use it only on a trusted local network.';
+
+  @override
+  String get vsInvalidUrl => 'Use HTTPS, or HTTP to localhost or a private LAN address.';
+
+  @override
+  String get vsInvalidFields => 'Check the name, model and language code.';
+
+  @override
+  String get vsKeyRequired => 'Enter a key for this service first.';
+
+  @override
+  String get vsSaveError => 'We couldn’t save the service. Try again.';
+
+  @override
+  String get vsLoadError => 'We couldn’t read the service settings. Try again.';
+
+  @override
+  String vsRemoteIntro(String service) {
+    return 'Recordings are sent to $service for transcription. The service may charge for use.';
+  }
+
+  @override
+  String vsRemoteData(String service) {
+    return 'Your notes and files are stored on your phone. Recordings are sent to $service for transcription.';
+  }
+
+  @override
+  String vsVia(String service) {
+    return 'Via $service';
+  }
+
+  @override
+  String get vsRemovedService => 'Deleted service';
+
+  @override
+  String get vsLiveLocal => 'Live text is available only on your phone. Switch engines to try it.';
+
+  @override
+  String vsRemoteAutoHint(String service) {
+    return 'New recordings are sent to $service after saving and can take a while.';
+  }
+
+  @override
+  String get vsOffline => 'We couldn’t reach the service. Check your connection and try again.';
+
+  @override
+  String get vsKeyRejected => 'The service rejected the key. Check it in voice settings.';
+
+  @override
+  String get vsRateLimited => 'You reached a usage limit or ran out of credit. Check your account or try later.';
+
+  @override
+  String get vsTooLarge =>
+      'The recording is too large or long for this service. Try a shorter recording or another service.';
+
+  @override
+  String get vsServiceError => 'The service is having a problem. Try later.';
+
+  @override
+  String get vsUnexpected => 'The service returned an unexpected response. Check its URL and model in voice settings.';
+
+  @override
+  String get vsTimeout => 'The service took too long to respond. Check your connection and try again.';
+
+  @override
+  String get vsNeedsConsent => 'Agree to send recordings in voice settings first.';
+
+  @override
+  String get vsRegion => 'Region';
+
+  @override
+  String get vsSingapore => 'International (Singapore)';
+
+  @override
+  String get vsBeijing => 'Mainland China (Beijing)';
+
+  @override
+  String get vsOpenAiKeyHint => 'Get the key, URL and model from your provider, such as OpenAI, Groq or SiliconFlow.';
+
+  @override
+  String get vsGeminiKeyHint => 'Get a key from Google AI Studio.';
+
+  @override
+  String get vsElevenKeyHint => 'Get a key from your ElevenLabs account settings.';
+
+  @override
+  String get vsQwenKeyHint =>
+      'Get a key for the same region from Alibaba Cloud Model Studio. Workspace URLs are also supported.';
+
+  @override
+  String get vsGemini => 'Google Gemini';
+
+  @override
+  String get vsElevenLabs => 'ElevenLabs';
+
+  @override
+  String get vsQwen => 'Qwen ASR';
+
+  @override
+  String get vsRemoteTiming => 'Time includes uploading and waiting for the service. Memory is for the whole app.';
 }
