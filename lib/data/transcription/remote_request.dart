@@ -25,9 +25,22 @@ class AudioUpload {
 }
 
 class RemoteRequest {
-  RemoteRequest.json(this.uri, this.headers, this.json) : fields = const {}, audio = null, boundary = '';
-  RemoteRequest.multipart(this.uri, this.headers, this.fields, this.audio, this.boundary) : json = null;
+  RemoteRequest.json(this.uri, this.headers, this.json)
+    : fields = const {},
+      audio = null,
+      boundary = '',
+      method = 'POST';
+  RemoteRequest.multipart(this.uri, this.headers, this.fields, this.audio, this.boundary)
+    : json = null,
+      method = 'POST';
+  RemoteRequest.get(this.uri, this.headers)
+    : fields = const {},
+      audio = null,
+      boundary = '',
+      json = null,
+      method = 'GET';
   final Uri uri;
+  final String method;
   final Map<String, String> headers, fields;
   final Map<String, Object?>? json;
   final AudioUpload? audio;
@@ -42,10 +55,13 @@ class RemoteRequest {
   );
   List<int> _suffix() => utf8.encode('\r\n--$boundary--\r\n');
   List<int>? _encoded;
-  int get contentLength => json != null
+  int get contentLength => method == 'GET'
+      ? 0
+      : json != null
       ? (_encoded ??= utf8.encode(jsonEncode(json))).length
       : _prefix().length + audio!.length + _suffix().length;
   Stream<List<int>> body() async* {
+    if (method == 'GET') return;
     if (json != null) {
       yield _encoded ??= utf8.encode(jsonEncode(json));
     } else {

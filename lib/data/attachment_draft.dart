@@ -16,10 +16,19 @@ class AttachmentDraft {
     this.name,
     this.bytes,
     this.durationMs,
-    this.transcribe = false,
-  });
-  factory AttachmentDraft.saved(NoteAttachment a) =>
-      AttachmentDraft(id: a.id, kind: a.kind, path: a.path, name: a.name, bytes: a.bytes, durationMs: a.durationMs);
+    bool transcribe = false,
+    TranscriptionPolicy? policy,
+    this.policyChanged = false,
+  }) : policy = policy ?? (transcribe ? TranscriptionPolicy.afterSave : null);
+  factory AttachmentDraft.saved(NoteAttachment a) => AttachmentDraft(
+    id: a.id,
+    kind: a.kind,
+    path: a.path,
+    name: a.name,
+    bytes: a.bytes,
+    durationMs: a.durationMs,
+    policy: a.transcriptionPolicy,
+  );
   final String? id;
   final AttachmentKind kind;
   final String path;
@@ -28,7 +37,21 @@ class AttachmentDraft {
   final int? durationMs;
 
   /// Only new saved voice rows can request work; never run on a temp file.
-  final bool transcribe;
+  final TranscriptionPolicy? policy;
+  final bool policyChanged;
+
+  /// A save request, distinct from a saved recording's durable policy.
+  bool get transcribe => id == null && kind == AttachmentKind.voice && policy == TranscriptionPolicy.afterSave;
+  AttachmentDraft withPolicy(TranscriptionPolicy value) => AttachmentDraft(
+    id: id,
+    kind: kind,
+    path: path,
+    name: name,
+    bytes: bytes,
+    durationMs: durationMs,
+    policy: value,
+    policyChanged: true,
+  );
 
   /// Raw display name; localized file-only auto-titles belong to presentation.
   String get fileTitle => name ?? p.basename(path);
@@ -63,7 +86,8 @@ Future<T> saveAttachmentDraft<T>(
           name: a.name,
           bytes: a.bytes,
           durationMs: a.durationMs,
-          transcribe: a.transcribe,
+          policy: a.policy,
+          policyChanged: a.policyChanged,
         ),
       );
     }
@@ -84,7 +108,10 @@ List<AttachmentDraft> transcriptionDraft(List<AttachmentDraft> draft, {required 
       name: a.name,
       bytes: a.bytes,
       durationMs: a.durationMs,
-      transcribe: a.id == null && a.kind == AttachmentKind.voice && (automatic || a.transcribe),
+      policyChanged: a.policyChanged,
+      policy: a.kind != AttachmentKind.voice
+          ? TranscriptionPolicy.off
+          : a.policy ?? (a.id == null && automatic ? TranscriptionPolicy.afterSave : TranscriptionPolicy.off),
     ),
 ];
 

@@ -96,7 +96,13 @@ void main() {
             expect(tester.state(find.byKey(const ValueKey('/new-one.m4a'))), same(playerState));
             expect((editor.draftFiles as List<AttachmentDraft>).where((a) => a.transcribe).length, 1);
           } else {
-            expect(find.byKey(toggle), findsNothing);
+            await revealTranscription(
+              tester,
+              editing ? EditNoteScreen : AddScreen,
+              const ValueKey('transcribe-off-/new-one.m4a'),
+            );
+            await tester.tap(find.byKey(const ValueKey('transcribe-off-/new-one.m4a')));
+            await tester.pump();
           }
           final container = ProviderScope.containerOf(tester.element(find.byType(type)));
           final save = editing ? find.text(l.saveChanges) : find.byKey(const ValueKey('add-save'));
@@ -106,7 +112,7 @@ void main() {
           await tester.pump(const Duration(milliseconds: 600));
           await tester.tap(save);
           await pumpUntil(tester, find.text(editing ? l.changesSaved : l.noteSaved));
-          final expected = automatic ? 2 : 1;
+          const expected = 1;
           // Wait for fake inference and durable attachment writes.
           await pumpFuture(tester, () async {
             while (engine.paths.length < expected) {
@@ -114,7 +120,7 @@ void main() {
             }
           });
           await pumpFuture(tester, () => container.read(transcriptionQueueProvider).drained);
-          expect(engine.paths, contains('/saved/new-one.m4a'));
+          expect(engine.paths, automatic ? isNot(contains('/saved/new-one.m4a')) : contains('/saved/new-one.m4a'));
           expect(engine.paths, isNot(contains('/existing.m4a')));
           expect(engine.paths, automatic ? contains('/saved/new-two.m4a') : isNot(contains('/saved/new-two.m4a')));
         },
@@ -200,6 +206,9 @@ void main() {
       NoteAttachmentsCompanion(
         transcript: const Value('words'),
         transcriptNoteText: const Value('words'),
+        transcriptCorrection: const Value('corrected words'),
+        correctedAt: Value(DateTime(2026, 11, 16)),
+        transcriptRevision: const Value(6),
         transcriptionStatus: const Value(TranscriptionStatus.done),
         transcriptionEngine: const Value('local:model'),
         transcribedAt: Value(DateTime(2026, 11, 14)),
@@ -207,6 +216,7 @@ void main() {
     );
     final before = await notes.watchAttachments(note.id).first;
     expect(before[0].transcriptionStatus, TranscriptionStatus.done);
+    expect(before[0].transcriptionPolicy, TranscriptionPolicy.afterSave);
     await notes.edit(
       note.id,
       title: '',
@@ -214,5 +224,9 @@ void main() {
       attachments: transcriptionDraft(before.map(AttachmentDraft.saved).toList(), automatic: true),
     );
     expect(await notes.watchAttachments(note.id).first, before);
+    expect(
+      newTranscriptionPaths(transcriptionDraft(before.map(AttachmentDraft.saved).toList(), automatic: true)),
+      isEmpty,
+    );
   });
 }

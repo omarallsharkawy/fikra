@@ -119,3 +119,11 @@ external_transcription_widgets_test covers consent/cancel before any send, one-t
 
 Flutter tests and screenshot rendering must run outside the socket-restricted
 sandbox. The profile harness is explicitly reserved for the owner's phone run.
+
+## Voice 2a
+
+model_catalog_discovery_test covers the explicit builder allowlist/defaults, old/new config shapes, GET auth/pagination/parsing, bounded known-ID availability, redaction, consent and cache retention. transcript_corrections_test covers exact paragraph boundaries, both bodies, missing/changed/duplicate copies, explicit append, conflict, restore, redo, off recovery/manual requests and attachment-field retention including stale policy snapshots. Migration tests now validate every earlier path against v8, plus populated/partial/repeated v7 upgrades.
+
+voice2_widgets_test covers model groups/warnings/custom persistence, discovery consent and cached availability without audio, editor save/append/cancel and adopting a newer machine result. Existing save tests prove visible choices with auto on/off on Add/Edit and off overriding auto, plus saved metadata/policy retention. Recovery fixtures explicitly seed none/done/failed/off rows so status and policy filters are independently tested. Repository analysis fixtures make a manual transcription request; both transcript-only and typed+edited notes retain their unchanged analyze-once assertions. No real network/key store/Whisper is used.
+
+The real runner previously reported 589 passing and five failures in the partial work. Fixes mark explicit policy changes, separate new save requests from durable saved policy, and correct outdated recovery/manual-request fixtures; assertions for analysis and retention are preserved/strengthened. Flutter tests remain unavailable in this sandbox; the orchestrator must rerun them.

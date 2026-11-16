@@ -244,3 +244,7 @@ The existing nav remains in bottomNavigationBar, with an opaque surface,
 selected fill and accent labels. Layout, spring and branch state are unchanged.
 App builder adds GlassDebugOverlay only when its opt-in provider is enabled
 in debug/profile; release excludes it. No phase-2 navigation or Add control.
+
+## Voice 2a
+
+modelDiscoveryProvider supplies fakeable transport plus database-backed availability cache. transcriptCorrectionsProvider supplies the transactional correction service and normal processor callback. The pushed /note/:id/transcript/:attachmentId route uses _pushed/MaterialPage and looks up the live attachment within its note; no correction/audio is placed in navigation arguments.

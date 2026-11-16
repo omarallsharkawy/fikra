@@ -119,3 +119,11 @@ hairline; all old gradient Glass call sites are migrated. Selected controls
 use opaque selected fill with accent labels; primary/send actions use the
 single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 Graph-related note rows, rewrite/read cards, transcripts, edit areas and the PDF page counter remain solid reading surfaces.
+
+## Voice 2a transcript editing
+
+VoiceTranscript displays correction ?? machine transcript, retaining machine source attribution. TranscriptActions opens /note/:id/transcript/:attachmentId (MaterialPage), and shows New transcript available / Use it after a redo while correction is retained. Use calls the same revision-checked correction service with null correction; unsafe note copies show an append action.
+
+TranscriptEditorScreen initializes its long text controller once, automatically chooses RTL/LTR, and uses existing Glass/TextField/buttons/banners/sheets. Save/cancel and the existing save/discard/stay guard protect unsaved edits. Restore machine transcript clears correction. A conflict keeps the draft with a plain reopen message. A safe save that changes the note schedules the processor without awaiting it (an identical body is not rewritten); unsafe replacement keeps the editor and offers explicit append. Machine text is never overwritten by editing. All actions use stable keys; no text/correction is logged.
+
+Edit's policy-only changes participate in the dirty guard. Attachment replacement preserves current transcription metadata from the live row; only explicit chip changes override live policy. Reopening an old recording never auto-queues it.

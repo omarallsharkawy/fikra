@@ -863,8 +863,8 @@
   "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك",
   "vtTitle": "تحويل الصوت لنص",
   "vtExperimental": "تجريبي",
-  "vtIntro": "النموذج بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.",
-  "vtModel": "النموذج",
+  "vtIntro": "الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.",
+  "vtModel": "الموديل",
   "vtTiny": "صغير جدًا",
   "vtBase": "متوسط",
   "vtSmall": "أدق",
@@ -882,7 +882,7 @@
   "vtFullHint": "نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.",
   "vtOnPhone": "موجود على الموبايل",
   "vtNotDownloaded": "لسه متحمّلش",
-  "vtUsed": "المساحة المستخدمة للنماذج: {size}",
+  "vtUsed": "المساحة المستخدمة للموديلات: {size}",
   "@vtUsed": {
     "placeholders": {
       "size": {
@@ -898,7 +898,7 @@
       }
     }
   },
-  "vtDownloadTitle": "تحمّل النموذج؟",
+  "vtDownloadTitle": "تحمّل الموديل؟",
   "vtDownloadBody": "حجمه {size}. الأفضل تحمّله على واي فاي. التحميل مرة واحدة.",
   "@vtDownloadBody": {
     "placeholders": {
@@ -908,8 +908,8 @@
     }
   },
   "vtDownloadConfirm": "حمّل",
-  "vtDeleteModel": "احذف النموذج",
-  "vtDeleteModelTitle": "تحذف النموذج؟",
+  "vtDeleteModel": "احذف الموديل",
+  "vtDeleteModelTitle": "تحذف الموديل؟",
   "vtDeleteModelBody": "هتحتاج تحمّله تاني عشان تستخدمه.",
   "vtProgress": "{received} من {total}",
   "@vtProgress": {
@@ -1033,7 +1033,7 @@
       }
     }
   },
-  "vtEstimate": "التفريغ وتشغيل النموذج، تقريبًا: {ms}",
+  "vtEstimate": "التفريغ وتشغيل الموديل، تقريبًا: {ms}",
   "@vtEstimate": {
     "placeholders": {
       "ms": {
@@ -1041,7 +1041,7 @@
       }
     }
   },
-  "vtModelLoad": "بداية النموذج: {ms}",
+  "vtModelLoad": "بداية الموديل: {ms}",
   "@vtModelLoad": {
     "placeholders": {
       "ms": {
@@ -1049,18 +1049,18 @@
       }
     }
   },
-  "vtTimingHint": "الوقت بيشمل تجهيز الصوت وتشغيل النموذج. الذاكرة للتطبيق كله.",
+  "vtTimingHint": "الوقت بيشمل تجهيز الصوت وتشغيل الموديل. الذاكرة للتطبيق كله.",
   "vtHistory": "تجارب قبل كده",
   "vtLive": "نص وإنت بتتكلم",
   "vtLiveHint": "النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.",
   "vtLiveStart": "ابدأ التفريغ المباشر",
   "vtLiveTiming": "وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.",
-  "vtNetworkError": "مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.",
+  "vtNetworkError": "مقدرناش نحمّل الموديل. اتأكد من الإنترنت وجرّب تاني.",
   "vtInterruptedError": "التحميل أو التسجيل اتقطع. جرّب تاني.",
-  "vtCorruptError": "مقدرناش نقرا النموذج. احذفه وحمّله تاني.",
+  "vtCorruptError": "مقدرناش نقرا الموديل. احذفه وحمّله تاني.",
   "vtEmptyError": "التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.",
-  "vtTranscriptionError": "مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو نموذج أصغر.",
-  "vtStorageError": "المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.",
+  "vtTranscriptionError": "مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو موديل أصغر.",
+  "vtStorageError": "المساحة مش كفاية. فضّي مساحة أو اختار موديل أصغر وجرّب تاني.",
   "vtStorageCheckError": "مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.",
   "vtCancelled": "التحميل اتلغى. تقدر تبدأه تاني.",
   "vtEgyptian": "مصري · تجريبي",
@@ -1077,11 +1077,11 @@
   "@vtTesting": {
     "description": "Collapsed section containing measurement controls and technical run history."
   },
-  "vtFullModels": "نماذج من غير ضغط",
+  "vtFullModels": "موديلات من غير ضغط",
   "@vtFullModels": {
     "description": "Measurement-only full-size model variants."
   },
-  "vtRefreshModels": "حدّث قائمة النماذج",
+  "vtRefreshModels": "حدّث ليستة الموديلات",
   "@vtRefreshModels": {
     "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
   },
@@ -1093,7 +1093,7 @@
   "@trAutomaticHint": {
     "description": "Hint below automatic recording transcription setting."
   },
-  "trDownloadFirst": "حمّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.",
+  "trDownloadFirst": "حمّل موديل الأول عشان تفرّغ التسجيلات على الموبايل.",
   "@trDownloadFirst": {
     "description": "Explains why automatic transcription cannot be enabled without an installed model."
   },
@@ -1130,7 +1130,7 @@
       }
     }
   },
-  "trModelMissing": "النموذج مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.",
+  "trModelMissing": "الموديل مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.",
   "@trModelMissing": {
     "description": "Transcription failure with an action opening voice settings."
   },
@@ -1146,7 +1146,7 @@
   "@trFailed": {
     "description": "Other saved recording transcription failure."
   },
-  "trInterruptedTwice": "التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.",
+  "trInterruptedTwice": "التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار موديل أصغر.",
   "@trInterruptedTwice": {
     "description": "Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically."
   },
@@ -1215,7 +1215,7 @@
   "@vsBaseUrl": {
     "description": "External transcription: BaseUrl. User-added services only; no upload before consent."
   },
-  "vsModel": "اسم النموذج",
+  "vsModel": "اسم الموديل",
   "@vsModel": {
     "description": "External transcription: Model. User-added services only; no upload before consent."
   },
@@ -1272,7 +1272,7 @@
       }
     }
   },
-  "vsConsentBody": "التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.",
+  "vsConsentBody": "التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تتفرّغ. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.",
   "@vsConsentBody": {
     "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1296,7 +1296,7 @@
   "@vsInvalidUrl": {
     "description": "External transcription: InvalidUrl. User-added services only; no upload before consent."
   },
-  "vsInvalidFields": "راجع الاسم والنموذج وكود اللغة.",
+  "vsInvalidFields": "راجع الاسم والموديل وكود اللغة.",
   "@vsInvalidFields": {
     "description": "External transcription: InvalidFields. User-added services only; no upload before consent."
   },
@@ -1312,7 +1312,7 @@
   "@vsLoadError": {
     "description": "External transcription: LoadError. User-added services only; no upload before consent."
   },
-  "vsRemoteIntro": "التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. الخدمة ممكن تحاسبك على الاستخدام.",
+  "vsRemoteIntro": "التسجيلات هتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.",
   "@vsRemoteIntro": {
     "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1321,7 +1321,7 @@
       }
     }
   },
-  "vsRemoteData": "ملاحظاتك وملفاتك محفوظة على الموبايل، بس التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.",
+  "vsRemoteData": "ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.",
   "@vsRemoteData": {
     "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
     "placeholders": {
@@ -1376,7 +1376,7 @@
   "@vsServiceError": {
     "description": "External transcription: ServiceError. User-added services only; no upload before consent."
   },
-  "vsUnexpected": "الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.",
+  "vsUnexpected": "الخدمة رجّعت رد مش مفهوم. راجع عنوانها والموديل في إعدادات الصوت.",
   "@vsUnexpected": {
     "description": "External transcription: Unexpected. User-added services only; no upload before consent."
   },
@@ -1400,7 +1400,7 @@
   "@vsBeijing": {
     "description": "External transcription: Beijing. User-added services only; no upload before consent."
   },
-  "vsOpenAiKeyHint": "هات المفتاح والعنوان والنموذج من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.",
+  "vsOpenAiKeyHint": "هات المفتاح والعنوان والموديل من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.",
   "@vsOpenAiKeyHint": {
     "description": "External transcription: OpenAiKeyHint. User-added services only; no upload before consent."
   },
@@ -1434,5 +1434,119 @@
   "vsRemoteTiming": "الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.",
   "@vsRemoteTiming": {
     "description": "Technical trial measurements for a remote engine: network/service wall time and whole-process RSS."
+  },
+  "v2Off": "من غير تفريغ",
+  "@v2Off": {
+    "description": "Per-recording off policy."
+  },
+  "v2Recommended": "مقترح",
+  "@v2Recommended": {
+    "description": "Recommended catalog group."
+  },
+  "v2Other": "موديلات تانية",
+  "@v2Other": {
+    "description": "Other supported models group."
+  },
+  "v2Legacy": "قديم",
+  "@v2Legacy": {
+    "description": "Legacy models group."
+  },
+  "v2Shutdown": "موديل قديم، وهيقف يوم {date}. اختار موديل مقترح لو تقدر.",
+  "@v2Shutdown": {
+    "description": "Known provider shutdown warning.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v2LegacyUnknown": "موديل قديم. لسه مفيش ميعاد هيقف فيه.",
+  "@v2LegacyUnknown": {
+    "description": "Legacy without a published shutdown date."
+  },
+  "v2Arabic": "بيدعم العربي. جرّبه على المصري والإنجليزي مع بعض.",
+  "@v2Arabic": {
+    "description": "Arabic suitability; no unmeasured quality claim."
+  },
+  "v2Generative": "بيفهم العربي، بس ممكن يعيد صياغة الكلام. راجع التفريغ.",
+  "@v2Generative": {
+    "description": "Generative model suitability caveat."
+  },
+  "v2Unsupported": "لسه مش مدعوم هنا",
+  "@v2Unsupported": {
+    "description": "Catalog entry requires a different API."
+  },
+  "v2Custom": "اكتب اسم موديل",
+  "@v2Custom": {
+    "description": "Collapsed custom model ID field."
+  },
+  "v2Refresh": "حدّث الليستة",
+  "@v2Refresh": {
+    "description": "Explicit model discovery action."
+  },
+  "v2Refreshing": "بيحدّث الليستة…",
+  "@v2Refreshing": {
+    "description": "Discovery working state."
+  },
+  "v2Available": "متاح في حسابك",
+  "@v2Available": {
+    "description": "Discovered catalog ID."
+  },
+  "v2Checked": "آخر مراجعة: {time}",
+  "@v2Checked": {
+    "description": "Discovery cache timestamp.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v2DiscoveryHint": "بيراجع الموديلات عند الخدمة برّه الموبايل، من غير ما يبعت صوت.",
+  "@v2DiscoveryHint": {
+    "description": "Discovery privacy explanation."
+  },
+  "v2DiscoveryQwen": "مراجعة الموديلات مش متاحة لـQwen هنا. استخدم الموديل المقترح أو اكتب اسم الموديل.",
+  "@v2DiscoveryQwen": {
+    "description": "Qwen discovery skipped without workspace context."
+  },
+  "v2EditTranscript": "عدّل التفريغ",
+  "@v2EditTranscript": {
+    "description": "Transcript correction action and editor title."
+  },
+  "v2RestoreTranscript": "رجّع التفريغ الأصلي",
+  "@v2RestoreTranscript": {
+    "description": "Clear correction without changing machine output."
+  },
+  "v2NewTranscript": "فيه تفريغ جديد",
+  "@v2NewTranscript": {
+    "description": "Redo completed while a correction exists."
+  },
+  "v2UseTranscript": "استخدمه",
+  "@v2UseTranscript": {
+    "description": "Adopt new machine output, clearing correction."
+  },
+  "v2CopyUnchanged": "التفريغ اتحفظ، بس نص الملاحظة متغيّرش عشان اتعدّل قبل كده.",
+  "@v2CopyUnchanged": {
+    "description": "Unsafe paragraph replacement outcome."
+  },
+  "v2AppendTranscript": "ضيفه للملاحظة",
+  "@v2AppendTranscript": {
+    "description": "Explicit append after an unsafe replacement."
+  },
+  "v2TranscriptConflict": "التفريغ اتغيّر وإنت بتعدّل. ارجع وافتحه تاني.",
+  "@v2TranscriptConflict": {
+    "description": "Optimistic revision conflict; draft retained."
+  },
+  "v2TranscriptFailed": "مقدرناش نحفظ التفريغ. جرّب تاني.",
+  "@v2TranscriptFailed": {
+    "description": "Correction save failure."
+  },
+  "v2TranscriptEmpty": "اكتب التفريغ الأول.",
+  "@v2TranscriptEmpty": {
+    "description": "Empty correction validation."
+  },
+  "v2TranscriptSaved": "التفريغ اتحفظ",
+  "@v2TranscriptSaved": {
+    "description": "Correction success feedback."
   }
 }

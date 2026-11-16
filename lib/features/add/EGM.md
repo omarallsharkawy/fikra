@@ -18,3 +18,7 @@ Reading content now uses opaque SolidSurface/surface or chip plus the line
 hairline; all old gradient Glass call sites are migrated. Selected controls
 use opaque selected fill with accent labels; primary/send actions use the
 single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+
+## Voice 2a
+
+Save resolves only unresolved new-recording defaults; an explicit off chip overrides global auto. New requested voice paths alone wake the queue after commit. Saved IDs never produce save requests. Capture UI always exposes the off/after-save choice with the shared chips; no capture format or lifecycle change is made.

@@ -1,3 +1,5 @@
+import 'transcript_actions.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -52,7 +54,7 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
     // A smaller model is one way out of repeated closing, so offer settings too.
     final reason = TranscriptionFailureReason.values.asNameMap()[failure] ?? TranscriptionFailureReason.other;
     final settings = failure != null;
-    final transcript = a.transcript;
+    final transcript = a.transcriptCorrection ?? a.transcript;
     final engine = a.transcriptionEngine;
     return SolidSurface(
       key: ValueKey('transcript-${a.id}'),
@@ -95,6 +97,7 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
               onPressed: () => setState(() => _expanded = !_expanded),
             ),
           ],
+          if (a.transcript != null) TranscriptActions(attachment: a),
           if (engine != null) ...[TranscriptionSource(key: ValueKey('transcript-engine-${a.id}'), engineId: engine)],
           if (a.transcriptionStatus == TranscriptionStatus.failed) ...[
             StatusBanner(kind: BannerKind.error, message: transcriptionFailureMessage(l, reason)),

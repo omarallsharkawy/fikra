@@ -40,3 +40,7 @@ solid reading surfaces. glass_tiers_test.dart adds ar/glass_tiers.png, a single
 using real fonts and the stationary review lens. Widget-host Skia may frost the
 package lens rather than refract; the profile phone overlay verifies Impeller.
 Run with the same screenshot command above; no image is claimed rendered here.
+
+## Voice 2a
+
+voice2_test.dart captures the catalog picker sheet, recording off/after-save chips, transcript editor and newer-machine-result state in AR/EN × dark/light, using existing real-router/DB fixtures and fake native/services. It never sends audio or performs discovery. Explicit keyed scroll helpers avoid first/last/at wrappers. Rendering/visual inspection require the orchestrator's socket-capable runner.

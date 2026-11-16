@@ -84,7 +84,7 @@ Phase 5b review: note_selection_actions.dart exports noteSelectionActions(contex
 
 ## Saved recording intent (phase 2)
 
-New voice previews (id == null) show an existing ChoiceTag, trAfterSave, when auto-transcription is off. Its selected state updates AttachmentDraft.transcribe without touching the temporary audio file. Saved attachment previews have no toggle; automatic mode makes the save policy select all new voice drafts. Capture/AAC settings, microphone ownership, five-minute limit and cleanup behavior are unchanged. Save paths consume the current persisted setting, so a loading chip cannot accidentally disable auto mode. All inference is deferred until copies and the note commit succeed.
+Voice previews show the existing off/after-save ChoiceTags in both auto modes. Policy changes never touch the audio file; only new recordings with afterSave produce save requests. Capture/AAC settings, microphone ownership, five-minute limit and cleanup behavior are unchanged. Save paths consume the current persisted setting, so a loading chip cannot accidentally disable auto mode. All inference is deferred until copies and the note commit succeed.
 
 Voice preview keys retain path/position identity when a new immutable draft is made by the transcription toggle, preserving player state/playback across that toggle.
 
@@ -101,3 +101,7 @@ single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 Stored group IDs remain 0–3, now calm muted hues (blue, sage, sand, gray) with their colour names; no data migration. Attachment/player fills are opaque chip. Suggested-link accept/reject controls are neutral chip.
 Selected group-marker check icons choose the higher-contrast body/canvas ink
 for their marker hue, rather than assuming every stored colour is dark.
+
+## Voice 2a explicit recording policy
+
+Every voice chip in Add/Edit shows off and after-save ChoiceTags, including when global auto is on. Stop snapshots the persisted auto preference into the new draft's policy; changing a chip is explicit and overrides that default. Saved rows show their stored policy and only an actual chip choice marks policyChanged; merely saving a stale editor preserves newer live policy/correction metadata. Chips keep path/position identity, existing playback and microphone/capture settings. No live option, new capture path or draft transcription is introduced.

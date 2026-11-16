@@ -1,3 +1,6 @@
+import '../data/transcription/model_discovery.dart';
+import '../data/processing/transcript_corrections.dart';
+
 // Dependency wiring. Implementations live in lib/data; this file only decides
 // which ones the app uses. Tests override [databaseProvider] (in-memory db) or
 // [aiServiceProvider] (fakes).
@@ -262,3 +265,14 @@ class RecordingActivity extends Notifier<bool> {
 }
 
 final recordingActiveProvider = NotifierProvider<RecordingActivity, bool>(RecordingActivity.new);
+
+final transcriptCorrectionsProvider = Provider<TranscriptCorrections>(
+  (ref) => TranscriptCorrections(
+    ref.watch(databaseProvider),
+    processNote: (id) => ref.read(noteProcessorProvider).retry(id),
+  ),
+);
+
+final modelDiscoveryProvider = Provider<ModelDiscovery>(
+  (ref) => ModelDiscovery(ref.watch(databaseProvider), ref.watch(transcriptionTransportProvider)),
+);

@@ -2105,13 +2105,13 @@ abstract class AppLocalizations {
   /// No description provided for @vtIntro.
   ///
   /// In ar, this message translates to:
-  /// **'النموذج بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.'**
+  /// **'الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.'**
   String get vtIntro;
 
   /// No description provided for @vtModel.
   ///
   /// In ar, this message translates to:
-  /// **'النموذج'**
+  /// **'الموديل'**
   String get vtModel;
 
   /// No description provided for @vtTiny.
@@ -2177,7 +2177,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtUsed.
   ///
   /// In ar, this message translates to:
-  /// **'المساحة المستخدمة للنماذج: {size}'**
+  /// **'المساحة المستخدمة للموديلات: {size}'**
   String vtUsed(String size);
 
   /// No description provided for @vtDownload.
@@ -2189,7 +2189,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtDownloadTitle.
   ///
   /// In ar, this message translates to:
-  /// **'تحمّل النموذج؟'**
+  /// **'تحمّل الموديل؟'**
   String get vtDownloadTitle;
 
   /// No description provided for @vtDownloadBody.
@@ -2207,13 +2207,13 @@ abstract class AppLocalizations {
   /// No description provided for @vtDeleteModel.
   ///
   /// In ar, this message translates to:
-  /// **'احذف النموذج'**
+  /// **'احذف الموديل'**
   String get vtDeleteModel;
 
   /// No description provided for @vtDeleteModelTitle.
   ///
   /// In ar, this message translates to:
-  /// **'تحذف النموذج؟'**
+  /// **'تحذف الموديل؟'**
   String get vtDeleteModelTitle;
 
   /// No description provided for @vtDeleteModelBody.
@@ -2393,19 +2393,19 @@ abstract class AppLocalizations {
   /// No description provided for @vtEstimate.
   ///
   /// In ar, this message translates to:
-  /// **'التفريغ وتشغيل النموذج، تقريبًا: {ms}'**
+  /// **'التفريغ وتشغيل الموديل، تقريبًا: {ms}'**
   String vtEstimate(String ms);
 
   /// No description provided for @vtModelLoad.
   ///
   /// In ar, this message translates to:
-  /// **'بداية النموذج: {ms}'**
+  /// **'بداية الموديل: {ms}'**
   String vtModelLoad(String ms);
 
   /// No description provided for @vtTimingHint.
   ///
   /// In ar, this message translates to:
-  /// **'الوقت بيشمل تجهيز الصوت وتشغيل النموذج. الذاكرة للتطبيق كله.'**
+  /// **'الوقت بيشمل تجهيز الصوت وتشغيل الموديل. الذاكرة للتطبيق كله.'**
   String get vtTimingHint;
 
   /// No description provided for @vtHistory.
@@ -2441,7 +2441,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtNetworkError.
   ///
   /// In ar, this message translates to:
-  /// **'مقدرناش نحمّل النموذج. اتأكد من الإنترنت وجرّب تاني.'**
+  /// **'مقدرناش نحمّل الموديل. اتأكد من الإنترنت وجرّب تاني.'**
   String get vtNetworkError;
 
   /// No description provided for @vtInterruptedError.
@@ -2453,7 +2453,7 @@ abstract class AppLocalizations {
   /// No description provided for @vtCorruptError.
   ///
   /// In ar, this message translates to:
-  /// **'مقدرناش نقرا النموذج. احذفه وحمّله تاني.'**
+  /// **'مقدرناش نقرا الموديل. احذفه وحمّله تاني.'**
   String get vtCorruptError;
 
   /// No description provided for @vtEmptyError.
@@ -2465,13 +2465,13 @@ abstract class AppLocalizations {
   /// No description provided for @vtTranscriptionError.
   ///
   /// In ar, this message translates to:
-  /// **'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو نموذج أصغر.'**
+  /// **'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو موديل أصغر.'**
   String get vtTranscriptionError;
 
   /// No description provided for @vtStorageError.
   ///
   /// In ar, this message translates to:
-  /// **'المساحة مش كفاية. فضّي مساحة أو اختار نموذج أصغر وجرّب تاني.'**
+  /// **'المساحة مش كفاية. فضّي مساحة أو اختار موديل أصغر وجرّب تاني.'**
   String get vtStorageError;
 
   /// No description provided for @vtStorageCheckError.
@@ -2519,13 +2519,13 @@ abstract class AppLocalizations {
   /// Measurement-only full-size model variants.
   ///
   /// In ar, this message translates to:
-  /// **'نماذج من غير ضغط'**
+  /// **'موديلات من غير ضغط'**
   String get vtFullModels;
 
   /// Rescan model files, including an Egyptian model pushed by adb, from the testing area.
   ///
   /// In ar, this message translates to:
-  /// **'حدّث قائمة النماذج'**
+  /// **'حدّث ليستة الموديلات'**
   String get vtRefreshModels;
 
   /// Voice setting: transcribe only new recordings after a note save.
@@ -2543,7 +2543,7 @@ abstract class AppLocalizations {
   /// Explains why automatic transcription cannot be enabled without an installed model.
   ///
   /// In ar, this message translates to:
-  /// **'حمّل نموذج الأول عشان تفرّغ التسجيلات على الموبايل.'**
+  /// **'حمّل موديل الأول عشان تفرّغ التسجيلات على الموبايل.'**
   String get trDownloadFirst;
 
   /// Toggle on a new recording draft; no inference runs before saving.
@@ -2591,7 +2591,7 @@ abstract class AppLocalizations {
   /// Transcription failure with an action opening voice settings.
   ///
   /// In ar, this message translates to:
-  /// **'النموذج مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.'**
+  /// **'الموديل مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.'**
   String get trModelMissing;
 
   /// Timed out waiting for the process-wide local engine lease.
@@ -2615,7 +2615,7 @@ abstract class AppLocalizations {
   /// Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically.
   ///
   /// In ar, this message translates to:
-  /// **'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار نموذج أصغر.'**
+  /// **'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار موديل أصغر.'**
   String get trInterruptedTwice;
 
   /// Android notification channel name, shown in the system's notification settings, for the low-importance notification while recordings are transcribed in the background.
@@ -2711,7 +2711,7 @@ abstract class AppLocalizations {
   /// External transcription: Model. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'اسم النموذج'**
+  /// **'اسم الموديل'**
   String get vsModel;
 
   /// External transcription: Key. User-added services only; no upload before consent.
@@ -2789,7 +2789,7 @@ abstract class AppLocalizations {
   /// External transcription: ConsentBody. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تفرّغها. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.'**
+  /// **'التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تتفرّغ. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.'**
   String vsConsentBody(String service, String host);
 
   /// External transcription: ConsentConfirm. User-added services only; no upload before consent.
@@ -2813,7 +2813,7 @@ abstract class AppLocalizations {
   /// External transcription: InvalidFields. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'راجع الاسم والنموذج وكود اللغة.'**
+  /// **'راجع الاسم والموديل وكود اللغة.'**
   String get vsInvalidFields;
 
   /// External transcription: KeyRequired. User-added services only; no upload before consent.
@@ -2837,13 +2837,13 @@ abstract class AppLocalizations {
   /// External transcription: RemoteIntro. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. الخدمة ممكن تحاسبك على الاستخدام.'**
+  /// **'التسجيلات هتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.'**
   String vsRemoteIntro(String service);
 
   /// External transcription: RemoteData. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'ملاحظاتك وملفاتك محفوظة على الموبايل، بس التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.'**
+  /// **'ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.'**
   String vsRemoteData(String service);
 
   /// External transcription: Via. User-added services only; no upload before consent.
@@ -2903,7 +2903,7 @@ abstract class AppLocalizations {
   /// External transcription: Unexpected. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والنموذج في إعدادات الصوت.'**
+  /// **'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والموديل في إعدادات الصوت.'**
   String get vsUnexpected;
 
   /// External transcription: Timeout. User-added services only; no upload before consent.
@@ -2939,7 +2939,7 @@ abstract class AppLocalizations {
   /// External transcription: OpenAiKeyHint. User-added services only; no upload before consent.
   ///
   /// In ar, this message translates to:
-  /// **'هات المفتاح والعنوان والنموذج من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.'**
+  /// **'هات المفتاح والعنوان والموديل من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.'**
   String get vsOpenAiKeyHint;
 
   /// External transcription: GeminiKeyHint. User-added services only; no upload before consent.
@@ -2983,6 +2983,162 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.'**
   String get vsRemoteTiming;
+
+  /// Per-recording off policy.
+  ///
+  /// In ar, this message translates to:
+  /// **'من غير تفريغ'**
+  String get v2Off;
+
+  /// Recommended catalog group.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقترح'**
+  String get v2Recommended;
+
+  /// Other supported models group.
+  ///
+  /// In ar, this message translates to:
+  /// **'موديلات تانية'**
+  String get v2Other;
+
+  /// Legacy models group.
+  ///
+  /// In ar, this message translates to:
+  /// **'قديم'**
+  String get v2Legacy;
+
+  /// Known provider shutdown warning.
+  ///
+  /// In ar, this message translates to:
+  /// **'موديل قديم، وهيقف يوم {date}. اختار موديل مقترح لو تقدر.'**
+  String v2Shutdown(String date);
+
+  /// Legacy without a published shutdown date.
+  ///
+  /// In ar, this message translates to:
+  /// **'موديل قديم. لسه مفيش ميعاد هيقف فيه.'**
+  String get v2LegacyUnknown;
+
+  /// Arabic suitability; no unmeasured quality claim.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيدعم العربي. جرّبه على المصري والإنجليزي مع بعض.'**
+  String get v2Arabic;
+
+  /// Generative model suitability caveat.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيفهم العربي، بس ممكن يعيد صياغة الكلام. راجع التفريغ.'**
+  String get v2Generative;
+
+  /// Catalog entry requires a different API.
+  ///
+  /// In ar, this message translates to:
+  /// **'لسه مش مدعوم هنا'**
+  String get v2Unsupported;
+
+  /// Collapsed custom model ID field.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب اسم موديل'**
+  String get v2Custom;
+
+  /// Explicit model discovery action.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدّث الليستة'**
+  String get v2Refresh;
+
+  /// Discovery working state.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيحدّث الليستة…'**
+  String get v2Refreshing;
+
+  /// Discovered catalog ID.
+  ///
+  /// In ar, this message translates to:
+  /// **'متاح في حسابك'**
+  String get v2Available;
+
+  /// Discovery cache timestamp.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر مراجعة: {time}'**
+  String v2Checked(String time);
+
+  /// Discovery privacy explanation.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيراجع الموديلات عند الخدمة برّه الموبايل، من غير ما يبعت صوت.'**
+  String get v2DiscoveryHint;
+
+  /// Qwen discovery skipped without workspace context.
+  ///
+  /// In ar, this message translates to:
+  /// **'مراجعة الموديلات مش متاحة لـQwen هنا. استخدم الموديل المقترح أو اكتب اسم الموديل.'**
+  String get v2DiscoveryQwen;
+
+  /// Transcript correction action and editor title.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدّل التفريغ'**
+  String get v2EditTranscript;
+
+  /// Clear correction without changing machine output.
+  ///
+  /// In ar, this message translates to:
+  /// **'رجّع التفريغ الأصلي'**
+  String get v2RestoreTranscript;
+
+  /// Redo completed while a correction exists.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيه تفريغ جديد'**
+  String get v2NewTranscript;
+
+  /// Adopt new machine output, clearing correction.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدمه'**
+  String get v2UseTranscript;
+
+  /// Unsafe paragraph replacement outcome.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفريغ اتحفظ، بس نص الملاحظة متغيّرش عشان اتعدّل قبل كده.'**
+  String get v2CopyUnchanged;
+
+  /// Explicit append after an unsafe replacement.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضيفه للملاحظة'**
+  String get v2AppendTranscript;
+
+  /// Optimistic revision conflict; draft retained.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفريغ اتغيّر وإنت بتعدّل. ارجع وافتحه تاني.'**
+  String get v2TranscriptConflict;
+
+  /// Correction save failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقدرناش نحفظ التفريغ. جرّب تاني.'**
+  String get v2TranscriptFailed;
+
+  /// Empty correction validation.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب التفريغ الأول.'**
+  String get v2TranscriptEmpty;
+
+  /// Correction success feedback.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفريغ اتحفظ'**
+  String get v2TranscriptSaved;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

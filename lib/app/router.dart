@@ -1,3 +1,5 @@
+import '../features/note_details/transcript_editor_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -107,6 +109,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (_, s) => _pushed(
               s,
               PdfViewerScreen(noteId: s.pathParameters['id']!, attachmentId: s.pathParameters['attachmentId']!),
+            ),
+          ),
+          GoRoute(
+            path: 'transcript/:attachmentId',
+            pageBuilder: (_, s) => _pushed(
+              s,
+              TranscriptEditorScreen(noteId: s.pathParameters['id']!, attachmentId: s.pathParameters['attachmentId']!),
             ),
           ),
           GoRoute(

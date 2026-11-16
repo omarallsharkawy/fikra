@@ -40,7 +40,11 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
     if (_title!.text != _initialTitle || _text!.text != _initialText) return true;
     final initial = _initialFiles ?? const <String>[];
     if (draftFiles.length != initial.length) return true;
-    return draftFiles.indexed.any((entry) => (entry.$2.id ?? entry.$2.path) != initial[entry.$1]);
+    return draftFiles.indexed.any(
+      (entry) =>
+          (entry.$2.id ?? entry.$2.path) != initial[entry.$1] ||
+          entry.$2.policy != _initialAttachments[entry.$1].policy,
+    );
   }
 
   @override

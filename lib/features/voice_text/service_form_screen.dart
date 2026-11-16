@@ -1,3 +1,6 @@
+import 'service_model_picker.dart';
+import '../../data/transcription/model_catalog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +31,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
   TranscriptionServiceType _type = TranscriptionServiceType.openAi;
   TranscriptionService? _existing;
   String? _authorized, _error, _testText;
-  bool _initialized = false, _busy = false, _obscured = true, _probing = false, _allowPop = false;
+  bool _initialized = false, _busy = false, _obscured = true, _probing = false, _allowPop = false, _discovering = false;
 
   @override
   void dispose() {
@@ -45,7 +48,8 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
     type: _type,
     name: _name.text.trim(),
     baseUrl: _url.text.trim().replaceAll(RegExp(r'/+$'), ''),
-    model: _model.text.trim(),
+    batchModel: _model.text.trim(),
+    liveModel: _existing?.type == _type ? _existing?.liveModel : catalogLiveDefault(_type),
     language: _language.text.trim().isEmpty ? null : _language.text.trim(),
     consentedFor: _authorized,
   );
@@ -55,7 +59,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
   });
 
   Future<void> _act(Future<void> Function() action, {bool probe = false}) async {
-    if (_busy || _allowPop) return;
+    if (_busy || _discovering || _allowPop) return;
     FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
@@ -136,14 +140,14 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
       _type = _existing?.type ?? TranscriptionServiceType.openAi;
       _name.text = _existing?.name ?? serviceTypeName(l, _type);
       _url.text = _existing?.baseUrl ?? defaultServiceUrl(_type);
-      _model.text = _existing?.model ?? defaultServiceModel(_type);
+      _model.text = _existing?.batchModel ?? defaultServiceModel(_type);
       _language.text = _existing?.language ?? '';
       _authorized = _existing?.consentedFor;
       _initialized = true;
     }
     final missing = widget.serviceId != null && _initialized && _existing == null;
     return PopScope(
-      canPop: !_busy || _allowPop,
+      canPop: (!_busy && !_discovering) || _allowPop,
       child: FikraScaffold(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,7 +160,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
                   icon: Icons.arrow_back_rounded,
                   label: l.back,
                   onTap: () {
-                    if (!_busy) context.pop();
+                    if (!_busy && !_discovering) context.pop();
                   },
                 ),
               ),
@@ -174,12 +178,29 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
                         ),
                         const SizedBox(height: FikraSpace.s16),
                         IgnorePointer(
-                          ignoring: _busy,
+                          ignoring: _busy || _discovering,
                           child: ServiceFormFields(
                             type: _type,
                             name: _name,
                             url: _url,
-                            model: _model,
+                            modelPicker: ServiceModelPicker(
+                              service: _value(),
+                              enabled: !_busy,
+                              readKey: (service) {
+                                _validate(service);
+                                return _key.text.trim().isNotEmpty
+                                    ? Future.value(_key.text.trim())
+                                    : ref.read(transcriptionServicesProvider).readKey(service.id, forService: service);
+                              },
+                              onBusy: (busy) {
+                                if (mounted) setState(() => _discovering = busy);
+                              },
+                              onAgreed: (identity) => setState(() => _authorized = identity),
+                              onChanged: (id) => setState(() {
+                                _model.text = id;
+                                _testText = null;
+                              }),
+                            ),
                             keyText: _key,
                             language: _language,
                             obscured: _obscured,
@@ -220,7 +241,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
                           label: _probing ? l.vsTesting : l.vsTest,
                           loading: _probing,
                           growForText: true,
-                          onPressed: _busy ? null : _test,
+                          onPressed: _busy || _discovering ? null : _test,
                         ),
                         const SizedBox(height: FikraSpace.s12),
                         FikraButton(
@@ -228,14 +249,14 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
                           label: l.save,
                           growForText: true,
                           loading: _busy && !_probing,
-                          onPressed: _busy ? null : _save,
+                          onPressed: _busy || _discovering ? null : _save,
                         ),
                         if (_existing != null) ...[
                           const SizedBox(height: FikraSpace.s12),
                           FikraButton.danger(
                             key: const ValueKey('vs-delete'),
                             label: l.delete,
-                            onPressed: _busy ? null : _delete,
+                            onPressed: _busy || _discovering ? null : _delete,
                           ),
                         ],
                       ],

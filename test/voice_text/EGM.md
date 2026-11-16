@@ -15,3 +15,7 @@ Run flutter test test/voice_text; screenshots are in ../screenshots/voice_text_t
 Phase 2 FakeVoiceTextSettings mirrors readAutoTranscribe/setAutoTranscribe with a false default. Trial controller tests share an injectable WhisperLock with saved-recording fake engines; capture methods remain imported through the controller library's part extension. No fake invokes native Whisper.
 
 Phase 3 the standalone fixture overrides TranscriptionServices with an owned in-memory fake and registers its stream cleanup with addTearDown. Existing local trial tests remain isolated from Drift, secure storage and network while the screen adds engine selection. Remote trial/queue selection is covered in transcription_engine_selection_test, without native inference.
+
+## Voice 2a diagnostic privacy
+
+voice_text_logic_test now expects every local trial log/JSONL to contain text=null and text_chars, while the returned in-memory result retains its text. Saved-note private runs still omit history entirely. Raw error strings are excluded from diagnostics as well.

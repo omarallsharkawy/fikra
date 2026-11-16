@@ -72,3 +72,7 @@ Pearl foundation keeps the four group colour labels (colorBlue/Green/Yellow/Gray
 are still four distinct muted hues; both ARBs describe them as colour picker
 names. Internal keys and stored IDs stay stable. Generated lookups were
 refreshed with flutter gen-l10n.
+
+## Voice 2a
+
+v2* keys describe the batch catalog, Arabic suitability, account discovery, explicit recording off choice, correction editor, conflicts, safe-copy fallback, restore and newer machine text. Existing vsConsentBody/vsRemoteIntro/vsRemoteData/vsRemoteAutoHint explicitly say برّه الموبايل / outside your phone. Both ARBs include descriptions/placeholders and generated lookups are regenerated. No glossary/plans files are changed.

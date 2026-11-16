@@ -344,7 +344,8 @@ void main() {
           return pass;
         },
       );
-      await queue.enqueue((await notes.watchAttachments(n.id).first).single.id);
+      // This helper is an explicit user request; off is the new-recording default.
+      await queue.enqueue((await notes.watchAttachments(n.id).first).single.id, manual: true);
       await queue.drained;
       await Future.wait(passes);
     }
