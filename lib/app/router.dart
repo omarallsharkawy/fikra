@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/motion/container_transform.dart';
 import '../core/theme/tokens.dart';
 import '../data/local/database.dart';
 import '../features/add/add_screen.dart';
@@ -30,13 +31,26 @@ import 'storage_error_screen.dart';
 /// `package:material_ui`. With Flutter's own `MaterialApp` it falls back to
 /// `NoTransitionPage` for `builder:` routes, and every push jumps in one frame.
 /// Routes that replace each other (splash, welcome, the shell) keep that.
-Page<void> _pushed(GoRouterState state, Widget child) => MaterialPage<void>(
-  key: state.pageKey,
-  name: state.name ?? state.path,
-  arguments: <String, String>{...state.pathParameters, ...state.uri.queryParameters},
-  restorationId: state.pageKey.value,
-  child: child,
-);
+Page<void> _pushed(GoRouterState state, Widget child, {CardOrigin? origin}) {
+  final args = <String, String>{...state.pathParameters, ...state.uri.queryParameters};
+  if (origin != null) {
+    return ContainerTransformPage<void>(
+      key: state.pageKey,
+      name: state.name ?? state.path,
+      arguments: args,
+      restorationId: state.pageKey.value,
+      origin: origin,
+      child: child,
+    );
+  }
+  return MaterialPage<void>(
+    key: state.pageKey,
+    name: state.name ?? state.path,
+    arguments: args,
+    restorationId: state.pageKey.value,
+    child: child,
+  );
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run redirects whenever the project list changes (first project created,
@@ -85,7 +99,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'graph', pageBuilder: (_, s) => _pushed(s, const LinksScreen())),
                   GoRoute(
                     path: 'note/:id',
-                    pageBuilder: (_, s) => _pushed(s, NoteConnectionsScreen(noteId: s.pathParameters['id']!)),
+                    pageBuilder: (_, s) => _pushed(
+                      s,
+                      NoteConnectionsScreen(noteId: s.pathParameters['id']!),
+                      origin: s.extra is CardOrigin ? s.extra as CardOrigin : null,
+                    ),
                   ),
                 ],
               ),
@@ -105,18 +123,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/note/:id',
-        // `extra` is the note the caller already has, so the screen draws it on
-        // the first frame instead of waiting for the query. Deep links omit it.
-        pageBuilder: (_, s) => _pushed(
-          s,
-          NoteDetailsScreen(
-            noteId: s.pathParameters['id']!,
-            initial: switch (s.extra) {
-              final Note n when n.id == s.pathParameters['id'] => n,
-              _ => null,
-            },
-          ),
-        ),
+        // `extra` supplies the note (for first-frame rendering) and/or the
+        // tapped card's CardOrigin (for the container-transform transition).
+        pageBuilder: (_, s) {
+          final id = s.pathParameters['id']!;
+          final (initial, origin) = switch (s.extra) {
+            final Note n when n.id == id => (n, null),
+            (final Note? n, final CardOrigin? o) => (n?.id == id ? n : null, o),
+            final CardOrigin o => (null, o),
+            _ => (null, null),
+          };
+          return _pushed(
+            s,
+            NoteDetailsScreen(noteId: id, initial: initial),
+            origin: origin,
+          );
+        },
         routes: [
           GoRoute(
             path: 'pdf/:attachmentId',

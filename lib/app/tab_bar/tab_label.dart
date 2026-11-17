@@ -13,6 +13,7 @@ class TabLabel extends StatelessWidget {
     required this.index,
     required this.hover,
     required this.onActivate,
+    this.shrink = 0,
   });
   final String label;
   final IconData icon;
@@ -20,6 +21,7 @@ class TabLabel extends StatelessWidget {
   final int index;
   final ValueListenable<int?> hover;
   final VoidCallback onActivate;
+  final double shrink;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -43,6 +45,9 @@ class TabLabel extends StatelessWidget {
         builder: (context, hovered, _) {
           final active = hovered == index || selected;
           final color = active ? context.colors.accent : context.colors.textSecondary;
+          final s = shrink.clamp(0.0, 1.0);
+          final factor = (1 - s).clamp(0.0, 1.0);
+          final labelOpacity = (1 - s * 1.6).clamp(0.0, 1.0);
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -50,18 +55,26 @@ class TabLabel extends StatelessWidget {
                 scale: hovered == index && !FikraMotion.reduced(context) ? 1.13 : 1,
                 child: Icon(icon, size: 22, color: color),
               ),
-              const SizedBox(height: 2),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.4),
-                  style: context.text.nav.copyWith(
-                    height: 1.35,
-                    color: color,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+              ClipRect(
+                clipBehavior: factor < 1 ? Clip.hardEdge : Clip.none,
+                child: Align(
+                  heightFactor: factor,
+                  child: Opacity(
+                    opacity: labelOpacity,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(3, 2, 3, 0),
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.4),
+                        style: context.text.nav.copyWith(
+                          height: 1.35,
+                          color: color,
+                          fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

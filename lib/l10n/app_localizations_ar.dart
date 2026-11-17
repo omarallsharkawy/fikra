@@ -1947,4 +1947,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get headerSearch => 'دوّر';
+
+  @override
+  String get capsuleRecording => 'بيسجّل…';
+
+  @override
+  String get capsuleRecordingA11y => 'بيسجّل. دوس عشان تفتح التسجيل';
+
+  @override
+  String get capsuleTranscribing => 'بيفرّغ الصوت…';
+
+  @override
+  String get capsuleTranscribingA11y => 'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة';
 }

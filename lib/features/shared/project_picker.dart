@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
+import '../../core/motion/rolling_text.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -117,8 +118,9 @@ class ProjectRow extends StatelessWidget {
                       color: selected ? context.colors.accent : context.colors.textPrimary,
                     ),
                   ),
-                  Text(
+                  RollingText(
                     Fmt.notes(context.l10n, count),
+                    key: ValueKey('project-row-count-${project.id}'),
                     style: context.text.meta.copyWith(
                       color: selected ? context.colors.accent : context.colors.textSecondary,
                     ),

@@ -68,3 +68,7 @@ The lazy list adds NavigationInset.of(context) to its existing 24 dp bottom padd
 - `notes-search` (`FikraField`) passes `clearable: true` (`notes-search-clear`), clearing the query immediately; focus (and the keyboard) is re-requested only if the field had focus before the tap.
 - Beside `notes-search`, `notes-sort` (`FikraIconButton` with `Icons.tune_rounded`, `notesSort` label) opens `showFikraSheet` with `notes-sort-newest` (`linksNewest`) and `notes-sort-oldest` (`linksOldest`), exposing `selected` semantics.
 - `notesSortProvider` holds the choice in session memory (no schema or preference write). `_rebuildRows` keys on `sort`; `NotesSort.oldest` reverses the filtered list (`watchNotes` is `createdAt` DESC, so this is oldest first with ties mirroring the newest order) before day grouping, composing with search and group filters.
+
+## Motion & delight (redesign phase 7)
+
+- `NotesScreen` staggers at most the first 8 visible `NoteCard`s on a visible first load or visible project switch via `StaggerController` + `StaggeredEntry`, and opens `/note/${n.id}` with `extra: (n, origin)` from `NoteCard.onOpenWithOrigin` (`CardOrigin` with `FikraRadius.lg`) outside selection mode (`NoteCard` requires exactly one of `onTap` or `onOpenWithOrigin`).

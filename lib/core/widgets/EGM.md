@@ -232,3 +232,9 @@ semantics) at the directional end inside `TextFieldTapRegion` whenever
 `controller.text.isNotEmpty`. Tapping clears `controller`, calls
 `onChanged?.call('')`, and re-requests focus only if `_focus` had it before the tap, so a field whose keyboard was scrolled away stays unfocused. The overlay sits outside
 `SolidSurface`'s 1 dp border so the hit target stays at least 48×48 dp.
+
+## Motion & delight (redesign phase 7)
+
+- `glass_quality.dart`: adds `NavBarShrinkOverride` and `navBarShrinkEnabledProvider` (default `false`, ignored in `kReleaseMode`).
+- `glass_preview.dart`: `GlassDebugOverlay` renders `debug-shrink-bar-toggle` (`FikraChip`) in debug/profile builds when `glassPreviewEnabledProvider` is enabled, toggling `navBarShrinkEnabledProvider`. `GlassReviewPanel` is unchanged.
+- `selectors.dart`: `SegmentedPill` renders segment labels with `RollingText` so visible count changes roll changed digits while preserving TalkBack labels and Reduce Motion.

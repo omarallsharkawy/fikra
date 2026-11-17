@@ -3,11 +3,14 @@ import 'package:fikra/l10n/localizations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/motion/motion.dart';
+import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -26,14 +29,29 @@ class AddScreen extends ConsumerStatefulWidget {
   ConsumerState<AddScreen> createState() => _AddScreenState();
 }
 
-class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<AddScreen> {
+class _AddScreenState extends ConsumerState<AddScreen>
+    with SingleTickerProviderStateMixin, AttachmentEditing<AddScreen> {
   final _title = TextEditingController();
   final _text = TextEditingController();
   final _titleFocus = FocusNode();
   final _textFocus = FocusNode();
+  late final AnimationController _saveTick = AnimationController.unbounded(vsync: this, value: 0);
+  bool _saveTickActive = false;
+  Timer? _saveTickTimer;
+  int _saveCount = 0;
+  bool _clearingDraft = false;
+
+  @override
+  bool get isAddComposer => true;
+
+  @override
+  void updateDraft(VoidCallback fn) {
+    if (!_clearingDraft) _saveCount++;
+    super.updateDraft(fn);
+  }
 
   bool get _canSave {
-    if (saving || recording || picking) return false;
+    if (saving || _saveTickActive || recording || picking) return false;
     return hasAttachment || _text.text.trim().isNotEmpty;
   }
 
@@ -41,8 +59,29 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
     if (mounted) setState(fn);
   }
 
+  void _cancelSaveTick() {
+    _saveTickTimer?.cancel();
+    _saveTickTimer = null;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final tickerEnabled = TickerMode.valuesOf(context).enabled;
+    final activeOnAdd = tickerEnabled && (ModalRoute.isCurrentOf(context) ?? true);
+    if (!activeOnAdd && _saveTickActive) {
+      _saveCount++;
+    }
+    if (_saveTick.isAnimating && (FikraMotion.reduced(context) || !tickerEnabled)) {
+      _saveTick.stop();
+      _saveTick.value = 1;
+    }
+  }
+
   @override
   void dispose() {
+    _cancelSaveTick();
+    _saveTick.dispose();
     _title.dispose();
     _text.dispose();
     _titleFocus.dispose();
@@ -101,6 +140,7 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
                       maxLength: 80,
                       maxLines: 1,
                       textInputAction: TextInputAction.next,
+                      onChanged: (_) => _saveCount++,
                       onSubmitted: (_) => _textFocus.requestFocus(),
                       style: context.text.cardTitleSmall,
                       decoration: InputDecoration(
@@ -123,7 +163,10 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
                               minLines: 5,
                               maxLines: 14,
                               maxLength: 5000,
-                              onChanged: (_) => setState(() {}),
+                              onChanged: (_) {
+                                _saveCount++;
+                                setState(() {});
+                              },
                               style: context.text.bodyLarge,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -134,7 +177,12 @@ class _AddScreenState extends ConsumerState<AddScreen> with AttachmentEditing<Ad
                             ),
                     ),
                     attachmentPreviews(),
-                    attachmentToolbar(canSave: _canSave, onSave: _save),
+                    attachmentToolbar(
+                      canSave: _canSave,
+                      onSave: _save,
+                      saveTick: _saveTick,
+                      saveTickActive: _saveTickActive,
+                    ),
                   ],
                 ),
               ),

@@ -49,3 +49,8 @@ Verification: floating_navigation_test.dart, floating_shell_test.dart, the
 floating_navigation screenshot matrix and glass_widget_test.dart. The profile
 slide workload is in integration_test/glass_perf_scenario.dart. Do not run the
 phone workload in the restricted environment.
+
+## Motion & delight (redesign phase 7)
+
+- `activity_capsule.dart`: `ActivityCapsule` (`ValueKey('activity-capsule')`). Floats 10 dp above the tab bar (start-aligned within the 280 dp bar column so it never overlaps `nav-add`), enters/exits via `FikraSwitcher`, shares `FloatingNavigation`'s static `BackdropGroup` and keyboard hide/fade/slide, and exposes static semantic button labels (`capsuleRecordingA11y` / `capsuleTranscribingA11y`). Uses a static red dot + 1 Hz `ValueListenableBuilder` around only the time `Text` (inside `RepaintBoundary`, leaving `Pressable`/`Glass` untouched) when recording on Add while viewing another tab, and a static icon + `capsuleTranscribing` while a background transcription job is running.
+- `floating_navigation.dart`, `sliding_tab_bar.dart`, `tab_label.dart`: accept optional `ValueListenable<double>? shrink` (`0..1`). Keeps one stable `FikraNavBar` and `TabLabel` widget tree at rest and while shrunk, prebuilds `Glass` as a cached child and quantizes bar height to whole dp (`72 → 52 dp`) to avoid per-frame `Glass` relayout while keeping icons, hit targets, semantics and the press-and-slide lens intact.

@@ -6,6 +6,7 @@ import '../theme/tokens.dart';
 import 'glass.dart';
 import 'glass_lens.dart';
 import 'glass_quality.dart';
+import 'selectors.dart';
 
 /// Opt-in review/measurement surface. Never available in release product UI.
 final glassPreviewEnabledProvider = Provider<bool>((ref) => false);
@@ -17,10 +18,28 @@ class GlassDebugOverlay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (kReleaseMode || !ref.watch(glassPreviewEnabledProvider)) return child;
+    final shrink = ref.watch(navBarShrinkEnabledProvider);
     return Stack(
       fit: StackFit.expand,
       children: [
         child,
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + 8,
+          left: 24,
+          right: 24,
+          child: Align(
+            alignment: AlignmentDirectional.topEnd,
+            child: Material(
+              type: MaterialType.transparency,
+              child: FikraChip(
+                key: const ValueKey('debug-shrink-bar-toggle'),
+                label: shrink ? 'Shrink bar: ON' : 'Shrink bar: OFF',
+                selected: shrink,
+                onTap: () => ref.read(navBarShrinkEnabledProvider.notifier).toggle(),
+              ),
+            ),
+          ),
+        ),
         const Positioned(left: 24, right: 24, bottom: 130, child: IgnorePointer(child: GlassReviewPanel())),
       ],
     );

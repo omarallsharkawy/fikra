@@ -1,37 +1,71 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/motion/motion.dart';
 import '../core/theme/tokens.dart';
+import '../core/widgets/glass_quality.dart';
 import '../core/widgets/pearl_canvas.dart';
 import '../core/widgets/navigation_inset.dart';
+import 'tab_bar/activity_capsule.dart';
 import 'tab_bar/floating_navigation.dart';
 
 export 'tab_bar/sliding_tab_bar.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, required this.shell});
   final StatefulNavigationShell shell;
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   /// The box that paints the Pearl canvas behind every tab. The tab veil
   /// aligns the same static paint to it.
   final _background = GlobalKey(debugLabel: 'shell background');
+  final _scrollShrink = ValueNotifier<double>(0);
+  int? _lastBranch;
+  bool _shrinkEnabled = false;
+  bool _reduced = false;
 
   /// viewInsets changes on every frame of the keyboard animation, but this
   /// tree only depends on whether it is open. Returning the identical widget
   /// stops those frames from rebuilding the navigation and copying ThemeData.
   Widget? _built;
-  (StatefulNavigationShell, bool, double, ThemeData)? _builtFor;
+  (StatefulNavigationShell, bool, double, ThemeData, bool)? _builtFor;
+
+  @override
+  void dispose() {
+    _scrollShrink.dispose();
+    super.dispose();
+  }
 
   @override
   void reassemble() {
     super.reassemble();
     _builtFor = null;
+  }
+
+  bool _onScroll(ScrollNotification notification) {
+    if (!_shrinkEnabled || _reduced) return false;
+    // Only standard top-to-bottom vertical lists drive bar shrink; ignore
+    // horizontal scrollables and reversed vertical lists (AxisDirection.up).
+    if (notification.metrics.axisDirection != AxisDirection.down) return false;
+    if (notification is ScrollUpdateNotification) {
+      final pixels = notification.metrics.pixels;
+      if (pixels <= 0) {
+        if (_scrollShrink.value != 0) _scrollShrink.value = 0;
+        return false;
+      }
+      final delta = notification.scrollDelta ?? 0;
+      if (delta == 0) return false;
+      if (pixels > notification.metrics.maxScrollExtent && delta > 0) return false;
+      final next = (_scrollShrink.value + delta / FikraMotion.barShrinkDistance).clamp(0.0, 1.0);
+      if (next != _scrollShrink.value) _scrollShrink.value = next;
+    }
+    return false;
   }
 
   @override
@@ -40,16 +74,24 @@ class _AppShellState extends State<AppShell> {
     final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
     final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
     final theme = Theme.of(context);
+    final shrinkEnabled = !kReleaseMode && ref.watch(navBarShrinkEnabledProvider);
+    _shrinkEnabled = shrinkEnabled;
+    _reduced = FikraMotion.reduced(context);
+    if ((_lastBranch != null && _lastBranch != shell.currentIndex) || !shrinkEnabled || _reduced) {
+      if (_scrollShrink.value != 0) _scrollShrink.value = 0;
+    }
+    _lastBranch = shell.currentIndex;
     final inputs = _builtFor;
     if (inputs != null &&
         identical(inputs.$1, shell) &&
         inputs.$2 == keyboard &&
         inputs.$3 == safeBottom &&
+        inputs.$5 == shrinkEnabled &&
         // Theme.of's localized copy is cached FIFO, so equal can mean a new instance.
         (identical(inputs.$4, theme) || inputs.$4 == theme)) {
       return _built!;
     }
-    _builtFor = (shell, keyboard, safeBottom, theme);
+    _builtFor = (shell, keyboard, safeBottom, theme, shrinkEnabled);
     final bottomInset = keyboard ? 0.0 : FloatingNavigation.clearance + safeBottom;
     return _built = ShellBackground(
       anchor: _background,
@@ -73,17 +115,28 @@ class _AppShellState extends State<AppShell> {
                   Positioned.fill(
                     child: NavigationInset(
                       bottom: bottomInset,
-                      child: SafeArea(bottom: false, child: shell),
+                      child: SafeArea(
+                        bottom: false,
+                        child: NotificationListener<ScrollNotification>(onNotification: _onScroll, child: shell),
+                      ),
                     ),
                   ),
                   Positioned(
                     left: 16,
                     right: 16,
                     bottom: FloatingNavigation.gap + safeBottom,
-                    child: Center(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      heightFactor: 1,
                       child: FloatingNavigation(
                         branch: shell.currentIndex,
                         keyboardOpen: keyboard,
+                        shrink: shrinkEnabled ? _scrollShrink : null,
+                        aboveBar: ActivityCapsule(
+                          branch: shell.currentIndex,
+                          onOpenAdd: () => shell.goBranch(0, initialLocation: false),
+                          onOpenNote: (id) => context.push('/note/$id'),
+                        ),
                         onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
                       ),
                     ),

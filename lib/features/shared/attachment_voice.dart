@@ -6,7 +6,7 @@ extension AttachmentVoice<T extends ConsumerStatefulWidget> on AttachmentEditing
   Future<void> startRecording() async {
     if (!mounted || rec != RecordingState.idle || saving || picking) return;
     final activity = ref.read(recordingActiveProvider.notifier);
-    if (!activity.claim(this)) return;
+    if (!activity.claim(this, fromAdd: isAddComposer)) return;
     recordingActivity = activity;
     updateDraft(() => rec = RecordingState.starting);
     FocusScope.of(context).unfocus();
@@ -35,15 +35,19 @@ extension AttachmentVoice<T extends ConsumerStatefulWidget> on AttachmentEditing
       await recorderStart;
       if (!mounted) return; // dispose owns cancellation and the lease now
       levels.clear();
-      ampSub = activeRecorder.onAmplitudeChanged(const Duration(milliseconds: 90)).listen((a) {
-        updateDraft(() {
-          levels.add(levelFromDb(a.current));
-          if (levels.length > kWaveformSamples) levels.removeAt(0);
-        });
+      levelUpdates.value++;
+      ampSub = activeRecorder.onAmplitudeChanged(FikraMotion.waveformStep).listen((a) {
+        levels.add(levelFromDb(a.current));
+        if (levels.length > kWaveformSamples) levels.removeAt(0);
+        if (mounted) levelUpdates.value++;
       }, onError: (_) {});
       elapsed = Duration.zero;
+      recordingActivity?.setElapsed(this, Duration.zero);
+      recordingActivity?.markLive(this);
       ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-        updateDraft(() => elapsed += const Duration(seconds: 1));
+        final next = elapsed + const Duration(seconds: 1);
+        updateDraft(() => elapsed = next);
+        recordingActivity?.setElapsed(this, next);
         if (elapsed >= AttachmentEditing.maxRecording) stopRecording();
       });
       updateDraft(() {
@@ -82,6 +86,7 @@ extension AttachmentVoice<T extends ConsumerStatefulWidget> on AttachmentEditing
 
   Future<void> stopRecording() async {
     if (!mounted || rec != RecordingState.recording) return;
+    recordingActivity?.markStopping(this);
     updateDraft(() => rec = RecordingState.stopping);
     try {
       await teardown();
@@ -137,6 +142,7 @@ extension AttachmentVoice<T extends ConsumerStatefulWidget> on AttachmentEditing
 
   Future<void> cancelRecording() async {
     if (!mounted || rec != RecordingState.recording) return;
+    recordingActivity?.markStopping(this);
     updateDraft(() => rec = RecordingState.stopping);
     try {
       await teardown();

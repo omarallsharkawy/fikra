@@ -96,3 +96,8 @@ profile workload is wired through glass_perf_scenario and is not run here.
 
 - `LinksLibraryScreen` uses `HeaderActionButton` (`links-open-graph`, visible caption `headerGraph`, semantic label and excluded tooltip `linksOpenGraph`) in `ProjectHeader.trailing`.
 - `LibraryControls` is a `StatefulWidget` owning a `FocusNode` for `links-search` and shows `links-search-clear` (48×48 dp `Pressable` inside `TextFieldTapRegion`, `clearSearch` semantics) when `search.text.isNotEmpty`, clearing the query immediately; focus (and the keyboard) is re-requested only if the field had focus before the tap.
+
+## Motion & delight (redesign phase 7)
+
+- `LinksLibraryScreen` owns per-segment `StaggerController`s (`_browseStagger`, `_suggestionsStagger`) so at most 8 visible Browse or Suggestions cards fade/rise on a visible first load or visible project switch (`onProjectChanged`), and keys `LibraryControls` and `LibraryChips` by `project.id` so count rolls (`SegmentedPill` Suggestions count and group/topic `ChoiceTag` counts) occur only within the visible project.
+- `BrowseNoteCard` passes `CardOrigin` (`FikraRadius.md`) to `/links/note/:id`, and `NoteConnectionsScreen`'s `connections-note` passes `(note, origin)` to `/note/:id`.

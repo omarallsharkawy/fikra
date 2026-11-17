@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import '../motion/pressable.dart';
+import '../motion/rolling_text.dart';
 import '../theme/tokens.dart';
 
 import 'solid_surface.dart';
@@ -133,7 +134,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                                 excluding: widget.semanticLabels != null,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text(
+                                  child: RollingText(
                                     widget.options[i],
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/motion/recording_pulse.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/widgets/voice_player.dart';
@@ -32,11 +33,16 @@ class VoiceTextRecording extends StatelessWidget {
                 onTap: () => act(() => c.stop(discard: true)),
               ),
               const Spacer(),
-              FikraIconButton(
-                key: const ValueKey('vt-stop'),
-                icon: Icons.stop_rounded,
-                label: l.stopRecording,
-                onTap: () => act(c.stop),
+              RecordingPulse(
+                key: const ValueKey('vt-stop-pulse'),
+                active: true,
+                color: context.colors.danger,
+                child: FikraIconButton(
+                  key: const ValueKey('vt-stop'),
+                  icon: Icons.stop_rounded,
+                  label: l.stopRecording,
+                  onTap: () => act(c.stop),
+                ),
               ),
             ],
           ),

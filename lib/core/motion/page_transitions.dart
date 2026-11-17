@@ -25,7 +25,7 @@ class FikraPageTransitionsBuilder extends PageTransitionsBuilder {
   ) {
     final reduced = FikraMotion.reduced(context);
     final direction = Directionality.of(context) == TextDirection.rtl ? -1.0 : 1.0;
-    return _PredictiveBack(
+    return FikraPredictiveBack(
       route: route,
       animation: animation,
       builder: (context, animation) => AnimatedBuilder(
@@ -55,17 +55,17 @@ class FikraPageTransitionsBuilder extends PageTransitionsBuilder {
 
 /// Uses the same public route gesture hooks as Flutter's predictive builder,
 /// while retaining FIKRA's transition instead of the native scale/parallax.
-class _PredictiveBack extends StatefulWidget {
-  const _PredictiveBack({required this.route, required this.animation, required this.builder});
+class FikraPredictiveBack extends StatefulWidget {
+  const FikraPredictiveBack({super.key, required this.route, required this.animation, required this.builder});
   final PageRoute<dynamic> route;
   final Animation<double> animation;
   final Widget Function(BuildContext context, Animation<double> animation) builder;
 
   @override
-  State<_PredictiveBack> createState() => _PredictiveBackState();
+  State<FikraPredictiveBack> createState() => _FikraPredictiveBackState();
 }
 
-class _PredictiveBackState extends State<_PredictiveBack> with WidgetsBindingObserver {
+class _FikraPredictiveBackState extends State<FikraPredictiveBack> with WidgetsBindingObserver {
   late final ProxyAnimation _visualAnimation = ProxyAnimation(widget.animation);
 
   @override

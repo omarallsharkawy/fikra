@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../core/motion/container_transform.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -155,10 +156,17 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Pressable(
-                              key: const ValueKey('connections-note'),
-                              onTap: () => _leave(() => context.push('/note/${note.id}', extra: note)),
-                              child: SolidSurface(child: LibraryNoteText(note: projectNote(note), lines: 2)),
+                            Builder(
+                              builder: (cardContext) => Pressable(
+                                key: const ValueKey('connections-note'),
+                                onTap: () => _leave(
+                                  () => context.push(
+                                    '/note/${note.id}',
+                                    extra: (note, CardOrigin.fromContext(cardContext, borderRadius: FikraRadius.md)),
+                                  ),
+                                ),
+                                child: SolidSurface(child: LibraryNoteText(note: projectNote(note), lines: 2)),
+                              ),
                             ),
                             const SizedBox(height: 12),
                             FikraButton.secondary(

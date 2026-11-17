@@ -1,3 +1,6 @@
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -12,12 +15,20 @@ import 'tab_label.dart';
 /// Pointer tracking is confined to this box. Only the lens listens to its
 /// pixel-position controller; branch navigators never listen to pointer moves.
 class FikraNavBar extends StatefulWidget {
-  const FikraNavBar({super.key, required this.items, required this.index, required this.onSelect, this.enabled = true});
+  const FikraNavBar({
+    super.key,
+    required this.items,
+    required this.index,
+    required this.onSelect,
+    this.enabled = true,
+    this.shrink,
+  });
   final List<(String, IconData)> items;
 
   /// Visible tab index; -1 while Add is current.
   final int index;
   final bool enabled;
+  final ValueListenable<double>? shrink;
   final void Function(int index, bool reselect) onSelect;
 
   @override
@@ -95,10 +106,16 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
     _choose(i);
   }
 
+  double _effectiveShrink(BuildContext context) =>
+      FikraMotion.reduced(context) ? 0.0 : (widget.shrink?.value ?? 0.0).clamp(0.0, 1.0);
+
+  double _barHeight(BuildContext context) =>
+      ui.lerpDouble(72, FikraMotion.barShrunkHeight, _effectiveShrink(context))!.roundToDouble();
+
   void _move(PointerMoveEvent event) {
     if (event.pointer != _pointer) return;
     final p = event.localPosition;
-    if (p.dy < -60 || p.dy > 72 + 60) {
+    if (p.dy < -60 || p.dy > _barHeight(context) + 60) {
       _finish();
       return;
     }
@@ -151,11 +168,98 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
     super.dispose();
   }
 
+  Widget _buildBar(BuildContext context, double maxWidth, double w, Widget glassBacking) {
+    final s = _effectiveShrink(context);
+    // Quantize height to whole dp so Glass only relays out across 20 discrete
+    // steps instead of every sub-pixel scroll frame, and reuse glassBacking.
+    final barHeight = ui.lerpDouble(72, FikraMotion.barShrunkHeight, s)!.roundToDouble();
+    final pillHeight = barHeight - 10;
+    final lensHeight = barHeight + 16;
+    return SizedBox(
+      key: const ValueKey('floating-tab-bar'),
+      // Fill the offered width. The Stack's only unpositioned child is
+      // the hidden lens, so it would otherwise shrink to 0 dp and drop taps.
+      width: maxWidth,
+      height: barHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          glassBacking,
+          if (widget.index >= 0)
+            Positioned(
+              left: _centre(widget.index) - w / 2,
+              top: 5,
+              width: w,
+              height: pillHeight,
+              child: FadeTransition(
+                opacity: _pulse.drive(Tween(begin: 1.0, end: .32)),
+                child: DecoratedBox(
+                  key: const ValueKey('nav-selected-pill'),
+                  decoration: BoxDecoration(
+                    color: context.colors.selected,
+                    borderRadius: BorderRadius.circular(pillHeight / 2),
+                  ),
+                ),
+              ),
+            ),
+          AnimatedBuilder(
+            animation: Listenable.merge([_x, _pulse]),
+            child: AnimatedBuilder(
+              animation: _pulse,
+              builder: (context, _) => GlassLens(opacity: _pulse.value, child: const SizedBox.expand()),
+            ),
+            builder: (context, lens) => _pulse.value == 0
+                ? const SizedBox.shrink()
+                : Positioned(
+                    left: 0,
+                    top: -8,
+                    width: w + 20,
+                    height: lensHeight,
+                    child: Transform.translate(
+                      offset: Offset(_x.value.clamp(5 + w / 2, _width - 5 - w / 2) - (w + 20) / 2, 0),
+                      child: IgnorePointer(
+                        child: ExcludeSemantics(
+                          child: SizedBox(key: const ValueKey('nav-lens'), child: lens),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: RepaintBoundary(
+                child: Row(
+                  children: [
+                    for (var i = 0; i < widget.items.length; i++)
+                      Expanded(
+                        child: TabLabel(
+                          key: ValueKey('nav-$i'),
+                          label: widget.items[i].$1,
+                          icon: widget.items[i].$2,
+                          selected: widget.index == i,
+                          index: i,
+                          hover: _hover,
+                          shrink: s,
+                          onActivate: () => widget.onSelect(i, i == widget.index),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, box) {
       _width = box.maxWidth;
       final w = _tabWidth;
+      final shrink = widget.shrink;
       return Listener(
         onPointerDown: _down,
         onPointerMove: _move,
@@ -175,83 +279,12 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
                 ..onCancel = (() => _dragging = false),
             ),
           },
-          child: SizedBox(
-            key: const ValueKey('floating-tab-bar'),
-            // Fill the offered width. The Stack's only unpositioned child is
-            // the hidden lens, so it would otherwise shrink to 0 dp and drop taps.
-            width: box.maxWidth,
-            height: 72,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Positioned.fill(
-                  child: Glass(padding: EdgeInsets.zero, child: SizedBox.expand()),
-                ),
-                if (widget.index >= 0)
-                  Positioned(
-                    left: _centre(widget.index) - w / 2,
-                    top: 5,
-                    width: w,
-                    height: 62,
-                    child: FadeTransition(
-                      opacity: _pulse.drive(Tween(begin: 1.0, end: .32)),
-                      child: DecoratedBox(
-                        key: const ValueKey('nav-selected-pill'),
-                        decoration: BoxDecoration(
-                          color: context.colors.selected,
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                      ),
-                    ),
-                  ),
-                AnimatedBuilder(
-                  animation: Listenable.merge([_x, _pulse]),
-                  child: AnimatedBuilder(
-                    animation: _pulse,
-                    builder: (context, _) => GlassLens(opacity: _pulse.value, child: const SizedBox.expand()),
-                  ),
-                  builder: (context, lens) => _pulse.value == 0
-                      ? const SizedBox.shrink()
-                      : Positioned(
-                          left: 0,
-                          top: -8,
-                          width: w + 20,
-                          height: 88,
-                          child: Transform.translate(
-                            offset: Offset(_x.value.clamp(5 + w / 2, _width - 5 - w / 2) - (w + 20) / 2, 0),
-                            child: IgnorePointer(
-                              child: ExcludeSemantics(
-                                child: SizedBox(key: const ValueKey('nav-lens'), child: lens),
-                              ),
-                            ),
-                          ),
-                        ),
-                ),
-                Positioned.fill(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: RepaintBoundary(
-                      child: Row(
-                        children: [
-                          for (var i = 0; i < widget.items.length; i++)
-                            Expanded(
-                              child: TabLabel(
-                                key: ValueKey('nav-$i'),
-                                label: widget.items[i].$1,
-                                icon: widget.items[i].$2,
-                                selected: widget.index == i,
-                                index: i,
-                                hover: _hover,
-                                onActivate: () => widget.onSelect(i, i == widget.index),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          child: AnimatedBuilder(
+            animation: shrink ?? const AlwaysStoppedAnimation<double>(0),
+            child: const Positioned.fill(
+              child: Glass(padding: EdgeInsets.zero, child: SizedBox.expand()),
             ),
+            builder: (context, glassBacking) => _buildBar(context, box.maxWidth, w, glassBacking!),
           ),
         ),
       );

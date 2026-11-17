@@ -268,3 +268,9 @@ modelDiscoveryProvider supplies fakeable transport plus database-backed availabi
 ## Links routes (redesign phase 3)
 
 `/links` now mounts LinksLibraryScreen. Child routes `graph` (retained LinksScreen) and `note/:id` (NoteConnectionsScreen) use `_pushed` on the Links branch navigator. Both retain the floating bar; Back returns to the library/previous connections page. Full `/note/:id` stays on the root navigator. No shell branch indices or tab gestures change.
+
+## Motion & delight (redesign phase 7)
+
+- `activity_providers.dart` (re-exported by `providers.dart`): `addRecordingLiveProvider` (true while an Add-tab recording is live), `RecordingActivity` (adds `elapsed` `ValueListenable<Duration>`, `claim(owner, {fromAdd})`, `markLive`, `markStopping`, `setElapsed`), `recordingActiveProvider`, and `activeTranscriptionNoteIdProvider` (auto-disposed stream watching the earliest `running` voice attachment's `noteId`).
+- `router.dart`: `_pushed` accepts optional `CardOrigin? origin`, returning `ContainerTransformPage` when non-null and `MaterialPage` otherwise. `/note/:id` accepts `Note`, `(Note?, CardOrigin?)`, or `CardOrigin` in `extra`; `/links/note/:id` accepts `CardOrigin` in `extra`.
+- `shell.dart`: `AppShell` (`ConsumerStatefulWidget`) tracks top-to-bottom vertical scroll deltas (`AxisDirection.down`, ignoring horizontal and reversed scrollables) into a `ValueNotifier<double>` (`0..1` over `FikraMotion.barShrinkDistance`, reset on branch change) only when `!kReleaseMode && ref.watch(navBarShrinkEnabledProvider)` and Reduce Motion is off, passing it to `FloatingNavigation` without rebuilding branch children. Mounts `ActivityCapsule` via `FloatingNavigation.aboveBar`; `NavigationInset` stays constant so capsule appearance never jumps scroll insets or rebuilds tabs.

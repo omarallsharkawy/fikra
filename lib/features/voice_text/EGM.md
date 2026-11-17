@@ -70,3 +70,7 @@ WhisperRun now redacts text and raw error strings for every diagnostic/JSONL run
 ## Ordering & IA (redesign phase 4)
 
 `VoiceTextScreen` orders its `ListView` with `Semantics(header: true)` headings: intro (followed by `vt-error` and loading progress when present, keeping scroll-to-0 error visibility intact), everyday choices (`vsEngine`, `vtModel` when local, `vtLanguage`, `VoiceTextAuto`), a hairline divider, `vtTry` (`VoiceTextRecording`, `vt-try-transcribe`, `vtLive` with `vt-live`, and `vtResult` when present; `vtLive` and `vtResult` are `Semantics(header: true)` headings too), a hairline divider, and `vt-testing-toggle` (`For testing`, collapsed by default, immediate under `FikraMotion.reduced` without zero-duration `AnimatedSize`) at the bottom. No backend, storage or model behaviour changes.
+
+## Motion & delight (redesign phase 7)
+
+`VoiceTextRecording` wraps `vt-stop` in `RecordingPulse` (`vt-stop-pulse`) while recording; capture, storage and permission paths are unchanged.

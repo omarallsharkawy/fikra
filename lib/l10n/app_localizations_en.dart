@@ -1902,4 +1902,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get headerSearch => 'Search';
+
+  @override
+  String get capsuleRecording => 'Recording…';
+
+  @override
+  String get capsuleRecordingA11y => 'Recording. Tap to open recording';
+
+  @override
+  String get capsuleTranscribing => 'Transcribing…';
+
+  @override
+  String get capsuleTranscribingA11y => 'Transcribing recording. Tap to open note';
 }

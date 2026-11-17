@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fikra/core/widgets/glass_preview.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 
 import 'fake_transcription_engine.dart';
@@ -56,6 +57,7 @@ void fikraTest(
   Future<void> Function(WidgetTester tester, FikraDatabase db) body, {
   Object? tags,
   GlassTier? glassTier,
+  bool glassPreview = false,
   Brightness brightness = Brightness.dark,
   FileOpener? opener,
   Locale locale = const Locale('ar'),
@@ -96,6 +98,7 @@ void fikraTest(
         child: ProviderScope(
           overrides: [
             if (glassTier != null) glassTierProvider(false).overrideWith((ref) => glassTier),
+            if (glassPreview) glassPreviewEnabledProvider.overrideWithValue(true),
             databaseProvider.overrideWithValue(db),
             serviceKeysProvider.overrideWithValue(serviceKeys ?? MemoryServiceKeys()),
             transcriptionTransportProvider.overrideWithValue(transcriptionTransport ?? FakeTranscriptionTransport()),
@@ -160,8 +163,14 @@ class _NoFilesStore extends AttachmentStore {
 const appBoundaryKey = ValueKey('app-boundary');
 
 /// Writes the current frame to `build/screenshots/<name>.png`.
-Future<void> saveScreenshot(WidgetTester tester, String name) async {
-  await tester.pump(const Duration(milliseconds: 400)); // let springs settle
+Future<void> saveScreenshot(
+  WidgetTester tester,
+  String name, {
+  Duration settle = const Duration(milliseconds: 400),
+}) async {
+  if (settle > Duration.zero) {
+    await tester.pump(settle); // let springs settle
+  }
   final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(appBoundaryKey));
   // flutter_test paints shadows as hard solid shapes; screenshots show the real soft shadows.
   void repaint(RenderObject o) {

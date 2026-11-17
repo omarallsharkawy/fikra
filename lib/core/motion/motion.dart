@@ -33,6 +33,35 @@ abstract final class FikraMotion {
   static const sheet = Duration(milliseconds: 310);
   static const sheetCurve = Cubic(0.42, 0, 0.58, 1);
 
+  /// Add composer save confirmation tick before returning to normal.
+  static const saveTick = Duration(milliseconds: 360);
+
+  /// Recording breathing ring and live waveform smoothing.
+  static const pulse = Duration(milliseconds: 1600);
+  static const pulseCurve = Curves.easeInOut;
+  static const pulseExpand = 6.0;
+  static const waveformStep = Duration(milliseconds: 90);
+
+  /// First-appearance card stagger: at most 8 cards, 32 ms apart, 384 ms total (< 400 ms).
+  static const staggerStep = Duration(milliseconds: 32);
+  static const staggerItem = Duration(milliseconds: 160);
+  static const staggerTotal = Duration(milliseconds: 384);
+  static const staggerMaxItems = 8;
+  static const staggerOffset = 10.0;
+
+  /// Vertical digit roll when a visible count changes.
+  static const roll = Duration(milliseconds: 220);
+  static const rollCurve = Curves.easeOutCubic;
+
+  /// Container-transform note open/close (forward uses [push] and [pushCurve]).
+  static const containerPop = Duration(milliseconds: 280);
+  static const containerFadeStart = 0.12;
+  static const containerFadeEnd = 0.55;
+
+  /// Experimental scroll-driven tab-bar shrink.
+  static const barShrinkDistance = 120.0;
+  static const barShrunkHeight = 52.0;
+
   /// Reduce Motion: plain fades only.
   static const reducedFade = Duration(milliseconds: 180);
 

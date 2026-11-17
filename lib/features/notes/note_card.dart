@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 
 import '../../core/format.dart';
+import '../../core/motion/container_transform.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/motion/motion.dart';
 import '../../core/theme/tokens.dart';
@@ -14,9 +15,18 @@ import '../shared/note_groups.dart';
 import '../shared/note_presentation.dart';
 
 class NoteCard extends ConsumerWidget {
-  const NoteCard({super.key, required this.note, required this.onTap, this.onLongPress, this.selected, this.group});
+  const NoteCard({
+    super.key,
+    required this.note,
+    this.onTap,
+    this.onOpenWithOrigin,
+    this.onLongPress,
+    this.selected,
+    this.group,
+  }) : assert((onTap == null) != (onOpenWithOrigin == null), 'Provide exactly one of onTap or onOpenWithOrigin.');
   final Note note;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final ValueChanged<CardOrigin?>? onOpenWithOrigin;
   final VoidCallback? onLongPress;
 
   /// Null outside a selection; in one, whether this card is selected (a check
@@ -37,7 +47,9 @@ class NoteCard extends ConsumerWidget {
     // The thicker border takes its width from the padding, so nothing moves.
     final inset = on ? 2 - FikraSpace.hairline : 0.0;
     return Pressable(
-      onTap: onTap,
+      onTap: onOpenWithOrigin == null
+          ? onTap
+          : () => onOpenWithOrigin!(CardOrigin.fromContext(context, borderRadius: FikraRadius.lg)),
       onLongPress: onLongPress,
       selected: selected,
       pressedScale: 0.98,

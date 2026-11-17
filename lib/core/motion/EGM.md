@@ -115,3 +115,12 @@ dependency runs the other way (`theme/fikra_theme.dart` registers
   duration, plain pop fades and route removal within the pop budget (including
   Reduce Motion), and predictive back progress, cancellation and continuous
   commit at multiple gesture positions.
+
+## Motion & delight (redesign phase 7)
+
+- `motion.dart`: adds tokens `saveTick` (360 ms), `pulse` (1600 ms), `pulseCurve`, `pulseExpand` (6 dp), `waveformStep` (90 ms), `staggerStep` (32 ms), `staggerItem` (160 ms), `staggerTotal` (384 ms), `staggerMaxItems` (8), `staggerOffset` (10 dp), `roll` (220 ms), `rollCurve`, `containerPop` (280 ms), `containerFadeStart` (0.12), `containerFadeEnd` (0.55), `barShrinkDistance` (120 dp) and `barShrunkHeight` (52 dp).
+- `page_transitions.dart`: exports `FikraPredictiveBack`, shared by `FikraPageTransitionsBuilder` and `ContainerTransformPage`.
+- `container_transform.dart`: `CardOrigin` (`initialRect`, `borderRadius`, `currentRect`, `fromContext`) and `ContainerTransformPage<T>` (key `note-container-transform`). Keeps one stable wrapper tree around the page across open, rest, predictive back, non-flying pop and Reduce Motion so the page never reparents or remounts its `State`. Grows from the tapped card's global rect with `colorScheme.surface` cross-fading to `scaffoldBackgroundColor` and full screen; reverses into the live card rect when still mounted, `TickerMode`-enabled and overlapping its scroll viewport, falling back to `FikraMotion.pop` otherwise and to `FikraPageTransitionsBuilder` motion under Reduce Motion.
+- `stagger.dart`: `StaggerController` + `StaggeredEntry`. Records each project once its data loads (even if empty, so later stream arrivals never stagger) and animates only on a visible first load or a visible project switch (`onProjectChanged`); switching projects while hidden marks the project shown so returning to the tab never staggers. `StaggeredEntry` keeps one consistent `AnimatedBuilder` element depth at rest and in flight.
+- `rolling_text.dart`: `RollingText` + `@visibleForTesting` `RollingDigit`. Renders a single `Text` on first build, at rest and under Reduce Motion; vertically rolls only changed digits (Western `0-9` and Arabic-Indic `٠-٩`) in LTR digit order while preserving `maxLines`/`overflow` on prefix and suffix and exposing the final value via `Semantics`.
+- `recording_pulse.dart`: `RecordingPulse`. Isolated in `RepaintBoundary` + `CustomPaint`; stops its ticker when inactive, hidden via `TickerMode`, or under Reduce Motion (draws a static ring).

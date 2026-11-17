@@ -114,3 +114,9 @@ GroupFilterRow adds optional `counts` (displayed beside group names) and `clearS
 
 - `project_picker.dart` exports pure `orderProjects(List<ProjectSummary> projects, {String? currentId})`: places the project matching `currentId` first when present, then sorts remaining projects by `Project.createdAt` descending (breaking equal-second ties by reverse input index so newer insertions appear first). Both `showProjectPicker` (passing `selectedProjectProvider`'s ID) and `showProjectSwitcher` use it, while `LocalProjectsRepository.watchProjects()` keeps ascending storage order.
 - `link_picker.dart` passes `clearable: true` (`link-search-clear`) on `link-search`.
+
+## Motion & delight (redesign phase 7)
+
+- `inline_recorder.dart`: wraps the recording dot in `RecordingPulse` and drives `recording-waveform` (`RepaintBoundary` + `CustomPaint`) via an optional `levelUpdates` `Listenable` and a 90 ms (`FikraMotion.waveformStep`) smoothing `AnimationController`, so amplitude samples repaint only the waveform without rebuilding the parent screen. Updates `_from`/`_to` without `setState` when `TickerMode` is disabled or Reduce Motion is on.
+- `attachment_editor.dart`, `attachment_voice.dart`, `attachment_toolbar.dart`, `save_tick_button.dart`: `AttachmentEditing` exposes `levelUpdates` (`90 ms` amplitude listener) and `isAddComposer`, updates `RecordingActivity` live/elapsed state once per second, wraps `add-stop` in `RecordingPulse` (`add-stop-pulse`), and renders `add-save` via `SaveTickButton` (`Icons.check_rounded` at rest) + `@visibleForTesting` `SaveTickMark` in `save_tick_button.dart`.
+- `group_form.dart` & `project_picker.dart`: `ChoiceTag` and `ProjectRow` render labels/counts with `RollingText`.

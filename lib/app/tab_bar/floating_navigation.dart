@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/motion/motion.dart';
@@ -9,9 +10,18 @@ import 'sliding_tab_bar.dart';
 
 /// Branch IDs stay stable: Add owns branch 0, visible tabs own branches 1–3.
 class FloatingNavigation extends StatelessWidget {
-  const FloatingNavigation({super.key, required this.branch, required this.onSelect, this.keyboardOpen = false});
+  const FloatingNavigation({
+    super.key,
+    required this.branch,
+    required this.onSelect,
+    this.keyboardOpen = false,
+    this.shrink,
+    this.aboveBar,
+  });
   final int branch;
   final bool keyboardOpen;
+  final ValueListenable<double>? shrink;
+  final Widget? aboveBar;
   final void Function(int branch, bool reselect) onSelect;
 
   static const height = 72.0;
@@ -28,6 +38,58 @@ class FloatingNavigation extends StatelessWidget {
     // From AppShell, not MediaQuery here: viewInsets changes on every frame of
     // the keyboard animation, and only the open/closed edge matters.
     final keyboard = keyboardOpen;
+    final barRow = Row(
+      key: const ValueKey('floating-navigation'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 280),
+            child: FikraNavBar(
+              items: [
+                (context.l10n.navNotes, Icons.sticky_note_2_outlined),
+                (context.l10n.navLinks, Icons.hub_outlined),
+                (context.l10n.navAsk, Icons.chat_bubble_outline_rounded),
+              ],
+              index: branch - 1,
+              enabled: !keyboard,
+              shrink: shrink,
+              onSelect: (index, reselect) => onSelect(index + 1, reselect),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        RepaintBoundary(
+          child: Pressable(
+            key: const ValueKey('nav-add'),
+            onTap: () => onSelect(0, branch == 0),
+            selected: branch == 0,
+            semanticLabel: context.l10n.navAdd,
+            child: Glass(
+              padding: EdgeInsets.zero,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(shape: BoxShape.circle, gradient: context.colors.addGradient),
+                // Selected: an on-accent ring set 4 dp inside the edge, so it reads apart from the glass
+                // rim; an accent ring would vanish into the accent gradient.
+                padding: const EdgeInsets.all(4),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: branch == 0
+                        ? Border.all(color: context.colors.onAccent.withValues(alpha: .9), width: 1.5)
+                        : null,
+                  ),
+                  child: Center(child: Icon(Icons.add_rounded, size: 28, color: context.colors.onAccent)),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
     return IgnorePointer(
       ignoring: keyboard,
       child: ExcludeSemantics(
@@ -40,56 +102,16 @@ class FloatingNavigation extends StatelessWidget {
             duration: const Duration(milliseconds: 100),
             child: BackdropGroup(
               backdropKey: _backdrop,
-              child: Row(
-                key: const ValueKey('floating-navigation'),
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 280),
-                      child: FikraNavBar(
-                        items: [
-                          (context.l10n.navNotes, Icons.sticky_note_2_outlined),
-                          (context.l10n.navLinks, Icons.hub_outlined),
-                          (context.l10n.navAsk, Icons.chat_bubble_outline_rounded),
-                        ],
-                        index: branch - 1,
-                        enabled: !keyboard,
-                        onSelect: (index, reselect) => onSelect(index + 1, reselect),
-                      ),
+              child: aboveBar == null
+                  ? barRow
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 280), child: aboveBar),
+                        barRow,
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  RepaintBoundary(
-                    child: Pressable(
-                      key: const ValueKey('nav-add'),
-                      onTap: () => onSelect(0, branch == 0),
-                      selected: branch == 0,
-                      semanticLabel: context.l10n.navAdd,
-                      child: Glass(
-                        padding: EdgeInsets.zero,
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(shape: BoxShape.circle, gradient: context.colors.addGradient),
-                          // Selected: an on-accent ring set 4 dp inside the edge, so it reads apart from the glass
-                          // rim; an accent ring would vanish into the accent gradient.
-                          padding: const EdgeInsets.all(4),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: branch == 0
-                                  ? Border.all(color: context.colors.onAccent.withValues(alpha: .9), width: 1.5)
-                                  : null,
-                            ),
-                            child: Center(child: Icon(Icons.add_rounded, size: 28, color: context.colors.onAccent)),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ),

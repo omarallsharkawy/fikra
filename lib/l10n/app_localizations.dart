@@ -3277,6 +3277,30 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'دوّر'**
   String get headerSearch;
+
+  /// Status label in the floating activity capsule above the tab bar while recording on another tab.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيسجّل…'**
+  String get capsuleRecording;
+
+  /// Screen reader label for the floating recording activity capsule.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيسجّل. دوس عشان تفتح التسجيل'**
+  String get capsuleRecordingA11y;
+
+  /// Status label in the floating activity capsule above the tab bar while a background transcription job runs.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيفرّغ الصوت…'**
+  String get capsuleTranscribing;
+
+  /// Screen reader label for the floating transcription activity capsule.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة'**
+  String get capsuleTranscribingA11y;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

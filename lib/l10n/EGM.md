@@ -88,3 +88,7 @@ Fifteen described AR/EN keys cover Browse, Suggestions, confirmed/groups heading
 ## Ordering & IA (redesign phase 4)
 
 Five described keys in both ARBs: `servicesSection` («الخدمات المتصلة» / "Connected services"), `privacySection` («الخصوصية والبيانات» / "Privacy & data"), `notesSort` («ترتيب الملاحظات» / "Sort notes"), `headerGraph` («الخريطة» / "Graph"), and `headerSearch` («دوّر» / "Search"). `dataSection` was removed (the Data section merged into Privacy & data). Notes list sort options reuse `linksNewest` / `linksOldest`; search clear buttons reuse `clearSearch`; visible note editing reuses `edit`. Generated lookups are refreshed with `flutter gen-l10n`.
+
+## Motion & delight (redesign phase 7)
+
+Four described keys in both ARBs for the floating activity capsule: `capsuleRecording` («بيسجّل…» / "Recording…"), `capsuleRecordingA11y` («بيسجّل. دوس عشان تفتح التسجيل» / "Recording. Tap to open recording", static without elapsed placeholder so TalkBack does not re-announce every second), `capsuleTranscribing` («بيفرّغ الصوت…» / "Transcribing…"), and `capsuleTranscribingA11y` («بيفرّغ التسجيل. دوس عشان تفتح الملاحظة» / "Transcribing recording. Tap to open note"). Regenerated with `flutter gen-l10n`.

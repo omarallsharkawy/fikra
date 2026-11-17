@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/motion/stagger.dart';
 import 'link_pair_busy.dart';
 import 'links_index.dart';
 import 'suggestion_card.dart';
@@ -12,12 +13,13 @@ import 'suggestion_card.dart';
 /// pair whose accept/reject already succeeded starts leaving at once, before
 /// the re-derived list arrives.
 class SuggestionSliver extends ConsumerStatefulWidget {
-  const SuggestionSliver({super.key, required this.entries, this.empty, this.here});
+  const SuggestionSliver({super.key, required this.entries, this.empty, this.here, this.stagger});
   final List<SuggestionEntry> entries;
   final Widget? empty;
 
   /// See [SuggestionCard.here].
   final String? here;
+  final StaggerController? stagger;
 
   @override
   ConsumerState<SuggestionSliver> createState() => _SuggestionSliverState();
@@ -95,11 +97,12 @@ class _SuggestionSliverState extends ConsumerState<SuggestionSliver> {
       delegate: SliverChildBuilderDelegate(
         (context, i) {
           final e = _rows[i], key = _key(e);
+          final card = SuggestionCard(entry: e, here: widget.here);
           return _CollapsingSuggestion(
             key: ValueKey(key),
             leaving: _leaving.contains(key),
             reduced: reduced,
-            child: SuggestionCard(entry: e, here: widget.here),
+            child: widget.stagger == null ? card : StaggeredEntry(stagger: widget.stagger!, itemId: key, child: card),
           );
         },
         childCount: _rows.length,

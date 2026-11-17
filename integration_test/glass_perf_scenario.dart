@@ -1,9 +1,10 @@
-// Scroll + press/slide + links browse/suggestions/actions + graph pan workloads on the real floating controls, per glass tier.
+// Scroll + press/slide + links + motion workloads on the real floating controls, per glass tier.
 // Invoked by stress_test.dart after its isolated DB seed and notes-list open.
 // flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //   --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
 //   --target=integration_test/stress_test.dart
 import 'links_perf_scenario.dart';
+import 'motion_perf_scenario.dart';
 
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -138,6 +139,7 @@ Future<void> runGlassPerformance(
     expect(timings, isNotEmpty, reason: 'Slide frames must be delivered in the profile drive.');
     final slide = glassFrameReport(List.of(timings), hz);
     final links = await runLinksPerformance(tester, measure);
+    final motion = await runMotionPerformance(tester, container, measure);
     results[tier.name] = {
       'requested_tier': tier.name,
       'effective_tier': effective.name,
@@ -145,6 +147,7 @@ Future<void> runGlassPerformance(
       'live_refraction_supported': ui.ImageFilter.isShaderFilterSupported,
       ...scroll,
       'links_workloads': links,
+      'motion': motion,
       'slide_across_tabs': {'cycles': 6, 'moves_per_segment': 12, ...slide},
     };
   }

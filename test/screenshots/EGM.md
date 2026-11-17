@@ -64,3 +64,7 @@ links_library_test adds 70_links_browse, 71_links_filtered, 72_links_suggestions
 ## Ordering & IA (redesign phase 4)
 
 In `screens_test.dart`, `14_settings` opens Settings via `ValueKey('header-settings')`, and `08_edit_note` opens Edit from `NoteDetailsScreen` via `ValueKey('note-edit')`.
+
+## Motion & delight (redesign phase 7)
+
+`phase7_motion_test.dart` renders `phase7_save_tick` (mid-animation), `phase7_recording` (pulse ring and live waveform), `phase7_capsule_recording`, `phase7_capsule_transcribing` and `phase7_shrunk_bar` in Arabic/English × light/dark using `saveScreenshot(..., settle: Duration.zero)` and deterministic frosting.

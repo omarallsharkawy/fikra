@@ -1653,5 +1653,21 @@
   "headerSearch": "دوّر",
   "@headerSearch": {
     "description": "Short caption under the search icon in the graph header."
+  },
+  "capsuleRecording": "بيسجّل…",
+  "@capsuleRecording": {
+    "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
+  },
+  "capsuleRecordingA11y": "بيسجّل. دوس عشان تفتح التسجيل",
+  "@capsuleRecordingA11y": {
+    "description": "Screen reader label for the floating recording activity capsule."
+  },
+  "capsuleTranscribing": "بيفرّغ الصوت…",
+  "@capsuleTranscribing": {
+    "description": "Status label in the floating activity capsule above the tab bar while a background transcription job runs."
+  },
+  "capsuleTranscribingA11y": "بيفرّغ التسجيل. دوس عشان تفتح الملاحظة",
+  "@capsuleTranscribingA11y": {
+    "description": "Screen reader label for the floating transcription activity capsule."
   }
 }

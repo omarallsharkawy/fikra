@@ -26,3 +26,8 @@ Save resolves only unresolved new-recording defaults; an explicit off chip overr
 ## Floating navigation (redesign phase 2)
 
 Add is entered through nav-add, a floating gradient button; its StatefulShellBranch and draft lifecycle remain unchanged. The composer ListView adds NavigationInset.of(context) to its existing 24 dp bottom padding. The shell hides both floating controls while the keyboard is open and reduces the inset to zero.
+
+## Motion & delight (redesign phase 7)
+
+- `_AddScreenState` sets `isAddComposer => true` so `RecordingActivity` publishes live Add-tab recordings to `addRecordingLiveProvider` and `ActivityCapsule`.
+- Saving commits to SQLite, wakes queues, clears the draft and sets `saving = false` immediately (never waiting for animation), triggers `HapticFeedback.lightImpact()`, morphs `add-save` (`Icons.check_rounded` at rest) into `SaveTickMark` via `FikraSprings.smooth` for `FikraMotion.saveTick` (360 ms; snapped to `1.0` without spring under Reduce Motion or disabled `TickerMode`), then resets `add-save` to normal and navigates to `/notes` if `_saveCount` is unchanged (no newer save started, the user has not left the Add tab, and has not typed or edited the draft since).

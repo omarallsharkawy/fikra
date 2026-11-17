@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../core/motion/motion.dart';
+import '../../core/motion/stagger.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../l10n/localizations.dart';
@@ -44,12 +46,26 @@ class _ProjectView {
   }
 }
 
-class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
+class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with TickerProviderStateMixin {
   final _projects = <String, _ProjectView>{};
+  late final StaggerController _browseStagger = StaggerController(this);
+  late final StaggerController _suggestionsStagger = StaggerController(this);
+  bool _tickerEnabled = true;
   bool _openingGraph = false;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tickerEnabled = TickerMode.valuesOf(context).enabled;
+    final reduced = FikraMotion.reduced(context);
+    _browseStagger.syncVisibility(tickerEnabled: _tickerEnabled, reduced: reduced);
+    _suggestionsStagger.syncVisibility(tickerEnabled: _tickerEnabled, reduced: reduced);
+  }
+
+  @override
   void dispose() {
+    _browseStagger.dispose();
+    _suggestionsStagger.dispose();
     for (final p in _projects.values) {
       p.dispose();
     }
@@ -75,6 +91,11 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
   Widget build(BuildContext context) {
     LinksLibraryScreen.builds++;
     final project = ref.watch(selectedProjectProvider);
+    ref.listen(selectedProjectProvider, (previous, next) {
+      if (previous?.id == next?.id) return;
+      _browseStagger.onProjectChanged(next?.id, tickerEnabled: _tickerEnabled);
+      _suggestionsStagger.onProjectChanged(next?.id, tickerEnabled: _tickerEnabled);
+    });
     if (project == null) return const SizedBox.shrink();
     final state = _projects.putIfAbsent(project.id, _ProjectView.new);
     final source = ref.watch(linksLibraryProvider(project.id));
@@ -89,6 +110,25 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
       state.chip = (group: null, topic: null);
     }
     final view = index?.filter(chip: state.chip, search: state.query, sort: state.sort);
+    if (index != null && view != null) {
+      final tickerEnabled = TickerMode.valuesOf(context).enabled;
+      final reduced = FikraMotion.reduced(context);
+      if (state.segment == 0) {
+        _browseStagger.maybeStart(
+          projectId: project.id,
+          visibleIds: view.browse.map((e) => e.note.id),
+          tickerEnabled: tickerEnabled,
+          reduced: reduced,
+        );
+      } else {
+        _suggestionsStagger.maybeStart(
+          projectId: project.id,
+          visibleIds: view.suggestions.map((e) => pairKey(e.a.id, e.b.id)),
+          tickerEnabled: tickerEnabled,
+          reduced: reduced,
+        );
+      }
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -136,6 +176,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
                               SliverToBoxAdapter(child: SizedBox(height: LibraryControls.extent(context))),
                               SliverToBoxAdapter(
                                 child: LibraryChips(
+                                  key: ValueKey('links-chips-${project.id}'),
                                   index: index,
                                   groups: groups,
                                   chip: state.chip,
@@ -149,10 +190,15 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
                                   padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
                                   sliver: SliverList.builder(
                                     itemCount: view.browse.length,
-                                    itemBuilder: (_, i) => BrowseNoteCard(
-                                      key: ValueKey('browse-${view.browse[i].note.id}'),
-                                      entry: view.browse[i],
-                                    ),
+                                    itemBuilder: (_, i) {
+                                      final id = view.browse[i].note.id;
+                                      return StaggeredEntry(
+                                        key: ValueKey('browse-slot-$id'),
+                                        stagger: _browseStagger,
+                                        itemId: id,
+                                        child: BrowseNoteCard(key: ValueKey('browse-$id'), entry: view.browse[i]),
+                                      );
+                                    },
                                   ),
                                 )
                               else ...[
@@ -162,6 +208,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
                                     key: ValueKey((project.id, state.chip, state.query)),
                                     entries: view.suggestions,
                                     empty: _empty(state, index, suggestions: true),
+                                    stagger: _suggestionsStagger,
                                   ),
                                 ),
                               ],
@@ -173,6 +220,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
                     Align(
                       alignment: Alignment.topCenter,
                       child: LibraryControls(
+                        key: ValueKey('links-controls-${project.id}'),
                         search: state.search,
                         onSearch: (value) => _onSearch(state, value),
                         suggestions: index.suggestions.length,

@@ -17,6 +17,8 @@ class RecordingFake extends RecordPlatform {
   bool failCancel = false;
   bool failDispose = false;
   int maxActive = 0;
+  List<double>? amplitudeSequence;
+  int _ampIndex = 0;
 
   @override
   Future<void> create(String recorderId) async {
@@ -69,7 +71,16 @@ class RecordingFake extends RecordPlatform {
   @override
   Future<bool> isRecording(String recorderId) async => active.contains(recorderId);
   @override
-  Future<Amplitude> getAmplitude(String recorderId) async => Amplitude(current: -10, max: -5);
+  Future<Amplitude> getAmplitude(String recorderId) async {
+    final seq = amplitudeSequence;
+    if (seq != null && seq.isNotEmpty) {
+      final db = seq[_ampIndex % seq.length];
+      _ampIndex++;
+      return Amplitude(current: db, max: -2);
+    }
+    return Amplitude(current: -10, max: -5);
+  }
+
   @override
   void setOnConfigChanged(String recorderId, void Function(RecordConfig config)? handler) {}
   @override

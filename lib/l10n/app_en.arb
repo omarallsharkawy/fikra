@@ -1634,5 +1634,21 @@
   "headerSearch": "Search",
   "@headerSearch": {
     "description": "Short caption under the search icon in the graph header."
+  },
+  "capsuleRecording": "Recording…",
+  "@capsuleRecording": {
+    "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
+  },
+  "capsuleRecordingA11y": "Recording. Tap to open recording",
+  "@capsuleRecordingA11y": {
+    "description": "Screen reader label for the floating recording activity capsule."
+  },
+  "capsuleTranscribing": "Transcribing…",
+  "@capsuleTranscribing": {
+    "description": "Status label in the floating activity capsule above the tab bar while a background transcription job runs."
+  },
+  "capsuleTranscribingA11y": "Transcribing recording. Tap to open note",
+  "@capsuleTranscribingA11y": {
+    "description": "Screen reader label for the floating transcription activity capsule."
   }
 }

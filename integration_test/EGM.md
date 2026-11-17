@@ -31,3 +31,7 @@ The normal stress tab workload now maps branch IDs to three nav keys plus nav-ad
 ## Links comparison (redesign phase 3)
 
 The same FIKRA_GLASS_PERF drive runs links_perf_scenario once per tier: six Browse flings, six Suggestions flings, two accepts and two rejects with collapse, then six timed graph pans through the header route. Each workload has its own trace and build/raster p50/p90/p95/p99 plus phase/display over-budget frame counts using glassFrameReport. Warm-up/navigation occurs outside measured windows. The isolated seed now has a confirmed chain edge and a nonadjacent AI suggestion per note, five groups (one nested), and grouped/ungrouped topics. It keeps thousands of rows in each segment at 5,000 notes. The normal stress graph entry also opens the header button. Exact drive command remains atop glass_perf_scenario.dart; owner runs the phone, never this sandbox.
+
+## Motion workloads (redesign phase 7)
+
+`motion_perf_scenario.dart` (`runMotionPerformance`, called per tier from `glass_perf_scenario.dart` under `'motion'`) measures two traced workloads with `glassFrameReport` (`build` and `raster` `p50/p90/p95/p99` plus budget exceedances): `note_open` (six container-transform card opens from `NotesScreen` and back pops) and `scroll_shrink_bar` (six 2-second alternating scroll sweeps with `navBarShrinkEnabledProvider` enabled and restored in `finally`/`addTearDown`). Do not run on-device from the sandbox.

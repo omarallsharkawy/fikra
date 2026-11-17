@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fikra/app/providers.dart';
+import 'package:fikra/core/motion/motion.dart';
 import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:fikra/core/widgets/voice_player.dart';
@@ -106,6 +107,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(save);
     await waitFor(tester, () => !add.saving);
+    await tester.pump(FikraMotion.saveTick);
     final all = await pumpFuture(tester, () => LocalNotesRepository(db).notesOf(p.id));
     return all.singleWhere((n) => !before.any((old) => old.id == n.id));
   }
@@ -252,6 +254,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(save);
     await waitFor(tester, () => !add.saving);
+    await tester.pump(FikraMotion.saveTick);
     final all = await pumpFuture(tester, () => LocalNotesRepository(db).notesOf(p.id));
     expect(all, hasLength(2));
     expect(all.any((n) => n.title == 'draft'), isTrue);

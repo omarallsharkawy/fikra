@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/motion/pressable.dart';
+import '../../core/motion/rolling_text.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -251,7 +252,7 @@ class ChoiceTag extends StatelessWidget {
             if (selected) ...[Icon(Icons.check_rounded, size: 16, color: fg), const SizedBox(width: 4)],
             if (color != null) ...[GroupDot(color: color), const SizedBox(width: 6)],
             Flexible(
-              child: Text(
+              child: RollingText(
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

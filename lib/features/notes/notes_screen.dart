@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/motion.dart';
+import '../../core/motion/stagger.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -41,8 +42,10 @@ class NotesScreen extends ConsumerStatefulWidget {
   ConsumerState<NotesScreen> createState() => _NotesScreenState();
 }
 
-class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
+class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProviderStateMixin, _Selection {
   final _search = TextEditingController();
+  late final StaggerController _stagger = StaggerController(this);
+  bool _tickerEnabled = true;
   String _query = '';
   Timer? _debounce;
 
@@ -68,8 +71,16 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
   int _matchCount = 0;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tickerEnabled = TickerMode.valuesOf(context).enabled;
+    _stagger.syncVisibility(tickerEnabled: _tickerEnabled, reduced: FikraMotion.reduced(context));
+  }
+
+  @override
   void dispose() {
     _debounce?.cancel();
+    _stagger.dispose();
     _search.dispose();
     super.dispose();
   }
@@ -182,6 +193,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     // Another project: its own filter, and no selection carried over.
     ref.listen(selectedProjectProvider, (previous, next) {
       if (previous?.id == next?.id) return;
+      _stagger.onProjectChanged(next?.id, tickerEnabled: _tickerEnabled);
       setState(() {
         _filter = null;
         _selection = null;
@@ -197,7 +209,15 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     // The filtered group was deleted: back to all notes.
     if (_filter != null && groupsAsync.hasValue && !groups.any((g) => g.id == _filter)) _filter = null;
     _rebuildRows(all, groups, sort);
-    if (notesAsync.hasValue) _keepVisible(_rowOf);
+    if (notesAsync.hasValue) {
+      _keepVisible(_rowOf);
+      _stagger.maybeStart(
+        projectId: project?.id,
+        visibleIds: _rows.map((r) => r.note?.id).whereType<String>(),
+        tickerEnabled: TickerMode.valuesOf(context).enabled,
+        reduced: FikraMotion.reduced(context),
+      );
+    }
     final rows = _rows;
     final selection = _selection;
 
@@ -325,14 +345,19 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
                           return Padding(
                             key: ValueKey(n.id),
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: NoteCard(
-                              note: n,
-                              group: _groupsById[n.groupId],
-                              selected: selection?.contains(n.id),
-                              onTap: selection != null
-                                  ? () => _toggle(n.id)
-                                  : () => context.push('/note/${n.id}', extra: n),
-                              onLongPress: () => selection != null ? _toggle(n.id) : _startSelection(n.id),
+                            child: StaggeredEntry(
+                              stagger: _stagger,
+                              itemId: n.id,
+                              child: NoteCard(
+                                note: n,
+                                group: _groupsById[n.groupId],
+                                selected: selection?.contains(n.id),
+                                onTap: selection == null ? null : () => _toggle(n.id),
+                                onOpenWithOrigin: selection != null
+                                    ? null
+                                    : (origin) => context.push('/note/${n.id}', extra: (n, origin)),
+                                onLongPress: () => selection != null ? _toggle(n.id) : _startSelection(n.id),
+                              ),
                             ),
                           );
                         },
