@@ -14,6 +14,9 @@ extension _LinksSurface on _LinksScreenState {
             maintainSize: true,
             child: ProjectHeader(
               title: context.l10n.linksTitle,
+              // Pushed at /links/graph: the default maybePop runs this page's
+              // PopScope, so Back closes search/selection before leaving.
+              leading: (ModalRoute.of(context)?.canPop ?? false) ? const BackButton() : null,
               trailing: FikraIconButton(
                 key: _selection == null ? const ValueKey('graph-search-open') : null,
                 icon: Icons.search_rounded,

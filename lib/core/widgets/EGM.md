@@ -74,7 +74,7 @@ User-facing default strings resolve from `context.l10n`, in
     `obscure`, `textInputAction`, `maxLength`.
 - `selectors.dart`
   - `FikraChip({label, selected = false, onTap})`.
-  - `SegmentedPill({options, selected, onChanged})`.
+  - `SegmentedPill({options, selected, onChanged, semanticLabels, segmentKeys, height})`.
 - `status_badges.dart`
   - `FikraBadge({kind, label})` with `BadgeKind { demo, saved, processing, failed }`.
   - `StatusBanner({kind, message})` with `BannerKind { offline, error, info }`.
@@ -84,7 +84,7 @@ User-facing default strings resolve from `context.l10n`, in
   - `AsyncBody<T>({value, data, onRetry})`: renders a Riverpod `AsyncValue<T>`.
 - `sheets.dart`
   - `Future<T?> showFikraSheet<T>(context, {required title, required builder, tall = false})`.
-  - `SheetOption({label, icon, onTap, danger = false})`.
+  - `SheetOption({label, icon, onTap, danger = false, selected})`; `selected` exposes a single-choice sheet's current option to TalkBack.
 - `dialogs.dart`
   - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel, danger = true})`,
     with `danger: false` drawing the confirm as the primary button (a confirmation that loses nothing),
@@ -113,8 +113,10 @@ User-facing default strings resolve from `context.l10n`, in
 - `FikraBadge.label` overrides only the text. Colors still come from `kind`.
 - `FikraIconButton` always has a hit area of at least 48 dp, and `label` is its
   screen reader label.
-- `SegmentedPill` height is `Pressable.minTargetSize + 10`, which keeps each
-  segment at least 48 dp high. The selected pill follows `Directionality`.
+- `SegmentedPill` height defaults to `Pressable.minTargetSize + 10`, which keeps each
+  segment at least 48 dp high; callers that grow with text scale pass a taller
+  `height`. Labels are one line with ellipsis. `semanticLabels` replace the read
+  text (for counts), and `segmentKeys` key each segment's semantics node. The selected pill follows `Directionality`.
   Under Reduce Motion it jumps instead of springing.
 - `SegmentedPill` label colors are interpolated from the animation value, so a
   label is never light-on-light mid-slide.
@@ -210,8 +212,8 @@ watchdog windows/refresh budgets, callback lifecycle and no promotion.
 `test/glass_widget_test.dart` covers opaque/no-blur reading, each material tier,
 shared sibling backdrop keys, battery/reduced-motion caps, lens settings and
 offstage listener removal. Screenshot gallery: light/dark Arabic side by side.
-The graph minimap is the only product Glass consumer; preview/page-counter
-reading content stays solid, and the existing tab bar still reserves space.
+Product Glass consumers include the graph minimap, floating shell controls and
+Links library search dock; reading content remains solid. Shell screens use NavigationInset.
 
 ## Floating navigation (redesign phase 2)
 

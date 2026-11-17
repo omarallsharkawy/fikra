@@ -38,6 +38,8 @@ Future<List<Note>> graphNotes(WidgetTester tester, FikraDatabase db) async {
   });
   await pumpUntil(tester, find.text('project'));
   await tester.tap(Tabs.finder(Tabs.links));
+  await pumpUntil(tester, find.byKey(const ValueKey('links-open-graph')));
+  await tester.tap(find.byKey(const ValueKey('links-open-graph')));
   await pumpUntil(tester, find.byType(InteractiveViewer));
   await tester.pumpAndSettle();
   return notes;

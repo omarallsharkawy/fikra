@@ -24,3 +24,14 @@ class NavigationInsetPadding extends StatelessWidget {
     child: child,
   );
 }
+
+/// Empty box of [extra] plus the [NavigationInset] height, for the end of a
+/// scroll view. Only this box depends on the inset, so keyboard frames do not
+/// rebuild the list that owns it.
+class NavigationInsetSpacer extends StatelessWidget {
+  const NavigationInsetSpacer({super.key, this.extra = 0});
+  final double extra;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(height: extra + NavigationInset.of(context));
+}

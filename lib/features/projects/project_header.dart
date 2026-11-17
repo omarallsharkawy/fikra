@@ -14,9 +14,12 @@ import '../shared/project_picker.dart';
 
 /// Screen title + current project pill that opens the project switcher.
 class ProjectHeader extends ConsumerWidget {
-  const ProjectHeader({super.key, required this.title, this.trailing});
+  const ProjectHeader({super.key, required this.title, this.trailing, this.leading});
   final String title;
   final Widget? trailing;
+
+  /// A 48 dp control before the title (a pushed page's Back), on the same row.
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,6 +31,8 @@ class ProjectHeader extends ConsumerWidget {
     const chipChromeWidth = 24 + 18 + 6 + 4 + 18 + 2 * FikraSpace.hairline;
     const compactChipChromeWidth = 8 + 4 + 18 + 2 * FikraSpace.hairline;
     final actionWidth = trailing == null ? 0.0 : Pressable.minTargetSize + 8;
+    const leadingGap = 4.0;
+    final leadingWidth = leading == null ? 0.0 : Pressable.minTargetSize + leadingGap;
 
     Widget projectChip({required bool compact}) => Pressable(
       onTap: () => showProjectSwitcher(context, ref),
@@ -91,7 +96,8 @@ class ProjectHeader extends ConsumerWidget {
             locale: Localizations.localeOf(context),
             maxLines: 1,
           )..layout();
-          final chipWidth = constraints.maxWidth - measurement.width - titleGap - settingsWidth - actionWidth;
+          final chipWidth =
+              constraints.maxWidth - leadingWidth - measurement.width - titleGap - settingsWidth - actionWidth;
           measurement.dispose();
           // Keep an initial character and the renderer's ellipsis visible.
           final nameMeasurement = TextPainter(
@@ -107,7 +113,17 @@ class ProjectHeader extends ConsumerWidget {
           final nameSpace = nameMeasurement.width;
           nameMeasurement.dispose();
           final minimumChipWidth = (compactChipChromeWidth + nameSpace).clamp(Pressable.minTargetSize, double.infinity);
-          final heading = Text(title, style: titleStyle, maxLines: 1, softWrap: false);
+          final text = Text(title, style: titleStyle, maxLines: 1, softWrap: false);
+          final heading = leading == null
+              ? text
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    leading!,
+                    const SizedBox(width: leadingGap),
+                    Flexible(child: text),
+                  ],
+                );
           // Preserve the full title and 48 dp controls when both cannot fit.
           if (chipWidth < minimumChipWidth) {
             return Column(

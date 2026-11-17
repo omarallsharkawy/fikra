@@ -9,6 +9,8 @@
 //     --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
 //     --target=integration_test/stress_test.dart
 //
+// Add --dart-define=FIKRA_GLASS_PERF=true for per-tier Notes/slide/Links/graph metrics.
+// Use --dart-define=FIKRA_STRESS_N=5000 for the phase-3 phone comparison.
 // Results: build/integration_response_data.json. Uses its own database file and
 // never touches the app's real data or attachment files. Profile builds install
 // as com.fikra.app.stress (android/app/build.gradle.kts), a separate app.
@@ -150,12 +152,27 @@ void main() {
       return sw.elapsedMicroseconds / 1000;
     }
 
-    // ---- seed: N notes, ~2 links each, 40 chat entries
+    // ---- seed: N notes, one confirmed chain edge + one AI suggestion each, 40 chat entries
     final now = DateTime.now();
     final ids = <String>[];
     report['seed_ms'] = await time(() async {
       await db.into(db.projects).insert(Project(id: 'p', name: 'ضغط', createdAt: now));
       await db.into(db.settings).insert(Setting(key: 'current_project', value: 'p'));
+      await db.batch((batch) {
+        for (var g = 0; g < 5; g++) {
+          batch.insert(
+            db.noteGroups,
+            NoteGroup(
+              id: 'g$g',
+              projectId: 'p',
+              name: 'مجموعة $g',
+              position: g,
+              createdAt: now,
+              parentId: g == 1 ? 'g0' : null,
+            ),
+          );
+        }
+      });
       const chunk = 500;
       for (var start = 0; start < _n; start += chunk) {
         await db.batch((b) {
@@ -175,6 +192,7 @@ void main() {
                 status: ProcessingStatus.ready,
                 concepts: Value([topic, 'مراجعة', 'نوت ${i % 50}'].join('|')),
                 cluster: Value(topic),
+                groupId: i % 3 == 0 ? Value('g${i % 5}') : const Value(null),
                 createdAt: now.subtract(Duration(minutes: i * 37)),
                 updatedAt: now,
               ),
@@ -213,10 +231,10 @@ void main() {
                 id: 'l$i-$k',
                 projectId: 'p',
                 sourceId: 'n$i',
-                targetId: 'n${rnd.nextInt(i)}',
+                targetId: k == 0 ? 'n${i - 1}' : 'n${(i + 37) % _n}',
                 label: 'مرتبطة',
                 strength: rnd.nextDouble(),
-                origin: LinkOrigin.ai,
+                origin: k == 0 ? LinkOrigin.user : LinkOrigin.ai,
                 dismissed: false,
                 createdAt: now,
               ),
@@ -323,6 +341,8 @@ void main() {
     // Links graph
     report['open_links_ms'] = await time(() async {
       await tester.tap(find.byKey(const ValueKey('nav-1')));
+      await until(find.byKey(const ValueKey('links-open-graph')));
+      await tester.tap(find.byKey(const ValueKey('links-open-graph')));
       await until(find.byType(InteractiveViewer));
       await tester.pump();
     });

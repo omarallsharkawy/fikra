@@ -56,3 +56,7 @@ The pointer is released only after the mid-slide capture. All view/pointer clean
 uses addTearDown. Existing screens_test, transcription_test and voice2_test enter
 Add through Tabs.addButton. Render these fixtures with the existing screenshots
 command; no images have been rendered or visually approved in this environment.
+
+## Links library (redesign phase 3)
+
+links_library_test adds 70_links_browse, 71_links_filtered, 72_links_suggestions, 73_note_connections, 74_links_graph_option and 75_links_suggestions_empty in Arabic/English x light/dark. Real router/SQLite, parent/child groups, topics, previews and three suggestions use the shared fixture and saveScreenshot, with deterministic frosting and real fonts. The old graph captures remain and enter through the new header button in graph_fixture/screens_test. Rendering and visual QA have not run in this sandbox; use the existing screenshot command above on the unrestricted runner.

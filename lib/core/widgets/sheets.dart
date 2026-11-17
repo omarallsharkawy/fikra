@@ -101,11 +101,21 @@ Future<T?> showFikraSheet<T>(
 
 /// Option row used inside sheets (rename, delete, …).
 class SheetOption extends StatelessWidget {
-  const SheetOption({super.key, required this.label, required this.icon, required this.onTap, this.danger = false});
+  const SheetOption({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    this.danger = false,
+    this.selected,
+  });
   final String label;
   final IconData icon;
   final VoidCallback onTap;
   final bool danger;
+
+  /// Set for single-choice lists, so TalkBack reads the current option as selected.
+  final bool? selected;
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +125,7 @@ class SheetOption extends StatelessWidget {
       child: Pressable(
         onTap: onTap,
         pressedScale: 0.98,
+        selected: selected,
         child: SolidSurface(
           radius: FikraRadius.md,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),

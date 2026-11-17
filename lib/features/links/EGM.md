@@ -2,7 +2,7 @@
 
 ## Overview
 
-The knowledge graph tab, mounted at `/links` by `lib/app/router.dart`. User groups are nested frames, ungrouped analysis topics are rows, notes are nodes, and links are curves. With no groups, the legacy row geometry is retained. Layout is a pure computation that can run off the UI thread for large projects.
+The optional knowledge graph, mounted at `/links/graph` by `lib/app/router.dart`. User groups are nested frames, ungrouped analysis topics are rows, notes are nodes, and links are curves. With no groups, the legacy row geometry is retained. Layout is a pure computation that can run off the UI thread for large projects.
 
 ## Interface
 
@@ -148,3 +148,7 @@ power/timings alongside the existing real-app tests.
 ## Floating navigation (redesign phase 2)
 
 The complete graph/search/selection column consumes NavigationInset.of(context). Graph preview, minimap, selection actions, empty/error views and search-result lists therefore remain above the floating navigation. The inset is zero with the keyboard open. Graph pan/selection gestures and the branch stack are unchanged.
+
+## Redesign phase 3 hosting
+
+The graph is now the optional `/links/graph` route pushed inside the Links shell branch. `/links` mounts the new [connections library](../connections/EGM.md). `LinksScreen` and all graph files/keys/probes remain intact. `links_surface.dart` passes a route-aware `BackButton` as `ProjectHeader.leading`, on the existing title row (no extra row); standalone graph harnesses retain their original header when no route can pop. Its default `maybePop` goes through the screen's `PopScope`, so Back closes search or selection first, like system Back. Back returns to the library and preserves its state. Graph fixtures and phone regressions open the header action after entering Links; screenshot graph entry follows the same path. No graph geometry, painter or navigation algorithm changes.

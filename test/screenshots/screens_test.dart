@@ -243,6 +243,8 @@ void main() {
           await capture('09_add_typed');
 
           await tester.tap(Tabs.finder(Tabs.links));
+          await pumpUntil(tester, find.byKey(const ValueKey('links-open-graph')));
+          await tester.tap(find.byKey(const ValueKey('links-open-graph')));
           final aiGroup = await DemoAiService.clusterFor('rag', locale: locale);
           await pumpUntil(tester, find.text(aiGroup));
           await capture('10_links');

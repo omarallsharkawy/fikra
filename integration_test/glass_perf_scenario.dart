@@ -1,8 +1,10 @@
-// Scroll + press/slide workloads on the real floating controls, per glass tier.
+// Scroll + press/slide + links browse/suggestions/actions + graph pan workloads on the real floating controls, per glass tier.
 // Invoked by stress_test.dart after its isolated DB seed and notes-list open.
 // flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //   --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
 //   --target=integration_test/stress_test.dart
+import 'links_perf_scenario.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -69,6 +71,17 @@ Future<void> runGlassPerformance(
   addTearDown(() => SchedulerBinding.instance.removeTimingsCallback(collect));
   final position = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
   final reduced = MediaQuery.disableAnimationsOf(tester.element(find.byType(Scrollable).last));
+  Future<Map<String, Object>> measure(String name, Future<void> Function() action) async {
+    timings.clear();
+    await binding.traceAction(
+      action,
+      reportKey: '${name}_${container.read(glassTierOverrideProvider)?.name ?? "automatic"}',
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    expect(timings, isNotEmpty, reason: 'Links frames must be delivered in the profile drive.');
+    return glassFrameReport(List.of(timings), hz);
+  }
+
   for (final tier in GlassTier.values) {
     container.read(glassTierOverrideProvider.notifier).force(tier);
     // Load all three persistent branches before collecting frames.
@@ -123,13 +136,16 @@ Future<void> runGlassPerformance(
     }, reportKey: 'glass_slide_trace_${tier.name}');
     await Future<void>.delayed(const Duration(milliseconds: 500));
     expect(timings, isNotEmpty, reason: 'Slide frames must be delivered in the profile drive.');
+    final slide = glassFrameReport(List.of(timings), hz);
+    final links = await runLinksPerformance(tester, measure);
     results[tier.name] = {
       'requested_tier': tier.name,
       'effective_tier': effective.name,
       'scroll_duration_seconds': 12,
       'live_refraction_supported': ui.ImageFilter.isShaderFilterSupported,
       ...scroll,
-      'slide_across_tabs': {'cycles': 6, 'moves_per_segment': 12, ...glassFrameReport(timings, hz)},
+      'links_workloads': links,
+      'slide_across_tabs': {'cycles': 6, 'moves_per_segment': 12, ...slide},
     };
   }
   SchedulerBinding.instance.removeTimingsCallback(collect);

@@ -41,10 +41,25 @@ class FikraChip extends StatelessWidget {
 /// Segmented control: the selected pill slides with the smooth spring
 /// (instantly under Remove animations). Each segment is a 48 dp target.
 class SegmentedPill extends StatefulWidget {
-  const SegmentedPill({super.key, required this.options, required this.selected, required this.onChanged});
+  const SegmentedPill({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+    this.semanticLabels,
+    this.segmentKeys,
+    this.height = Pressable.minTargetSize + 10,
+  });
   final List<String> options;
   final int selected;
   final ValueChanged<int> onChanged;
+
+  /// Read by TalkBack instead of the visible option text (e.g. "Suggestions, 3").
+  final List<String>? semanticLabels;
+  final List<Key>? segmentKeys;
+
+  /// Callers that scale with the text size pass a taller height.
+  final double height;
 
   @override
   State<SegmentedPill> createState() => _SegmentedPillState();
@@ -76,7 +91,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
     return SolidSurface(
       radius: FikraRadius.full,
       padding: const EdgeInsets.all(4),
-      height: Pressable.minTargetSize + 10,
+      height: widget.height,
       child: LayoutBuilder(
         builder: (context, c) {
           final w = c.maxWidth / widget.options.length;
@@ -106,20 +121,30 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                     for (var i = 0; i < widget.options.length; i++)
                       Expanded(
                         child: Semantics(
+                          key: widget.segmentKeys?[i],
                           button: true,
                           selected: i == widget.selected,
+                          label: widget.semanticLabels?[i],
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => widget.onChanged(i),
                             child: Center(
-                              child: Text(
-                                widget.options[i],
-                                // Follows the pill, so a label is never light-on-light mid-slide.
-                                style: context.text.chip.copyWith(
-                                  color: Color.lerp(
-                                    context.colors.textSecondary,
-                                    context.colors.accent,
-                                    (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
+                              child: ExcludeSemantics(
+                                excluding: widget.semanticLabels != null,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    widget.options[i],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    // Follows the pill, so a label is never light-on-light mid-slide.
+                                    style: context.text.chip.copyWith(
+                                      color: Color.lerp(
+                                        context.colors.textSecondary,
+                                        context.colors.accent,
+                                        (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

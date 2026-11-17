@@ -21,6 +21,8 @@ class GroupFilterRow extends StatelessWidget {
     required this.onOptions,
     this.navigation = false,
     this.enabled = true,
+    this.counts,
+    this.clearSelectedChild = false,
   });
 
   /// Graph mode: chips move the view, never filter, so none looks selected and
@@ -30,6 +32,8 @@ class GroupFilterRow extends StatelessWidget {
 
   /// False dims the row and ignores taps (graph selection mode).
   final bool enabled;
+  final Map<String, int>? counts;
+  final bool clearSelectedChild;
   final List<NoteGroup> groups;
   final String? selectedId;
   final ValueChanged<String?> onSelect;
@@ -48,7 +52,7 @@ class GroupFilterRow extends StatelessWidget {
     ];
     Widget chip(NoteGroup g, {required bool on, required VoidCallback onTap}) => ChoiceTag(
       key: ValueKey('group-filter-${g.id}'),
-      label: g.name,
+      label: counts == null ? g.name : '${g.name} ${counts![g.id] ?? 0}',
       color: g.color,
       selected: !navigation && on,
       semanticLabel: navigation ? context.l10n.graphNavigateGroup(Fmt.isolate(g.name)) : null,
@@ -106,7 +110,8 @@ class GroupFilterRow extends StatelessWidget {
                     chip(
                       g,
                       on: g.id == selectedId,
-                      onTap: () => onSelect(!navigation && g.id == selectedId ? parent!.id : g.id),
+                      onTap: () =>
+                          onSelect(!navigation && g.id == selectedId ? (clearSelectedChild ? null : parent!.id) : g.id),
                     ),
                 ],
               ),

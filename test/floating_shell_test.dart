@@ -2,7 +2,7 @@ import 'package:fikra/app/tab_bar/floating_navigation.dart';
 import 'package:fikra/features/add/add_screen.dart';
 import 'package:fikra/core/widgets/toasts.dart';
 import 'package:fikra/features/note_details/note_details_screen.dart';
-import 'package:fikra/features/links/links_screen.dart';
+import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/notes/notes_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,7 +84,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(Tabs.finder(Tabs.notes));
     await tester.pumpAndSettle();
-    final links = LinksScreen.builds;
+    final links = LinksLibraryScreen.builds;
     final closed = tester.widget(find.byType(FloatingNavigation));
     tester.view.viewInsets = const FakeViewPadding(bottom: 80 * 3);
     await tester.pump();
@@ -99,7 +99,7 @@ void main() {
     tester.view.resetViewInsets();
     await tester.pumpAndSettle();
     // The offstage Links screen only re-pads; its build is not repeated.
-    expect(LinksScreen.builds, links);
+    expect(LinksLibraryScreen.builds, links);
   });
 
   fikraTest('Add button retains draft and keyboard hides both floating controls', (tester, db) async {

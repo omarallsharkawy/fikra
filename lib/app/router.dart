@@ -9,6 +9,8 @@ import '../data/local/database.dart';
 import '../features/add/add_screen.dart';
 import '../features/ask/ask_screen.dart';
 import '../features/links/links_screen.dart';
+import '../features/connections/links_library_screen.dart';
+import '../features/connections/note_connections_screen.dart';
 import '../features/note_details/edit_note_screen.dart';
 import '../features/note_details/note_details_screen.dart';
 import '../features/note_details/pdf_viewer_screen.dart';
@@ -75,7 +77,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: '/notes', builder: (_, _) => const NotesScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/links', builder: (_, _) => const LinksScreen())],
+            routes: [
+              GoRoute(
+                path: '/links',
+                builder: (_, _) => const LinksLibraryScreen(),
+                routes: [
+                  GoRoute(path: 'graph', pageBuilder: (_, s) => _pushed(s, const LinksScreen())),
+                  GoRoute(
+                    path: 'note/:id',
+                    pageBuilder: (_, s) => _pushed(s, NoteConnectionsScreen(noteId: s.pathParameters['id']!)),
+                  ),
+                ],
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: '/ask', builder: (_, _) => const AskScreen())],

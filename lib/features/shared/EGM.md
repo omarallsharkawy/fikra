@@ -105,3 +105,7 @@ for their marker hue, rather than assuming every stored colour is dark.
 ## Voice 2a explicit recording policy
 
 Every voice chip in Add/Edit shows off and after-save ChoiceTags, including when global auto is on. Stop snapshots the persisted auto preference into the new draft's policy; changing a chip is explicit and overrides that default. Saved rows show their stored policy and only an actual chip choice marks policyChanged; merely saving a stale editor preserves newer live policy/correction metadata. Chips keep path/position identity, existing playback and microphone/capture settings. No live option, new capture path or draft transcription is introduced.
+
+## Links library reuse (redesign phase 3)
+
+GroupFilterRow adds optional `counts` (displayed beside group names) and `clearSelectedChild` (selected child retap clears instead of selecting its parent). Defaults preserve Notes and graph sub-group/navigation behaviour. The library reuses uniqueLinkPairs, linksOfNote, showLinkOptions, changeLinkPair's pair-operation contract, showLinkPicker, group options and title helpers. Details' private rows remain unchanged because connections require body previews and explicit empty reasons.

@@ -1548,5 +1548,87 @@
   "v2TranscriptSaved": "التفريغ اتحفظ",
   "@v2TranscriptSaved": {
     "description": "Correction success feedback."
+  },
+  "linksBrowse": "تصفّح",
+  "@linksBrowse": {
+    "description": "Links library browse segment."
+  },
+  "linksSuggestions": "اقتراحات",
+  "@linksSuggestions": {
+    "description": "Links library suggestions segment and section heading."
+  },
+  "linksConfirmed": "روابط مؤكدة",
+  "@linksConfirmed": {
+    "description": "Confirmed connections section heading."
+  },
+  "linksGroups": "المجموعات",
+  "@linksGroups": {
+    "description": "Links library group chips heading."
+  },
+  "linksSuggestedForYou": "مقترحة ليك",
+  "@linksSuggestedForYou": {
+    "description": "Explains that topic chips are AI suggestions."
+  },
+  "searchLinksHint": "دوّر في الروابط",
+  "@searchLinksHint": {
+    "description": "Search the links library by note text and title."
+  },
+  "linksSort": "ترتيب الروابط",
+  "@linksSort": {
+    "description": "Filter dock tooltip and sort sheet title."
+  },
+  "linksNewest": "الأحدث الأول",
+  "@linksNewest": {
+    "description": "Links library sort order."
+  },
+  "linksMostLinked": "اللي فيها روابط أكتر",
+  "@linksMostLinked": {
+    "description": "Links library sort by confirmed degree."
+  },
+  "linksOldest": "الأقدم الأول",
+  "@linksOldest": {
+    "description": "Links library sort order."
+  },
+  "linksOpenGraph": "افتح خريطة الروابط",
+  "@linksOpenGraph": {
+    "description": "Header action to open the optional graph."
+  },
+  "linkNoReason": "من غير سبب مكتوب",
+  "@linkNoReason": {
+    "description": "Muted fallback for an empty link reason."
+  },
+  "linksSuggestionsEmpty": "مفيش اقتراحات دلوقتي",
+  "@linksSuggestionsEmpty": {
+    "description": "Empty suggestions list title."
+  },
+  "linksSuggestionsEmptyBody": "لما يبقى فيه اقتراحات جديدة، هتلاقيها هنا.",
+  "@linksSuggestionsEmptyBody": {
+    "description": "Empty suggestions list explanation."
+  },
+  "linksBrowseSuggestionsBody": "فيه اقتراحات مستنية رأيك. اقبل أي رابط عشان يظهر هنا.",
+  "@linksBrowseSuggestionsBody": {
+    "description": "Empty confirmed library directs the user to suggestions."
+  },
+  "linksSuggestionsCount": "اقتراحات {count}",
+  "@linksSuggestionsCount": {
+    "description": "Suggestions segment label with the number of waiting suggestions (shown only when above zero).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksSuggestionsCountA11y": "اقتراحات، {count}",
+  "@linksSuggestionsCountA11y": {
+    "description": "TalkBack label of the suggestions segment with the number of waiting suggestions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksFilterEmptyBody": "مفيش حاجة هنا لسه. جرّب مجموعة أو موضوع تاني.",
+  "@linksFilterEmptyBody": {
+    "description": "Links library empty state when a group or topic chip is selected and the search is empty."
   }
 }

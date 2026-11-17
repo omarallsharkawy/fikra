@@ -62,7 +62,9 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 | `/storage-error` | `StorageErrorScreen` | Top level, `builder:` |
 | `/add` | `AddScreen` | Shell branch 0 |
 | `/notes` | `NotesScreen` | Shell branch 1 |
-| `/links` | `LinksScreen` | Shell branch 2 |
+| `/links` | `LinksLibraryScreen` | Shell branch 2 |
+| `/links/graph` | `LinksScreen` | Pushed on branch 2 |
+| `/links/note/:id` | `NoteConnectionsScreen` | Pushed on branch 2 |
 | `/ask` | `AskScreen` | Shell branch 3 |
 | `/settings` | `SettingsScreen` | Top level, `pageBuilder:` via `_pushed` |
 | `/note/:id` | `NoteDetailsScreen` | Top level, `pageBuilder:` via `_pushed` |
@@ -262,3 +264,7 @@ in debug/profile; release excludes it. No phase-2 navigation or Add control.
 ## Voice 2a
 
 modelDiscoveryProvider supplies fakeable transport plus database-backed availability cache. transcriptCorrectionsProvider supplies the transactional correction service and normal processor callback. The pushed /note/:id/transcript/:attachmentId route uses _pushed/MaterialPage and looks up the live attachment within its note; no correction/audio is placed in navigation arguments.
+
+## Links routes (redesign phase 3)
+
+`/links` now mounts LinksLibraryScreen. Child routes `graph` (retained LinksScreen) and `note/:id` (NoteConnectionsScreen) use `_pushed` on the Links branch navigator. Both retain the floating bar; Back returns to the library/previous connections page. Full `/note/:id` stays on the root navigator. No shell branch indices or tab gestures change.

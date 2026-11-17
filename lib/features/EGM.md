@@ -10,7 +10,7 @@ Shared feature boundaries: `add`, `ask`, `links`, and `notes` use `ProjectHeader
 
 - add: [./add/EGM.md](./add/EGM.md) - Composer branch at `/add`, entered by the floating Add button: text, voice recording, and PDF capture, with save-then-analyze ordering.
 - ask: [./ask/EGM.md](./ask/EGM.md) - Chat tab at `/ask`: questions answered from the selected project's notes, with sources.
-- links: [./links/EGM.md](./links/EGM.md) - Graph tab at `/links`: pure capped layout, moved to an isolate for large projects.
+- links: [./links/EGM.md](./links/EGM.md) - Optional graph at `/links/graph`: pure capped layout, moved to an isolate for large projects.
 - note_details: [./note_details/EGM.md](./note_details/EGM.md) - Pushed read view, editor, and local PDF viewer at `/note/:id`, `/note/:id/edit`, and `/note/:id/pdf/:attachmentId`.
 - notes: [./notes/EGM.md](./notes/EGM.md) - List tab at `/notes`: day-grouped lazy list with cached client-side search, group filter and tags, and selection mode with link/group/move/delete.
 - projects: [./projects/EGM.md](./projects/EGM.md) - Shared header, project switcher, name prompt, and the `/welcome` screen.
@@ -32,3 +32,8 @@ hairlines; selected fills and action colours come from the consolidated palette.
 The graph minimap and shell navigation use floating Glass. Notes/Add scroll
 beneath the shell controls using NavigationInset; Ask/Links keep fixed tools
 above the same shared clearance. No data or route topology changes are made.
+
+## Links library (redesign phase 3)
+
+- connections: [./connections/EGM.md](./connections/EGM.md) owns Browse and Suggestions at `/links`, plus `/links/note/:id`. Its pure cached derivation is shared by both screens.
+- links now owns the retained graph at `/links/graph`; the library header opens it. Shared link actions/picker are reused. Note-details rows remain unchanged.

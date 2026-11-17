@@ -168,7 +168,11 @@ void main() {
     t,
     db,
   ) async {
-    navPhone(t);
+    // The pushed /links/graph header carries Back on its title row. With the
+    // test font (every glyph is a full em) "Links" is 130 dp wide, so that row
+    // wraps and note 3 lands under the floating tab bar on an 844 dp phone; a
+    // taller phone keeps the long press on the card. Real fonts do not wrap.
+    navPhone(t, height: 900);
     final f = await seedNavigation(t, db);
     final card = navKey(f.notes[3].id);
     final where = t.getCenter(card);

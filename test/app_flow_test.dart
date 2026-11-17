@@ -29,7 +29,8 @@ void main() {
     expect(find.text(l10n.sampleProjectName), findsOneWidget);
 
     await tester.tap(Tabs.finder(Tabs.links));
-    await pumpUntil(tester, find.text('الذكاء الاصطناعي'));
+    await pumpUntil(tester, find.byKey(const ValueKey('links-segment-0')));
+    expect(find.text(l10n.linksBrowse), findsOneWidget);
   });
 
   fikraTest('notes search filters after a short pause and clears instantly', (tester, db) async {

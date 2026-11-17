@@ -37,3 +37,9 @@ Tabs.addButton (nav-add), never a tab index. All existing Add callers are update
 The harness optionally accepts glassTier for deterministic frosted screenshots;
 production automatic tier selection is unchanged. Existing DB/resource teardown
 remains inside the test zone, with no new close-after-unmount awaits.
+
+## Links library (redesign phase 3)
+
+links_library_data supplies pure projection factories and the 5,000-note/9,998-pair diagnostic shared by the unit test and direct cached-Dart timing. links_library_fixture seeds a real app project with parent/child groups, topics, confirmed chains and three suggestions, supports localized screenshot content, exposes unique vertical scroll/segment/route helpers and LibrarySpy (per-operation gate/failure/call counts and a completion future). Tests own gates through addTearDown and wait for writes before teardown. No harness cleanup or native mocks change.
+
+measureLargeLibrary is the exact diagnostic body called by links_index_test. It times the notes half, the links half (cold, and the median of five link-write re-runs) and one search. Latest host run: ~40 ms cold total (notes ~19 ms, links ~20 ms), ~8 ms per link write, ~4.5 ms search, for 5,000 notes and 9,998 pair rows producing 5,000 Browse rows and 4,999 suggestions. Projection creation is outside the timer. Direct Dart smoke assertions for dedupe/project/dismissal/count/search/cache rules passed; no Flutter suite result is claimed.

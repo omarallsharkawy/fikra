@@ -1529,5 +1529,87 @@
   "v2TranscriptSaved": "Transcript saved",
   "@v2TranscriptSaved": {
     "description": "Correction success feedback."
+  },
+  "linksBrowse": "Browse",
+  "@linksBrowse": {
+    "description": "Links library browse segment."
+  },
+  "linksSuggestions": "Suggestions",
+  "@linksSuggestions": {
+    "description": "Links library suggestions segment and section heading."
+  },
+  "linksConfirmed": "Confirmed links",
+  "@linksConfirmed": {
+    "description": "Confirmed connections section heading."
+  },
+  "linksGroups": "Groups",
+  "@linksGroups": {
+    "description": "Links library group chips heading."
+  },
+  "linksSuggestedForYou": "Suggested for you",
+  "@linksSuggestedForYou": {
+    "description": "Explains that topic chips are AI suggestions."
+  },
+  "searchLinksHint": "Search links",
+  "@searchLinksHint": {
+    "description": "Search the links library by note text and title."
+  },
+  "linksSort": "Sort links",
+  "@linksSort": {
+    "description": "Filter dock tooltip and sort sheet title."
+  },
+  "linksNewest": "Newest first",
+  "@linksNewest": {
+    "description": "Links library sort order."
+  },
+  "linksMostLinked": "Most links first",
+  "@linksMostLinked": {
+    "description": "Links library sort by confirmed degree."
+  },
+  "linksOldest": "Oldest first",
+  "@linksOldest": {
+    "description": "Links library sort order."
+  },
+  "linksOpenGraph": "Open links graph",
+  "@linksOpenGraph": {
+    "description": "Header action to open the optional graph."
+  },
+  "linkNoReason": "No reason added",
+  "@linkNoReason": {
+    "description": "Muted fallback for an empty link reason."
+  },
+  "linksSuggestionsEmpty": "No suggestions right now",
+  "@linksSuggestionsEmpty": {
+    "description": "Empty suggestions list title."
+  },
+  "linksSuggestionsEmptyBody": "New suggestions will appear here.",
+  "@linksSuggestionsEmptyBody": {
+    "description": "Empty suggestions list explanation."
+  },
+  "linksBrowseSuggestionsBody": "Some suggestions are waiting for you. Accept a link to see it here.",
+  "@linksBrowseSuggestionsBody": {
+    "description": "Empty confirmed library directs the user to suggestions."
+  },
+  "linksSuggestionsCount": "Suggestions {count}",
+  "@linksSuggestionsCount": {
+    "description": "Suggestions segment label with the number of waiting suggestions (shown only when above zero).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksSuggestionsCountA11y": "Suggestions, {count}",
+  "@linksSuggestionsCountA11y": {
+    "description": "TalkBack label of the suggestions segment with the number of waiting suggestions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksFilterEmptyBody": "Nothing here yet. Try another group or topic.",
+  "@linksFilterEmptyBody": {
+    "description": "Links library empty state when a group or topic chip is selected and the search is empty."
   }
 }

@@ -66,6 +66,8 @@ Future<List<Note>> seedGraph(WidgetTester tester, FikraDatabase db, {bool arabic
   });
   await pumpUntil(tester, find.text(notes.last.title));
   await tester.tap(Tabs.finder(Tabs.links));
+  await pumpUntil(tester, find.byKey(const ValueKey('links-open-graph')));
+  await tester.tap(find.byKey(const ValueKey('links-open-graph')));
   await pumpUntil(tester, find.byKey(const ValueKey('graph-edges')));
   await tester.pump(const Duration(milliseconds: 500));
   return notes;
