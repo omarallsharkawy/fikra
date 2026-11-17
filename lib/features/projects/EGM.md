@@ -7,7 +7,8 @@ Project selection and creation. It holds the header used by every tab, the proje
 ## Interface
 
 - `project_header.dart`
-  - `ProjectHeader({required String title, Widget? trailing})`: `ConsumerWidget`.
+  - `HeaderActionButton({required IconData icon, required String label, required VoidCallback? onTap, String? semanticLabel, String? tooltip, Color? iconColor})`: compact header action showing a 30 dp circular `SolidSurface` + 11 sp caption when `ProjectHeader` has room, or a 40 dp icon-only surface otherwise; always >= 48×48 dp.
+  - `ProjectHeader({required String title, Widget? trailing, Widget? leading})`: `ConsumerWidget`.
   - `Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref)`.
   - `Future<String?> askProjectName(BuildContext context, {required String title, required String action, String initial = '', String? hint})`. `hint` defaults to `projectNameHint`.
   - `String deleteProjectMessage(AppLocalizations, ProjectDeleteImpact)` (`({int notes, int files, int links, bool chat})` from `repositories.dart`), `@visibleForTesting`.
@@ -61,3 +62,8 @@ Reading content now uses opaque SolidSurface/surface or chip plus the line
 hairline; all old gradient Glass call sites are migrated. Selected controls
 use opaque selected fill with accent labels; primary/send actions use the
 single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+
+## Ordering & IA (redesign phase 4)
+
+- `showProjectSwitcher` orders rows via shared `orderProjects` (`project-row-<id>`): the currently selected project first, then remaining projects from most recent `Project.createdAt` descending.
+- `ProjectHeader` renders its Settings control (`header-settings`) and `HeaderActionButton` trailing actions with visible short captions under the icon via `_HeaderLabelScope` when `textScaler <= 1.6` and horizontal space preserves `minimumChipWidth`; otherwise captions hide cleanly without shrinking 48 dp touch targets or changing TalkBack labels. `HeaderActionButton` nests optional `Tooltip` inside `Pressable` so the button's `Semantics` node stays at the widget root. Caption room is measured only for a bare `HeaderActionButton` trailing; any other trailing widget is wrapped in `_HeaderLabelScope(showLabel: false)`, so a button inside it is icon-only and cannot overflow.

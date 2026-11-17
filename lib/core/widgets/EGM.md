@@ -71,7 +71,8 @@ User-facing default strings resolve from `context.l10n`, in
 - `fikra_field.dart`
   - `FikraField`: pill-shaped text input. Takes `controller`, `hint`, `icon`,
     `onChanged`, `onSubmitted`, `autofocus`, `error`, `keyboardType`,
-    `obscure`, `textInputAction`, `maxLength`.
+    `obscure`, `textInputAction`, `maxLength`, `clearable = false`,
+    `clearButtonKey`.
 - `selectors.dart`
   - `FikraChip({label, selected = false, onTap})`.
   - `SegmentedPill({options, selected, onChanged, semanticLabels, segmentKeys, height})`.
@@ -222,3 +223,12 @@ no ticker, shader mask or saveLayer. Unchanged default opacity preserves every
 other material. The bar and Add share a backdrop key; an overlapping lens uses
 its independent optical/frosted pass. FillScroll applies the shell clearance to
 empty/error scrolling. Keyboard/reduce-motion selection stays with the caller.
+
+## Clearable search fields (redesign phase 4)
+
+When `FikraField.clearable` is true, `_FikraFieldState` listens to `controller`
+and overlays a 48×48 dp `Pressable` (`Icons.close_rounded`, `clearSearch`
+semantics) at the directional end inside `TextFieldTapRegion` whenever
+`controller.text.isNotEmpty`. Tapping clears `controller`, calls
+`onChanged?.call('')`, and re-requests focus only if `_focus` had it before the tap, so a field whose keyboard was scrolled away stays unfocused. The overlay sits outside
+`SolidSurface`'s 1 dp border so the hit target stays at least 48×48 dp.

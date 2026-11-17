@@ -9,7 +9,7 @@ import '../../l10n/localizations.dart';
 import 'links_index.dart';
 
 /// Both tiers of floating navigation share Glass's recipe and tier provider.
-class LibraryControls extends StatelessWidget {
+class LibraryControls extends StatefulWidget {
   const LibraryControls({
     super.key,
     required this.search,
@@ -33,9 +33,31 @@ class LibraryControls extends StatelessWidget {
   static double extent(BuildContext context) => controlHeight(context) + segmentHeight(context) + 20;
 
   @override
+  State<LibraryControls> createState() => _LibraryControlsState();
+}
+
+class _LibraryControlsState extends State<LibraryControls> {
+  final _focus = FocusNode();
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    // Keep the keyboard only if it was up: a field the user scrolled away from
+    // (keyboard dismissed) stays unfocused after clearing.
+    final hadFocus = _focus.hasFocus;
+    widget.search.clear();
+    widget.onSearch('');
+    if (hadFocus) _focus.requestFocus();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final height = controlHeight(context);
+    final height = LibraryControls.controlHeight(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
       child: Column(
@@ -50,8 +72,9 @@ class LibraryControls extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       key: const ValueKey('links-search'),
-                      controller: search,
-                      onChanged: onSearch,
+                      controller: widget.search,
+                      focusNode: _focus,
+                      onChanged: widget.onSearch,
                       textInputAction: TextInputAction.search,
                       style: context.text.field,
                       decoration: InputDecoration(
@@ -62,8 +85,23 @@ class LibraryControls extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(Icons.search_rounded, size: 20, color: context.colors.textSecondary),
-                  const SizedBox(width: 8),
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: widget.search,
+                    builder: (context, value, _) => value.text.isNotEmpty
+                        ? TextFieldTapRegion(
+                            child: Pressable(
+                              key: const ValueKey('links-search-clear'),
+                              minTarget: true,
+                              semanticLabel: l10n.clearSearch,
+                              onTap: _clearSearch,
+                              child: Icon(Icons.close_rounded, size: 20, color: context.colors.textSecondary),
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsetsDirectional.only(end: 8),
+                            child: Icon(Icons.search_rounded, size: 20, color: context.colors.textSecondary),
+                          ),
+                  ),
                   Container(width: 1, height: 24, color: context.colors.line),
                   FikraIconButton(
                     key: const ValueKey('links-sort'),
@@ -79,10 +117,10 @@ class LibraryControls extends StatelessWidget {
                             SheetOption(
                               key: ValueKey('links-sort-${order.name}'),
                               label: sortLabel(context, order),
-                              selected: order == sort,
-                              icon: order == sort ? Icons.check_rounded : Icons.sort_rounded,
+                              selected: order == widget.sort,
+                              icon: order == widget.sort ? Icons.check_rounded : Icons.sort_rounded,
                               onTap: () {
-                                onSort(order);
+                                widget.onSort(order);
                                 Navigator.pop(sheet);
                               },
                             ),
@@ -96,18 +134,18 @@ class LibraryControls extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           SegmentedPill(
-            height: segmentHeight(context),
-            selected: segment,
-            onChanged: onSegment,
+            height: LibraryControls.segmentHeight(context),
+            selected: widget.segment,
+            onChanged: widget.onSegment,
             segmentKeys: const [ValueKey('links-segment-0'), ValueKey('links-segment-1')],
             // No count while nothing waits: just «اقتراحات».
             options: [
               l10n.linksBrowse,
-              suggestions > 0 ? l10n.linksSuggestionsCount(suggestions) : l10n.linksSuggestions,
+              widget.suggestions > 0 ? l10n.linksSuggestionsCount(widget.suggestions) : l10n.linksSuggestions,
             ],
             semanticLabels: [
               l10n.linksBrowse,
-              suggestions > 0 ? l10n.linksSuggestionsCountA11y(suggestions) : l10n.linksSuggestions,
+              widget.suggestions > 0 ? l10n.linksSuggestionsCountA11y(widget.suggestions) : l10n.linksSuggestions,
             ],
           ),
         ],

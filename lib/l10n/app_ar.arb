@@ -172,7 +172,6 @@
   "themeLight": "فاتح",
   "themeDark": "غامق",
   "themeHint": "«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.",
-  "dataSection": "البيانات",
   "dataStaysLocal": "ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.",
   "eraseAll": "امسح كل البيانات",
   "aboutSection": "عن التطبيق",
@@ -1634,5 +1633,25 @@
   "linkSuggestionRejected": "الاقتراح اترفض",
   "@linkSuggestionRejected": {
     "description": "Toast after rejecting a suggested link; carries Undo."
+  },
+  "servicesSection": "الخدمات المتصلة",
+  "@servicesSection": {
+    "description": "Settings section heading for the speech-to-text services the user added and the button to add one."
+  },
+  "privacySection": "الخصوصية والبيانات",
+  "@privacySection": {
+    "description": "Settings section explaining where notes and recordings are stored."
+  },
+  "notesSort": "ترتيب الملاحظات",
+  "@notesSort": {
+    "description": "Notes list sort button label and sort sheet title."
+  },
+  "headerGraph": "الخريطة",
+  "@headerGraph": {
+    "description": "Short caption under the open-graph icon in the Links header."
+  },
+  "headerSearch": "دوّر",
+  "@headerSearch": {
+    "description": "Short caption under the search icon in the graph header."
   }
 }

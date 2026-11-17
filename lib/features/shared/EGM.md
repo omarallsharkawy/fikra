@@ -109,3 +109,8 @@ Every voice chip in Add/Edit shows off and after-save ChoiceTags, including when
 ## Links library reuse (redesign phase 3)
 
 GroupFilterRow adds optional `counts` (displayed beside group names) and `clearSelectedChild` (selected child retap clears instead of selecting its parent). Defaults preserve Notes and graph sub-group/navigation behaviour. The library reuses uniqueLinkPairs, linksOfNote, showLinkOptions, changeSuggestedPair, showLinkPicker, group options and title helpers. Details' private rows remain unchanged because connections require body previews and explicit empty reasons.
+
+## Ordering & IA (redesign phase 4)
+
+- `project_picker.dart` exports pure `orderProjects(List<ProjectSummary> projects, {String? currentId})`: places the project matching `currentId` first when present, then sorts remaining projects by `Project.createdAt` descending (breaking equal-second ties by reverse input index so newer insertions appear first). Both `showProjectPicker` (passing `selectedProjectProvider`'s ID) and `showProjectSwitcher` use it, while `LocalProjectsRepository.watchProjects()` keeps ascending storage order.
+- `link_picker.dart` passes `clearable: true` (`link-search-clear`) on `link-search`.

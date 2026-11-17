@@ -229,7 +229,7 @@ void main() {
           await capture('06_delete_confirm');
           await tester.tap(find.text(l10n.cancel).last);
           await pumpUntil(tester, find.text(l10n.noteOptions));
-          await tester.tap(find.text(l10n.edit));
+          await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(l10n.edit)));
           await pumpUntil(tester, find.text(l10n.editNoteTitle));
           await capture('07_edit');
           ctx().go('/notes');

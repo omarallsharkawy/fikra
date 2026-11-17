@@ -84,3 +84,7 @@ Fifteen described AR/EN keys cover Browse, Suggestions, confirmed/groups heading
 ## Suggestion Undo
 
 `linkSuggestionRejected` (AR «تمام، شلنا الاقتراح», EN "Suggestion rejected") is the toast after rejecting a suggested link; it carries Undo. Accepting reuses `linksAdded` (1 when the pair changed, 0 when it was already linked) and `undo`/`undoFailed`.
+
+## Ordering & IA (redesign phase 4)
+
+Five described keys in both ARBs: `servicesSection` («الخدمات المتصلة» / "Connected services"), `privacySection` («الخصوصية والبيانات» / "Privacy & data"), `notesSort` («ترتيب الملاحظات» / "Sort notes"), `headerGraph` («الخريطة» / "Graph"), and `headerSearch` («دوّر» / "Search"). `dataSection` was removed (the Data section merged into Privacy & data). Notes list sort options reuse `linksNewest` / `linksOldest`; search clear buttons reuse `clearSearch`; visible note editing reuses `edit`. Generated lookups are refreshed with `flutter gen-l10n`.

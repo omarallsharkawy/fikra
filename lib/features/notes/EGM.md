@@ -8,6 +8,7 @@ The note list tab, mounted at `/notes` by `lib/app/router.dart`. It shows the se
 
 - `notes_screen.dart`
   - `NotesScreen`: `ConsumerStatefulWidget` with no parameters.
+  - `enum NotesSort { newest, oldest }`, `NotesSortNotifier`, `notesSortProvider`: session-scoped sort choice.
 - `note_card.dart`
   - `NoteCard({required Note note, required VoidCallback onTap, VoidCallback? onLongPress, bool? selected, NoteGroup? group})`: consumer list card with a single tap target; `selected` non-null means selection mode, `group` shows its tag.
 - `notes_selection.dart`: `part of notes_screen.dart`, the private `_Selection` mixin (selection state, guards and the action bar).
@@ -61,3 +62,9 @@ single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 ## Floating navigation (redesign phase 2)
 
 The lazy list adds NavigationInset.of(context) to its existing 24 dp bottom padding, so its final card scrolls above the bar, lens and Add button. The selection footer is offset by the same shared inset. Empty/error scroll states use FillScroll’s shared clearance. Keyboard opening reduces the inset to zero; no per-screen bar dimensions are used.
+
+## Ordering & IA (redesign phase 4)
+
+- `notes-search` (`FikraField`) passes `clearable: true` (`notes-search-clear`), clearing the query immediately; focus (and the keyboard) is re-requested only if the field had focus before the tap.
+- Beside `notes-search`, `notes-sort` (`FikraIconButton` with `Icons.tune_rounded`, `notesSort` label) opens `showFikraSheet` with `notes-sort-newest` (`linksNewest`) and `notes-sort-oldest` (`linksOldest`), exposing `selected` semantics.
+- `notesSortProvider` holds the choice in session memory (no schema or preference write). `_rebuildRows` keys on `sort`; `NotesSort.oldest` reverses the filtered list (`watchNotes` is `createdAt` DESC, so this is oldest first with ties mirroring the newest order) before day grouping, composing with search and group filters.

@@ -172,7 +172,6 @@
   "themeLight": "Light",
   "themeDark": "Dark",
   "themeHint": "\"System\" follows your phone's light or dark mode.",
-  "dataSection": "Data",
   "dataStaysLocal": "Your notes and files are stored only on this phone and are never sent anywhere.",
   "eraseAll": "Erase all data",
   "aboutSection": "About",
@@ -1615,5 +1614,25 @@
   "linkSuggestionRejected": "Suggestion rejected",
   "@linkSuggestionRejected": {
     "description": "Toast after rejecting a suggested link; carries Undo."
+  },
+  "servicesSection": "Connected services",
+  "@servicesSection": {
+    "description": "Settings section heading for the speech-to-text services the user added and the button to add one."
+  },
+  "privacySection": "Privacy & data",
+  "@privacySection": {
+    "description": "Settings section explaining where notes and recordings are stored."
+  },
+  "notesSort": "Sort notes",
+  "@notesSort": {
+    "description": "Notes list sort button label and sort sheet title."
+  },
+  "headerGraph": "Graph",
+  "@headerGraph": {
+    "description": "Short caption under the open-graph icon in the Links header."
+  },
+  "headerSearch": "Search",
+  "@headerSearch": {
+    "description": "Short caption under the search icon in the graph header."
   }
 }

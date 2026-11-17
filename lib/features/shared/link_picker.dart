@@ -198,6 +198,8 @@ class _LinkPickerSheetState extends ConsumerState<LinkPickerSheet> {
           hint: context.l10n.searchNotesHint,
           icon: Icons.search_rounded,
           textInputAction: TextInputAction.search,
+          clearable: true,
+          clearButtonKey: const ValueKey('link-search-clear'),
           onChanged: (v) => setState(() => _query = v),
         ),
         const SizedBox(height: 12),

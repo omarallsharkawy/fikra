@@ -152,3 +152,8 @@ The complete graph/search/selection column consumes NavigationInset.of(context).
 ## Redesign phase 3 hosting
 
 The graph is now the optional `/links/graph` route pushed inside the Links shell branch. `/links` mounts the new [connections library](../connections/EGM.md). `LinksScreen` and all graph files/keys/probes remain intact. `links_surface.dart` passes a route-aware `BackButton` as `ProjectHeader.leading`, on the existing title row (no extra row); standalone graph harnesses retain their original header when no route can pop. Its default `maybePop` goes through the screen's `PopScope`, so Back closes search or selection first, like system Back. Back returns to the library and preserves its state. Graph fixtures and phone regressions open the header action after entering Links; screenshot graph entry follows the same path. No graph geometry, painter or navigation algorithm changes.
+
+## Ordering & IA (redesign phase 4)
+
+- `links_surface.dart` uses `HeaderActionButton` for `graph-search-open` (visible caption `headerSearch`, semantic label `graphSearchHint`).
+- `_GraphSearchPanel` (`links_search.dart`) does not make `graph-search-field` clearable: the adjacent `graph-search-close` already clears and closes, so there is no second X.

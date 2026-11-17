@@ -51,8 +51,13 @@ class SettingsScreen extends ConsumerWidget {
 
     Widget section(String title) => Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 10),
-      child: Text(title, style: t.section.copyWith(fontWeight: FontWeight.w600)),
+      child: Semantics(
+        header: true,
+        child: Text(title, style: t.section.copyWith(fontWeight: FontWeight.w600)),
+      ),
     );
+
+    final configuredServices = services.value?.services ?? const [];
 
     return FikraScaffold(
       child: Column(
@@ -92,7 +97,21 @@ class SettingsScreen extends ConsumerWidget {
                   icon: Icons.record_voice_over_outlined,
                   onTap: () => context.push('/settings/voice-text'),
                 ),
-                section(context.l10n.dataSection),
+                section(context.l10n.servicesSection),
+                for (final service in configuredServices)
+                  SheetOption(
+                    key: ValueKey('settings-service-${service.id}'),
+                    label: service.name,
+                    icon: Icons.cloud_outlined,
+                    onTap: () => context.push('/settings/voice-text/service/${service.id}'),
+                  ),
+                SheetOption(
+                  key: const ValueKey('settings-add-service'),
+                  label: context.l10n.vsAdd,
+                  icon: Icons.add_rounded,
+                  onTap: () => context.push('/settings/voice-text/service/new'),
+                ),
+                section(context.l10n.privacySection),
                 SolidSurface(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
@@ -120,13 +139,6 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                SheetOption(
-                  label: context.l10n.eraseAll,
-                  icon: Icons.delete_forever_outlined,
-                  danger: true,
-                  onTap: () => _wipe(context, ref),
-                ),
                 section(context.l10n.aboutSection),
                 SolidSurface(
                   radius: FikraRadius.md,
@@ -145,6 +157,17 @@ class SettingsScreen extends ConsumerWidget {
                       if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
                     ],
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: FikraSpace.s32, bottom: FikraSpace.s20),
+                  child: Container(height: FikraSpace.hairline, color: c.line),
+                ),
+                SheetOption(
+                  key: const ValueKey('settings-erase-all'),
+                  label: context.l10n.eraseAll,
+                  icon: Icons.delete_forever_outlined,
+                  danger: true,
+                  onTap: () => _wipe(context, ref),
                 ),
               ],
             ),

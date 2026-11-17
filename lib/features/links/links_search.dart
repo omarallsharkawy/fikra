@@ -122,6 +122,7 @@ class _GraphSearchPanel extends StatelessWidget {
                   icon: Icons.search_rounded,
                   autofocus: true,
                   textInputAction: TextInputAction.search,
+                  // No clear X: the close button next to it already clears.
                 ),
               ),
               FikraIconButton(

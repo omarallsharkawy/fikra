@@ -8,6 +8,21 @@ import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
+import '../../data/repositories.dart';
+
+/// Orders [projects] with [currentId] first, then the rest from most recent
+/// ([Project.createdAt] descending; equal-second ties keep later entries first).
+List<ProjectSummary> orderProjects(List<ProjectSummary> projects, {String? currentId}) {
+  final indexed = projects.indexed.toList()
+    ..sort((a, b) {
+      final aCurrent = a.$2.project.id == currentId;
+      final bCurrent = b.$2.project.id == currentId;
+      if (aCurrent != bCurrent) return aCurrent ? -1 : 1;
+      final time = b.$2.project.createdAt.compareTo(a.$2.project.createdAt);
+      return time != 0 ? time : b.$1.compareTo(a.$1);
+    });
+  return [for (final (_, p) in indexed) p];
+}
 
 /// Opens a sheet listing every project except [excludeProjectId], each with
 /// its note count, and returns the one picked (null when dismissed). [empty]
@@ -23,8 +38,9 @@ Future<Project?> showProjectPicker(
     title: title,
     builder: (sheet) => Consumer(
       builder: (sheet, ref, _) {
+        final currentId = ref.watch(selectedProjectProvider)?.id;
         final projects = [
-          for (final p in ref.watch(projectsProvider).value ?? const [])
+          for (final p in orderProjects(ref.watch(projectsProvider).value ?? const [], currentId: currentId))
             if (p.project.id != excludeProjectId) p,
         ];
         if (projects.isEmpty) {

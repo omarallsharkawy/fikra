@@ -17,10 +17,11 @@ extension _LinksSurface on _LinksScreenState {
               // Pushed at /links/graph: the default maybePop runs this page's
               // PopScope, so Back closes search/selection before leaving.
               leading: (ModalRoute.of(context)?.canPop ?? false) ? const BackButton() : null,
-              trailing: FikraIconButton(
+              trailing: HeaderActionButton(
                 key: _selection == null ? const ValueKey('graph-search-open') : null,
                 icon: Icons.search_rounded,
-                label: context.l10n.graphSearchHint,
+                label: context.l10n.headerSearch,
+                semanticLabel: context.l10n.graphSearchHint,
                 onTap: () => _setState(() {
                   _searchOpen = true;
                   _cancelHold?.call();

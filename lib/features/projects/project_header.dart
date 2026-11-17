@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,80 @@ import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories.dart';
 import '../shared/project_picker.dart';
+
+class _HeaderLabelScope extends InheritedWidget {
+  const _HeaderLabelScope({required this.showLabel, required super.child});
+  final bool showLabel;
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_HeaderLabelScope>()?.showLabel ?? true;
+
+  @override
+  bool updateShouldNotify(_HeaderLabelScope oldWidget) => showLabel != oldWidget.showLabel;
+}
+
+/// Compact header control: round surface icon with a short caption underneath
+/// when [ProjectHeader] has room, or icon-only when space is tight or text is
+/// scaled above 1.6x. Hit target is always at least 48×48 dp.
+class HeaderActionButton extends StatelessWidget {
+  const HeaderActionButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.semanticLabel,
+    this.tooltip,
+    this.iconColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final String? semanticLabel;
+  final String? tooltip;
+  final Color? iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final showLabel = _HeaderLabelScope.of(context);
+    final fg = iconColor ?? context.colors.textPrimary;
+    Widget visual = showLabel
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SolidSurface(
+                  radius: FikraRadius.full,
+                  width: 30,
+                  height: 30,
+                  padding: EdgeInsets.zero,
+                  child: Icon(icon, size: 16, color: fg),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.meta.copyWith(height: 1.15),
+                ),
+              ],
+            ),
+          )
+        : SolidSurface(
+            radius: FikraRadius.full,
+            width: 40,
+            height: 40,
+            padding: EdgeInsets.zero,
+            child: Icon(icon, size: 19, color: fg),
+          );
+    if (tooltip != null) {
+      visual = Tooltip(message: tooltip!, excludeFromSemantics: true, child: visual);
+    }
+    return Pressable(onTap: onTap, semanticLabel: semanticLabel ?? label, minTarget: true, child: visual);
+  }
+}
 
 /// Screen title + current project pill that opens the project switcher.
 class ProjectHeader extends ConsumerWidget {
@@ -26,11 +102,11 @@ class ProjectHeader extends ConsumerWidget {
     final project = ref.watch(selectedProjectProvider);
     final titleStyle = context.text.title.copyWith(fontWeight: FontWeight.w700);
     const titleGap = 12.0;
-    const settingsWidth = Pressable.minTargetSize + 4;
+    const unlabelledSettingsWidth = Pressable.minTargetSize + 4;
     // Padding, icons, internal gaps and the glass border, without the name.
     const chipChromeWidth = 24 + 18 + 6 + 4 + 18 + 2 * FikraSpace.hairline;
     const compactChipChromeWidth = 8 + 4 + 18 + 2 * FikraSpace.hairline;
-    final actionWidth = trailing == null ? 0.0 : Pressable.minTargetSize + 8;
+    final unlabelledActionWidth = trailing == null ? 0.0 : Pressable.minTargetSize + 8;
     const leadingGap = 4.0;
     final leadingWidth = leading == null ? 0.0 : Pressable.minTargetSize + leadingGap;
 
@@ -68,20 +144,31 @@ class ProjectHeader extends ConsumerWidget {
       ),
     );
 
-    Widget controls({required bool compact}) => Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ?trailing,
-        if (trailing != null) const SizedBox(width: 8),
-        Flexible(child: projectChip(compact: compact)),
-        const SizedBox(width: 4),
-        FikraIconButton(
-          icon: Icons.settings_outlined,
-          label: context.l10n.settings,
-          size: 40,
-          onTap: () => context.push('/settings'),
-        ),
-      ],
+    // Label room is measured only for a bare HeaderActionButton. Anything else
+    // (a wrapped button, another control) gets icon-only buttons inside it, so
+    // a caption can never overflow the space reserved for it.
+    final action = trailing;
+    final trailingControl = action == null || action is HeaderActionButton
+        ? action
+        : _HeaderLabelScope(showLabel: false, child: action);
+
+    Widget controls({required bool compact, required bool showLabels}) => _HeaderLabelScope(
+      showLabel: showLabels,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ?trailingControl,
+          if (trailing != null) const SizedBox(width: 8),
+          Flexible(child: projectChip(compact: compact)),
+          const SizedBox(width: 4),
+          HeaderActionButton(
+            key: const ValueKey('header-settings'),
+            icon: Icons.settings_outlined,
+            label: context.l10n.settings,
+            onTap: () => context.push('/settings'),
+          ),
+        ],
+      ),
     );
 
     return Padding(
@@ -89,30 +176,43 @@ class ProjectHeader extends ConsumerWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final textScaler = MediaQuery.textScalerOf(context);
-          final measurement = TextPainter(
-            text: TextSpan(text: title, style: titleStyle),
-            textDirection: Directionality.of(context),
-            textScaler: textScaler,
-            locale: Localizations.localeOf(context),
-            maxLines: 1,
-          )..layout();
-          final chipWidth =
-              constraints.maxWidth - leadingWidth - measurement.width - titleGap - settingsWidth - actionWidth;
-          measurement.dispose();
+          final defaultTextStyle = DefaultTextStyle.of(context).style;
+          double measureWidth(String value, TextStyle style, {bool mergeDefault = true}) {
+            final painter = TextPainter(
+              text: TextSpan(text: value, style: mergeDefault ? defaultTextStyle.merge(style) : style),
+              textDirection: Directionality.of(context),
+              textScaler: textScaler,
+              locale: Localizations.localeOf(context),
+              maxLines: 1,
+            )..layout();
+            final width = painter.width;
+            painter.dispose();
+            return width;
+          }
+
+          final titleWidth = measureWidth(title, titleStyle).ceilToDouble();
           // Keep an initial character and the renderer's ellipsis visible.
-          final nameMeasurement = TextPainter(
-            text: TextSpan(
-              text: '${(project?.name ?? '—').characters.firstOrNull ?? ''}\u2026',
-              style: context.text.chip,
-            ),
-            textDirection: Directionality.of(context),
-            textScaler: textScaler,
-            locale: Localizations.localeOf(context),
-            maxLines: 1,
-          )..layout();
-          final nameSpace = nameMeasurement.width;
-          nameMeasurement.dispose();
+          final initialEllipsis = '${(project?.name ?? '—').characters.firstOrNull ?? ''}\u2026';
+          final nameSpace = math.max(
+            measureWidth(initialEllipsis, context.text.chip),
+            measureWidth(initialEllipsis, context.text.chip, mergeDefault: false),
+          );
           final minimumChipWidth = (compactChipChromeWidth + nameSpace).clamp(Pressable.minTargetSize, double.infinity);
+          final labelStyle = context.text.meta.copyWith(height: 1.15);
+          final labelledSettingsWidth =
+              math.max(Pressable.minTargetSize, (measureWidth(context.l10n.settings, labelStyle) + 8).ceilToDouble()) +
+              4;
+          final labelledActionWidth = action == null
+              ? 0.0
+              : action is HeaderActionButton
+              ? math.max(Pressable.minTargetSize, (measureWidth(action.label, labelStyle) + 8).ceilToDouble()) + 8
+              : unlabelledActionWidth;
+          final showLabels =
+              textScaler.scale(1.0) <= 1.6 &&
+              (constraints.maxWidth - labelledSettingsWidth - labelledActionWidth >= minimumChipWidth);
+          final settingsWidth = showLabels ? labelledSettingsWidth : unlabelledSettingsWidth;
+          final actionWidth = showLabels ? labelledActionWidth : unlabelledActionWidth;
+          final chipWidth = constraints.maxWidth - leadingWidth - titleWidth - titleGap - settingsWidth - actionWidth;
           final text = Text(title, style: titleStyle, maxLines: 1, softWrap: false);
           final heading = leading == null
               ? text
@@ -128,14 +228,20 @@ class ProjectHeader extends ConsumerWidget {
           if (chipWidth < minimumChipWidth) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [heading, const SizedBox(height: 8), controls(compact: false)],
+              children: [
+                heading,
+                const SizedBox(height: 8),
+                controls(compact: false, showLabels: showLabels),
+              ],
             );
           }
           return Row(
             children: [
               heading,
               const SizedBox(width: titleGap),
-              Expanded(child: controls(compact: chipWidth < chipChromeWidth + nameSpace)),
+              Expanded(
+                child: controls(compact: chipWidth < chipChromeWidth + nameSpace, showLabels: showLabels),
+              ),
             ],
           );
         },
@@ -153,8 +259,8 @@ Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
     title: context.l10n.projectsTitle,
     builder: (sheetContext) => Consumer(
       builder: (sheetInner, sheetRef, _) {
-        final projects = sheetRef.watch(projectsProvider).value ?? const [];
         final current = sheetRef.watch(selectedProjectProvider);
+        final projects = orderProjects(sheetRef.watch(projectsProvider).value ?? const [], currentId: current?.id);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -162,6 +268,7 @@ Future<void> showProjectSwitcher(BuildContext context, WidgetRef ref) {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: ProjectRow(
+                  key: ValueKey('project-row-${p.project.id}'),
                   project: p.project,
                   count: p.noteCount,
                   selected: p.project.id == current?.id,

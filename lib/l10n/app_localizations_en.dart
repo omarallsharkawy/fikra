@@ -567,9 +567,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeHint => '\"System\" follows your phone\'s light or dark mode.';
 
   @override
-  String get dataSection => 'Data';
-
-  @override
   String get dataStaysLocal => 'Your notes and files are stored only on this phone and are never sent anywhere.';
 
   @override
@@ -1890,4 +1887,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkSuggestionRejected => 'Suggestion rejected';
+
+  @override
+  String get servicesSection => 'Connected services';
+
+  @override
+  String get privacySection => 'Privacy & data';
+
+  @override
+  String get notesSort => 'Sort notes';
+
+  @override
+  String get headerGraph => 'Graph';
+
+  @override
+  String get headerSearch => 'Search';
 }

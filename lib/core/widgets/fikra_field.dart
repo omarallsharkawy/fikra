@@ -1,5 +1,7 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
+import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
 import 'solid_surface.dart';
@@ -19,6 +21,8 @@ class FikraField extends StatefulWidget {
     this.obscure = false,
     this.textInputAction,
     this.maxLength,
+    this.clearable = false,
+    this.clearButtonKey,
   });
 
   final TextEditingController? controller;
@@ -33,12 +37,20 @@ class FikraField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final int? maxLength;
 
+  /// Shows a 48 dp clear (X) control when non-empty that clears the query and keeps focus.
+  final bool clearable;
+  final Key? clearButtonKey;
+
   @override
   State<FikraField> createState() => _FikraFieldState();
 }
 
 class _FikraFieldState extends State<FikraField> {
   final _focus = FocusNode();
+  TextEditingController? _ownedController;
+
+  TextEditingController? get _controller =>
+      widget.controller ?? (widget.clearable ? (_ownedController ??= TextEditingController()) : null);
 
   @override
   void initState() {
@@ -47,13 +59,36 @@ class _FikraFieldState extends State<FikraField> {
   }
 
   @override
+  void didUpdateWidget(covariant FikraField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != null && _ownedController != null) {
+      _ownedController!.dispose();
+      _ownedController = null;
+    }
+  }
+
+  @override
   void dispose() {
+    _ownedController?.dispose();
     _focus.dispose();
     super.dispose();
   }
 
+  void _clear() {
+    final controller = _controller;
+    if (controller == null) return;
+    // Keep the keyboard only if it was up: a field the user scrolled away from
+    // (keyboard dismissed) stays unfocused after clearing.
+    final hadFocus = _focus.hasFocus;
+    controller.clear();
+    widget.onChanged?.call('');
+    if (hadFocus) _focus.requestFocus();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final controller = _controller;
+    final clearable = widget.clearable && controller != null;
     final light = Theme.of(context).brightness == Brightness.light;
     final border = widget.error
         ? context.colors.danger
@@ -62,9 +97,9 @@ class _FikraFieldState extends State<FikraField> {
         : light
         ? context.colors.borderGraph
         : context.colors.line;
-    return SolidSurface(
+    final pill = SolidSurface(
       radius: FikraRadius.full,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsetsDirectional.fromSTEB(20, 0, clearable ? 0 : 20, 0),
       borderColor: border,
       // A hairline vanishes on light surfaces; inputs need a visible edge.
       borderWidth: widget.error || _focus.hasFocus || light ? 1 : FikraSpace.hairline,
@@ -73,7 +108,7 @@ class _FikraFieldState extends State<FikraField> {
         children: [
           Expanded(
             child: TextField(
-              controller: widget.controller,
+              controller: controller,
               focusNode: _focus,
               autofocus: widget.autofocus,
               onChanged: widget.onChanged,
@@ -92,10 +127,58 @@ class _FikraFieldState extends State<FikraField> {
               ),
             ),
           ),
-          if (widget.icon != null) ...[
+          if (clearable)
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) => value.text.isNotEmpty
+                  ? const SizedBox(width: Pressable.minTargetSize)
+                  : Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 20),
+                      child: widget.icon == null
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: const EdgeInsetsDirectional.only(start: 12),
+                              child: Icon(widget.icon, color: context.colors.textSecondary, size: 20),
+                            ),
+                    ),
+            )
+          else if (widget.icon != null) ...[
             const SizedBox(width: 12),
             Icon(widget.icon, color: context.colors.textSecondary, size: 20),
           ],
+        ],
+      ),
+    );
+    if (!clearable) return pill;
+    // Overlay outside SolidSurface's border so the clear control keeps a full 48×48 dp target.
+    return SizedBox(
+      height: FikraSpace.field,
+      child: Stack(
+        children: [
+          pill,
+          PositionedDirectional(
+            end: 0,
+            top: 0,
+            bottom: 0,
+            width: Pressable.minTargetSize,
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) => IgnorePointer(
+                ignoring: value.text.isEmpty,
+                child: value.text.isEmpty
+                    ? const SizedBox.shrink()
+                    : TextFieldTapRegion(
+                        child: Pressable(
+                          key: widget.clearButtonKey,
+                          onTap: _clear,
+                          minTarget: true,
+                          semanticLabel: context.l10n.clearSearch,
+                          child: Icon(Icons.close_rounded, color: context.colors.textSecondary, size: 20),
+                        ),
+                      ),
+              ),
+            ),
+          ),
         ],
       ),
     );

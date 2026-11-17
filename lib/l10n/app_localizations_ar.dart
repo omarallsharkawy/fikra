@@ -562,9 +562,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get themeHint => '«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.';
 
   @override
-  String get dataSection => 'البيانات';
-
-  @override
   String get dataStaysLocal => 'ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.';
 
   @override
@@ -1935,4 +1932,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get linkSuggestionRejected => 'الاقتراح اترفض';
+
+  @override
+  String get servicesSection => 'الخدمات المتصلة';
+
+  @override
+  String get privacySection => 'الخصوصية والبيانات';
+
+  @override
+  String get notesSort => 'ترتيب الملاحظات';
+
+  @override
+  String get headerGraph => 'الخريطة';
+
+  @override
+  String get headerSearch => 'دوّر';
 }

@@ -37,3 +37,11 @@ above the same shared clearance. No data or route topology changes are made.
 
 - connections: [./connections/EGM.md](./connections/EGM.md) owns Browse and Suggestions at `/links`, plus `/links/note/:id`. Its pure cached derivation is shared by both screens.
 - links now owns the retained graph at `/links/graph`; the library header opens it. Shared link actions/picker are reused. Note-details rows remain unchanged.
+
+## Ordering & IA (redesign phase 4)
+
+- `settings` groups existing settings into six sections with red Erase all data alone at the bottom.
+- `voice_text` orders service/model/language/auto choices first, then `Try it`, then collapsed `For testing`.
+- `notes` adds session-scoped Oldest-first sorting (`notesSortProvider`) alongside Newest-first.
+- `projects` and `shared/project_picker` order the current project first, then remaining projects by `Project.createdAt` descending.
+- Main screen headers label icon actions through `HeaderActionButton` when space and text scale allow; all search fields expose an accessible clear (`X`) button that keeps focus; `note_details` shows a visible `Edit` pill in its header.

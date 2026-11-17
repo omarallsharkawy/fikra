@@ -121,14 +121,13 @@ class _AskScreenState extends ConsumerState<AskScreen> {
             title: context.l10n.askTitle,
             trailing: entries.isEmpty || _thinking
                 ? null
-                : Pressable(
-                    onTap: _clear,
-                    minTarget: true,
+                : HeaderActionButton(
+                    key: const ValueKey('ask-clear-chat'),
+                    icon: Icons.delete_sweep_outlined,
+                    label: context.l10n.clear,
                     semanticLabel: context.l10n.clearChatA11y,
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Icon(Icons.delete_sweep_outlined, color: context.colors.textSecondary),
-                    ),
+                    iconColor: context.colors.textSecondary,
+                    onTap: _clear,
                   ),
           ),
           if (isDemo)

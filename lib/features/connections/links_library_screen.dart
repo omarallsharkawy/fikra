@@ -94,24 +94,21 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> {
       children: [
         ProjectHeader(
           title: context.l10n.linksTitle,
-          trailing: Tooltip(
-            message: context.l10n.linksOpenGraph,
-            // The button already carries the label; TalkBack reads it once.
-            excludeFromSemantics: true,
-            child: FikraIconButton(
-              key: const ValueKey('links-open-graph'),
-              icon: Icons.hub_outlined,
-              label: context.l10n.linksOpenGraph,
-              onTap: () async {
-                if (_openingGraph) return;
-                _openingGraph = true;
-                try {
-                  await context.push('/links/graph');
-                } finally {
-                  _openingGraph = false;
-                }
-              },
-            ),
+          trailing: HeaderActionButton(
+            key: const ValueKey('links-open-graph'),
+            icon: Icons.hub_outlined,
+            label: context.l10n.headerGraph,
+            semanticLabel: context.l10n.linksOpenGraph,
+            tooltip: context.l10n.linksOpenGraph,
+            onTap: () async {
+              if (_openingGraph) return;
+              _openingGraph = true;
+              try {
+                await context.push('/links/graph');
+              } finally {
+                _openingGraph = false;
+              }
+            },
           ),
         ),
         Expanded(

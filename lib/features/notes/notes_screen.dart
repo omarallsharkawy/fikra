@@ -22,6 +22,18 @@ import 'note_card.dart';
 
 part 'notes_selection.dart';
 
+enum NotesSort { newest, oldest }
+
+class NotesSortNotifier extends Notifier<NotesSort> {
+  @override
+  NotesSort build() => NotesSort.newest;
+
+  void set(NotesSort sort) => state = sort;
+}
+
+/// Session-scoped sort order for the notes list.
+final notesSortProvider = NotifierProvider<NotesSortNotifier, NotesSort>(NotesSortNotifier.new);
+
 class NotesScreen extends ConsumerStatefulWidget {
   const NotesScreen({super.key});
 
@@ -42,10 +54,11 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
   final _haystacks = <String, (String, String, String, String)>{};
 
   // The filtered + grouped list, recomputed only when the notes, the groups,
-  // the filter or the query change (not on every rebuild).
+  // the filter, the sort or the query change (not on every rebuild).
   List<Note>? _lastAll;
   List<NoteGroup>? _lastGroups;
   String? _lastFilter;
+  NotesSort? _lastSort;
   String? _lastQuery;
   DateTime? _lastDay;
   String? _lastLocale;
@@ -74,6 +87,30 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     });
   }
 
+  void _showSortSheet(BuildContext context, NotesSort current) {
+    final l10n = context.l10n;
+    showFikraSheet<void>(
+      context,
+      title: l10n.notesSort,
+      builder: (sheet) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (order, label) in [(NotesSort.newest, l10n.linksNewest), (NotesSort.oldest, l10n.linksOldest)])
+            SheetOption(
+              key: ValueKey('notes-sort-${order.name}'),
+              label: label,
+              selected: order == current,
+              icon: order == current ? Icons.check_rounded : Icons.sort_rounded,
+              onTap: () {
+                ref.read(notesSortProvider.notifier).set(order);
+                Navigator.pop(sheet);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
   String _haystack(Note n) {
     // Keyed on the searchable fields themselves (updatedAt only has 1 s
     // resolution): string equality is cheap and never serves stale text.
@@ -86,13 +123,14 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     return h;
   }
 
-  void _rebuildRows(List<Note> all, List<NoteGroup> groups) {
+  void _rebuildRows(List<Note> all, List<NoteGroup> groups, NotesSort sort) {
     // Rebuild date labels when the locale or calendar day changes.
     final now = ref.read(appClockProvider)();
     final today = DateTime(now.year, now.month, now.day);
     if (identical(all, _lastAll) &&
         identical(groups, _lastGroups) &&
         _filter == _lastFilter &&
+        sort == _lastSort &&
         _query == _lastQuery &&
         today == _lastDay &&
         _lastLocale == context.l10n.localeName) {
@@ -101,6 +139,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     _lastAll = all;
     _lastGroups = groups;
     _lastFilter = _filter;
+    _lastSort = sort;
     _lastQuery = _query;
     _lastDay = today;
     _lastLocale = context.l10n.localeName;
@@ -108,24 +147,27 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     final q = _query.toLowerCase();
     final filter = _filter;
     final inGroup = filter == null ? null : groupWithChildren(groups, filter);
-    final notes = q.isEmpty && inGroup == null
+    final filtered = q.isEmpty && inGroup == null
         ? all
         : [
             for (final n in all)
               if ((inGroup == null || inGroup.contains(n.groupId)) && (q.isEmpty || _haystack(n).contains(q))) n,
           ];
+    // watchNotes orders by createdAt DESC, so oldest-first is that list
+    // reversed (ties mirror the newest order, as the former sort did).
+    final notes = sort == NotesSort.newest ? filtered : filtered.reversed.toList();
     if (_haystacks.length > all.length * 2) {
       final live = {for (final n in all) n.id};
       _haystacks.removeWhere((id, _) => !live.contains(id));
     }
-    // Group by calendar day (list is newest first); one header per day.
+    // Group by calendar day; one header per day.
     final rows = <_Row>[];
     DateTime? day;
     for (final n in notes) {
       final d = DateTime(n.createdAt.year, n.createdAt.month, n.createdAt.day);
       if (d != day) {
         day = d;
-        rows.add(_Row.header(Fmt.dayHeader(context.l10n, d, now: ref.read(appClockProvider)())));
+        rows.add(_Row.header(Fmt.dayHeader(context.l10n, d, now: now)));
       }
       rows.add(_Row.note(n));
     }
@@ -145,6 +187,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
         _selection = null;
       });
     });
+    final sort = ref.watch(notesSortProvider);
     final notesAsync = ref.watch(selectedNotesProvider);
     final all = notesAsync.value ?? const <Note>[];
     final groupsAsync = project == null
@@ -153,7 +196,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     final groups = groupsAsync.value ?? const <NoteGroup>[];
     // The filtered group was deleted: back to all notes.
     if (_filter != null && groupsAsync.hasValue && !groups.any((g) => g.id == _filter)) _filter = null;
-    _rebuildRows(all, groups);
+    _rebuildRows(all, groups, sort);
     if (notesAsync.hasValue) _keepVisible(_rowOf);
     final rows = _rows;
     final selection = _selection;
@@ -174,12 +217,29 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
           if (all.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
-              child: FikraField(
-                controller: _search,
-                hint: context.l10n.searchNotesHint,
-                icon: Icons.search_rounded,
-                textInputAction: TextInputAction.search,
-                onChanged: _onSearch,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FikraField(
+                      key: const ValueKey('notes-search'),
+                      controller: _search,
+                      hint: context.l10n.searchNotesHint,
+                      icon: Icons.search_rounded,
+                      textInputAction: TextInputAction.search,
+                      clearable: true,
+                      clearButtonKey: const ValueKey('notes-search-clear'),
+                      onChanged: _onSearch,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FikraIconButton(
+                    key: const ValueKey('notes-sort'),
+                    icon: Icons.tune_rounded,
+                    label: context.l10n.notesSort,
+                    size: FikraSpace.field,
+                    onTap: () => _showSortSheet(context, sort),
+                  ),
+                ],
               ),
             ),
           if (groups.isNotEmpty)

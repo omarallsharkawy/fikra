@@ -27,6 +27,8 @@ Future<void> pumpProjectHeaders(
   required List<HeaderCase> headers,
   double width = 390,
   double scale = 1,
+  Widget Function(Widget action)? wrapAction,
+  String? actionLabel,
 }) async {
   final l10n = lookupAppLocalizations(locale);
   tester.view.devicePixelRatio = 1;
@@ -56,13 +58,12 @@ Future<void> pumpProjectHeaders(
                       ProjectHeader(
                         title: header.title,
                         trailing: header.action
-                            ? Pressable(
-                                onTap: () {},
-                                minTarget: true,
-                                semanticLabel: l10n.clearChatA11y,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Icon(Icons.delete_sweep_outlined, color: Theme.of(context).iconTheme.color),
+                            ? (wrapAction ?? (w) => w)(
+                                HeaderActionButton(
+                                  icon: Icons.delete_sweep_outlined,
+                                  label: actionLabel ?? l10n.clear,
+                                  semanticLabel: l10n.clearChatA11y,
+                                  onTap: () {},
                                 ),
                               )
                             : null,
@@ -185,4 +186,23 @@ void main() {
       }
     }
   }
+
+  testWidgets('a wrapped header action gets no reserved label room, so it shows icon-only', (tester) async {
+    addTearDown(tester.view.reset);
+    const locale = Locale('en');
+    final l10n = lookupAppLocalizations(locale);
+    const long = 'A much longer caption than any real one';
+    await pumpProjectHeaders(
+      tester,
+      locale: locale,
+      headers: [(title: l10n.askTitle, action: true)],
+      actionLabel: long,
+      wrapAction: (action) => Padding(padding: EdgeInsets.zero, child: action),
+    );
+    expect(tester.takeException(), isNull);
+    // The bare settings button still has room for its caption; the wrapped one does not.
+    expect(find.text(l10n.settings), findsOneWidget);
+    expect(find.text(long), findsNothing);
+    expect(tester.getSize(find.byType(HeaderActionButton).first).width, greaterThanOrEqualTo(Pressable.minTargetSize));
+  });
 }

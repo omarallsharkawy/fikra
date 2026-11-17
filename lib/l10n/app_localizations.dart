@@ -1124,12 +1124,6 @@ abstract class AppLocalizations {
   /// **'«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.'**
   String get themeHint;
 
-  /// No description provided for @dataSection.
-  ///
-  /// In ar, this message translates to:
-  /// **'البيانات'**
-  String get dataSection;
-
   /// No description provided for @dataStaysLocal.
   ///
   /// In ar, this message translates to:
@@ -3253,6 +3247,36 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الاقتراح اترفض'**
   String get linkSuggestionRejected;
+
+  /// Settings section heading for the speech-to-text services the user added and the button to add one.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمات المتصلة'**
+  String get servicesSection;
+
+  /// Settings section explaining where notes and recordings are stored.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخصوصية والبيانات'**
+  String get privacySection;
+
+  /// Notes list sort button label and sort sheet title.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترتيب الملاحظات'**
+  String get notesSort;
+
+  /// Short caption under the open-graph icon in the Links header.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get headerGraph;
+
+  /// Short caption under the search icon in the graph header.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوّر'**
+  String get headerSearch;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

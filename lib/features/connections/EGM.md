@@ -91,3 +91,8 @@ note_connections_test use the real app/router/Drift streams with gated repositor
 spies. screenshots/links_library_test covers six views in AR/EN x light/dark.
 Flutter tests and rendering require the owner's unrestricted runner. The phone
 profile workload is wired through glass_perf_scenario and is not run here.
+
+## Ordering & IA (redesign phase 4)
+
+- `LinksLibraryScreen` uses `HeaderActionButton` (`links-open-graph`, visible caption `headerGraph`, semantic label and excluded tooltip `linksOpenGraph`) in `ProjectHeader.trailing`.
+- `LibraryControls` is a `StatefulWidget` owning a `FocusNode` for `links-search` and shows `links-search-clear` (48×48 dp `Pressable` inside `TextFieldTapRegion`, `clearSearch` semantics) when `search.text.isNotEmpty`, clearing the query immediately; focus (and the keyboard) is re-requested only if the field had focus before the tap.

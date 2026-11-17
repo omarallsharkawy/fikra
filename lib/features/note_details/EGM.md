@@ -127,3 +127,7 @@ VoiceTranscript displays correction ?? machine transcript, retaining machine sou
 TranscriptEditorScreen initializes its long text controller once, automatically chooses RTL/LTR, and uses existing Glass/TextField/buttons/banners/sheets. Save/cancel and the existing save/discard/stay guard protect unsaved edits. Restore machine transcript clears correction. A conflict keeps the draft with a plain reopen message. A safe save that changes the note schedules the processor without awaiting it (an identical body is not rewritten); unsafe replacement keeps the editor and offers explicit append. Machine text is never overwritten by editing. All actions use stable keys; no text/correction is logged.
 
 Edit's policy-only changes participate in the dirty guard. Attachment replacement preserves current transcription metadata from the live row; only explicit chip changes override live policy. Reopening an old recording never auto-queues it.
+
+## Ordering & IA (redesign phase 4)
+
+`NoteDetailsScreen` exposes a visible `note-edit` pill button (`SolidSurface` + `Icons.edit_outlined` + `edit` label, >= 48×48 dp target, `edit` semantics) in the top header row beside `options`, pushing `/note/<id>/edit` directly without opening the options sheet. While `_moving` is true, `note-edit` dims to 0.4 opacity and ignores taps alongside `options`. `_openingEdit` guards it from the tap until the editor closes, so a double tap opens one editor. The `Edit` row in `options` remains as a secondary path.

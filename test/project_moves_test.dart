@@ -307,7 +307,7 @@ void main() {
     final (_, _, [a]) = await seed(tester, db, ['A'], other: false);
     await open(tester, a);
     await openOptions(tester, ar);
-    expect(find.text(ar.edit), findsOneWidget);
+    expect(find.descendant(of: find.byType(BottomSheet), matching: find.text(ar.edit)), findsOneWidget);
     expect(find.text(ar.deleteNote), findsOneWidget);
     expect(find.byKey(const ValueKey('note-move')), findsNothing);
     expect(find.text(ar.moveToProject), findsNothing);
@@ -400,14 +400,17 @@ void main() {
       expect(find.text(ar.moveConfirm), findsNothing);
       expect(gatedSpy.moves, 1);
 
-      // The page is still there while the move is saving; its options (so
-      // Edit, and a second move) stay shut.
+      // The page is still there while the move is saving; its options (and the
+      // header Edit button, and a second move) stay disabled/shut.
       await tester.tap(find.bySemanticsLabel(ar.options));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
       expect(find.byType(BottomSheet), findsNothing);
       expect(find.text(ar.noteOptions), findsNothing);
-      expect(find.text(ar.edit), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('note-edit')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.text(ar.editNoteTitle), findsNothing);
 
       gate.complete();
       await settle(tester, find.text(ar.noteMoved(Fmt.isolate('Work'))));
