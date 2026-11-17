@@ -52,7 +52,10 @@ the combined search/chip. Search never derives source data or starts an isolate.
   lacks the pair or comes from a newer links list; if that newer snapshot still
   suggests the pair, it unlocks and shows again. The busy notifier listens at
   container level, so it is not paused while the Links tab is hidden, and closes
-  that listener with the project's last job. No accept/reject Undo exists.
+  that listener with the project's last job. The write itself is shared
+  `changeSuggestedPair` (toast with Undo); a call that changed nothing, or one
+  blocked by a running Undo, unlocks at once. After Undo the pair returns
+  through the next snapshot, which also ends any lock still held.
 - SuggestionSliver retains removed snapshots for a 220 ms decelerating
   fade/collapse of that item only. A leaving row stays after its nearest
   surviving predecessor, so a second removal mid-collapse never moves it. Reduced motion removes instantly. Removal

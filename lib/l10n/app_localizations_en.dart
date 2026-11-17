@@ -113,15 +113,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createProjectFailed => 'Couldn\'t create the project. Try again.';
 
   @override
-  String get sampleProjectFailed =>
-      'Couldn\'t open the sample project. Try again.';
+  String get sampleProjectFailed => 'Couldn\'t open the sample project. Try again.';
 
   @override
   String get tagline => 'Write. Connect. Ask.';
 
   @override
-  String get welcomeCapture =>
-      'Type, record your voice, or add a PDF or photos';
+  String get welcomeCapture => 'Type, record your voice, or add a PDF or photos';
 
   @override
   String get welcomeLinks => 'Fikra links related notes for you';
@@ -219,8 +217,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get titleOptionalHint => 'Title (optional)';
 
   @override
-  String get bodyHintWithFileLinks =>
-      'Add a few lines about the file so Fikra can link it (optional)';
+  String get bodyHintWithFileLinks => 'Add a few lines about the file so Fikra can link it (optional)';
 
   @override
   String get bodyHint => 'Write your idea…';
@@ -259,12 +256,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
-  String get micBlockedBody =>
-      'Microphone access is off. Open app settings and allow the microphone.';
+  String get micBlockedBody => 'Microphone access is off. Open app settings and allow the microphone.';
 
   @override
-  String get micAskBody =>
-      'To record your voice, let Fikra use the microphone.';
+  String get micAskBody => 'To record your voice, let Fikra use the microphone.';
 
   @override
   String get openSettings => 'Open settings';
@@ -317,8 +312,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get untitledNote => 'New note';
 
   @override
-  String get openFileFailed =>
-      'Couldn\'t open the file. Make sure you have an app that can open it.';
+  String get openFileFailed => 'Couldn\'t open the file. Make sure you have an app that can open it.';
 
   @override
   String get noteOptions => 'Note options';
@@ -339,8 +333,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteNoteTitle => 'Delete this note?';
 
   @override
-  String get deleteNoteBody =>
-      'The note, its files and its links will be deleted. You can\'t undo this.';
+  String get deleteNoteBody => 'The note, its files and its links will be deleted. You can\'t undo this.';
 
   @override
   String get noteDeleted => 'Note deleted';
@@ -358,8 +351,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteNotFoundBody => 'It may have been deleted.';
 
   @override
-  String get analysisFailedBanner =>
-      'Couldn\'t analyze this note, but it\'s saved as is.';
+  String get analysisFailedBanner => 'Couldn\'t analyze this note, but it\'s saved as is.';
 
   @override
   String get analyzeAgain => 'Analyze again';
@@ -428,8 +420,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteTextA11y => 'Note text';
 
   @override
-  String get originalKeptHint =>
-      'Your original text is kept. You can restore it from the note\'s options.';
+  String get originalKeptHint => 'Your original text is kept. You can restore it from the note\'s options.';
 
   @override
   String get clusterGeneral => 'General';
@@ -444,8 +435,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linksEmptyTitle => 'Links show up here';
 
   @override
-  String get linksEmptyBody =>
-      'Add two or more notes on related topics, and Fikra will link them.';
+  String get linksEmptyBody => 'Add two or more notes on related topics, and Fikra will link them.';
 
   @override
   String get addNote => 'Add a note';
@@ -475,8 +465,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noLinksYet =>
-      'No links yet. Notes on the same topics get linked automatically.';
+  String get noLinksYet => 'No links yet. Notes on the same topics get linked automatically.';
 
   @override
   String nodeMeta(String cluster, String linksCount) {
@@ -493,8 +482,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearChatTitle => 'Clear this chat?';
 
   @override
-  String get clearChatBody =>
-      'Questions and answers will be cleared. Your notes stay as they are.';
+  String get clearChatBody => 'Questions and answers will be cleared. Your notes stay as they are.';
 
   @override
   String get clear => 'Clear';
@@ -521,8 +509,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add some notes first, then ask about them here. Answers come only from your notes, with sources.';
 
   @override
-  String get askEmptyBody =>
-      'Answers come only from this project\'s notes, with sources.';
+  String get askEmptyBody => 'Answers come only from this project\'s notes, with sources.';
 
   @override
   String get askHint => 'Ask anything about your notes';
@@ -577,15 +564,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get themeHint =>
-      '\"System\" follows your phone\'s light or dark mode.';
+  String get themeHint => '\"System\" follows your phone\'s light or dark mode.';
 
   @override
   String get dataSection => 'Data';
 
   @override
-  String get dataStaysLocal =>
-      'Your notes and files are stored only on this phone and are never sent anywhere.';
+  String get dataStaysLocal => 'Your notes and files are stored only on this phone and are never sent anywhere.';
 
   @override
   String get eraseAll => 'Erase all data';
@@ -636,8 +621,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sample1Title => 'Project idea';
 
   @override
-  String get sample1Body =>
-      'A notes app that uses AI to connect ideas and answer my questions from my own notes only.';
+  String get sample1Body => 'A notes app that uses AI to connect ideas and answer my questions from my own notes only.';
 
   @override
   String get sample2Title => 'How RAG works';
@@ -657,8 +641,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sample4Title => 'State management in Flutter';
 
   @override
-  String get sample4Body =>
-      'I\'ll use riverpod for state management in flutter, with a local database for the demo.';
+  String get sample4Body => 'I\'ll use riverpod for state management in flutter, with a local database for the demo.';
 
   @override
   String get sample5Title => 'Backend';
@@ -678,15 +661,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sample7Title => 'Networks lecture';
 
   @override
-  String get sample7Body =>
-      'Today\'s networks lecture was about TCP and UDP. I need to review it before the exam.';
+  String get sample7Body => 'Today\'s networks lecture was about TCP and UDP. I need to review it before the exam.';
 
   @override
   String get clearSearch => 'Clear search';
 
   @override
-  String get noteSavedNoText =>
-      'Note saved. Add a few lines so it can be linked.';
+  String get noteSavedNoText => 'Note saved. Add a few lines so it can be linked.';
 
   @override
   String get noTextNoLinks => 'This note has no text, so Fikra can\'t link it.';
@@ -700,8 +681,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pdfLoadFailed =>
-      'Couldn\'t open this file. It may be damaged or missing.';
+  String get pdfLoadFailed => 'Couldn\'t open this file. It may be damaged or missing.';
 
   @override
   String notesCount(int count) {
@@ -741,12 +721,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String hoursAgo(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count hours ago',
-      one: '1 hour ago',
-    );
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count hours ago', one: '1 hour ago');
     return '$_temp0';
   }
 
@@ -761,8 +736,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyNoteBlocked => 'A note can\'t be empty. Add text or a file.';
 
   @override
-  String get pdfPasswordProtected =>
-      'This PDF is password-protected. Open it in another app.';
+  String get pdfPasswordProtected => 'This PDF is password-protected. Open it in another app.';
 
   @override
   String get noteLinksHeader => 'Links';
@@ -771,8 +745,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkToNote => 'Link to a note';
 
   @override
-  String get noteLinksEmpty =>
-      'No links yet. Tap \"Link to a note\" to connect this note to others.';
+  String get noteLinksEmpty => 'No links yet. Tap \"Link to a note\" to connect this note to others.';
 
   @override
   String get noteLinksLoadFailed => 'Couldn\'t load links right now.';
@@ -824,8 +797,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeLinkTitle => 'Remove this link?';
 
   @override
-  String get removeLinkBody =>
-      'Both notes stay as they are, but Fikra won\'t suggest linking them again.';
+  String get removeLinkBody => 'Both notes stay as they are, but Fikra won\'t suggest linking them again.';
 
   @override
   String get removeLinkConfirm => 'Remove';
@@ -843,8 +815,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyLinked => 'Already linked';
 
   @override
-  String get linkPickerEmpty =>
-      'There are no other notes in this project to link.';
+  String get linkPickerEmpty => 'There are no other notes in this project to link.';
 
   @override
   String get linkFailed => 'Couldn\'t link the notes. Try again.';
@@ -877,8 +848,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moveToProject => 'Move to another project';
 
   @override
-  String get moveNoOtherProject =>
-      'There\'s no other project to move this note to.';
+  String get moveNoOtherProject => 'There\'s no other project to move this note to.';
 
   @override
   String moveNoteTitle(String project) {
@@ -891,8 +861,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get moveNoteBodyNoLinks =>
-      'The note moves with its files. No links will be removed.';
+  String get moveNoteBodyNoLinks => 'The note moves with its files. No links will be removed.';
 
   @override
   String get moveConfirm => 'Move';
@@ -940,8 +909,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteProjectEmptyBody =>
-      'This project is empty. It has no notes.';
+  String get deleteProjectEmptyBody => 'This project is empty. It has no notes.';
 
   @override
   String get firstProjectNameHint => 'Project name, e.g. Study';
@@ -1074,10 +1042,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'The notes move with their files. Their $lost to notes that stay here will be removed.',
-      one:
-          'The note moves with its files. Its $lost to notes that stay here will be removed.',
+      other: 'The notes move with their files. Their $lost to notes that stay here will be removed.',
+      one: 'The note moves with its files. Its $lost to notes that stay here will be removed.',
     );
     return '$_temp0';
   }
@@ -1102,8 +1068,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moveNotesFailed => 'Couldn\'t move the notes. Try again.';
 
   @override
-  String get moveNotesNoOtherProject =>
-      'There\'s no other project to move these notes to.';
+  String get moveNotesNoOtherProject => 'There\'s no other project to move these notes to.';
 
   @override
   String deleteNotesTitle(String notes) {
@@ -1141,8 +1106,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupEmptyTitle => 'This group is empty';
 
   @override
-  String get groupEmptyBody =>
-      'Long-press a note to select it, then tap Group.';
+  String get groupEmptyBody => 'Long-press a note to select it, then tap Group.';
 
   @override
   String noteGroupA11y(String group) {
@@ -1172,8 +1136,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteGroupBody =>
-      'Its notes stay as they are, just without a group. Groups inside it move out.';
+  String get deleteGroupBody => 'Its notes stay as they are, just without a group. Groups inside it move out.';
 
   @override
   String get groupDeleted => 'Group deleted';
@@ -1194,15 +1157,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupRuleMissingGroup => 'This group no longer exists.';
 
   @override
-  String get groupRuleInvalidParent =>
-      'A group can only go inside a top-level group, not inside a sub-group.';
+  String get groupRuleInvalidParent => 'A group can only go inside a top-level group, not inside a sub-group.';
 
   @override
   String get groupRuleSelfParent => 'A group can\'t go inside itself.';
 
   @override
-  String get groupRuleHasChildren =>
-      'This group has groups inside it, so it can\'t go inside another group.';
+  String get groupRuleHasChildren => 'This group has groups inside it, so it can\'t go inside another group.';
 
   @override
   String get suggestedTopics => 'Suggested topics';
@@ -1284,8 +1245,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vtExperimental => 'Experimental';
 
   @override
-  String get vtIntro =>
-      'The model runs on your phone. Nothing is uploaded. It needs a one-time download.';
+  String get vtIntro => 'The model runs on your phone. Nothing is uploaded. It needs a one-time download.';
 
   @override
   String get vtModel => 'Model';
@@ -1314,8 +1274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vtSmallHint => 'May be more accurate, but slower and larger.';
 
   @override
-  String get vtFullHint =>
-      'Larger, uncompressed version. Compare its accuracy with the smaller version.';
+  String get vtFullHint => 'Larger, uncompressed version. Compare its accuracy with the smaller version.';
 
   @override
   String get vtOnPhone => 'On your phone';
@@ -1351,8 +1310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vtDeleteModelTitle => 'Delete this model?';
 
   @override
-  String get vtDeleteModelBody =>
-      'You will need to download it again to use it.';
+  String get vtDeleteModelBody => 'You will need to download it again to use it.';
 
   @override
   String vtProgress(String received, String total) {
@@ -1386,8 +1344,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vtClips => 'Recent recordings';
 
   @override
-  String get vtNoRecordings =>
-      'Record a few words to try transcription. Your last 10 recordings stay here.';
+  String get vtNoRecordings => 'Record a few words to try transcription. Your last 10 recordings stay here.';
 
   @override
   String vtClip(String number, String format) {
@@ -1395,8 +1352,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get vtDeleteRecordingBody =>
-      'This recording will be deleted from the experiment.';
+  String get vtDeleteRecordingBody => 'This recording will be deleted from the experiment.';
 
   @override
   String get vtTranscribe => 'Transcribe';
@@ -1405,12 +1361,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vtWorking => 'Transcribing…';
 
   @override
-  String get vtCannotCancel =>
-      'Once transcription starts, wait for it to finish.';
+  String get vtCannotCancel => 'Once transcription starts, wait for it to finish.';
 
   @override
-  String get vtWait =>
-      'Wait for the operation to finish, or stop recording first.';
+  String get vtWait => 'Wait for the operation to finish, or stop recording first.';
 
   @override
   String get vtResult => 'Transcript';
@@ -1477,8 +1431,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get vtTimingHint =>
-      'Time includes audio conversion and model loading. Memory is for the whole app.';
+  String get vtTimingHint => 'Time includes audio conversion and model loading. Memory is for the whole app.';
 
   @override
   String get vtHistory => 'Recent runs';
@@ -1487,43 +1440,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vtLive => 'Text while you speak';
 
   @override
-  String get vtLiveHint =>
-      'Text updates while you speak. Stopping may take a little time.';
+  String get vtLiveHint => 'Text updates while you speak. Stopping may take a little time.';
 
   @override
   String get vtLiveStart => 'Start live transcription';
 
   @override
-  String get vtLiveTiming =>
-      'Live session time includes speaking, so it does not measure transcription speed.';
+  String get vtLiveTiming => 'Live session time includes speaking, so it does not measure transcription speed.';
 
   @override
-  String get vtNetworkError =>
-      'Couldn\'t download the model. Check your connection and try again.';
+  String get vtNetworkError => 'Couldn\'t download the model. Check your connection and try again.';
 
   @override
-  String get vtInterruptedError =>
-      'The download or recording was interrupted. Try again.';
+  String get vtInterruptedError => 'The download or recording was interrupted. Try again.';
 
   @override
-  String get vtCorruptError =>
-      'Couldn\'t read the model. Delete it and download it again.';
+  String get vtCorruptError => 'Couldn\'t read the model. Delete it and download it again.';
 
   @override
-  String get vtEmptyError =>
-      'The recording is empty or invalid. Record a few words and try again.';
+  String get vtEmptyError => 'The recording is empty or invalid. Record a few words and try again.';
 
   @override
-  String get vtTranscriptionError =>
-      'Couldn\'t transcribe the audio. Try a shorter recording or a smaller model.';
+  String get vtTranscriptionError => 'Couldn\'t transcribe the audio. Try a shorter recording or a smaller model.';
 
   @override
   String get vtStorageError =>
       'There is not enough storage. Free some space or choose a smaller model, then try again.';
 
   @override
-  String get vtStorageCheckError =>
-      'Couldn\'t check free storage. Reopen this screen and try again.';
+  String get vtStorageCheckError => 'Couldn\'t check free storage. Reopen this screen and try again.';
 
   @override
   String get vtCancelled => 'Download cancelled. You can start it again.';
@@ -1553,19 +1498,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trAutomatic => 'Transcribe recordings automatically';
 
   @override
-  String get trAutomaticHint =>
-      'Runs on your phone after saving and can take a while.';
+  String get trAutomaticHint => 'Runs on your phone after saving and can take a while.';
 
   @override
-  String get trDownloadFirst =>
-      'Download a model first to transcribe recordings on your phone.';
+  String get trDownloadFirst => 'Download a model first to transcribe recordings on your phone.';
 
   @override
   String get trAfterSave => 'Transcribe after saving';
 
   @override
-  String get trQueueFailed =>
-      'The recording is saved, but we couldn’t queue it. Try from the note.';
+  String get trQueueFailed => 'The recording is saved, but we couldn’t queue it. Try from the note.';
 
   @override
   String get trWorking => 'Transcribing audio…';
@@ -1585,16 +1527,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get trModelMissing =>
-      'The model is missing or damaged. Download it in voice settings and try again.';
+  String get trModelMissing => 'The model is missing or damaged. Download it in voice settings and try again.';
 
   @override
-  String get trBusy =>
-      'Another transcription took too long. Try again when it finishes.';
+  String get trBusy => 'Another transcription took too long. Try again when it finishes.';
 
   @override
-  String get trAudioUnreadable =>
-      'We couldn’t read the recording or find speech. Try playing it first.';
+  String get trAudioUnreadable => 'We couldn’t read the recording or find speech. Try playing it first.';
 
   @override
   String get trFailed => 'We couldn’t transcribe the recording. Try again.';
@@ -1618,8 +1557,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get trNotificationWhy =>
-      'Allow notifications to follow transcription after you leave the app.';
+  String get trNotificationWhy => 'Allow notifications to follow transcription after you leave the app.';
 
   @override
   String get trOpenSettings => 'Open voice settings';
@@ -1631,8 +1569,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trRedo => 'Transcribe again';
 
   @override
-  String get vtEngineBusy =>
-      'A recording is being transcribed. Wait for it to finish and try again.';
+  String get vtEngineBusy => 'A recording is being transcribed. Wait for it to finish and try again.';
 
   @override
   String get vsEngine => 'Transcription engine';
@@ -1671,8 +1608,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsLanguageHint => 'Language hint (optional)';
 
   @override
-  String get vsLanguageHelp =>
-      'Use a code such as ar or en. Leave blank to use the selected speech language.';
+  String get vsLanguageHelp => 'Use a code such as ar or en. Leave blank to use the selected speech language.';
 
   @override
   String get vsShowKey => 'Show key';
@@ -1693,8 +1629,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsDeleteTitle => 'Delete this service?';
 
   @override
-  String get vsDeleteBody =>
-      'Its key will be deleted. If selected, transcription switches back to your phone.';
+  String get vsDeleteBody => 'Its key will be deleted. If selected, transcription switches back to your phone.';
 
   @override
   String vsConsentTitle(String service) {
@@ -1710,12 +1645,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsConsentConfirm => 'Agree';
 
   @override
-  String get vsHttpWarning =>
-      'This connection is unencrypted. Use it only on a trusted local network.';
+  String get vsHttpWarning => 'This connection is unencrypted. Use it only on a trusted local network.';
 
   @override
-  String get vsInvalidUrl =>
-      'Use HTTPS, or HTTP to localhost or a private LAN address.';
+  String get vsInvalidUrl => 'Use HTTPS, or HTTP to localhost or a private LAN address.';
 
   @override
   String get vsInvalidFields => 'Check the name, model and language code.';
@@ -1748,8 +1681,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsRemovedService => 'Deleted service';
 
   @override
-  String get vsLiveLocal =>
-      'Live text is available only on your phone. Switch engines to try it.';
+  String get vsLiveLocal => 'Live text is available only on your phone. Switch engines to try it.';
 
   @override
   String vsRemoteAutoHint(String service) {
@@ -1757,16 +1689,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get vsOffline =>
-      'We couldn’t reach the service. Check your connection and try again.';
+  String get vsOffline => 'We couldn’t reach the service. Check your connection and try again.';
 
   @override
-  String get vsKeyRejected =>
-      'The service rejected the key. Check it in voice settings.';
+  String get vsKeyRejected => 'The service rejected the key. Check it in voice settings.';
 
   @override
-  String get vsRateLimited =>
-      'You reached a usage limit or ran out of credit. Check your account or try later.';
+  String get vsRateLimited => 'You reached a usage limit or ran out of credit. Check your account or try later.';
 
   @override
   String get vsTooLarge =>
@@ -1776,16 +1705,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsServiceError => 'The service is having a problem. Try later.';
 
   @override
-  String get vsUnexpected =>
-      'The service returned an unexpected response. Check its URL and model in voice settings.';
+  String get vsUnexpected => 'The service returned an unexpected response. Check its URL and model in voice settings.';
 
   @override
-  String get vsTimeout =>
-      'The service took too long to respond. Check your connection and try again.';
+  String get vsTimeout => 'The service took too long to respond. Check your connection and try again.';
 
   @override
-  String get vsNeedsConsent =>
-      'Agree to send recordings in voice settings first.';
+  String get vsNeedsConsent => 'Agree to send recordings in voice settings first.';
 
   @override
   String get vsRegion => 'Region';
@@ -1797,15 +1723,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsBeijing => 'Mainland China (Beijing)';
 
   @override
-  String get vsOpenAiKeyHint =>
-      'Get the key, URL and model from your provider, such as OpenAI, Groq or SiliconFlow.';
+  String get vsOpenAiKeyHint => 'Get the key, URL and model from your provider, such as OpenAI, Groq or SiliconFlow.';
 
   @override
   String get vsGeminiKeyHint => 'Get a key from Google AI Studio.';
 
   @override
-  String get vsElevenKeyHint =>
-      'Get a key from your ElevenLabs account settings.';
+  String get vsElevenKeyHint => 'Get a key from your ElevenLabs account settings.';
 
   @override
   String get vsQwenKeyHint =>
@@ -1821,8 +1745,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vsQwen => 'Qwen ASR';
 
   @override
-  String get vsRemoteTiming =>
-      'Time includes uploading and waiting for the service. Memory is for the whole app.';
+  String get vsRemoteTiming => 'Time includes uploading and waiting for the service. Memory is for the whole app.';
 
   @override
   String get v2Off => 'No transcription';
@@ -1842,16 +1765,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get v2LegacyUnknown =>
-      'Legacy model. No shutdown date has been announced.';
+  String get v2LegacyUnknown => 'Legacy model. No shutdown date has been announced.';
 
   @override
-  String get v2Arabic =>
-      'Supports Arabic. Try it with mixed Egyptian Arabic and English.';
+  String get v2Arabic => 'Supports Arabic. Try it with mixed Egyptian Arabic and English.';
 
   @override
-  String get v2Generative =>
-      'Understands Arabic, but may rephrase speech. Check the transcript.';
+  String get v2Generative => 'Understands Arabic, but may rephrase speech. Check the transcript.';
 
   @override
   String get v2Unsupported => 'Not supported here yet';
@@ -1874,8 +1794,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get v2DiscoveryHint =>
-      'Checks models with the service outside your phone, without sending audio.';
+  String get v2DiscoveryHint => 'Checks models with the service outside your phone, without sending audio.';
 
   @override
   String get v2DiscoveryQwen =>
@@ -1894,15 +1813,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get v2UseTranscript => 'Use it';
 
   @override
-  String get v2CopyUnchanged =>
-      'Transcript saved. The note text was left unchanged because it was edited.';
+  String get v2CopyUnchanged => 'Transcript saved. The note text was left unchanged because it was edited.';
 
   @override
   String get v2AppendTranscript => 'Append to note';
 
   @override
-  String get v2TranscriptConflict =>
-      'The transcript changed while you were editing. Go back and reopen it.';
+  String get v2TranscriptConflict => 'The transcript changed while you were editing. Go back and reopen it.';
 
   @override
   String get v2TranscriptFailed => 'Couldn’t save the transcript. Try again.';
@@ -1956,8 +1873,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linksSuggestionsEmptyBody => 'New suggestions will appear here.';
 
   @override
-  String get linksBrowseSuggestionsBody =>
-      'Some suggestions are waiting for you. Accept a link to see it here.';
+  String get linksBrowseSuggestionsBody => 'Some suggestions are waiting for you. Accept a link to see it here.';
 
   @override
   String linksSuggestionsCount(int count) {
@@ -1970,6 +1886,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get linksFilterEmptyBody =>
-      'Nothing here yet. Try another group or topic.';
+  String get linksFilterEmptyBody => 'Nothing here yet. Try another group or topic.';
+
+  @override
+  String get linkSuggestionRejected => 'Suggestion rejected';
 }

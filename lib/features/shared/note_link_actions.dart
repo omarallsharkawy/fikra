@@ -8,11 +8,74 @@ import '../../data/links_repository.dart';
 import '../../data/local/database.dart';
 import '../../l10n/localizations.dart';
 import 'note_links.dart';
+import 'selection_actions.dart' show SelectionGuard;
 import 'note_presentation.dart';
 
-/// Pair operations remain safe if analysis replaces the stored row meanwhile.
-Future<void> changeLinkPair(LinksRepository repo, NoteLink link, {required bool accept}) =>
-    accept ? repo.acceptPair(link.sourceId, link.targetId) : repo.dismissPair(link.sourceId, link.targetId);
+/// Claimed by an accept/reject of a suggested pair while it writes, and by its
+/// Undo while it runs: one at a time app-wide, so a slow Undo can't race a
+/// newer accept/reject and an action can't start on top of an Undo.
+final suggestionBusyProvider = NotifierProvider<SelectionGuard, bool>(SelectionGuard.new);
+
+/// Accepts or rejects the suggested pair [a]–[b] (safe if a re-analysis
+/// replaced its row) and shows a toast with Undo, the same from the
+/// Suggestions list, a connections page, note details and the graph. Undo puts
+/// the pair back exactly as it was (`undoPairChange`), unless it changed
+/// meanwhile. A call that changed nothing shows the toast without Undo; a
+/// failure shows linkUpdateFailed. Returns whether the pair changed; false
+/// too when another accept/reject or an Undo is running (then nothing runs).
+///
+/// [context] shows the toasts; when it is gone by then (a closed sheet), the
+/// app's root navigator does.
+Future<bool> changeSuggestedPair(
+  BuildContext context, {
+  required String a,
+  required String b,
+  required bool accept,
+}) async {
+  // The container outlives the page, so Undo works after it closed.
+  final container = ProviderScope.containerOf(context, listen: false);
+  final guard = container.read(suggestionBusyProvider.notifier);
+  if (!guard.claim()) return false;
+  final repo = container.read(linksRepoProvider);
+  final root = Navigator.of(context, rootNavigator: true).context;
+  BuildContext host() => context.mounted ? context : root;
+  final l10n = context.l10n;
+  PairChange? change;
+  try {
+    change = accept ? await repo.acceptPairForUndo(a, b) : await repo.dismissPairForUndo(a, b);
+  } catch (_) {
+    if (host().mounted) showToast(host(), l10n.linkUpdateFailed);
+    return false;
+  } finally {
+    guard.release();
+  }
+  if (!host().mounted) return change != null;
+  final undone = change;
+  showToast(
+    host(),
+    accept ? l10n.linksAdded(undone == null ? 0 : 1) : l10n.linkSuggestionRejected,
+    actionLabel: undone == null ? null : l10n.undo,
+    onAction: undone == null
+        ? null
+        : () async {
+            final failed = l10n.undoFailed;
+            final messenger = ScaffoldMessenger.maybeOf(root);
+            void fail() => messenger
+              ?..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(failed), duration: const Duration(seconds: 3)));
+            if (!guard.claim()) return fail();
+            try {
+              // Skipped quietly when the pair changed meanwhile, like undoLinks.
+              await repo.undoPairChange(undone);
+            } catch (_) {
+              fail();
+            } finally {
+              guard.release();
+            }
+          },
+  );
+  return undone != null;
+}
 
 /// Options for one of your links: edit its reason, or remove it. Removing asks
 /// first, because the analysis won't suggest that pair again. [remove] starts
@@ -25,11 +88,9 @@ Future<void> showLinkOptions(
   NoteLinkEntry entry, {
   required Future<void> Function(BuildContext sheet) remove,
   Note? source,
-  LinksRepository? repository,
 }) {
   final l10n = context.l10n;
   final suggestion = entry.link.origin != LinkOrigin.user;
-  assert(!suggestion || repository != null);
   var handled = false; // one choice per sheet, even on a double tap
   return showFikraSheet<void>(
     context,
@@ -56,10 +117,12 @@ Future<void> showLinkOptions(
               onTap: () async {
                 if (handled) return;
                 handled = true;
-                final done = runAction(
-                  sheet,
-                  () => changeLinkPair(repository!, entry.link, accept: accept),
-                  failure: l10n.linkUpdateFailed,
+                // Toasts from the page: this sheet is closing.
+                final done = changeSuggestedPair(
+                  context.mounted ? context : sheet,
+                  a: entry.link.sourceId,
+                  b: entry.link.targetId,
+                  accept: accept,
                 );
                 Navigator.pop(sheet);
                 await done;

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../l10n/localizations.dart';
+import '../shared/note_link_actions.dart';
 import '../shared/note_presentation.dart';
 import 'library_cards.dart';
 import 'link_pair_busy.dart';
@@ -34,14 +34,12 @@ class _SuggestionCardState extends ConsumerState<SuggestionCard> {
     if (!guard.claim(pair, project: widget.entry.a.projectId, pair: pairKey(widget.entry.a.id, widget.entry.b.id))) {
       return;
     }
-    final repo = ref.read(linksRepoProvider), e = widget.entry;
+    final e = widget.entry;
     var ok = false;
     try {
-      ok = await runAction(
-        context,
-        () => accept ? repo.acceptPair(e.a.id, e.b.id) : repo.dismissPair(e.a.id, e.b.id),
-        failure: context.l10n.linkUpdateFailed,
-      );
+      // False when nothing changed (or another accept/reject or Undo runs):
+      // unlock at once rather than wait for a snapshot that may never come.
+      ok = await changeSuggestedPair(context, a: e.a.id, b: e.b.id, accept: accept);
     } finally {
       guard.finish(pair, success: ok);
     }

@@ -13,6 +13,24 @@ class LinkChange {
   final List<NoteLink> before;
 }
 
+/// What [LinksRepository.acceptPairForUndo] or
+/// [LinksRepository.dismissPairForUndo] changed: the pair's rows right before
+/// and right after, in [projectId], so [LinksRepository.undoPairChange] can put
+/// the pair back exactly.
+class PairChange {
+  const PairChange({
+    required this.projectId,
+    required this.a,
+    required this.b,
+    required this.before,
+    required this.after,
+  });
+  final String projectId;
+  final String a, b;
+  final List<NoteLink> before;
+  final List<NoteLink> after;
+}
+
 abstract interface class LinksRepository {
   Stream<List<NoteLink>> watchLinks(String projectId);
   Future<List<String>> linkNotes(String sourceId, Iterable<String> targetIds, {String? label});
@@ -40,6 +58,21 @@ abstract interface class LinksRepository {
   /// its suggestion row was replaced or dropped meanwhile. Does nothing when
   /// the pair became your link.
   Future<void> dismissPair(String a, String b);
+
+  /// [acceptPair] that also returns the pair's rows before and after, for
+  /// [undoPairChange]. Null when it changed nothing (no live suggestion).
+  Future<PairChange?> acceptPairForUndo(String a, String b);
+
+  /// [dismissPair] that also returns the pair's rows before and after, for
+  /// [undoPairChange]. Null when it changed nothing.
+  Future<PairChange?> dismissPairForUndo(String a, String b);
+
+  /// Puts the pair of [change] back exactly as it was before, in one
+  /// transaction: the suggestion row with its id, reason, strength and state,
+  /// and no accepted row or rejection. Skipped, returning false, when the pair
+  /// changed meanwhile (removed, relinked, reason edited, re-analysed) or a
+  /// note was deleted or moved to another project.
+  Future<bool> undoPairChange(PairChange change);
 }
 
 class LocalLinksRepository implements LinksRepository {
@@ -174,7 +207,51 @@ class LocalLinksRepository implements LinksRepository {
   });
 
   @override
-  Future<void> acceptPair(String a, String b) => db.transaction(() async {
+  Future<void> acceptPair(String a, String b) => _acceptPair(a, b);
+
+  @override
+  Future<void> dismissPair(String a, String b) => _dismissPair(a, b);
+
+  @override
+  Future<PairChange?> acceptPairForUndo(String a, String b) => _forUndo(a, b, () => _acceptPair(a, b));
+
+  @override
+  Future<PairChange?> dismissPairForUndo(String a, String b) => _forUndo(a, b, () => _dismissPair(a, b));
+
+  Future<PairChange?> _forUndo(String a, String b, Future<void> Function() change) => db.transaction(() async {
+    if (a == b) return null;
+    final before = await _pairRows(a, b);
+    await change();
+    final after = await _pairRows(a, b);
+    if (_sameRows(before, after)) return null;
+    final notes = await (db.select(db.notes)..where((n) => n.id.isIn([a, b]))).get();
+    if (notes.length != 2) return null;
+    return PairChange(projectId: notes.first.projectId, a: a, b: b, before: before, after: after);
+  });
+
+  @override
+  Future<bool> undoPairChange(PairChange change) => db.transaction(() async {
+    // Changed meanwhile, by the user or a re-analysis: leave it.
+    if (!_sameRows(await _pairRows(change.a, change.b), change.after)) return false;
+    final notes = await (db.select(db.notes)..where((n) => n.id.isIn([change.a, change.b]))).get();
+    if (notes.length != 2 || notes.any((n) => n.projectId != change.projectId)) return false;
+    await (db.delete(db.noteLinks)..where((l) => _pair(l, change.a, change.b))).go();
+    for (final row in change.before) {
+      await db.into(db.noteLinks).insert(row);
+    }
+    return true;
+  });
+
+  Future<List<NoteLink>> _pairRows(String a, String b) => (db.select(db.noteLinks)..where((l) => _pair(l, a, b))).get();
+
+  /// Same rows, by id and every column, in any order.
+  static bool _sameRows(List<NoteLink> x, List<NoteLink> y) {
+    if (x.length != y.length) return false;
+    final byId = {for (final row in x) row.id: row};
+    return y.every((row) => byId[row.id] == row);
+  }
+
+  Future<void> _acceptPair(String a, String b) => db.transaction(() async {
     final rows = await (db.select(db.noteLinks)..where((l) => _pair(l, a, b))).get();
     // Already yours, or rejected/removed: a stale accept never revives the pair.
     if (rows.any((l) => l.origin == LinkOrigin.user || l.dismissed)) return;
@@ -182,8 +259,7 @@ class LocalLinksRepository implements LinksRepository {
     if (live != null) await acceptSuggestion(live.id);
   });
 
-  @override
-  Future<void> dismissPair(String a, String b) => db.transaction(() async {
+  Future<void> _dismissPair(String a, String b) => db.transaction(() async {
     if (a == b) return;
     final rows = await (db.select(db.noteLinks)..where((l) => _pair(l, a, b))).get();
     if (rows.any((l) => l.origin == LinkOrigin.user)) return;

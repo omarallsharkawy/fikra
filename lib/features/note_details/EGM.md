@@ -94,7 +94,7 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 
 ## Shared link actions (links phase 4)
 
-The former `note_link_actions.dart` part moved to `features/shared/note_link_actions.dart`. Details imports `showLinkOptions` without changing its user-link appearance, callbacks, keys, confirmation or editor lifecycle. Inline suggestion actions call shared `changeLinkPair` inside the existing per-pair busy guard. The graph uses those same sheets and pair operations. Existing `test/note_links_test.dart` remains the note-page regression suite.
+The former `note_link_actions.dart` part moved to `features/shared/note_link_actions.dart`. Details imports `showLinkOptions` without changing its user-link appearance, callbacks, keys, confirmation or editor lifecycle. Inline suggestion actions call shared `changeSuggestedPair` inside the existing per-pair busy guard, so accept/reject show the shared toast with Undo; Undo brings the suggestion row back with its actions on. The graph uses those same sheets and pair operations. Existing `test/note_links_test.dart` remains the note-page regression suite.
 
 ## Shared move confirmation (links phase 5a)
 

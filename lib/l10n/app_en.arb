@@ -1611,5 +1611,9 @@
   "linksFilterEmptyBody": "Nothing here yet. Try another group or topic.",
   "@linksFilterEmptyBody": {
     "description": "Links library empty state when a group or topic chip is selected and the search is empty."
+  },
+  "linkSuggestionRejected": "Suggestion rejected",
+  "@linkSuggestionRejected": {
+    "description": "Toast after rejecting a suggested link; carries Undo."
   }
 }

@@ -38,7 +38,6 @@ extension _LinksNavigation on _LinksScreenState {
         context,
         (other: target, link: link),
         source: source,
-        repository: repo,
         remove: (sheet) async {
           await runAction(
             sheet,

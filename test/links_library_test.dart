@@ -269,4 +269,74 @@ void main() {
       semantics.dispose();
     }
   });
+
+  for (final accept in [true, false]) {
+    late LibrarySpy undoSpy;
+    fikraTest(
+      '${accept ? 'accept' : 'reject'} shows Undo; Undo brings the suggestion back enabled',
+      linksRepository: (db) => undoSpy = LibrarySpy(db),
+      (tester, db) async {
+        phone(tester);
+        final notes = await seedLibrary(tester, db);
+        await librarySegment(tester, 1);
+        final pair = pairKey(notes[0].id, notes[3].id);
+        final button = find.byKey(ValueKey('${accept ? 'accept' : 'reject'}-$pair'));
+        await tester.scrollUntilVisible(button, 200, scrollable: libraryScroll);
+        await Scrollable.ensureVisible(tester.element(button), alignment: .5);
+        await tester.pumpAndSettle();
+        await tester.tap(button);
+        await tester.pumpAndSettle();
+        expect(button, findsNothing);
+        expect(find.text(accept ? arL10n.linksAdded(1) : arL10n.linkSuggestionRejected), findsOneWidget);
+        await tester.tap(find.text(arL10n.undo));
+        await pumpFuture(tester, () => undoSpy.pending!);
+        await tester.pumpAndSettle();
+        expect(undoSpy.undos, 1);
+        await tester.scrollUntilVisible(button, 200, scrollable: libraryScroll);
+        await tester.pumpAndSettle();
+        expect(tester.widget<TextButton>(button).onPressed, isNotNull);
+        expect(find.text('${arL10n.linksSuggestions} 3'), findsOneWidget);
+      },
+    );
+  }
+
+  late LibrarySpy blockSpy;
+  fikraTest(
+    'a second accept/reject while an Undo runs does nothing',
+    linksRepository: (db) => blockSpy = LibrarySpy(db),
+    (tester, db) async {
+      phone(tester);
+      final notes = await seedLibrary(tester, db);
+      await librarySegment(tester, 1);
+      final first = find.byKey(ValueKey('accept-${pairKey(notes[0].id, notes[3].id)}'));
+      final second = find.byKey(ValueKey('reject-${pairKey(notes[1].id, notes[4].id)}'));
+      await tester.scrollUntilVisible(first, 200, scrollable: libraryScroll);
+      await Scrollable.ensureVisible(tester.element(first), alignment: .5);
+      await tester.pumpAndSettle();
+      await tester.tap(first);
+      await tester.pumpAndSettle();
+      final gate = blockSpy.undoGate = Completer<void>();
+      addTearDown(() {
+        if (!gate.isCompleted) gate.complete();
+      });
+      await tester.tap(find.text(arL10n.undo));
+      await tester.pump();
+      await tester.scrollUntilVisible(second, 200, scrollable: libraryScroll);
+      await tester.pumpAndSettle();
+      await tester.tap(second);
+      await tester.pumpAndSettle();
+      expect(blockSpy.rejects, 0);
+      // Not left locked: the row stays and works once the Undo is done.
+      expect(tester.widget<TextButton>(second).onPressed, isNotNull);
+      gate.complete();
+      await pumpFuture(tester, () => blockSpy.pending!);
+      await tester.pumpAndSettle();
+      expect(first, findsOneWidget);
+      await tester.tap(second);
+      await pumpFuture(tester, () => blockSpy.pending!);
+      await tester.pumpAndSettle();
+      expect(blockSpy.rejects, 1);
+      expect(second, findsNothing);
+    },
+  );
 }

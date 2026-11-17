@@ -47,7 +47,7 @@ The optional knowledge graph, mounted at `/links/graph` by `lib/app/router.dart`
 ## Side Effects
 
 - Spawns a background isolate through Flutter's `compute` (debug label `links-layout`) for large graphs.
-- Line taps and selected-card semantic actions open shared `showLinkOptions`: edit reason / confirmed removal for user links, accept / reject for suggestions through `LinksRepository`. Frame options reuse `showGroupOptions`; topic conversion and multi-selection reuse the shared group and selection writes described below.
+- Line taps and selected-card semantic actions open shared `showLinkOptions`: edit reason / confirmed removal for user links, accept / reject for suggestions through shared `changeSuggestedPair` (toast with Undo, shown from the graph page once the sheet closes). Frame options reuse `showGroupOptions`; topic conversion and multi-selection reuse the shared group and selection writes described below.
 - Pushes `/note/<id>`, passing the full `Note` as `extra` when the graph still holds it; navigates to `/add` from the empty state.
 - Invalidates `selectedNotesProvider` and `selectedLinksProvider` on retry.
 

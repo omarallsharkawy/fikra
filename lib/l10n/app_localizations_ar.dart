@@ -28,8 +28,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get storageErrorTitle => 'فيه مشكلة في التخزين';
 
   @override
-  String get storageErrorBody =>
-      'مقدرناش نقرا بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية على الموبايل، وجرّب تاني.';
+  String get storageErrorBody => 'مقدرناش نقرا بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية على الموبايل، وجرّب تاني.';
 
   @override
   String get retry => 'جرّب تاني';
@@ -217,15 +216,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get titleOptionalHint => 'عنوان (اختياري)';
 
   @override
-  String get bodyHintWithFileLinks =>
-      'اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)';
+  String get bodyHintWithFileLinks => 'اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)';
 
   @override
   String get bodyHint => 'اكتب فكرتك هنا…';
 
   @override
-  String get addFooter =>
-      'الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.';
+  String get addFooter => 'الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.';
 
   @override
   String get discardRecording => 'الغي التسجيل';
@@ -257,8 +254,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get close => 'اقفل';
 
   @override
-  String get micBlockedBody =>
-      'المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.';
+  String get micBlockedBody => 'المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.';
 
   @override
   String get micAskBody => 'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.';
@@ -282,8 +278,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notesEmptyTitle => 'لسه مفيش ملاحظات';
 
   @override
-  String get notesEmptyBody =>
-      'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.';
+  String get notesEmptyBody => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.';
 
   @override
   String get addFirstNote => 'ضيف أول ملاحظة';
@@ -314,8 +309,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get untitledNote => 'ملاحظة جديدة';
 
   @override
-  String get openFileFailed =>
-      'مقدرناش نفتح الملف. اتأكد إن عندك تطبيق يفتح النوع ده.';
+  String get openFileFailed => 'مقدرناش نفتح الملف. اتأكد إن عندك تطبيق يفتح النوع ده.';
 
   @override
   String get noteOptions => 'خيارات الملاحظة';
@@ -336,8 +330,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteNoteTitle => 'تحذف الملاحظة دي؟';
 
   @override
-  String get deleteNoteBody =>
-      'الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.';
+  String get deleteNoteBody => 'الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.';
 
   @override
   String get noteDeleted => 'الملاحظة اتحذفت';
@@ -355,8 +348,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noteNotFoundBody => 'يمكن تكون اتحذفت.';
 
   @override
-  String get analysisFailedBanner =>
-      'مقدرناش نحلل الملاحظة، بس هي محفوظة زي ما هي.';
+  String get analysisFailedBanner => 'مقدرناش نحلل الملاحظة، بس هي محفوظة زي ما هي.';
 
   @override
   String get analyzeAgain => 'حلّلها تاني';
@@ -425,8 +417,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noteTextA11y => 'نص الملاحظة';
 
   @override
-  String get originalKeptHint =>
-      'النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.';
+  String get originalKeptHint => 'النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.';
 
   @override
   String get clusterGeneral => 'أفكار عامة';
@@ -441,8 +432,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linksEmptyTitle => 'الروابط بتظهر هنا';
 
   @override
-  String get linksEmptyBody =>
-      'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.';
+  String get linksEmptyBody => 'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.';
 
   @override
   String get addNote => 'ضيف ملاحظة';
@@ -472,8 +462,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get noLinksYet =>
-      'لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.';
+  String get noLinksYet => 'لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.';
 
   @override
   String nodeMeta(String cluster, String linksCount) {
@@ -490,8 +479,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clearChatTitle => 'تمسح المحادثة؟';
 
   @override
-  String get clearChatBody =>
-      'الأسئلة والإجابات هتتمسح، والملاحظات نفسها مش هيحصلها حاجة.';
+  String get clearChatBody => 'الأسئلة والإجابات هتتمسح، والملاحظات نفسها مش هيحصلها حاجة.';
 
   @override
   String get clear => 'امسح';
@@ -514,12 +502,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get askEmptyTitle => 'اسأل عن ملاحظاتك';
 
   @override
-  String get askEmptyNoNotes =>
-      'ضيف ملاحظات الأول، وبعدين اسأل عنها هنا. الإجابة بتيجي من ملاحظاتك بس، ومعاها المصدر.';
+  String get askEmptyNoNotes => 'ضيف ملاحظات الأول، وبعدين اسأل عنها هنا. الإجابة بتيجي من ملاحظاتك بس، ومعاها المصدر.';
 
   @override
-  String get askEmptyBody =>
-      'الإجابة بتيجي من ملاحظات المشروع ده بس، ومعاها المصدر.';
+  String get askEmptyBody => 'الإجابة بتيجي من ملاحظات المشروع ده بس، ومعاها المصدر.';
 
   @override
   String get askHint => 'اسأل عن أي حاجة في ملاحظاتك';
@@ -552,8 +538,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get eraseAllDone => 'كل حاجة اتمسحت';
 
   @override
-  String get eraseAllPartial =>
-      'البيانات اتمسحت، بس فيه ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني.';
+  String get eraseAllPartial => 'البيانات اتمسحت، بس فيه ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني.';
 
   @override
   String get eraseAllFailed => 'مقدرناش نمسح البيانات. جرّب تاني.';
@@ -574,15 +559,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get themeDark => 'غامق';
 
   @override
-  String get themeHint =>
-      '«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.';
+  String get themeHint => '«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.';
 
   @override
   String get dataSection => 'البيانات';
 
   @override
-  String get dataStaysLocal =>
-      'ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.';
+  String get dataStaysLocal => 'ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.';
 
   @override
   String get eraseAll => 'امسح كل البيانات';
@@ -654,15 +637,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sample4Title => 'إدارة الحالة في Flutter';
 
   @override
-  String get sample4Body =>
-      'هستخدم riverpod لإدارة الحالة في flutter، وقاعدة بيانات محلية للنسخة التجريبية.';
+  String get sample4Body => 'هستخدم riverpod لإدارة الحالة في flutter، وقاعدة بيانات محلية للنسخة التجريبية.';
 
   @override
   String get sample5Title => 'الباك إند';
 
   @override
-  String get sample5Body =>
-      'علاء هيعمل الباك إند بـfastapi و postgres مع pgvector، والتطبيق هيكلمه عن طريق api.';
+  String get sample5Body => 'علاء هيعمل الباك إند بـfastapi و postgres مع pgvector، والتطبيق هيكلمه عن طريق api.';
 
   @override
   String get sample6Title => 'البحث الدلالي';
@@ -675,19 +656,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sample7Title => 'محاضرة الشبكات';
 
   @override
-  String get sample7Body =>
-      'محاضرة الشبكات النهارده كانت عن TCP و UDP، لازم أراجعها قبل الامتحان.';
+  String get sample7Body => 'محاضرة الشبكات النهارده كانت عن TCP و UDP، لازم أراجعها قبل الامتحان.';
 
   @override
   String get clearSearch => 'امسح البحث';
 
   @override
-  String get noteSavedNoText =>
-      'الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي';
+  String get noteSavedNoText => 'الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي';
 
   @override
-  String get noTextNoLinks =>
-      'الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.';
+  String get noTextNoLinks => 'الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.';
 
   @override
   String get pdfOpenElsewhere => 'افتح في تطبيق تاني';
@@ -764,16 +742,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pdfFormat => 'PDF';
 
   @override
-  String get removeAttachmentBody =>
-      'الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.';
+  String get removeAttachmentBody => 'الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.';
 
   @override
-  String get emptyNoteBlocked =>
-      'الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.';
+  String get emptyNoteBlocked => 'الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.';
 
   @override
-  String get pdfPasswordProtected =>
-      'الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.';
+  String get pdfPasswordProtected => 'الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.';
 
   @override
   String get noteLinksHeader => 'الروابط';
@@ -782,8 +757,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linkToNote => 'اربط بملاحظة';
 
   @override
-  String get noteLinksEmpty =>
-      'لسه مفيش روابط للملاحظة دي. دوس «اربط بملاحظة» عشان تربطها بملاحظات تانية.';
+  String get noteLinksEmpty => 'لسه مفيش روابط للملاحظة دي. دوس «اربط بملاحظة» عشان تربطها بملاحظات تانية.';
 
   @override
   String get noteLinksLoadFailed => 'مقدرناش نجيب الروابط دلوقتي.';
@@ -835,8 +809,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get removeLinkTitle => 'تشيل الرابط ده؟';
 
   @override
-  String get removeLinkBody =>
-      'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.';
+  String get removeLinkBody => 'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.';
 
   @override
   String get removeLinkConfirm => 'شيل';
@@ -854,8 +827,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get alreadyLinked => 'مربوطة أصلاً';
 
   @override
-  String get linkPickerEmpty =>
-      'مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي.';
+  String get linkPickerEmpty => 'مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي.';
 
   @override
   String get linkFailed => 'مقدرناش نربط الملاحظات. جرّب تاني.';
@@ -907,8 +879,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get moveNoteBodyNoLinks =>
-      'الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.';
+  String get moveNoteBodyNoLinks => 'الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.';
 
   @override
   String get moveConfirm => 'انقل';
@@ -976,8 +947,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get deleteProjectEmptyChatBody =>
-      'المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.';
+  String get deleteProjectEmptyChatBody => 'المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.';
 
   @override
   String selectedCount(int count) {
@@ -1101,18 +1071,12 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
-      many:
-          'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
-      few:
-          'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
-      two:
-          'الملاحظتين هيتنقلوا بملفاتهم، وهيتشال $lost بينهم وبين الملاحظات اللي هتفضل هنا.',
-      one:
-          'الملاحظة هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
-      zero:
-          'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      other: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      many: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      few: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      two: 'الملاحظتين هيتنقلوا بملفاتهم، وهيتشال $lost بينهم وبين الملاحظات اللي هتفضل هنا.',
+      one: 'الملاحظة هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
+      zero: 'الملاحظات هتتنقل بملفاتها، وهيتشال $lost بينها وبين الملاحظات اللي هتفضل هنا.',
     );
     return '$_temp0';
   }
@@ -1183,8 +1147,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get groupEmptyTitle => 'المجموعة دي فاضية';
 
   @override
-  String get groupEmptyBody =>
-      'دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة».';
+  String get groupEmptyBody => 'دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة».';
 
   @override
   String noteGroupA11y(String group) {
@@ -1236,15 +1199,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get groupRuleMissingGroup => 'المجموعة دي مابقتش موجودة.';
 
   @override
-  String get groupRuleInvalidParent =>
-      'تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.';
+  String get groupRuleInvalidParent => 'تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.';
 
   @override
   String get groupRuleSelfParent => 'مينفعش تحط المجموعة جوه نفسها.';
 
   @override
-  String get groupRuleHasChildren =>
-      'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.';
+  String get groupRuleHasChildren => 'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.';
 
   @override
   String get suggestedTopics => 'مواضيع مقترحة';
@@ -1330,8 +1291,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtExperimental => 'تجريبي';
 
   @override
-  String get vtIntro =>
-      'الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.';
+  String get vtIntro => 'الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.';
 
   @override
   String get vtModel => 'الموديل';
@@ -1430,8 +1390,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtClips => 'آخر تسجيلاتك';
 
   @override
-  String get vtNoRecordings =>
-      'سجّل كام كلمة عشان تجرّب التفريغ. آخر 10 تسجيلات بيفضلوا هنا.';
+  String get vtNoRecordings => 'سجّل كام كلمة عشان تجرّب التفريغ. آخر 10 تسجيلات بيفضلوا هنا.';
 
   @override
   String vtClip(String number, String format) {
@@ -1518,8 +1477,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get vtTimingHint =>
-      'الوقت بيشمل تجهيز الصوت وتشغيل الموديل. الذاكرة للتطبيق كله.';
+  String get vtTimingHint => 'الوقت بيشمل تجهيز الصوت وتشغيل الموديل. الذاكرة للتطبيق كله.';
 
   @override
   String get vtHistory => 'تجارب قبل كده';
@@ -1528,19 +1486,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtLive => 'نص وإنت بتتكلم';
 
   @override
-  String get vtLiveHint =>
-      'النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.';
+  String get vtLiveHint => 'النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.';
 
   @override
   String get vtLiveStart => 'ابدأ التفريغ المباشر';
 
   @override
-  String get vtLiveTiming =>
-      'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.';
+  String get vtLiveTiming => 'وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.';
 
   @override
-  String get vtNetworkError =>
-      'مقدرناش نحمّل الموديل. اتأكد من الإنترنت وجرّب تاني.';
+  String get vtNetworkError => 'مقدرناش نحمّل الموديل. اتأكد من الإنترنت وجرّب تاني.';
 
   @override
   String get vtInterruptedError => 'التحميل أو التسجيل اتقطع. جرّب تاني.';
@@ -1549,20 +1504,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vtCorruptError => 'مقدرناش نقرا الموديل. احذفه وحمّله تاني.';
 
   @override
-  String get vtEmptyError =>
-      'التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.';
+  String get vtEmptyError => 'التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.';
 
   @override
-  String get vtTranscriptionError =>
-      'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو موديل أصغر.';
+  String get vtTranscriptionError => 'مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو موديل أصغر.';
 
   @override
-  String get vtStorageError =>
-      'المساحة مش كفاية. فضّي مساحة أو اختار موديل أصغر وجرّب تاني.';
+  String get vtStorageError => 'المساحة مش كفاية. فضّي مساحة أو اختار موديل أصغر وجرّب تاني.';
 
   @override
-  String get vtStorageCheckError =>
-      'مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.';
+  String get vtStorageCheckError => 'مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.';
 
   @override
   String get vtCancelled => 'التحميل اتلغى. تقدر تبدأه تاني.';
@@ -1592,19 +1543,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trAutomatic => 'فرّغ التسجيلات تلقائي';
 
   @override
-  String get trAutomaticHint =>
-      'بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.';
+  String get trAutomaticHint => 'بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.';
 
   @override
-  String get trDownloadFirst =>
-      'حمّل موديل الأول عشان تفرّغ التسجيلات على الموبايل.';
+  String get trDownloadFirst => 'حمّل موديل الأول عشان تفرّغ التسجيلات على الموبايل.';
 
   @override
   String get trAfterSave => 'فرّغه بعد الحفظ';
 
   @override
-  String get trQueueFailed =>
-      'التسجيل اتحفظ، بس مقدرناش نضيفه للتفريغ. جرّب من الملاحظة.';
+  String get trQueueFailed => 'التسجيل اتحفظ، بس مقدرناش نضيفه للتفريغ. جرّب من الملاحظة.';
 
   @override
   String get trWorking => 'بيفرّغ الصوت…';
@@ -1624,22 +1572,19 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get trModelMissing =>
-      'الموديل مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.';
+  String get trModelMissing => 'الموديل مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.';
 
   @override
   String get trBusy => 'تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.';
 
   @override
-  String get trAudioUnreadable =>
-      'مقدرناش نقرا التسجيل أو نطلع منه كلام. جرّب تشغّله الأول.';
+  String get trAudioUnreadable => 'مقدرناش نقرا التسجيل أو نطلع منه كلام. جرّب تشغّله الأول.';
 
   @override
   String get trFailed => 'مقدرناش نفرّغ التسجيل. جرّب تاني.';
 
   @override
-  String get trInterruptedTwice =>
-      'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار موديل أصغر.';
+  String get trInterruptedTwice => 'التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار موديل أصغر.';
 
   @override
   String get trNotificationChannel => 'تفريغ الصوت';
@@ -1658,8 +1603,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get trNotificationWhy =>
-      'اسمح بالإشعارات عشان تتابع التفريغ وإنت برّه التطبيق.';
+  String get trNotificationWhy => 'اسمح بالإشعارات عشان تتابع التفريغ وإنت برّه التطبيق.';
 
   @override
   String get trOpenSettings => 'افتح إعدادات الصوت';
@@ -1671,8 +1615,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trRedo => 'فرّغ تاني';
 
   @override
-  String get vtEngineBusy =>
-      'فيه تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.';
+  String get vtEngineBusy => 'فيه تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.';
 
   @override
   String get vsEngine => 'طريقة التفريغ';
@@ -1711,8 +1654,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsLanguageHint => 'لغة متوقعة (اختياري)';
 
   @override
-  String get vsLanguageHelp =>
-      'كود زي ar أو en. سيبه فاضي عشان تستخدم لغة الكلام المختارة.';
+  String get vsLanguageHelp => 'كود زي ar أو en. سيبه فاضي عشان تستخدم لغة الكلام المختارة.';
 
   @override
   String get vsShowKey => 'اعرض المفتاح';
@@ -1733,8 +1675,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsDeleteTitle => 'تحذف الخدمة دي؟';
 
   @override
-  String get vsDeleteBody =>
-      'المفتاح هيتمسح، والتفريغ هيرجع للموبايل لو الخدمة دي متختارة.';
+  String get vsDeleteBody => 'المفتاح هيتمسح، والتفريغ هيرجع للموبايل لو الخدمة دي متختارة.';
 
   @override
   String vsConsentTitle(String service) {
@@ -1750,12 +1691,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsConsentConfirm => 'موافق';
 
   @override
-  String get vsHttpWarning =>
-      'الاتصال ده من غير تشفير. استخدمه على شبكة محلية موثوقة بس.';
+  String get vsHttpWarning => 'الاتصال ده من غير تشفير. استخدمه على شبكة محلية موثوقة بس.';
 
   @override
-  String get vsInvalidUrl =>
-      'اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.';
+  String get vsInvalidUrl => 'اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.';
 
   @override
   String get vsInvalidFields => 'راجع الاسم والموديل وكود اللغة.';
@@ -1788,8 +1727,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsRemovedService => 'خدمة اتحذفت';
 
   @override
-  String get vsLiveLocal =>
-      'النص وقت الكلام متاح على الموبايل بس. غيّر طريقة التفريغ عشان تجرّبه.';
+  String get vsLiveLocal => 'النص وقت الكلام متاح على الموبايل بس. غيّر طريقة التفريغ عشان تجرّبه.';
 
   @override
   String vsRemoteAutoHint(String service) {
@@ -1803,26 +1741,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsKeyRejected => 'الخدمة رفضت المفتاح. راجعه في إعدادات الصوت.';
 
   @override
-  String get vsRateLimited =>
-      'وصلت لحد الاستخدام أو الرصيد خلص. راجع حسابك أو جرّب بعد شوية.';
+  String get vsRateLimited => 'وصلت لحد الاستخدام أو الرصيد خلص. راجع حسابك أو جرّب بعد شوية.';
 
   @override
-  String get vsTooLarge =>
-      'التسجيل كبير أو طويل على الخدمة دي. جرّب تسجيل أقصر أو خدمة تانية.';
+  String get vsTooLarge => 'التسجيل كبير أو طويل على الخدمة دي. جرّب تسجيل أقصر أو خدمة تانية.';
 
   @override
   String get vsServiceError => 'الخدمة عندها مشكلة دلوقتي. جرّب بعد شوية.';
 
   @override
-  String get vsUnexpected =>
-      'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والموديل في إعدادات الصوت.';
+  String get vsUnexpected => 'الخدمة رجّعت رد مش مفهوم. راجع عنوانها والموديل في إعدادات الصوت.';
 
   @override
   String get vsTimeout => 'الخدمة اتأخرت في الرد. اتأكد من الاتصال وجرّب تاني.';
 
   @override
-  String get vsNeedsConsent =>
-      'وافق إن التسجيلات تتبعت برّه الموبايل من إعدادات الصوت الأول.';
+  String get vsNeedsConsent => 'وافق إن التسجيلات تتبعت برّه الموبايل من إعدادات الصوت الأول.';
 
   @override
   String get vsRegion => 'المنطقة';
@@ -1857,8 +1791,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vsQwen => 'Qwen ASR';
 
   @override
-  String get vsRemoteTiming =>
-      'الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.';
+  String get vsRemoteTiming => 'الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.';
 
   @override
   String get v2Off => 'من غير تفريغ';
@@ -1884,8 +1817,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get v2Arabic => 'بيدعم العربي. جرّبه على المصري والإنجليزي مع بعض.';
 
   @override
-  String get v2Generative =>
-      'بيفهم العربي، بس ممكن يعيد صياغة الكلام. راجع التفريغ.';
+  String get v2Generative => 'بيفهم العربي، بس ممكن يعيد صياغة الكلام. راجع التفريغ.';
 
   @override
   String get v2Unsupported => 'لسه مش مدعوم هنا';
@@ -1908,12 +1840,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get v2DiscoveryHint =>
-      'بيراجع الموديلات عند الخدمة برّه الموبايل، من غير ما يبعت صوت.';
+  String get v2DiscoveryHint => 'بيراجع الموديلات عند الخدمة برّه الموبايل، من غير ما يبعت صوت.';
 
   @override
-  String get v2DiscoveryQwen =>
-      'مراجعة الموديلات مش متاحة لـQwen هنا. استخدم الموديل المقترح أو اكتب اسم الموديل.';
+  String get v2DiscoveryQwen => 'مراجعة الموديلات مش متاحة لـQwen هنا. استخدم الموديل المقترح أو اكتب اسم الموديل.';
 
   @override
   String get v2EditTranscript => 'عدّل التفريغ';
@@ -1928,15 +1858,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get v2UseTranscript => 'استخدمه';
 
   @override
-  String get v2CopyUnchanged =>
-      'التفريغ اتحفظ، بس نص الملاحظة متغيّرش عشان اتعدّل قبل كده.';
+  String get v2CopyUnchanged => 'التفريغ اتحفظ، بس نص الملاحظة متغيّرش عشان اتعدّل قبل كده.';
 
   @override
   String get v2AppendTranscript => 'ضيفه للملاحظة';
 
   @override
-  String get v2TranscriptConflict =>
-      'التفريغ اتغيّر وإنت بتعدّل. ارجع وافتحه تاني.';
+  String get v2TranscriptConflict => 'التفريغ اتغيّر وإنت بتعدّل. ارجع وافتحه تاني.';
 
   @override
   String get v2TranscriptFailed => 'مقدرناش نحفظ التفريغ. جرّب تاني.';
@@ -1987,12 +1915,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linksSuggestionsEmpty => 'مفيش اقتراحات دلوقتي';
 
   @override
-  String get linksSuggestionsEmptyBody =>
-      'لما يبقى فيه اقتراحات جديدة، هتلاقيها هنا.';
+  String get linksSuggestionsEmptyBody => 'لما يبقى فيه اقتراحات جديدة، هتلاقيها هنا.';
 
   @override
-  String get linksBrowseSuggestionsBody =>
-      'فيه اقتراحات مستنية رأيك. اقبل أي رابط عشان يظهر هنا.';
+  String get linksBrowseSuggestionsBody => 'فيه اقتراحات مستنية رأيك. اقبل أي رابط عشان يظهر هنا.';
 
   @override
   String linksSuggestionsCount(int count) {
@@ -2005,6 +1931,8 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get linksFilterEmptyBody =>
-      'مفيش حاجة هنا لسه. جرّب مجموعة أو موضوع تاني.';
+  String get linksFilterEmptyBody => 'مفيش حاجة هنا لسه. جرّب مجموعة أو موضوع تاني.';
+
+  @override
+  String get linkSuggestionRejected => 'الاقتراح اترفض';
 }

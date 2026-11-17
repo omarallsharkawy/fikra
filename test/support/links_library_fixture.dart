@@ -14,33 +14,46 @@ import 'selection_fixture.dart';
 /// Real repository writes and streams; only timing/failure is controlled.
 class LibrarySpy extends LocalLinksRepository {
   LibrarySpy(super.db);
-  int accepts = 0, rejects = 0;
+  int accepts = 0, rejects = 0, undos = 0;
   bool fail = false;
   Completer<void>? gate;
+
+  /// When set, a pair Undo waits for it (a slow Undo).
+  Completer<void>? undoGate;
   Future<void>? pending;
-  @override
-  Future<void> acceptPair(String a, String b) async {
-    accepts++;
+
+  Future<PairChange?> _gated(Future<PairChange?> Function() write) async {
     final done = Completer<void>();
     pending = done.future;
     try {
       await gate?.future;
       if (fail) throw StateError('fixture');
-      await super.acceptPair(a, b);
+      return await write();
     } finally {
       done.complete();
     }
   }
 
   @override
-  Future<void> dismissPair(String a, String b) async {
+  Future<PairChange?> acceptPairForUndo(String a, String b) {
+    accepts++;
+    return _gated(() => super.acceptPairForUndo(a, b));
+  }
+
+  @override
+  Future<PairChange?> dismissPairForUndo(String a, String b) {
     rejects++;
+    return _gated(() => super.dismissPairForUndo(a, b));
+  }
+
+  @override
+  Future<bool> undoPairChange(PairChange change) async {
+    undos++;
     final done = Completer<void>();
     pending = done.future;
     try {
-      await gate?.future;
-      if (fail) throw StateError('fixture');
-      await super.dismissPair(a, b);
+      await undoGate?.future;
+      return await super.undoPairChange(change);
     } finally {
       done.complete();
     }

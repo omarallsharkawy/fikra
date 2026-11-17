@@ -326,6 +326,36 @@ void main() {
     },
   );
 
+  for (final accept in [true, false]) {
+    late _SpyLinks undoSpy;
+    fikraTest(
+      'details ${accept ? 'accept' : 'reject'} shows Undo; Undo brings the suggestion back',
+      linksRepository: (db) => undoSpy = _SpyLinks(db),
+      (tester, db) async {
+        phone(tester);
+        final [a, b] = await seed(tester, db, ['A', 'B']);
+        await suggest(tester, db, a, [b]);
+        await open(tester, a);
+        final before = await rows(tester, db);
+        await tapKey(tester, '${accept ? 'link-accept' : 'link-reject'}-${b.id}');
+        final toast = find.text(accept ? ar.linksAdded(1) : ar.linkSuggestionRejected);
+        await pumpUntil(tester, toast);
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byKey(ValueKey('link-accept-${b.id}')), findsNothing);
+        await tester.tap(find.text(ar.undo));
+        await pumpUntil(tester, find.byKey(ValueKey('link-accept-${b.id}')));
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(undoSpy.calls.where((c) => c == 'undoPair'), hasLength(1));
+        expect(await rows(tester, db), unorderedEquals(before));
+        // Enabled again: a new accept goes through.
+        await tapKey(tester, 'link-accept-${b.id}');
+        await pumpUntil(tester, find.byKey(ValueKey('link-options-${b.id}')));
+        expect(undoSpy.calls.where((c) => c == 'acceptPair'), hasLength(accept ? 2 : 1));
+        await tester.pump(const Duration(seconds: 7));
+      },
+    );
+  }
+
   fikraTest(
     'a user link survives editing the text and a re-analysis that proposes other links',
     aiService: _Ai((note, notes) async {
@@ -708,6 +738,9 @@ class _SpyLinks implements LinksRepository {
   /// When set, linking and label edits wait for it, to act while they run.
   Completer<void>? gate;
 
+  /// When set, a pair Undo waits for it (a slow Undo).
+  Completer<void>? undoGate;
+
   @override
   Stream<List<NoteLink>> watchLinks(String projectId) => _inner.watchLinks(projectId);
 
@@ -761,6 +794,25 @@ class _SpyLinks implements LinksRepository {
   Future<void> dismissPair(String a, String b) {
     calls.add('dismissPair');
     return _inner.dismissPair(a, b);
+  }
+
+  @override
+  Future<PairChange?> acceptPairForUndo(String a, String b) {
+    calls.add('acceptPair');
+    return _inner.acceptPairForUndo(a, b);
+  }
+
+  @override
+  Future<PairChange?> dismissPairForUndo(String a, String b) {
+    calls.add('dismissPair');
+    return _inner.dismissPairForUndo(a, b);
+  }
+
+  @override
+  Future<bool> undoPairChange(PairChange change) async {
+    calls.add('undoPair');
+    await undoGate?.future;
+    return _inner.undoPairChange(change);
   }
 }
 
