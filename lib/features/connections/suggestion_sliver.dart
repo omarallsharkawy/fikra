@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/motion/stagger.dart';
 import 'link_pair_busy.dart';
 import 'links_index.dart';
+import 'links_library_provider.dart';
 import 'suggestion_card.dart';
 
 /// Retain removed snapshots just long enough for only that row to fade/collapse.
@@ -26,52 +27,109 @@ class SuggestionSliver extends ConsumerStatefulWidget {
 }
 
 class _SuggestionSliverState extends ConsumerState<SuggestionSliver> {
-  var _rows = <SuggestionEntry>[];
+  var _rows = <String>[];
+  final _available = <String, SuggestionEntry>{};
+  final _busyPairs = <String, String>{};
+  final _snapshots = <String, SuggestionEntry>{};
   final _leaving = <String>{};
   final _timers = <String, Timer>{};
+  final _children = <String, Widget>{};
+  Map<String, int> _indices = const {};
   List<SuggestionEntry>? _entries;
-  Map<String, bool>? _locks;
+  bool? _reduced;
   String _key(SuggestionEntry e) => pairKey(e.a.id, e.b.id);
 
-  void _sync(List<SuggestionEntry> entries, Map<String, bool> locks) {
+  void _index() => _indices = {for (final (i, key) in _rows.indexed) key: i};
+
+  void _leave(String key) {
+    if (!_snapshots.containsKey(key) || !_leaving.add(key)) return;
+    _children.remove(key);
+    final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220);
+    _timers[key] = Timer(duration, () {
+      _timers.remove(key);
+      if (!mounted || !_leaving.remove(key)) return;
+      setState(() {
+        _rows.remove(key);
+        _snapshots.remove(key);
+        _children.remove(key);
+        _index();
+      });
+    });
+  }
+
+  void _sync(Map<String, bool> locks) {
+    _available.clear();
+    _busyPairs.clear();
+    for (final e in widget.entries) {
+      final key = _key(e);
+      _available[key] = e;
+      _busyPairs['${e.a.projectId}:$key'] = key;
+    }
     final next = {
-      for (final e in entries)
-        if (locks['${e.a.projectId}:${_key(e)}'] != true) _key(e): e,
+      for (final e in _available.entries)
+        if (locks['${e.value.a.projectId}:${e.key}'] != true) e.key: e.value,
     };
-    if (_entries == null) {
-      _rows = next.values.toList();
-      return;
+    for (final key in _rows) {
+      if (!next.containsKey(key)) _leave(key);
     }
-    for (final e in _rows) {
-      final key = _key(e);
-      if (!next.containsKey(key) && _leaving.add(key)) {
-        final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220);
-        _timers[key] = Timer(duration, () {
-          _timers.remove(key);
-          if (!mounted || !_leaving.remove(key)) return;
-          setState(() => _rows.removeWhere((e) => _key(e) == key));
-        });
+    for (final e in next.entries) {
+      if (_leaving.remove(e.key)) {
+        _timers.remove(e.key)?.cancel();
+        _children.remove(e.key);
       }
+      if (_snapshots[e.key] != e.value) _children.remove(e.key);
+      _snapshots[e.key] = e.value;
     }
-    for (final key in next.keys) {
-      if (_leaving.remove(key)) _timers.remove(key)?.cancel();
-    }
-    // A leaving row stays after its nearest surviving predecessor, so a second
-    // removal mid-collapse never moves an earlier one to the top.
-    final after = <String?, List<SuggestionEntry>>{};
+    // Retain each leaving row after its nearest surviving predecessor.
+    final after = <String?, List<String>>{};
     String? anchor;
-    for (final e in _rows) {
-      final key = _key(e);
+    for (final key in _rows) {
       if (next.containsKey(key)) {
         anchor = key;
       } else if (_leaving.contains(key)) {
-        (after[anchor] ??= []).add(e);
+        (after[anchor] ??= []).add(key);
       }
     }
     _rows = [
       ...?after[null],
-      for (final e in next.values) ...[e, ...?after[_key(e)]],
+      for (final key in next.keys) ...[key, ...?after[key]],
     ];
+    _index();
+  }
+
+  void _locksChanged(Map<String, bool>? previous, Map<String, bool> next) {
+    var changed = false;
+    for (final e in next.entries) {
+      if (!e.value || previous?[e.key] == true) continue;
+      // Jobs are few; the cached pair map avoids a scan of every suggestion.
+      final key = _busyPairs[e.key];
+      if (key == null) continue;
+      _leave(key);
+      changed = true;
+    }
+    // A fresh snapshot can release the lock before the parent passes its new
+    // entries. Only restore a still-live pair; stale props must not restart a
+    // completed removal's 220 ms timer.
+    final restore =
+        previous?.entries.any((e) {
+          final pair = _busyPairs[e.key];
+          if (!e.value || next[e.key] == true || pair == null) return false;
+          final project = _available[pair]!.a.projectId;
+          final index = ref.read(linksLibraryProvider(project)).value;
+          return index == null || index.suggestionPairs.contains(pair);
+        }) ??
+        false;
+    if (restore) {
+      _sync(next);
+      changed = true;
+    }
+    if (changed) setState(() {});
+  }
+
+  @override
+  void didUpdateWidget(covariant SuggestionSliver old) {
+    super.didUpdateWidget(old);
+    if (old.here != widget.here || old.stagger != widget.stagger) _children.clear();
   }
 
   @override
@@ -84,29 +142,34 @@ class _SuggestionSliverState extends ConsumerState<SuggestionSliver> {
 
   @override
   Widget build(BuildContext context) {
-    final locks = ref.watch(linkPairBusyProvider);
-    if (!identical(widget.entries, _entries) || !identical(locks, _locks)) {
-      _sync(widget.entries, locks);
+    // Claim/failure changes only rebuild the affected card's selected busy bit.
+    ref.listen(linkPairBusyProvider, _locksChanged);
+    if (!identical(widget.entries, _entries)) {
+      _sync(ref.read(linkPairBusyProvider));
       _entries = widget.entries;
-      _locks = locks;
+    }
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    if (_reduced != reduced) {
+      _reduced = reduced;
+      _children.clear();
     }
     if (_rows.isEmpty && widget.empty != null) return SliverToBoxAdapter(child: widget.empty);
-    final reduced = MediaQuery.disableAnimationsOf(context);
-    final indices = {for (final (i, e) in _rows.indexed) _key(e): i};
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, i) {
-          final e = _rows[i], key = _key(e);
-          final card = SuggestionCard(entry: e, here: widget.here);
-          return _CollapsingSuggestion(
-            key: ValueKey(key),
-            leaving: _leaving.contains(key),
-            reduced: reduced,
-            child: widget.stagger == null ? card : StaggeredEntry(stagger: widget.stagger!, itemId: key, child: card),
-          );
+          final key = _rows[i];
+          return _children.putIfAbsent(key, () {
+            final card = SuggestionCard(entry: _snapshots[key]!, here: widget.here);
+            return _CollapsingSuggestion(
+              key: ValueKey(key),
+              leaving: _leaving.contains(key),
+              reduced: reduced,
+              child: widget.stagger == null ? card : StaggeredEntry(stagger: widget.stagger!, itemId: key, child: card),
+            );
+          });
         },
         childCount: _rows.length,
-        findChildIndexCallback: (key) => key is ValueKey<String> ? indices[key.value] : null,
+        findChildIndexCallback: (key) => key is ValueKey<String> ? _indices[key.value] : null,
       ),
     );
   }

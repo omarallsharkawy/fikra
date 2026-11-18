@@ -89,7 +89,20 @@ class LinksIndex {
     this.topicCounts,
     this.groupIds,
     this.linksSource,
-  );
+  ) {
+    for (final s in suggestions) {
+      final key = pairKey(s.a.id, s.b.id);
+      suggestionPairs.add(key);
+      (suggestionsByNote[s.a.id] ??= []).add(s);
+      (suggestionsByNote[s.b.id] ??= []).add(s);
+    }
+  }
+
+  final suggestionPairs = <String>{};
+  final suggestionsByNote = <String, List<SuggestionEntry>>{};
+
+  /// Restore the UI-isolate source identity after a background derivation.
+  void attachLinksSource(Object source) => linksSource = source;
 
   final LibraryNotes _notes;
   final Map<LinksSort, List<BrowseEntry>> _orders;
@@ -102,7 +115,7 @@ class LinksIndex {
 
   /// The links list this index was derived from. A different object means a
   /// newer links emission, which is what [LinkPairBusy] waits for.
-  final Object? linksSource;
+  Object? linksSource;
   final _views = <(LibraryChip, String, LinksSort), LibraryView>{};
 
   Map<String, LibraryNote> get notes => _notes.byId;
@@ -141,7 +154,7 @@ LinksIndex deriveLinks(String projectId, List<LibraryNote> notes, List<LibraryLi
     deriveLinksIndex(deriveLibraryNotes((projectId: projectId, notes: notes)), links, groups);
 
 /// The per-link half: pairs, neighbours, counts and the three browse orders.
-/// Linear apart from the suggestion sort, so it runs inline after a link write.
+/// Linear apart from the suggestion sort; safe to run on a background isolate.
 /// [source] is the stored links list the projection came from (see
 /// [LinksIndex.linksSource]); it defaults to [links].
 LinksIndex deriveLinksIndex(LibraryNotes notes, List<LibraryLink> links, List<LibraryGroup> groups, {Object? source}) {

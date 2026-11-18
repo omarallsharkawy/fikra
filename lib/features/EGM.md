@@ -45,3 +45,5 @@ above the same shared clearance. No data or route topology changes are made.
 - `notes` adds session-scoped Oldest-first sorting (`notesSortProvider`) alongside Newest-first.
 - `projects` and `shared/project_picker` order the current project first, then remaining projects by `Project.createdAt` descending.
 - Main screen headers label icon actions through `HeaderActionButton` when space and text scale allow; all search fields expose an accessible clear (`X`) button that keeps focus; `note_details` shows a visible `Edit` pill in its header.
+
+Connections previews are ID-validated route extras. Shared project indexes keep per-note adjacency and suggestion lookup out of screen builds; cold reading routes retain opaque loading content.

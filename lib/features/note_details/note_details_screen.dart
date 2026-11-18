@@ -16,6 +16,7 @@ import '../../core/widgets/voice_player.dart';
 import '../../data/links_repository.dart';
 import '../../data/local/database.dart';
 import 'voice_transcript.dart';
+import 'note_details_placeholder.dart';
 import '../shared/link_picker.dart';
 import '../shared/move_confirm.dart';
 import '../shared/note_links.dart';
@@ -245,17 +246,19 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
             ),
           ),
           Expanded(
-            child: AsyncBody<Note?>(
-              value: noteAsync,
-              onRetry: () => ref.invalidate(noteProvider(widget.noteId)),
-              data: (note) => note == null
-                  ? EmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: context.l10n.noteNotFoundTitle,
-                      description: context.l10n.noteNotFoundBody,
-                    )
-                  : _Body(note: note, view: _view, onView: (v) => setState(() => _view = v)),
-            ),
+            child: !noteAsync.hasValue && !noteAsync.hasError
+                ? const NoteDetailsPlaceholder()
+                : AsyncBody<Note?>(
+                    value: noteAsync,
+                    onRetry: () => ref.invalidate(noteProvider(widget.noteId)),
+                    data: (note) => note == null
+                        ? EmptyState(
+                            icon: Icons.search_off_rounded,
+                            title: context.l10n.noteNotFoundTitle,
+                            description: context.l10n.noteNotFoundBody,
+                          )
+                        : _Body(note: note, view: _view, onView: (v) => setState(() => _view = v)),
+                  ),
           ),
         ],
       ),

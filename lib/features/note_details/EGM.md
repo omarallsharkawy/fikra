@@ -135,3 +135,5 @@ Edit's policy-only changes participate in the dirty guard. Attachment replacemen
 ## Finishing (redesign phase 8)
 
 `note_details_body.dart` marks the note title and `topicsHeader` with `Semantics(header: true)`; `edit_note_screen.dart` marks `editNote` with `Semantics(header: true)`; `_InlineAction` (`note_link_row.dart`) uses `minHeight: 36` + `Flexible` label so large text grows cleanly without overflowing.
+
+Cold `/note/:id` renders `NoteDetailsPlaceholder` inside the existing opaque Pearl scaffold until the note arrives. Initial-note validation, live-data authority and Edit behavior are unchanged.

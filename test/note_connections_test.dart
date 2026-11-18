@@ -1,3 +1,12 @@
+import 'dart:async';
+import 'dart:ui' as ui;
+
+import 'package:fikra/core/widgets/pearl_canvas.dart';
+import 'package:fikra/data/local/database.dart';
+import 'package:fikra/features/connections/connections_placeholder.dart';
+import 'package:fikra/features/connections/links_library_provider.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/connections/note_connections_screen.dart';
 import 'package:fikra/features/connections/suggestion_card.dart';
@@ -16,7 +25,104 @@ Finder get connectionsScroll => find.descendant(
   matching: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down),
 );
 
+class _HeldNoteRepository extends LocalNotesRepository {
+  _HeldNoteRepository(super.db);
+  final pending = StreamController<Note?>.broadcast();
+  bool hold = false;
+
+  @override
+  Stream<Note?> watchNote(String id) => hold ? pending.stream : super.watchNote(id);
+}
+
+Future<void> _expectOpaquePearl(WidgetTester tester, Finder screen) async {
+  final paint = find.descendant(
+    of: screen,
+    matching: find.byWidgetPredicate((w) => w is CustomPaint && w.painter is PearlCanvasPainter),
+  );
+  final render = tester.renderObject<RenderCustomPaint>(paint);
+  expect(render.size.height, greaterThan(500));
+  final recorder = ui.PictureRecorder();
+  render.painter!.paint(ui.Canvas(recorder), render.size);
+  final picture = recorder.endRecording();
+  try {
+    await tester.runAsync(() async {
+      final image = await picture.toImage(render.size.width.ceil(), render.size.height.ceil());
+      try {
+        final bytes = (await image.toByteData())!;
+        for (var i = 3; i < bytes.lengthInBytes; i += 4) {
+          expect(bytes.getUint8(i), 255, reason: 'the first frame covers every pixel');
+        }
+      } finally {
+        image.dispose();
+      }
+    });
+  } finally {
+    picture.dispose();
+  }
+}
+
 void main() {
+  late _HeldNoteRepository held;
+  fikraTest('push paints Pearl, shows initial title and holds section geometry through entry', (tester, db) async {
+    phone(tester);
+    addTearDown(() => unawaited(held.pending.close()));
+    final notes = await seedLibrary(tester, db);
+    held.hold = true;
+    final row = find.byKey(ValueKey('browse-${notes.last.id}'));
+    await tester.tap(row);
+    await tester.pump();
+    await tester.pump();
+    final screen = find.byType(NoteConnectionsScreen);
+    expect(find.byKey(const ValueKey('connections-placeholder')), findsOneWidget);
+    expect(find.descendant(of: screen, matching: find.text(notes.last.title)), findsOneWidget);
+    await _expectOpaquePearl(tester, screen);
+    final header = find.byType(ConnectionsNoteHeader);
+    Offset offset() => tester
+        .renderObject<RenderBox>(header)
+        .localToGlobal(Offset.zero, ancestor: tester.renderObject<RenderBox>(screen));
+    final position = offset(), size = tester.getSize(header);
+    held.pending.add(notes.last);
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(find.byKey(const ValueKey('connections-placeholder')), findsOneWidget);
+    expect(offset(), position);
+    expect(tester.getSize(header), size);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byKey(const ValueKey('connections-list')), findsOneWidget);
+    expect(tester.getSize(header), size);
+    // Live data replaces the preview, including a changed title.
+    held.pending.add(notes.last.copyWith(title: 'Live title'));
+    await tester.pump();
+    expect(find.descendant(of: screen, matching: find.text('Live title')), findsOneWidget);
+  }, notesRepository: (db) => held = _HeldNoteRepository(db));
+
+  for (final path in ['/links/note/', '/note/']) {
+    fikraTest('cold deep link $path paints an opaque placeholder without preview', (tester, db) async {
+      phone(tester);
+      addTearDown(() => unawaited(held.pending.close()));
+      final notes = await seedLibrary(tester, db);
+      held.hold = true;
+      final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('links-segment-0'))));
+      // Drop the shared derived snapshot too: this is a genuinely cold entry.
+      container.invalidate(linksLibraryProvider(notes.last.projectId));
+      final context = tester.element(find.byKey(const ValueKey('links-segment-0')));
+      context.go(
+        '$path${notes.last.id}',
+        extra: path.startsWith('/links') ? (projectNote(notes.first), null) : notes.first,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      final connections = path.startsWith('/links');
+      final screen = find.byType(connections ? NoteConnectionsScreen : NoteDetailsScreen);
+      expect(find.byKey(ValueKey(connections ? 'connections-placeholder' : 'note-placeholder')), findsOneWidget);
+      expect(
+        find.descendant(of: screen, matching: find.text(notes.first.title)),
+        findsNothing,
+        reason: 'a mismatched preview is ignored',
+      );
+      await _expectOpaquePearl(tester, screen);
+    }, notesRepository: (db) => held = _HeldNoteRepository(db));
+  }
+
   for (final locale in [const Locale('ar'), const Locale('en')]) {
     fikraTest(
       'connections, options, picker, full note, branch back and graph (${locale.languageCode})',
