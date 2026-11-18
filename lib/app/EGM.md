@@ -63,7 +63,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 | `/add` | `AddScreen` | Shell branch 0 |
 | `/notes` | `NotesScreen` | Shell branch 1 |
 | `/links` | `LinksLibraryScreen` | Shell branch 2 |
-| `/links/graph` | `LinksScreen` | Pushed on branch 2 |
+| `/links/graph` | Redirect to `/links`, selects Map for current project | Branch 2 |
 | `/links/note/:id` | `NoteConnectionsScreen` | Pushed on branch 2 |
 | `/ask` | `AskScreen` | Shell branch 3 |
 | `/settings` | `SettingsScreen` | Top level, `pageBuilder:` via `_pushed` |
@@ -267,7 +267,7 @@ modelDiscoveryProvider supplies fakeable transport plus database-backed availabi
 
 ## Links routes (redesign phase 3)
 
-`/links` now mounts LinksLibraryScreen. Child routes `graph` (retained LinksScreen) and `note/:id` (NoteConnectionsScreen) use `_pushed` on the Links branch navigator. Both retain the floating bar; Back returns to the library/previous connections page. Full `/note/:id` stays on the root navigator. No shell branch indices or tab gestures change.
+`/links` mounts LinksLibraryScreen with Map/Browse/Suggestions. Child `graph` redirects to `/links` after selecting Map in the session-only linksSegmentProvider; `note/:id` uses `_pushed` on the Links branch navigator and retains the floating bar. Back returns to the library/previous connections page. Full `/note/:id` stays on the root navigator. No shell branch indices or tab gestures change.
 
 ## Motion & delight (redesign phase 7)
 

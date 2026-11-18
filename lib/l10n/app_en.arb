@@ -130,19 +130,11 @@
   "noteTextA11y": "Note text",
   "originalKeptHint": "Your original text is kept. You can restore it from the note's options.",
   "clusterGeneral": "General",
-  "moreGroups": "More groups",
   "linksTitle": "Links",
   "linksEmptyTitle": "Links show up here",
-  "linksEmptyBody": "Add two or more notes on related topics, and Fikra will link them.",
   "addNote": "Add a note",
-  "linksSummary": "{notesCount} · {linksCount}",
   "zoomIn": "Zoom in",
   "zoomOut": "Zoom out",
-  "resetView": "Reset view",
-  "showGroupA11y": "Show {notesCount} in {cluster}",
-  "moreGroupsCount": "More groups ({count})",
-  "noLinksYet": "No links yet. Notes on the same topics get linked automatically.",
-  "nodeMeta": "{cluster} · {linksCount}",
   "openNote": "Open note",
   "askFailed": "Couldn't answer right now. Try again.",
   "clearChatTitle": "Clear this chat?",
@@ -278,43 +270,6 @@
     "placeholders": {
       "n": {
         "type": "int"
-      }
-    }
-  },
-  "@linksSummary": {
-    "placeholders": {
-      "notesCount": {
-        "type": "String"
-      },
-      "linksCount": {
-        "type": "String"
-      }
-    }
-  },
-  "@showGroupA11y": {
-    "placeholders": {
-      "notesCount": {
-        "type": "String"
-      },
-      "cluster": {
-        "type": "String"
-      }
-    }
-  },
-  "@moreGroupsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@nodeMeta": {
-    "placeholders": {
-      "cluster": {
-        "type": "String"
-      },
-      "linksCount": {
-        "type": "String"
       }
     }
   },
@@ -630,13 +585,21 @@
   },
   "colorNone": "No color",
   "colorBlue": "Blue",
-  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
+  "@colorBlue": {
+    "description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."
+  },
   "colorGreen": "Green",
-  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
+  "@colorGreen": {
+    "description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."
+  },
   "colorYellow": "Yellow",
-  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
+  "@colorYellow": {
+    "description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."
+  },
   "colorGray": "Gray",
-  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
+  "@colorGray": {
+    "description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."
+  },
   "groupParentLabel": "Inside a group (optional)",
   "groupParentNone": "None",
   "moveNotesTitle": "Move {notes} to \"{project}\"?",
@@ -756,88 +719,6 @@
   "groupRuleInvalidParent": "A group can only go inside a top-level group, not inside a sub-group.",
   "groupRuleSelfParent": "A group can't go inside itself.",
   "groupRuleHasChildren": "This group has groups inside it, so it can't go inside another group.",
-  "suggestedTopics": "Suggested topics",
-  "makeTopicGroup": "Make {topic} a group",
-  "@makeTopicGroup": {
-    "placeholders": {
-      "topic": {
-        "type": "String"
-      }
-    }
-  },
-  "graphGroupA11y": "Group {group}, {notes}",
-  "@graphGroupA11y": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "notes": {
-        "type": "String"
-      }
-    }
-  },
-  "moreTopics": "More topics",
-  "moreTopicsCount": "{count, plural, one{{count} more topic} other{{count} more topics}}",
-  "@moreTopicsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "graphNoteInGroup": "{title}, in group {group}",
-  "@graphNoteInGroup": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphSearchHint": "Search the graph",
-  "graphSearchEmpty": "No results",
-  "graphSearchNote": "Note",
-  "graphSearchLink": "Link",
-  "graphSearchGroup": "Group",
-  "graphSearchLimited": "Hidden by graph limits. Opening the note.",
-  "graphNavigateGroup": "Go to group {group} in the graph, without filtering",
-  "@graphNavigateGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphCollapseGroup": "Collapse group {group}",
-  "@graphCollapseGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphExpandGroup": "Expand group {group}",
-  "@graphExpandGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphCollapsedGroup": "Group {group}, {notes}, collapsed",
-  "@graphCollapsedGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "notes": {
-        "type": "String"
-      }
-    }
-  },
-  "graphMinimap": "Graph minimap. Tap or drag to move",
   "vtTitle": "Voice to text",
   "vtExperimental": "Experimental",
   "vtIntro": "The model runs on your phone. Nothing is uploaded. It needs a one-time download.",
@@ -1569,10 +1450,6 @@
   "@linksOldest": {
     "description": "Links library sort order."
   },
-  "linksOpenGraph": "Open links graph",
-  "@linksOpenGraph": {
-    "description": "Header action to open the optional graph."
-  },
   "linkNoReason": "No reason added",
   "@linkNoReason": {
     "description": "Muted fallback for an empty link reason."
@@ -1627,14 +1504,6 @@
   "@notesSort": {
     "description": "Notes list sort button label and sort sheet title."
   },
-  "headerGraph": "Graph",
-  "@headerGraph": {
-    "description": "Short caption under the open-graph icon in the Links header."
-  },
-  "headerSearch": "Search",
-  "@headerSearch": {
-    "description": "Short caption under the search icon in the graph header."
-  },
   "capsuleRecording": "Recording…",
   "@capsuleRecording": {
     "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
@@ -1650,5 +1519,73 @@
   "capsuleTranscribingA11y": "Transcribing recording. Tap to open note",
   "@capsuleTranscribingA11y": {
     "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "linksMap": "Map",
+  "@linksMap": {
+    "description": "Links Map: linksMap"
+  },
+  "mapOthers": "Others",
+  "@mapOthers": {
+    "description": "Links Map: mapOthers"
+  },
+  "mapShowMore": "Show more",
+  "@mapShowMore": {
+    "description": "Links Map: mapShowMore"
+  },
+  "mapOpen": "Open",
+  "@mapOpen": {
+    "description": "Links Map: mapOpen"
+  },
+  "mapNotes": "{count, plural, one{1 note} other{{count} notes}}",
+  "@mapNotes": {
+    "description": "Links Map: mapNotes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapConnections": "{count, plural, one{1 connection} other{{count} connections}}",
+  "@mapConnections": {
+    "description": "Links Map: mapConnections",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapCanvasSummary": "Notes map, total: {total}, omitted: {omitted}",
+  "@mapCanvasSummary": {
+    "description": "Links Map: mapCanvasSummary",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTotals": "Notes: {total} · Links: {confirmed} · Suggestions: {suggestions} · Omitted: {omitted}",
+  "@mapTotals": {
+    "description": "Links Map: mapTotals",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "confirmed": {
+        "type": "int"
+      },
+      "suggestions": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapPanHint": "Pan to explore the map",
+  "@mapPanHint": {
+    "description": "Hint for the unshrunk Map world; panning preserves readable text and touch targets."
   }
 }

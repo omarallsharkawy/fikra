@@ -3,7 +3,6 @@ import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:fikra/core/theme/tokens.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
-import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/notes/notes_screen.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
@@ -210,7 +209,8 @@ void main() {
 
           // Links Browse: LibraryControls (search/sort/segments) precede list cards in traversal order.
           await tester.tap(Tabs.finder(Tabs.links));
-          await pumpUntil(tester, find.byType(LinksLibraryScreen));
+          await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
+          await tester.tap(find.byKey(const ValueKey('links-segment-1')));
           await tester.pump(const Duration(milliseconds: 500));
           final linksOrdered = <String>[];
           void walkLinks(SemanticsNode node) {

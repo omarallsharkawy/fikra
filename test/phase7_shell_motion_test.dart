@@ -179,6 +179,8 @@ void main() {
 
         // 5. Links Browse card -> flies into NoteConnectionsScreen -> connections-note flies into NoteDetailsScreen.
         await tester.tap(Tabs.finder(Tabs.links));
+        await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
+        await tester.tap(find.byKey(const ValueKey('links-segment-1')));
         final browseCard = find.byKey(ValueKey('browse-${seeded.last.id}'));
         await pumpUntil(tester, browseCard);
         await tester.pump(const Duration(milliseconds: 450));

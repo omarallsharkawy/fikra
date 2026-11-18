@@ -9,7 +9,7 @@ import '../core/theme/tokens.dart';
 import '../data/local/database.dart';
 import '../features/add/add_screen.dart';
 import '../features/ask/ask_screen.dart';
-import '../features/links/links_screen.dart';
+import '../features/connections/library_session.dart';
 import '../features/connections/links_library_screen.dart';
 import '../features/connections/note_connections_screen.dart';
 import '../features/connections/links_index.dart';
@@ -97,7 +97,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/links',
                 builder: (_, _) => const LinksLibraryScreen(),
                 routes: [
-                  GoRoute(path: 'graph', pageBuilder: (_, s) => _pushed(s, const LinksScreen())),
+                  GoRoute(
+                    path: 'graph',
+                    redirect: (_, _) {
+                      final project = ref.read(selectedProjectProvider);
+                      if (project != null) ref.read(linksSegmentProvider.notifier).select(project.id, 0);
+                      return '/links';
+                    },
+                  ),
                   GoRoute(
                     path: 'note/:id',
                     pageBuilder: (_, s) {

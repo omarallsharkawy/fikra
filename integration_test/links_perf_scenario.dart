@@ -1,6 +1,7 @@
-// Links library and retained graph comparison, called once per forced tier by
+// Links library and bounded Map comparison, called once per forced tier by
 // glass_perf_scenario.dart. Uses only the isolated stress seed and real routes.
 import 'package:fikra/features/connections/library_cards.dart';
+import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,8 +33,8 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
   }
 
   await tester.tap(find.byKey(const ValueKey('nav-1')));
-  await waitFor(() => find.byKey(const ValueKey('links-segment-0')).hitTestable().evaluate().isNotEmpty);
-  await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+  await waitFor(() => find.byKey(const ValueKey('links-segment-1')).hitTestable().evaluate().isNotEmpty);
+  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
   await waitFor(() => find.byType(BrowseNoteCard).evaluate().isNotEmpty);
   tester.state<ScrollableState>(scroll()).position.jumpTo(0);
   await Future<void>.delayed(const Duration(milliseconds: 600));
@@ -55,7 +56,7 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
   FocusManager.instance.primaryFocus?.unfocus();
   await Future<void>.delayed(const Duration(milliseconds: 600));
 
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+  await tester.tap(find.byKey(const ValueKey('links-segment-2')));
   await Future<void>.delayed(const Duration(milliseconds: 500));
   final suggestions = await measure('links_suggestions', flings);
   tester.state<ScrollableState>(scroll()).position.jumpTo(0);
@@ -77,25 +78,69 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
     }
   });
 
-  await tester.tap(find.byKey(const ValueKey('links-open-graph')));
-  // The edges painter mounts only once the (isolate) layout is ready; the pan
-  // starts then, after the push transition has finished.
-  final edges = find.byKey(const ValueKey('graph-edges'));
-  await waitFor(
-    () => edges.evaluate().isNotEmpty && (ModalRoute.of(tester.element(edges))?.animation?.isCompleted ?? true),
-  );
-  final graph = await measure('links_graph_pan', () async {
+  await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+  final canvas = find.byKey(const ValueKey('map-paint'));
+  await waitFor(() => canvas.evaluate().isNotEmpty);
+  await tester.tap(find.byKey(const ValueKey('map-project')));
+  await Future<void>.delayed(const Duration(milliseconds: 600));
+
+  Future<void> panAndZoom() async {
+    final viewer = find.byKey(const ValueKey('map-viewport'));
     for (var i = 0; i < 3; i++) {
-      for (final delta in [const Offset(-260, -320), const Offset(260, 320)]) {
-        await tester.timedDrag(find.byType(InteractiveViewer), delta, const Duration(milliseconds: 900));
+      for (final delta in [const Offset(-100, -160), const Offset(100, 160)]) {
+        await tester.timedDrag(viewer, delta, const Duration(milliseconds: 900));
         await Future<void>.delayed(const Duration(milliseconds: 250));
       }
     }
-  });
-  await tester.tap(find.byType(BackButton));
-  await Future<void>.delayed(const Duration(milliseconds: 600));
+    for (final zoomIn in [true, false]) {
+      final centre = tester.getCenter(viewer);
+      final left = await tester.startGesture(centre - const Offset(30, 0), pointer: 11);
+      final right = await tester.startGesture(centre + const Offset(30, 0), pointer: 12);
+      try {
+        for (var step = 1; step <= 24; step++) {
+          final distance = zoomIn ? 30.0 + step * 2 : 78.0 - step * 2;
+          await left.moveTo(centre - Offset(distance, 0));
+          await right.moveTo(centre + Offset(distance, 0));
+          await Future<void>.delayed(const Duration(milliseconds: 16));
+        }
+        await left.up();
+        await right.up();
+      } finally {
+        await left.removePointer();
+        await right.removePointer();
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+  }
+
+  final overview = await measure('map_pan_overview', panAndZoom);
+  // Navigate using actual world-coordinate taps, outside measured windows.
+  Future<void> tapFirst() async {
+    final painter = tester.widget<CustomPaint>(canvas).painter! as LinksMapPainter;
+    final point = painter.layout.positions[painter.nodes.first.id]!;
+    final box = tester.renderObject<RenderBox>(canvas);
+    await tester.tapAt(box.localToGlobal(Offset(point.x, point.y)));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+  }
+
+  // Reset overview pan/zoom before drilling in.
+  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
   await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+  final controller = tester
+      .widget<InteractiveViewer>(find.byKey(const ValueKey('map-viewport')))
+      .transformationController!;
+  controller.value = Matrix4.identity();
+  await tapFirst();
+  await tapFirst();
+  final ego = await measure('map_pan_ego', panAndZoom);
+  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
   await tester.tap(find.byKey(const ValueKey('nav-0')));
   await Future<void>.delayed(const Duration(milliseconds: 400));
-  return {'browse': browse, 'search': search, 'suggestions': suggestions, 'pair_actions': actions, 'graph_pan': graph};
+  return {
+    'browse': browse,
+    'search': search,
+    'suggestions': suggestions,
+    'pair_actions': actions,
+    'map_pan': {'overview': overview, 'ego': ego, 'target_raster_p95_ms': 6.5},
+  };
 }

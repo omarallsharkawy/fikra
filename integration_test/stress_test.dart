@@ -338,11 +338,11 @@ void main() {
     await tester.enterText(find.byType(TextField).first, '');
     await tester.pumpAndSettle();
 
-    // Links graph
+    // Links Map
     report['open_links_ms'] = await time(() async {
       await tester.tap(find.byKey(const ValueKey('nav-1')));
-      await until(find.byKey(const ValueKey('links-open-graph')));
-      await tester.tap(find.byKey(const ValueKey('links-open-graph')));
+      await until(find.byKey(const ValueKey('links-segment-0')));
+      await tester.tap(find.byKey(const ValueKey('links-segment-0')));
       await until(find.byType(InteractiveViewer));
       await tester.pump();
     });
@@ -451,7 +451,7 @@ void main() {
     });
     await tester.tap(find.byKey(const ValueKey('nav-1')));
     await wait(1200);
-    report['fps_graph_pan'] = await live('graph_pan', () async {
+    report['fps_map_pan'] = await live('map_pan', () async {
       for (var i = 0; i < 3; i++) {
         await during(
           () => tester.timedDrag(

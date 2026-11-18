@@ -2,6 +2,10 @@
 @Tags(['screenshots'])
 library;
 
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/features/add/add_screen.dart';
@@ -11,7 +15,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/app_harness.dart';
 import '../support/selection_fixture.dart';
-import 'graph_navigation_test.dart' show saveWithKeyboard;
 
 void main() {
   setUpAll(loadAppFonts);
@@ -77,4 +80,41 @@ void main() {
       );
     }
   }
+}
+
+/// [saveScreenshot] plus a keyboard drawn over the bottom inset: the test
+/// view has no system keyboard, so the capture would otherwise show whatever
+/// the app paints there (the tab bar), not what the user sees.
+Future<void> saveWithKeyboard(WidgetTester t, String name, {required double inset, required bool dark}) async {
+  await t.pump(const Duration(milliseconds: 400));
+  final boundary = t.renderObject<RenderRepaintBoundary>(find.byKey(appBoundaryKey));
+  final ratio = t.view.devicePixelRatio;
+  await t.runAsync(() async {
+    final image = await boundary.toImage(pixelRatio: ratio);
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder)..drawImage(image, Offset.zero, Paint());
+    final top = image.height - inset * ratio, width = image.width.toDouble();
+    canvas.drawRect(
+      Rect.fromLTWH(0, top, width, inset * ratio),
+      Paint()..color = dark ? const Color(0xFF2B2B2E) : const Color(0xFFD3D5DB),
+    );
+    final key = Paint()..color = dark ? const Color(0xFF47474C) : const Color(0xFFFFFFFF);
+    final pitch = width / 10, rowHeight = inset * ratio / 5;
+    for (var row = 0; row < 4; row++) {
+      for (var col = 0; col < 10; col++) {
+        final r = Rect.fromLTWH(
+          col * pitch + 3 * ratio,
+          top + 8 * ratio + row * rowHeight,
+          pitch - 6 * ratio,
+          rowHeight - 10 * ratio,
+        );
+        canvas.drawRRect(RRect.fromRectAndRadius(r, Radius.circular(5 * ratio)), key);
+      }
+    }
+    final composed = await recorder.endRecording().toImage(image.width, image.height);
+    final png = await composed.toByteData(format: ui.ImageByteFormat.png);
+    final file = File('build/screenshots/$name.png');
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(png!.buffer.asUint8List());
+  });
 }

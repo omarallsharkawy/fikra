@@ -39,11 +39,9 @@ void main() {
           await saveScreenshot(tester, '$prefix/73_note_connections');
           await tester.binding.handlePopRoute();
           await tester.pumpAndSettle();
-          await tester.tap(find.byKey(const ValueKey('links-open-graph')));
+          await tester.tap(find.byKey(const ValueKey('links-segment-0')));
           await pumpUntil(tester, find.byType(InteractiveViewer));
-          await saveScreenshot(tester, '$prefix/74_links_graph_option');
-          await tester.tap(find.byType(BackButton));
-          await tester.pumpAndSettle();
+          await saveScreenshot(tester, '$prefix/74_links_map');
           await pumpFuture(
             tester,
             () => (db.delete(db.noteLinks)..where((l) => l.origin.equalsValue(LinkOrigin.ai))).go(),

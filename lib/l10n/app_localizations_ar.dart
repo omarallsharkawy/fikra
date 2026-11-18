@@ -423,51 +423,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clusterGeneral => 'أفكار عامة';
 
   @override
-  String get moreGroups => 'باقي المجموعات';
-
-  @override
   String get linksTitle => 'الروابط';
 
   @override
   String get linksEmptyTitle => 'الروابط بتظهر هنا';
 
   @override
-  String get linksEmptyBody => 'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.';
-
-  @override
   String get addNote => 'ضيف ملاحظة';
-
-  @override
-  String linksSummary(String notesCount, String linksCount) {
-    return '$notesCount · $linksCount';
-  }
 
   @override
   String get zoomIn => 'كبّر';
 
   @override
   String get zoomOut => 'صغّر';
-
-  @override
-  String get resetView => 'رجّع العرض';
-
-  @override
-  String showGroupA11y(String notesCount, String cluster) {
-    return 'اعرض $notesCount في «$cluster»';
-  }
-
-  @override
-  String moreGroupsCount(int count) {
-    return 'باقي المجموعات ($count)';
-  }
-
-  @override
-  String get noLinksYet => 'لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.';
-
-  @override
-  String nodeMeta(String cluster, String linksCount) {
-    return '$cluster · $linksCount';
-  }
 
   @override
   String get openNote => 'افتح الملاحظة';
@@ -1205,83 +1173,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get groupRuleHasChildren => 'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.';
 
   @override
-  String get suggestedTopics => 'مواضيع مقترحة';
-
-  @override
-  String makeTopicGroup(String topic) {
-    return 'حوّل «$topic» لمجموعة';
-  }
-
-  @override
-  String graphGroupA11y(String group, String notes) {
-    return 'مجموعة «$group»، $notes';
-  }
-
-  @override
-  String get moreTopics => 'باقي المواضيع';
-
-  @override
-  String moreTopicsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count موضوع تاني',
-      many: '$count موضوع تاني',
-      few: '$count مواضيع تانية',
-      two: 'موضوعين تانيين',
-      one: 'موضوع تاني',
-      zero: 'مفيش مواضيع تانية',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String graphNoteInGroup(String title, String group) {
-    return '$title، في مجموعة «$group»';
-  }
-
-  @override
-  String get graphSearchHint => 'دوّر في الرسم';
-
-  @override
-  String get graphSearchEmpty => 'مفيش نتايج';
-
-  @override
-  String get graphSearchNote => 'ملاحظة';
-
-  @override
-  String get graphSearchLink => 'رابط';
-
-  @override
-  String get graphSearchGroup => 'مجموعة';
-
-  @override
-  String get graphSearchLimited => 'مش ظاهرة في الرسم، هنفتح الملاحظة';
-
-  @override
-  String graphNavigateGroup(String group) {
-    return 'روح لمجموعة «$group» في الرسم، من غير فلترة';
-  }
-
-  @override
-  String graphCollapseGroup(String group) {
-    return 'اقفل مجموعة «$group»';
-  }
-
-  @override
-  String graphExpandGroup(String group) {
-    return 'افتح مجموعة «$group»';
-  }
-
-  @override
-  String graphCollapsedGroup(String group, String notes) {
-    return 'مجموعة «$group»، $notes، مقفولة';
-  }
-
-  @override
-  String get graphMinimap => 'خريطة الرسم، دوس أو اسحب عشان تتحرك';
-
-  @override
   String get vtTitle => 'تحويل الصوت لنص';
 
   @override
@@ -1903,9 +1794,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linksOldest => 'الأقدم الأول';
 
   @override
-  String get linksOpenGraph => 'افتح خريطة الروابط';
-
-  @override
   String get linkNoReason => 'من غير سبب مكتوب';
 
   @override
@@ -1943,12 +1831,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notesSort => 'ترتيب الملاحظات';
 
   @override
-  String get headerGraph => 'الخريطة';
-
-  @override
-  String get headerSearch => 'دوّر';
-
-  @override
   String get capsuleRecording => 'بيسجّل…';
 
   @override
@@ -1959,4 +1841,59 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get capsuleTranscribingA11y => 'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة';
+
+  @override
+  String get linksMap => 'الخريطة';
+
+  @override
+  String get mapOthers => 'تانيين';
+
+  @override
+  String get mapShowMore => 'اعرض أكتر';
+
+  @override
+  String get mapOpen => 'افتح';
+
+  @override
+  String mapNotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة',
+      many: '$count ملاحظة',
+      few: '$count ملاحظات',
+      two: 'ملاحظتين',
+      one: 'ملاحظة واحدة',
+      zero: 'مفيش ملاحظات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mapConnections(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رابط',
+      many: '$count رابط',
+      few: '$count روابط',
+      two: 'رابطين',
+      one: 'رابط واحد',
+      zero: 'مفيش روابط',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mapCanvasSummary(int total, int omitted) {
+    return 'خريطة الملاحظات، الإجمالي: $total، مش ظاهر: $omitted';
+  }
+
+  @override
+  String mapTotals(int total, int confirmed, int suggestions, int omitted) {
+    return 'ملاحظات: $total · روابط: $confirmed · اقتراحات: $suggestions · مش ظاهر: $omitted';
+  }
+
+  @override
+  String get mapPanHint => 'اسحب عشان تشوف باقي الخريطة';
 }

@@ -872,12 +872,6 @@ abstract class AppLocalizations {
   /// **'أفكار عامة'**
   String get clusterGeneral;
 
-  /// No description provided for @moreGroups.
-  ///
-  /// In ar, this message translates to:
-  /// **'باقي المجموعات'**
-  String get moreGroups;
-
   /// No description provided for @linksTitle.
   ///
   /// In ar, this message translates to:
@@ -890,23 +884,11 @@ abstract class AppLocalizations {
   /// **'الروابط بتظهر هنا'**
   String get linksEmptyTitle;
 
-  /// No description provided for @linksEmptyBody.
-  ///
-  /// In ar, this message translates to:
-  /// **'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.'**
-  String get linksEmptyBody;
-
   /// No description provided for @addNote.
   ///
   /// In ar, this message translates to:
   /// **'ضيف ملاحظة'**
   String get addNote;
-
-  /// No description provided for @linksSummary.
-  ///
-  /// In ar, this message translates to:
-  /// **'{notesCount} · {linksCount}'**
-  String linksSummary(String notesCount, String linksCount);
 
   /// No description provided for @zoomIn.
   ///
@@ -919,36 +901,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'صغّر'**
   String get zoomOut;
-
-  /// No description provided for @resetView.
-  ///
-  /// In ar, this message translates to:
-  /// **'رجّع العرض'**
-  String get resetView;
-
-  /// No description provided for @showGroupA11y.
-  ///
-  /// In ar, this message translates to:
-  /// **'اعرض {notesCount} في «{cluster}»'**
-  String showGroupA11y(String notesCount, String cluster);
-
-  /// No description provided for @moreGroupsCount.
-  ///
-  /// In ar, this message translates to:
-  /// **'باقي المجموعات ({count})'**
-  String moreGroupsCount(int count);
-
-  /// No description provided for @noLinksYet.
-  ///
-  /// In ar, this message translates to:
-  /// **'لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.'**
-  String get noLinksYet;
-
-  /// No description provided for @nodeMeta.
-  ///
-  /// In ar, this message translates to:
-  /// **'{cluster} · {linksCount}'**
-  String nodeMeta(String cluster, String linksCount);
 
   /// No description provided for @openNote.
   ///
@@ -1981,108 +1933,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.'**
   String get groupRuleHasChildren;
-
-  /// No description provided for @suggestedTopics.
-  ///
-  /// In ar, this message translates to:
-  /// **'مواضيع مقترحة'**
-  String get suggestedTopics;
-
-  /// No description provided for @makeTopicGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'حوّل «{topic}» لمجموعة'**
-  String makeTopicGroup(String topic);
-
-  /// No description provided for @graphGroupA11y.
-  ///
-  /// In ar, this message translates to:
-  /// **'مجموعة «{group}»، {notes}'**
-  String graphGroupA11y(String group, String notes);
-
-  /// No description provided for @moreTopics.
-  ///
-  /// In ar, this message translates to:
-  /// **'باقي المواضيع'**
-  String get moreTopics;
-
-  /// No description provided for @moreTopicsCount.
-  ///
-  /// In ar, this message translates to:
-  /// **'{count, plural, zero{مفيش مواضيع تانية} one{موضوع تاني} two{موضوعين تانيين} few{{count} مواضيع تانية} many{{count} موضوع تاني} other{{count} موضوع تاني}}'**
-  String moreTopicsCount(int count);
-
-  /// No description provided for @graphNoteInGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'{title}، في مجموعة «{group}»'**
-  String graphNoteInGroup(String title, String group);
-
-  /// No description provided for @graphSearchHint.
-  ///
-  /// In ar, this message translates to:
-  /// **'دوّر في الرسم'**
-  String get graphSearchHint;
-
-  /// No description provided for @graphSearchEmpty.
-  ///
-  /// In ar, this message translates to:
-  /// **'مفيش نتايج'**
-  String get graphSearchEmpty;
-
-  /// No description provided for @graphSearchNote.
-  ///
-  /// In ar, this message translates to:
-  /// **'ملاحظة'**
-  String get graphSearchNote;
-
-  /// No description provided for @graphSearchLink.
-  ///
-  /// In ar, this message translates to:
-  /// **'رابط'**
-  String get graphSearchLink;
-
-  /// No description provided for @graphSearchGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'مجموعة'**
-  String get graphSearchGroup;
-
-  /// No description provided for @graphSearchLimited.
-  ///
-  /// In ar, this message translates to:
-  /// **'مش ظاهرة في الرسم، هنفتح الملاحظة'**
-  String get graphSearchLimited;
-
-  /// No description provided for @graphNavigateGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'روح لمجموعة «{group}» في الرسم، من غير فلترة'**
-  String graphNavigateGroup(String group);
-
-  /// No description provided for @graphCollapseGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'اقفل مجموعة «{group}»'**
-  String graphCollapseGroup(String group);
-
-  /// No description provided for @graphExpandGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'افتح مجموعة «{group}»'**
-  String graphExpandGroup(String group);
-
-  /// No description provided for @graphCollapsedGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'مجموعة «{group}»، {notes}، مقفولة'**
-  String graphCollapsedGroup(String group, String notes);
-
-  /// No description provided for @graphMinimap.
-  ///
-  /// In ar, this message translates to:
-  /// **'خريطة الرسم، دوس أو اسحب عشان تتحرك'**
-  String get graphMinimap;
 
   /// No description provided for @vtTitle.
   ///
@@ -3194,12 +3044,6 @@ abstract class AppLocalizations {
   /// **'الأقدم الأول'**
   String get linksOldest;
 
-  /// Header action to open the optional graph.
-  ///
-  /// In ar, this message translates to:
-  /// **'افتح خريطة الروابط'**
-  String get linksOpenGraph;
-
   /// Muted fallback for an empty link reason.
   ///
   /// In ar, this message translates to:
@@ -3266,18 +3110,6 @@ abstract class AppLocalizations {
   /// **'ترتيب الملاحظات'**
   String get notesSort;
 
-  /// Short caption under the open-graph icon in the Links header.
-  ///
-  /// In ar, this message translates to:
-  /// **'الخريطة'**
-  String get headerGraph;
-
-  /// Short caption under the search icon in the graph header.
-  ///
-  /// In ar, this message translates to:
-  /// **'دوّر'**
-  String get headerSearch;
-
   /// Status label in the floating activity capsule above the tab bar while recording on another tab.
   ///
   /// In ar, this message translates to:
@@ -3301,6 +3133,60 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة'**
   String get capsuleTranscribingA11y;
+
+  /// Links Map: linksMap
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get linksMap;
+
+  /// Links Map: mapOthers
+  ///
+  /// In ar, this message translates to:
+  /// **'تانيين'**
+  String get mapOthers;
+
+  /// Links Map: mapShowMore
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض أكتر'**
+  String get mapShowMore;
+
+  /// Links Map: mapOpen
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح'**
+  String get mapOpen;
+
+  /// Links Map: mapNotes
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{مفيش ملاحظات} =1{ملاحظة واحدة} =2{ملاحظتين} few{{count} ملاحظات} many{{count} ملاحظة} other{{count} ملاحظة}}'**
+  String mapNotes(int count);
+
+  /// Links Map: mapConnections
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{مفيش روابط} =1{رابط واحد} =2{رابطين} few{{count} روابط} many{{count} رابط} other{{count} رابط}}'**
+  String mapConnections(int count);
+
+  /// Links Map: mapCanvasSummary
+  ///
+  /// In ar, this message translates to:
+  /// **'خريطة الملاحظات، الإجمالي: {total}، مش ظاهر: {omitted}'**
+  String mapCanvasSummary(int total, int omitted);
+
+  /// Links Map: mapTotals
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظات: {total} · روابط: {confirmed} · اقتراحات: {suggestions} · مش ظاهر: {omitted}'**
+  String mapTotals(int total, int confirmed, int suggestions, int omitted);
+
+  /// Hint for the unshrunk Map world; panning preserves readable text and touch targets.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسحب عشان تشوف باقي الخريطة'**
+  String get mapPanHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

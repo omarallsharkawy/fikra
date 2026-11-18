@@ -9,8 +9,9 @@ import 'links_library_provider.dart';
 
 typedef NoteConnections = ({List<NoteLinkEntry> confirmed, List<SuggestionEntry> suggestions});
 
-/// Shared by every pushed page; mapping and adjacency happen once per emission.
-final connectionsIndexProvider = FutureProvider.family<Map<String, List<NoteLinkEntry>>, String>((
+/// Shared while the library or a pushed page listens; released on project exit.
+/// Mapping and adjacency happen once per source emission.
+final connectionsIndexProvider = FutureProvider.autoDispose.family<Map<String, List<NoteLinkEntry>>, String>((
   ref,
   projectId,
 ) async {

@@ -1,6 +1,6 @@
 # Integration tests
 
-`stress_test.dart` seeds the isolated stress database in batches, with six ordered attachments (two of each kind) on every fourth note, and times `watchProjectAttachments` as used by cards. No legacy attachment fields are written. It retains the existing scroll/search/graph/AI timing approach and never touches real user files. Run the profile drive command at the top of the file on `com.fikra.app.stress`; do not use the production install for migration experiments.
+`stress_test.dart` seeds the isolated stress database in batches, with six ordered attachments (two of each kind) on every fourth note, and times `watchProjectAttachments` as used by cards. No legacy attachment fields are written. It retains the existing scroll/search/Map/AI timing approach and never touches real user files. Run the profile drive command at the top of the file on `com.fikra.app.stress`; do not use the production install for migration experiments.
 
 Stress link seed rows explicitly include v6 origin ai, dismissed false and createdAt; the UI and stress workload are unchanged.
 
@@ -30,8 +30,13 @@ The normal stress tab workload now maps branch IDs to three nav keys plus nav-ad
 
 ## Links comparison (redesign phase 3)
 
-The same FIKRA_GLASS_PERF drive runs links_perf_scenario once per tier: six Browse flings, six Suggestions flings, two accepts and two rejects with collapse, then six timed graph pans through the header route. Each workload has its own trace and build/raster p50/p90/p95/p99 plus phase/display over-budget frame counts using glassFrameReport. Warm-up/navigation occurs outside measured windows. The isolated seed now has a confirmed chain edge and a nonadjacent AI suggestion per note, five groups (one nested), and grouped/ungrouped topics. It keeps thousands of rows in each segment at 5,000 notes. The normal stress graph entry also opens the header button. Exact drive command remains atop glass_perf_scenario.dart; owner runs the phone, never this sandbox.
+The same FIKRA_GLASS_PERF drive runs links_perf_scenario once per tier: six Browse flings, six Suggestions flings, two accepts and two rejects with collapse, then overview and ego Map pans/zooms through the first segment. Each workload has its own trace and build/raster p50/p90/p95/p99 plus phase/display over-budget frame counts using glassFrameReport. Warm-up/navigation occurs outside measured windows. The isolated seed now has a confirmed chain edge and a nonadjacent AI suggestion per note, five groups (one nested), and grouped/ungrouped topics. It keeps thousands of rows in each segment at 5,000 notes. The normal stress entry opens the Map segment. Exact drive command remains atop glass_perf_scenario.dart; owner runs the phone, never this sandbox.
 
 ## Motion workloads (redesign phase 7)
 
 `motion_perf_scenario.dart` (`runMotionPerformance`, called per tier from `glass_perf_scenario.dart` under `'motion'`) measures two traced workloads with `glassFrameReport` (`build` and `raster` `p50/p90/p95/p99` plus budget exceedances): `note_open` (six container-transform card opens from `NotesScreen` and back pops) and `scroll_shrink_bar` (six 2-second alternating scroll sweeps with `navBarShrinkEnabledProvider` enabled and restored in `finally`). Do not run on-device from the sandbox.
+
+
+## Links Map replacement
+
+`links_perf_scenario.dart` replaces graph_pan with map_pan (overview and ego): six 900 ms pans and two animated pinch zooms per level, warmed/navigated outside measured windows, with build/raster percentiles and budget counters supplied by the existing measure callback. The target is Realme raster p95 <=6.5 ms. `stress_test` opens the Map segment and names its legacy live pan trace map_pan. The reviewer runs the isolated stress build on the phone; host tests do not establish the device target.

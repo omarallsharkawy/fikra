@@ -35,6 +35,7 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
   final _busy = <String>{};
 
   Animation<double>? _entrance;
+  bool _entered = false;
   bool _captured = false;
   NoteConnections? _entryData;
 
@@ -46,11 +47,20 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
       _entrance?.removeStatusListener(_onStatus);
       _entrance = animation;
       animation?.addStatusListener(_onStatus);
+      if (animation?.isCompleted ?? false) {
+        // A newly built route can report completed before didPush starts it.
+        // Only latch an already-completed entrance after that first frame.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && identical(animation, _entrance) && animation!.isCompleted) {
+            _onStatus(AnimationStatus.completed);
+          }
+        });
+      }
     }
   }
 
   void _onStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed) setState(() {});
+    if (status == AnimationStatus.completed && !_entered) setState(() => _entered = true);
   }
 
   @override
@@ -110,10 +120,9 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
       _captured = true;
       _entryData = note == null ? null : source.value;
     }
-    // Freeze the expensive sections at entry. A cold snapshot that arrives
-    // during the push is installed only after that push completes.
-    final entered = ModalRoute.of(context)?.animation?.isCompleted ?? true;
-    final data = entered ? source.value : _entryData;
+    // Freeze only the initial push. Once entered, keep live data through Back
+    // and any later route animation instead of restoring the entry snapshot.
+    final data = _entered || _entrance == null ? source.value : _entryData;
     final loading = note == null || data == null || invalid;
     final preview = note != null
         ? projectNote(note)

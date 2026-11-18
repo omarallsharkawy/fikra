@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:fikra/data/links_repository.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/features/connections/links_library_screen.dart';
+import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,7 @@ Future<List<Note>> seedLibrary(
   int count = 6,
   AppLocalizations? l10n,
   bool localizedContent = false,
+  bool browse = true,
 }) async {
   final arabic = localizedContent && (l10n?.localeName.startsWith('ar') ?? true);
   final titles = arabic
@@ -144,7 +146,11 @@ Future<List<Note>> seedLibrary(
   await insertLink(tester, db, notes[1], notes[4], origin: LinkOrigin.ai);
   await insertLink(tester, db, notes[2], notes[5], origin: LinkOrigin.ai);
   await tester.tap(Tabs.finder(Tabs.links));
-  await pumpUntil(tester, find.byKey(ValueKey('browse-${notes.last.id}')));
+  await pumpUntil(tester, find.byKey(const ValueKey('links-segment-0')));
+  if (browse) {
+    await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+    await pumpUntil(tester, find.byKey(ValueKey('browse-${notes.last.id}')));
+  }
   return notes;
 }
 
@@ -153,7 +159,7 @@ Finder get libraryScroll => find.descendant(
   matching: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down),
 );
 Future<void> librarySegment(WidgetTester tester, int index) async {
-  await tester.tap(find.byKey(ValueKey('links-segment-$index')));
+  await tester.tap(find.byKey(ValueKey('links-segment-${index + 1}')));
   await tester.pumpAndSettle();
 }
 
@@ -164,4 +170,29 @@ Future<void> openNoteConnections(WidgetTester tester, List<Note> notes, int i) a
   await tester.pumpAndSettle();
   await tester.tap(row);
   await tester.pumpAndSettle();
+}
+
+/// Taps the real painted node through Flutter's world-to-screen transform.
+Future<void> tapMapNode(WidgetTester tester, String id) async {
+  final canvas = find.byKey(const ValueKey('map-paint'));
+  final view = find.byKey(const ValueKey('map-viewport'));
+  await Scrollable.ensureVisible(tester.element(view), alignment: .5);
+  await tester.pump();
+  final painter = tester.widget<CustomPaint>(canvas).painter! as LinksMapPainter;
+  expect(painter.layout.positions, contains(id), reason: 'Visible Map nodes before tap: ${painter.nodes}');
+  final p = painter.layout.positions[id]!;
+  final box = tester.renderObject<RenderBox>(canvas);
+  final viewport = find.byKey(const ValueKey('map-viewport'));
+  if (!tester.getRect(viewport).deflate(8).contains(box.localToGlobal(Offset(p.x, p.y)))) {
+    final controller = tester.widget<InteractiveViewer>(viewport).transformationController!;
+    final scale = controller.value.getMaxScaleOnAxis();
+    final centre = tester.getSize(viewport).center(Offset.zero);
+    controller.value = Matrix4.identity()
+      ..translateByDouble(centre.dx - p.x * scale, centre.dy - p.y * scale, 0, 1)
+      ..scaleByDouble(scale, scale, scale, 1);
+    await tester.pump();
+  }
+  await tester.tapAt(box.localToGlobal(Offset(p.x, p.y)));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
 }

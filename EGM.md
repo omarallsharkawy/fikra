@@ -56,7 +56,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `integratio
 
 A note owns ordered rows in `note_attachments`, with cascading deletion. Add and saved-note Edit share capture/preview code. Draft removals never delete disk files before commit; failed saves clean new copies and retain the draft. Startup sweeping queries all new rows only after the database migration succeeds; failed opening prevents maintenance. A one-hour grace protects files copied by an in-flight save. Cards share a batched project stream, and PDFs route by note plus attachment ID.
 
-Phone follow-up fixes classify locked PDFs with a specific non-retry error, share graph/title fallback text, centre zoom on the graph viewport and adapt rewrite actions to localized label widths and large text. File-size LTR and transition tap behavior are covered by regressions without further gesture or formatting changes.
+Phone follow-up fixes classify locked PDFs with a specific non-retry error, share note-title fallback text, centre zoom on the Map viewport and adapt rewrite actions to localized label widths and large text. File-size LTR and transition tap behavior are covered by regressions without further gesture or formatting changes.
 
 ## Local links and groups (v6)
 
@@ -70,4 +70,8 @@ Voice recording files remain local. Optional on-device transcription is off by d
 
 Users can add OpenAI-compatible, Gemini, ElevenLabs or Qwen services and opt in to sending recordings to one named destination. Keys use flutter_secure_storage; config/consent/engine choice use settings JSON. The selected adapter is resolved when each saved-recording job starts; the FIFO, keep-alive and crash guard are unchanged. Remote trials use the same choice without WhisperLock, and remote text/audio/keys never enter logs. Settings names the selected recipient, every remote transcript is attributed, and wipe removes service configs/keys. Main Android INTERNET permission now covers release model downloads and user-added services. No other backend or AI mode behavior changes.
 
-Connections pushes paint Pearl and reserve loading content from their first frame. Project adjacency and per-note suggestions are shared across opens; successful suggestion removals update only that row.
+Connections pushes paint Pearl and reserve loading content from their first frame. Project adjacency is shared across opens while the library or a pushed page listens, then automatically disposed. Entrance snapshots freeze only the initial push; live updates continue during Back. Per-note suggestions are shared across opens; successful suggestion removals update only that row.
+
+## Links Map
+
+The Links tab opens Map first for each project, then remembers Map/Browse/Suggestions for the session. The legacy `/links/graph` address redirects to Map. Connections owns the capped three-level graph, source-revision aggregation and single cached painter; `lib/features/links` has been removed. Confirmed pairs, group/selection helpers and repositories remain shared. No schema or shell-navigation change is involved. The phone `map_pan` workload measures overview and ego (six pans and two zooms each), targeting raster p95 <= 6.5 ms on the Realme; device measurements are left to the reviewer.

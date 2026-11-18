@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:fikra/core/widgets/pearl_canvas.dart';
+import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/features/connections/connections_placeholder.dart';
 import 'package:fikra/features/connections/links_library_provider.dart';
@@ -9,9 +10,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/connections/note_connections_screen.dart';
+import 'package:fikra/features/connections/note_connections_provider.dart';
 import 'package:fikra/features/connections/suggestion_card.dart';
 import 'package:fikra/features/note_details/note_details_screen.dart';
-import 'package:fikra/features/links/links_screen.dart';
+import 'package:fikra/features/connections/links_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -95,16 +97,77 @@ void main() {
     expect(find.descendant(of: screen, matching: find.text('Live title')), findsOneWidget);
   }, notesRepository: (db) => held = _HeldNoteRepository(db));
 
+  for (final cold in [true, false]) {
+    fikraTest('${cold ? 'cold' : 'warm'} entrance keeps updated connections during reverse animation', (
+      tester,
+      db,
+    ) async {
+      phone(tester);
+      addTearDown(() => unawaited(held.pending.close()));
+      final notes = await seedLibrary(tester, db);
+      held.hold = cold;
+      if (!cold) {
+        final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('links-segment-1'))));
+        final warmNote = container.listen(noteProvider(notes.last.id), (_, _) {});
+        addTearDown(warmNote.close);
+        final warmConnections = container.listen(noteConnectionsProvider(notes.last.id), (_, _) {});
+        addTearDown(warmConnections.close);
+        await pumpFuture(tester, () => container.read(noteProvider(notes.last.id).future));
+        expect(container.read(noteConnectionsProvider(notes.last.id)).hasValue, isTrue);
+      }
+      await tester.tap(find.byKey(ValueKey('browse-${notes.last.id}')));
+      await tester.pump();
+      await tester.pump();
+      if (cold) {
+        expect(find.byKey(const ValueKey('connections-placeholder')), findsOneWidget);
+        held.pending.add(notes.last);
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(find.byKey(const ValueKey('connections-placeholder')), findsOneWidget);
+      } else {
+        expect(find.byKey(const ValueKey('connections-list')), findsOneWidget);
+      }
+      await tester.pump(const Duration(seconds: 1));
+      final screen = find.byType(NoteConnectionsScreen);
+      final context = tester.element(screen);
+      final animation = ModalRoute.of(context)!.animation!;
+      expect(animation.status, AnimationStatus.completed);
+      final container = ProviderScope.containerOf(context);
+      final provider = noteConnectionsProvider(notes.last.id);
+      final removed = container.read(provider).requireValue.confirmed.single;
+      final row = find.byKey(ValueKey('connection-${removed.other.id}'));
+      expect(row, findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 40));
+      expect(animation.status, AnimationStatus.reverse);
+      // A repository write finishes after Back has started. Its derivation
+      // must replace the live snapshot while the departing page is visible.
+      await pumpFuture(tester, () => container.read(linksRepoProvider).removeLink(removed.link.id));
+      for (var i = 0; i < 5 && container.read(provider).requireValue.confirmed.isNotEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 1));
+      }
+      expect(container.read(provider).requireValue.confirmed, isEmpty);
+      expect(animation.status, AnimationStatus.reverse, reason: 'assert the update midway through the pop');
+      expect(screen, findsOneWidget);
+      expect(find.byKey(const ValueKey('connections-list')), findsOneWidget);
+      expect(find.byKey(const ValueKey('connections-placeholder')), findsNothing);
+      expect(row, findsNothing, reason: 'the entry snapshot must never resurrect removed connections');
+      await tester.pump(const Duration(seconds: 1));
+      expect(screen, findsNothing);
+    }, notesRepository: (db) => held = _HeldNoteRepository(db));
+  }
+
   for (final path in ['/links/note/', '/note/']) {
     fikraTest('cold deep link $path paints an opaque placeholder without preview', (tester, db) async {
       phone(tester);
       addTearDown(() => unawaited(held.pending.close()));
       final notes = await seedLibrary(tester, db);
       held.hold = true;
-      final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('links-segment-0'))));
+      final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('links-segment-1'))));
       // Drop the shared derived snapshot too: this is a genuinely cold entry.
       container.invalidate(linksLibraryProvider(notes.last.projectId));
-      final context = tester.element(find.byKey(const ValueKey('links-segment-0')));
+      final context = tester.element(find.byKey(const ValueKey('links-segment-1')));
       context.go(
         '$path${notes.last.id}',
         extra: path.startsWith('/links') ? (projectNote(notes.first), null) : notes.first,
@@ -168,13 +231,13 @@ void main() {
         expect(tester.widget<NoteConnectionsScreen>(find.byType(NoteConnectionsScreen)).noteId, notes[5].id);
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const ValueKey('links-open-graph')));
+        await tester.tap(find.byKey(const ValueKey('links-segment-0')));
         await tester.pumpAndSettle();
-        expect(find.byType(LinksScreen), findsOneWidget);
+        expect(find.byType(LinksMap), findsOneWidget);
         expect(find.byType(InteractiveViewer), findsOneWidget);
-        await tester.tap(find.byType(BackButton));
+        await tester.tap(find.byKey(const ValueKey('links-segment-1')));
         await tester.pumpAndSettle();
-        expect(find.byKey(const ValueKey('links-segment-0')), findsOneWidget);
+        expect(find.byKey(const ValueKey('links-segment-1')), findsOneWidget);
       },
     );
   }
@@ -194,7 +257,7 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(find.byType(NoteConnectionsScreen), findsNothing);
-      expect(find.byKey(const ValueKey('links-segment-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('links-segment-1')), findsOneWidget);
     });
   }
 

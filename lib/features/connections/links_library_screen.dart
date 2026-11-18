@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OrdinalSortKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/motion/motion.dart';
@@ -14,6 +13,8 @@ import '../../l10n/localizations.dart';
 import '../projects/project_header.dart';
 import '../shared/note_groups.dart';
 import 'library_cards.dart';
+import 'library_session.dart';
+import 'links_map.dart';
 import 'library_chips.dart';
 import 'library_controls.dart';
 import 'links_index.dart';
@@ -53,7 +54,6 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
   late final StaggerController _browseStagger = StaggerController(this);
   late final StaggerController _suggestionsStagger = StaggerController(this);
   bool _tickerEnabled = true;
-  bool _openingGraph = false;
 
   @override
   void didChangeDependencies() {
@@ -102,6 +102,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
     // Warm shared adjacency before a tap; completion does not rebuild the library.
     ref.listen(connectionsIndexProvider(project.id), (_, _) {});
     final state = _projects.putIfAbsent(project.id, _ProjectView.new);
+    state.segment = ref.watch(linksSegmentProvider)[project.id] ?? 0;
     final source = ref.watch(linksLibraryProvider(project.id));
     final liveGroups = ref.watch(groupsOfProjectProvider(project.id));
     final groups = liveGroups.value ?? const [];
@@ -117,14 +118,14 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
     if (index != null && view != null) {
       final tickerEnabled = TickerMode.valuesOf(context).enabled;
       final reduced = FikraMotion.reduced(context);
-      if (state.segment == 0) {
+      if (state.segment == 1) {
         _browseStagger.maybeStart(
           projectId: project.id,
           visibleIds: view.browse.map((e) => e.note.id),
           tickerEnabled: tickerEnabled,
           reduced: reduced,
         );
-      } else {
+      } else if (state.segment == 2) {
         _suggestionsStagger.maybeStart(
           projectId: project.id,
           visibleIds: view.suggestions.map((e) => pairKey(e.a.id, e.b.id)),
@@ -136,25 +137,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ProjectHeader(
-          title: context.l10n.linksTitle,
-          trailing: HeaderActionButton(
-            key: const ValueKey('links-open-graph'),
-            icon: Icons.hub_outlined,
-            label: context.l10n.headerGraph,
-            semanticLabel: context.l10n.linksOpenGraph,
-            tooltip: context.l10n.linksOpenGraph,
-            onTap: () async {
-              if (_openingGraph) return;
-              _openingGraph = true;
-              try {
-                await context.push('/links/graph');
-              } finally {
-                _openingGraph = false;
-              }
-            },
-          ),
-        ),
+        ProjectHeader(title: context.l10n.linksTitle),
         Expanded(
           child: source.hasError && !source.hasValue
               ? LoadErrorView(
@@ -174,6 +157,20 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
                       child: IndexedStack(
                         index: state.segment,
                         children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: LibraryControls.extent(context)),
+                            child: LinksMap(
+                              key: ValueKey('map-${project.id}'),
+                              projectId: project.id,
+                              active: state.segment == 0,
+                              projectName: project.name,
+                              query: state.query,
+                              onSearchFocus: () {
+                                state.search.clear();
+                                _onSearch(state, '');
+                              },
+                            ),
+                          ),
                           for (var segment = 0; segment < 2; segment++)
                             CustomScrollView(
                               key: ValueKey('links-list-${project.id}-$segment'),
@@ -236,7 +233,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
                           onSearch: (value) => _onSearch(state, value),
                           suggestions: index.suggestions.length,
                           segment: state.segment,
-                          onSegment: (i) => setState(() => state.segment = i),
+                          onSegment: (i) => ref.read(linksSegmentProvider.notifier).select(project.id, i),
                           sort: state.sort,
                           onSort: (sort) => setState(() => state.sort = sort),
                         ),
@@ -276,7 +273,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
           ? FikraButton.secondary(
               label: context.l10n.linksSuggestions,
               growForText: true,
-              onPressed: () => setState(() => state.segment = 1),
+              onPressed: () => ref.read(linksSegmentProvider.notifier).select(index.notes.values.first.projectId, 2),
             )
           : null,
     );

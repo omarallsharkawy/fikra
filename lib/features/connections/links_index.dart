@@ -120,6 +120,15 @@ class LinksIndex {
 
   Map<String, LibraryNote> get notes => _notes.byId;
 
+  /// Includes isolated notes, unlike Browse. Reuses the per-note search index.
+  List<LibraryNote> searchNotes(String query) {
+    final q = query.trim().toLowerCase();
+    return [
+      for (final n in _notes.newest)
+        if (q.isEmpty || _notes.haystacks[n.id]!.contains(q)) n,
+    ];
+  }
+
   /// Newest first.
   List<BrowseEntry> get browse => _orders[LinksSort.newest]!;
 

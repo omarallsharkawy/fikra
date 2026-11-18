@@ -235,6 +235,8 @@ Future<void> visitAllMainScreensAndSheets(
 
   // 8. Links Browse
   await tester.tap(Tabs.finder(Tabs.links));
+  await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
+  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
   await pumpUntil(tester, find.byType(LinksLibraryScreen));
   await settleFrames();
   await onScreen('links_browse');
@@ -248,12 +250,12 @@ Future<void> visitAllMainScreensAndSheets(
   await settleFrames();
 
   // 10. Links Suggestions
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+  await tester.tap(find.byKey(const ValueKey('links-segment-2')));
   await settleFrames();
   await onScreen('links_suggestions');
 
   // 11. A note's connections page
-  await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
   await settleFrames();
   final browseScrollable = find
       .descendant(

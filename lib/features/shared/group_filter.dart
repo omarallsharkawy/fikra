@@ -2,7 +2,6 @@ import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/theme/tokens.dart';
-import '../../core/format.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
 import 'group_form.dart';
@@ -19,19 +18,10 @@ class GroupFilterRow extends StatelessWidget {
     required this.selectedId,
     required this.onSelect,
     required this.onOptions,
-    this.navigation = false,
-    this.enabled = true,
     this.counts,
     this.clearSelectedChild = false,
   });
 
-  /// Graph mode: chips move the view, never filter, so none looks selected and
-  /// there is no "All" chip or clear button. The open parent still shows its
-  /// sub-groups row.
-  final bool navigation;
-
-  /// False dims the row and ignores taps (graph selection mode).
-  final bool enabled;
   final Map<String, int>? counts;
   final bool clearSelectedChild;
   final List<NoteGroup> groups;
@@ -54,69 +44,59 @@ class GroupFilterRow extends StatelessWidget {
       key: ValueKey('group-filter-${g.id}'),
       label: counts == null ? g.name : '${g.name} ${counts![g.id] ?? 0}',
       color: g.color,
-      selected: !navigation && on,
-      semanticLabel: navigation ? context.l10n.graphNavigateGroup(Fmt.isolate(g.name)) : null,
-      onTap: enabled ? onTap : null,
-      onLongPress: enabled ? () => onOptions(g) : null,
+      selected: on,
+      onTap: onTap,
+      onLongPress: () => onOptions(g),
     );
 
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _ChipRow(
-                    children: [
-                      if (!navigation)
-                        ChoiceTag(
-                          key: const ValueKey('group-filter-all'),
-                          label: context.l10n.allGroupsFilter,
-                          selected: selected == null,
-                          onTap: () => onSelect(null),
-                        ),
-                      for (final g in groups)
-                        if (isTop(g))
-                          chip(
-                            g,
-                            on: g.id == parent?.id,
-                            onTap: () => onSelect(!navigation && g.id == selectedId ? null : g.id),
-                          ),
-                    ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _ChipRow(
+                  children: [
+                    ChoiceTag(
+                      key: const ValueKey('group-filter-all'),
+                      label: context.l10n.allGroupsFilter,
+                      selected: selected == null,
+                      onTap: () => onSelect(null),
+                    ),
+                    for (final g in groups)
+                      if (isTop(g))
+                        chip(g, on: g.id == parent?.id, onTap: () => onSelect(g.id == selectedId ? null : g.id)),
+                  ],
+                ),
+              ),
+              if (selected != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: FikraSpace.screen - 8),
+                  child: FikraIconButton(
+                    key: const ValueKey('group-filter-options'),
+                    icon: Icons.more_horiz_rounded,
+                    label: context.l10n.groupOptionsA11y(selected.name),
+                    size: 36,
+                    onTap: () => onOptions(selected),
                   ),
                 ),
-                if (!navigation && selected != null)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(end: FikraSpace.screen - 8),
-                    child: FikraIconButton(
-                      key: const ValueKey('group-filter-options'),
-                      icon: Icons.more_horiz_rounded,
-                      label: context.l10n.groupOptionsA11y(selected.name),
-                      size: 36,
-                      onTap: () => onOptions(selected),
-                    ),
+            ],
+          ),
+          if (children.isNotEmpty)
+            _ChipRow(
+              key: const ValueKey('group-filter-children'),
+              children: [
+                for (final g in children)
+                  chip(
+                    g,
+                    on: g.id == selectedId,
+                    onTap: () => onSelect(g.id == selectedId ? (clearSelectedChild ? null : parent!.id) : g.id),
                   ),
               ],
             ),
-            if (children.isNotEmpty)
-              _ChipRow(
-                key: const ValueKey('group-filter-children'),
-                children: [
-                  for (final g in children)
-                    chip(
-                      g,
-                      on: g.id == selectedId,
-                      onTap: () =>
-                          onSelect(!navigation && g.id == selectedId ? (clearSelectedChild ? null : parent!.id) : g.id),
-                    ),
-                ],
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

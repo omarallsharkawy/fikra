@@ -11,7 +11,6 @@ import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/features/add/add_screen.dart';
 import 'package:fikra/features/shared/attachment_editor.dart';
-import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:flutter/material.dart';
@@ -243,13 +242,18 @@ void main() {
           await capture('09_add_typed');
 
           await tester.tap(Tabs.finder(Tabs.links));
-          await pumpUntil(tester, find.byKey(const ValueKey('links-open-graph')));
-          await tester.tap(find.byKey(const ValueKey('links-open-graph')));
-          final aiGroup = await DemoAiService.clusterFor('rag', locale: locale);
-          await pumpUntil(tester, find.text(aiGroup));
+          await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
           await capture('10_links');
-          await tester.tap(find.text(l10n.sample2Title));
-          await pumpUntil(tester, find.text(l10n.openNote));
+          await tester.enterText(find.byKey(const ValueKey('links-search')), l10n.sample2Title);
+          await tester.pump(const Duration(milliseconds: 250));
+          final result = find.byWidgetPredicate(
+            (w) =>
+                w is ListTile &&
+                w.key is ValueKey<String> &&
+                (w.key as ValueKey<String>).value.startsWith('map-search-'),
+          );
+          await tester.tap(result);
+          await tester.pump(const Duration(milliseconds: 300));
           await capture('11_links_selected');
 
           await tester.tap(Tabs.finder(Tabs.ask));

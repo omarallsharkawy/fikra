@@ -51,3 +51,6 @@ measureLargeLibrary is the exact diagnostic body called by links_index_test. It 
 ## Finishing (redesign phase 8)
 
 `fikraTest` accepts optional `double? textScale` (setting `tester.platformDispatcher.textScaleFactorTestValue` and clearing it in `addTearDown`). `a11y_fixture.dart` provides `seedA11yApp` and `visitAllMainScreensAndSheets`, shared across `phase8_accessibility_test.dart`, `phase8_large_text_test.dart` and `screenshots/phase8_finishing_test.dart`.
+
+
+Map fixtures add `seedLibrary(browse: false)` for first-entry Map tests and `tapMapNode`, which taps a painted node through RenderBox.localToGlobal and completes the finite level fade. `librarySegment` retains logical Browse=0/Suggestions=1 for existing list tests; actual segment keys are Map=0/Browse=1/Suggestions=2. Accessibility list fixtures explicitly choose Browse.

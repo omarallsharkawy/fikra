@@ -319,6 +319,8 @@ void main() {
         // 4. Switch to Links tab: Browse animates once; opening Suggestions animates Suggestions once.
         final beforeLinks = tester.binding.clock.now();
         await tester.tap(Tabs.finder(Tabs.links));
+        await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
+        await tester.tap(find.byKey(const ValueKey('links-segment-1')));
         await pumpUntil(tester, find.byKey(ValueKey('browse-${p1Notes[11].id}')));
         expect(tester.binding.clock.now().difference(beforeLinks), lessThan(FikraMotion.staggerTotal));
         final browseEntry = find.byKey(ValueKey('browse-slot-${p1Notes[11].id}'));
@@ -328,7 +330,7 @@ void main() {
         await tester.pump(FikraMotion.staggerTotal + const Duration(milliseconds: 40));
         expect(browseStagger.isAnimating, isFalse);
 
-        await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+        await tester.tap(find.byKey(const ValueKey('links-segment-2')));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 30));
         final sugKey = pairKey(p1Notes[9].id, p1Notes[8].id);
@@ -524,6 +526,8 @@ void main() {
 
       // Switch to Links: accepting a suggestion rolls Suggestions segment count (2 -> 1) and group chip count (2 -> 3).
       await tester.tap(Tabs.finder(Tabs.links));
+      await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
+      await tester.tap(find.byKey(const ValueKey('links-segment-1')));
       await pumpUntil(tester, find.text('اقتراحات 2'));
       await tester.pump(const Duration(milliseconds: 450));
       expect(find.byType(RollingDigit), findsNothing);
@@ -531,7 +535,7 @@ void main() {
       await pumpFuture(tester, () => linksRepo.acceptPair(n1.id, n3.id));
       await pumpUntil(
         tester,
-        find.descendant(of: find.byKey(const ValueKey('links-segment-1')), matching: find.byType(RollingDigit)),
+        find.descendant(of: find.byKey(const ValueKey('links-segment-2')), matching: find.byType(RollingDigit)),
       );
       await tester.pump(const Duration(milliseconds: 40));
       expect(

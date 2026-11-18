@@ -561,35 +561,6 @@ void main() {
         query: 'Alpha',
       );
 
-      // 3. Graph search panel.
-      tester.testTextInput.hide();
-      await tester.pump(const Duration(milliseconds: 200));
-      await tester.tap(find.byKey(const ValueKey('links-open-graph')));
-      await pumpUntil(tester, find.byKey(const ValueKey('graph-search-open')));
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.tap(find.byKey(const ValueKey('graph-search-open')));
-      await pumpUntil(tester, find.byKey(const ValueKey('graph-search-field')));
-      await tester.pump(const Duration(milliseconds: 300));
-      // The panel's own close button already clears, so the field has no
-      // second X next to it.
-      final graphField = find.descendant(
-        of: find.byKey(const ValueKey('graph-search-field')),
-        matching: find.byType(TextField),
-      );
-      await tester.enterText(graphField, 'Alpha');
-      await tester.pump(const Duration(milliseconds: 250));
-      expect(find.byKey(const ValueKey('graph-search-clear')), findsNothing);
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('graph-search-field')),
-          matching: find.byIcon(Icons.close_rounded),
-        ),
-        findsNothing,
-      );
-      expect(find.byKey(const ValueKey('graph-search-close')), findsOneWidget);
-      await tester.enterText(graphField, '');
-      await tester.pump(const Duration(milliseconds: 100));
-
       // 4. Link picker sheet search on Note details.
       tester.testTextInput.hide();
       await tester.pump(const Duration(milliseconds: 200));
@@ -721,36 +692,15 @@ void main() {
           a11y: l.settings,
         );
 
-        // Links library header: Graph + Settings labelled.
+        // Links header keeps Settings; Map is a segment.
         await tester.tap(Tabs.finder(Tabs.links));
         await tester.pump(const Duration(milliseconds: 400));
-        checkHeaderControl(
-          find.byKey(const ValueKey('links-open-graph')).hitTestable(),
-          visibleCaption: l.headerGraph,
-          a11y: l.linksOpenGraph,
-        );
+        await pumpUntil(tester, find.byKey(const ValueKey('links-segment-0')));
         checkHeaderControl(
           find.byKey(const ValueKey('header-settings')).hitTestable(),
           visibleCaption: l.settings,
           a11y: l.settings,
         );
-
-        // Graph header: Search + Settings labelled.
-        await tester.tap(find.byKey(const ValueKey('links-open-graph')).hitTestable());
-        await pumpUntil(tester, find.byKey(const ValueKey('graph-search-open')));
-        await tester.pump(const Duration(milliseconds: 500));
-        checkHeaderControl(
-          find.byKey(const ValueKey('graph-search-open')).hitTestable(),
-          visibleCaption: l.headerSearch,
-          a11y: l.graphSearchHint,
-        );
-        checkHeaderControl(
-          find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
-          a11y: l.settings,
-        );
-        tester.element(find.byKey(const ValueKey('graph-search-open')).hitTestable()).pop();
-        await tester.pump(const Duration(milliseconds: 400));
 
         // Ask header: Clear + Settings labelled.
         await tester.tap(Tabs.finder(Tabs.ask));
@@ -793,10 +743,10 @@ void main() {
                     body: ProjectHeader(
                       title: l.linksTitle,
                       trailing: HeaderActionButton(
-                        key: const ValueKey('links-open-graph'),
+                        key: const ValueKey('header-test-action'),
                         icon: Icons.hub_outlined,
-                        label: l.headerGraph,
-                        semanticLabel: l.linksOpenGraph,
+                        label: l.searchNotesHint,
+                        semanticLabel: l.searchLinksHint,
                         onTap: () {},
                       ),
                     ),
@@ -809,13 +759,13 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
-        final graphBtn = find.byKey(const ValueKey('links-open-graph'));
+        final graphBtn = find.byKey(const ValueKey('header-test-action'));
         final settingsBtn = find.byKey(const ValueKey('header-settings'));
-        expect(find.descendant(of: graphBtn, matching: find.text(l.headerGraph)), findsNothing);
+        expect(find.descendant(of: graphBtn, matching: find.text(l.searchNotesHint)), findsNothing);
         expect(find.descendant(of: settingsBtn, matching: find.text(l.settings)), findsNothing);
         expect(tester.getSize(graphBtn).width, greaterThanOrEqualTo(Pressable.minTargetSize));
         expect(tester.getSize(settingsBtn).width, greaterThanOrEqualTo(Pressable.minTargetSize));
-        expect(tester.getSemantics(graphBtn).label, l.linksOpenGraph);
+        expect(tester.getSemantics(graphBtn).label, l.searchLinksHint);
         expect(tester.getSemantics(settingsBtn).label, l.settings);
       }),
     );

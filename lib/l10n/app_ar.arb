@@ -130,19 +130,11 @@
   "noteTextA11y": "نص الملاحظة",
   "originalKeptHint": "النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.",
   "clusterGeneral": "أفكار عامة",
-  "moreGroups": "باقي المجموعات",
   "linksTitle": "الروابط",
   "linksEmptyTitle": "الروابط بتظهر هنا",
-  "linksEmptyBody": "ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.",
   "addNote": "ضيف ملاحظة",
-  "linksSummary": "{notesCount} · {linksCount}",
   "zoomIn": "كبّر",
   "zoomOut": "صغّر",
-  "resetView": "رجّع العرض",
-  "showGroupA11y": "اعرض {notesCount} في «{cluster}»",
-  "moreGroupsCount": "باقي المجموعات ({count})",
-  "noLinksYet": "لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.",
-  "nodeMeta": "{cluster} · {linksCount}",
   "openNote": "افتح الملاحظة",
   "askFailed": "مقدرناش نجاوب دلوقتي. جرّب تاني.",
   "clearChatTitle": "تمسح المحادثة؟",
@@ -278,43 +270,6 @@
     "placeholders": {
       "n": {
         "type": "int"
-      }
-    }
-  },
-  "@linksSummary": {
-    "placeholders": {
-      "notesCount": {
-        "type": "String"
-      },
-      "linksCount": {
-        "type": "String"
-      }
-    }
-  },
-  "@showGroupA11y": {
-    "placeholders": {
-      "notesCount": {
-        "type": "String"
-      },
-      "cluster": {
-        "type": "String"
-      }
-    }
-  },
-  "@moreGroupsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@nodeMeta": {
-    "placeholders": {
-      "cluster": {
-        "type": "String"
-      },
-      "linksCount": {
-        "type": "String"
       }
     }
   },
@@ -652,13 +607,21 @@
   },
   "colorNone": "من غير لون",
   "colorBlue": "أزرق",
-  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
+  "@colorBlue": {
+    "description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."
+  },
   "colorGreen": "أخضر",
-  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
+  "@colorGreen": {
+    "description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."
+  },
   "colorYellow": "أصفر",
-  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
+  "@colorYellow": {
+    "description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."
+  },
   "colorGray": "رمادي",
-  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
+  "@colorGray": {
+    "description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."
+  },
   "groupParentLabel": "جوه مجموعة (اختياري)",
   "groupParentNone": "ولا واحدة",
   "moveNotesTitle": "تنقل {notes} لـ«{project}»؟",
@@ -778,88 +741,6 @@
   "groupRuleInvalidParent": "تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.",
   "groupRuleSelfParent": "مينفعش تحط المجموعة جوه نفسها.",
   "groupRuleHasChildren": "المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.",
-  "suggestedTopics": "مواضيع مقترحة",
-  "makeTopicGroup": "حوّل «{topic}» لمجموعة",
-  "@makeTopicGroup": {
-    "placeholders": {
-      "topic": {
-        "type": "String"
-      }
-    }
-  },
-  "graphGroupA11y": "مجموعة «{group}»، {notes}",
-  "@graphGroupA11y": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "notes": {
-        "type": "String"
-      }
-    }
-  },
-  "moreTopics": "باقي المواضيع",
-  "moreTopicsCount": "{count, plural, zero{مفيش مواضيع تانية} one{موضوع تاني} two{موضوعين تانيين} few{{count} مواضيع تانية} many{{count} موضوع تاني} other{{count} موضوع تاني}}",
-  "@moreTopicsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "graphNoteInGroup": "{title}، في مجموعة «{group}»",
-  "@graphNoteInGroup": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphSearchHint": "دوّر في الرسم",
-  "graphSearchEmpty": "مفيش نتايج",
-  "graphSearchNote": "ملاحظة",
-  "graphSearchLink": "رابط",
-  "graphSearchGroup": "مجموعة",
-  "graphSearchLimited": "مش ظاهرة في الرسم، هنفتح الملاحظة",
-  "graphNavigateGroup": "روح لمجموعة «{group}» في الرسم، من غير فلترة",
-  "@graphNavigateGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphCollapseGroup": "اقفل مجموعة «{group}»",
-  "@graphCollapseGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphExpandGroup": "افتح مجموعة «{group}»",
-  "@graphExpandGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "graphCollapsedGroup": "مجموعة «{group}»، {notes}، مقفولة",
-  "@graphCollapsedGroup": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "notes": {
-        "type": "String"
-      }
-    }
-  },
-  "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك",
   "vtTitle": "تحويل الصوت لنص",
   "vtExperimental": "تجريبي",
   "vtIntro": "الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.",
@@ -1588,10 +1469,6 @@
   "@linksOldest": {
     "description": "Links library sort order."
   },
-  "linksOpenGraph": "افتح خريطة الروابط",
-  "@linksOpenGraph": {
-    "description": "Header action to open the optional graph."
-  },
   "linkNoReason": "من غير سبب مكتوب",
   "@linkNoReason": {
     "description": "Muted fallback for an empty link reason."
@@ -1646,14 +1523,6 @@
   "@notesSort": {
     "description": "Notes list sort button label and sort sheet title."
   },
-  "headerGraph": "الخريطة",
-  "@headerGraph": {
-    "description": "Short caption under the open-graph icon in the Links header."
-  },
-  "headerSearch": "دوّر",
-  "@headerSearch": {
-    "description": "Short caption under the search icon in the graph header."
-  },
   "capsuleRecording": "بيسجّل…",
   "@capsuleRecording": {
     "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
@@ -1669,5 +1538,73 @@
   "capsuleTranscribingA11y": "بيفرّغ التسجيل. دوس عشان تفتح الملاحظة",
   "@capsuleTranscribingA11y": {
     "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "linksMap": "الخريطة",
+  "@linksMap": {
+    "description": "Links Map: linksMap"
+  },
+  "mapOthers": "تانيين",
+  "@mapOthers": {
+    "description": "Links Map: mapOthers"
+  },
+  "mapShowMore": "اعرض أكتر",
+  "@mapShowMore": {
+    "description": "Links Map: mapShowMore"
+  },
+  "mapOpen": "افتح",
+  "@mapOpen": {
+    "description": "Links Map: mapOpen"
+  },
+  "mapNotes": "{count, plural, =0{مفيش ملاحظات} =1{ملاحظة واحدة} =2{ملاحظتين} few{{count} ملاحظات} many{{count} ملاحظة} other{{count} ملاحظة}}",
+  "@mapNotes": {
+    "description": "Links Map: mapNotes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapConnections": "{count, plural, =0{مفيش روابط} =1{رابط واحد} =2{رابطين} few{{count} روابط} many{{count} رابط} other{{count} رابط}}",
+  "@mapConnections": {
+    "description": "Links Map: mapConnections",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapCanvasSummary": "خريطة الملاحظات، الإجمالي: {total}، مش ظاهر: {omitted}",
+  "@mapCanvasSummary": {
+    "description": "Links Map: mapCanvasSummary",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTotals": "ملاحظات: {total} · روابط: {confirmed} · اقتراحات: {suggestions} · مش ظاهر: {omitted}",
+  "@mapTotals": {
+    "description": "Links Map: mapTotals",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "confirmed": {
+        "type": "int"
+      },
+      "suggestions": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapPanHint": "اسحب عشان تشوف باقي الخريطة",
+  "@mapPanHint": {
+    "description": "Hint for the unshrunk Map world; panning preserves readable text and touch targets."
   }
 }

@@ -32,11 +32,11 @@ void main() {
           Directionality.of(tester.element(find.byType(LinksLibraryScreen))),
           locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
         );
-        final browse = tester.getSemantics(find.byKey(const ValueKey('links-segment-0')));
+        final browse = tester.getSemantics(find.byKey(const ValueKey('links-segment-1')));
         expect(browse.flagsCollection.isButton, isTrue);
         expect(browse.flagsCollection.isSelected, Tristate.isTrue);
         expect(
-          tester.getSemantics(find.byKey(const ValueKey('links-segment-1'))).label,
+          tester.getSemantics(find.byKey(const ValueKey('links-segment-2'))).label,
           l10n.linksSuggestionsCountA11y(3),
         );
         expect(find.text(l10n.linksSuggestionsCount(3)), findsOneWidget);
@@ -162,7 +162,7 @@ void main() {
       await tester.tap(Tabs.finder(Tabs.links));
       await tester.pumpAndSettle();
       expect(
-        tester.getSemantics(find.byKey(const ValueKey('links-segment-1'))).flagsCollection.isSelected,
+        tester.getSemantics(find.byKey(const ValueKey('links-segment-2'))).flagsCollection.isSelected,
         Tristate.isTrue,
       );
       expect(suggestions.pixels, suggestionOffset);
@@ -205,7 +205,7 @@ void main() {
     },
   );
 
-  fikraTest('chip-only empty state, live group chip, sort semantics, single graph label and no zero count', (
+  fikraTest('chip-only empty state, live group chip, sort semantics, Map segment label and no zero count', (
     tester,
     db,
   ) async {
@@ -213,9 +213,8 @@ void main() {
     final semantics = tester.ensureSemantics();
     try {
       final notes = await seedLibrary(tester, db);
-      final graph = tester.getSemantics(find.byKey(const ValueKey('links-open-graph')));
-      expect(graph.label, arL10n.linksOpenGraph);
-      expect(graph.tooltip, isEmpty);
+      final map = tester.getSemantics(find.byKey(const ValueKey('links-segment-0')));
+      expect(map.label, arL10n.linksMap);
       await pumpFuture(
         tester,
         () => db
@@ -264,7 +263,7 @@ void main() {
       await pumpFuture(tester, () => (db.delete(db.noteLinks)..where((l) => l.origin.equalsValue(LinkOrigin.ai))).go());
       await tester.pumpAndSettle();
       expect(find.text(arL10n.linksSuggestions), findsOneWidget);
-      expect(tester.getSemantics(find.byKey(const ValueKey('links-segment-1'))).label, arL10n.linksSuggestions);
+      expect(tester.getSemantics(find.byKey(const ValueKey('links-segment-2'))).label, arL10n.linksSuggestions);
     } finally {
       semantics.dispose();
     }

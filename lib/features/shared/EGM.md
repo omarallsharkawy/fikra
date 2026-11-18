@@ -9,7 +9,7 @@ Note display helpers, attachment editing shared by Add and Edit, the link picker
 - `note_presentation.dart`
   - `IconData sourceIcon(NoteSource s)`: icon for one note source. Currently called only inside this file.
   - `List<IconData> sourceIcons(Note n, [List<NoteAttachment> attachments])`: every source of a note.
-  - `String noteTitleText(BuildContext context, String title)`: shared fallback for full notes and graph projections.
+  - `String noteTitleText(BuildContext context, String title)`: shared fallback for full notes and Map projections.
   - `String noteTitle(BuildContext context, Note n)`: the note's title, or a fallback label when the title is blank.
 - `open_attachment.dart`
   - `Future<void> openAttachment(BuildContext context, WidgetRef ref, String path)`: opens a file in another app, and shows a toast if it returns false or throws. Used for photos and the PDF viewer’s explicit open-elsewhere action.
@@ -18,7 +18,7 @@ Note display helpers, attachment editing shared by Add and Edit, the link picker
 
 - `sourceIcons`/`attachmentIcons` use new-table rows, in PDF/voice/image order, with the original source icon as fallback. `attachmentIcons` also returns counts for cards; no legacy attachment columns are consulted.
 - `noteTitle` checks the trimmed title for blankness but returns the untrimmed title.
-- `noteTitle` and the graph’s `_graphTitle` both delegate to `noteTitleText`. All graph display surfaces, including node text, use this shared fallback.
+- `noteTitle` and Map both delegate to `noteTitleText`. All Map display surfaces, including node text, use this shared fallback.
 
 ## Side Effects
 
@@ -55,9 +55,9 @@ The toolbar keeps its keys and styling; Edit hides its round Save and uses the e
 
 ## Shared link choices (links phase 4)
 
-`link_pairs.dart` exposes pure generic `uniqueLinkPairs`: skip self pairs, retain first row for each unordered pair, replace a suggestion only with the first user row. Both `linksOfNote` and the isolate-safe graph use it; existing note-page ordering/filtering stays the same.
+`link_pairs.dart` exposes pure generic `uniqueLinkPairs`: skip self pairs, retain first row for each unordered pair, replace a suggestion only with the first user row. Both `linksOfNote` and the shared Links index use it; existing note-page ordering/filtering stays the same.
 
-`note_link_actions.dart` moved from note_details and exports `showLinkOptions`, `suggestionBusyProvider` and `changeSuggestedPair(context, {a, b, accept})`. `changeSuggestedPair` is the one accept/reject path for the Suggestions list, connections pages, note details and the graph sheet: it claims `suggestionBusyProvider` (a `SelectionGuard`: one accept/reject write or pair Undo at a time app-wide; a blocked action does nothing), calls `acceptPairForUndo` / `dismissPairForUndo`, and shows a toast (`linksAdded(1)` for an accept, `linkSuggestionRejected` for a reject) with Undo. A call that changed nothing shows the toast without Undo (`linksAdded(0)` for an accept); a failure shows `linkUpdateFailed`. Undo reads the container, so it works after the page closed; it claims the same guard (taken: `undoFailed`) and runs `undoPairChange`, which quietly skips a pair changed meanwhile. Toasts use the given context, or the root navigator's once it is gone (a closed sheet). It returns whether the pair changed. The existing user options, private reason editor, update/error behavior and keys are retained. Optional source note makes graph options name both endpoints. Suggestions use the same sheet with the shared Suggested tag and accept/reject pair operations, safe if analysis replaced the row. A one-choice guard prevents repeated sheet actions; operations capture their repository and live toast context before closing. User removal still requires confirmation and the caller's removal callback. No schema, new copy, colours or motion tokens.
+`note_link_actions.dart` moved from note_details and exports `showLinkOptions`, `suggestionBusyProvider` and `changeSuggestedPair(context, {a, b, accept})`. `changeSuggestedPair` is the one accept/reject path for the Suggestions list, connections pages, note details and Map: it claims `suggestionBusyProvider` (a `SelectionGuard`: one accept/reject write or pair Undo at a time app-wide; a blocked action does nothing), calls `acceptPairForUndo` / `dismissPairForUndo`, and shows a toast (`linksAdded(1)` for an accept, `linkSuggestionRejected` for a reject) with Undo. A call that changed nothing shows the toast without Undo (`linksAdded(0)` for an accept); a failure shows `linkUpdateFailed`. Undo reads the container, so it works after the page closed; it claims the same guard (taken: `undoFailed`) and runs `undoPairChange`, which quietly skips a pair changed meanwhile. Toasts use the given context, or the root navigator's once it is gone (a closed sheet). It returns whether the pair changed. The existing user options, private reason editor, update/error behavior and keys are retained. Optional source note makes shared link options name both endpoints. Suggestions use the same sheet with the shared Suggested tag and accept/reject pair operations, safe if analysis replaced the row. A one-choice guard prevents repeated sheet actions; operations capture their repository and live toast context before closing. User removal still requires confirmation and the caller's removal callback. No schema, new copy, colours or motion tokens.
 
 ## Selection, groups and moving several notes (links phase 5a)
 
@@ -74,13 +74,11 @@ None of these assume the notes list: they take ids, notes, a project id or callb
 - `group_sheet.dart`: `showGroupSheet(context, {projectId, canRemove})` → sealed `GroupPick` (`GroupPickExisting`, `GroupPickNew`, `GroupPickNone`); rows `group-pick-<id>` with counts, sub-groups indented with a direction-following arrow, `group-pick-new`, `group-pick-none` (only when a note has a group), `group-sheet-empty`. `GroupRow` is public.
 - `group_form.dart`: `showNewGroupForm` (name up to `groupNameMaxLength` 40, colour, optional top-level parent; keys `group-color-<n|none>`, `group-parent-none`, `group-parent-<id>`, `group-create`), `askGroupName` (`group-rename-save`); both buttons use `growForText`, so large text grows them instead of clipping, `GroupColorPicker`, `ChoiceTag` (wraps up to two lines; optional `semanticLabel` replaces the name for screen readers while keeping its selected state and long-press action; a null `onTap` disables it). A picked parent is kept even if it stops being top-level meanwhile, so the repository's `invalidParent` message shows.
 - `group_options.dart`: `showGroupOptions(context, ref, group)` (one-choice guard; the sheet closes before the next step): rename, colour, put inside a group (top-level candidates only; for a group with sub-groups the option is shown disabled, not tappable, with `groupRuleHasChildren` under it (`group-nest-reason`) and as its semantics hint; a sub-group added while the parent list is open gets the repository's `hasChildren` message), take out of its parent, delete (`confirmDestructive` with `danger: false`: notes stay, sub-groups move out).
-- `group_filter.dart`: `GroupFilterRow({groups, selectedId, onSelect, onOptions})`: `group-filter-all`, `group-filter-<id>` (dot + name, capped width), a second row of sub-groups (`group-filter-children`) when a parent with children is selected, tapping the selected chip goes up a level, long press or `group-filter-options` on the selected chip opens the options. Graph-only flags (defaults keep the notes list unchanged): `navigation: true` makes chips move the graph instead of filtering, with no "All" chip, no clear/options button, no selected look and the `graphNavigateGroup` semantics label; `enabled: false` dims the row to 0.4 and ignores taps and long presses (graph selection mode).
+- `group_filter.dart`: `GroupFilterRow({groups, selectedId, onSelect, onOptions})`: `group-filter-all`, `group-filter-<id>` (dot + name, capped width), a second row of sub-groups (`group-filter-children`) when a parent with children is selected, tapping the selected chip goes up a level, long press or `group-filter-options` on the selected chip opens the options. Graph-only navigation/enabled parameters were removed; group filtering remains shared by Notes and Browse.
 
-## Graph reuse (phase 5b)
+## Selection reuse
 
-`selection_actions.dart` exposes `assignSelectionGroup(context, ref, {projectId, notes, target, created})`, extracted from groupNotes after the picker/form. The notes-list flow delegates unchanged. Graph topic conversion supplies its newly created target and holds the same selectionBusyProvider guard. Assignment failure cleanup, localized toast, safe Undo (leave moved/regrouped notes alone), and deletion of a created group only while empty all use this one implementation. No repository/schema or existing public-name changes.
-
-Phase 5b review: note_selection_actions.dart exports noteSelectionActions(context, ref, {selection, onDone}), the single four-action bar/runner used by notes and graph. Call with the owning screen’s context/ref: the bar can disappear while assignment is saving. Actions snapshot current selected notes, share selectionBusyProvider with Undo, hide old toasts and let the caller apply its original set-identity completion rule. Existing selection keys and 2–6 link rules remain. assignSelectionGroup adds freshlyRead:false; true uses a freshly fetched repository snapshot without stale-provider filtering, while the notes picker keeps its existing pruning behaviour.
+`assignSelectionGroup` remains the picker’s guarded assignment/Undo helper and prunes notes missing from the current project snapshot. The graph-only `freshlyRead` parameter was removed. `noteSelectionActions` remains the shared notes selection runner. Pair deduplication, group colours, title fallback and `changeSuggestedPair` are reused by Map.
 
 ## Saved recording intent (phase 2)
 
@@ -108,7 +106,7 @@ Every voice chip in Add/Edit shows off and after-save ChoiceTags, including when
 
 ## Links library reuse (redesign phase 3)
 
-GroupFilterRow adds optional `counts` (displayed beside group names) and `clearSelectedChild` (selected child retap clears instead of selecting its parent). Defaults preserve Notes and graph sub-group/navigation behaviour. The library reuses uniqueLinkPairs, linksOfNote, showLinkOptions, changeSuggestedPair, showLinkPicker, group options and title helpers. Details' private rows remain unchanged because connections require body previews and explicit empty reasons.
+GroupFilterRow adds optional `counts` (displayed beside group names) and `clearSelectedChild` (selected child retap clears instead of selecting its parent). Defaults preserve Notes sub-group behaviour. The library reuses uniqueLinkPairs, linksOfNote, showLinkOptions, changeSuggestedPair, showLinkPicker, group options and title helpers. Details' private rows remain unchanged because connections require body previews and explicit empty reasons.
 
 ## Ordering & IA (redesign phase 4)
 
