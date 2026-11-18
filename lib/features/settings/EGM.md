@@ -50,3 +50,7 @@ single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 ## Ordering & IA (redesign phase 4)
 
 `SettingsScreen` presents six `Semantics(header: true)` sections in top-to-bottom order: `appearance`, `languageSection`, `vtVoiceSection` (`settings-voice-text`), `servicesSection` («الخدمات المتصلة» / "Connected services"; saved `settings-service-<id>` rows, with no `selected` state since each opens an edit form, pushing `/settings/voice-text/service/<id>` plus `settings-add-service` pushing `/settings/voice-text/service/new` via `transcriptionServicesStateProvider`), `privacySection` (`settings-data-location`), and `aboutSection`. Below `aboutSection` and a hairline divider, `settings-erase-all` (`SheetOption` with `danger: true`) sits alone at the very bottom behind `confirmDestructive`.
+
+## Finishing (redesign phase 8)
+
+`SettingsScreen` marks its top `settings` page title with `Semantics(header: true)` and routes `_wipe` messages through `showMessengerToast` so post-wipe toasts render as floating glass capsules.

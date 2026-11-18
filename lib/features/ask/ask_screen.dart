@@ -292,9 +292,11 @@ class _AnswerBubble extends StatelessWidget {
                   children: [
                     Icon(Icons.search_off_rounded, size: 18, color: context.colors.warning),
                     const SizedBox(width: 6),
-                    Text(
-                      context.l10n.notFoundInNotes,
-                      style: context.text.chip.copyWith(color: context.colors.warning),
+                    Flexible(
+                      child: Text(
+                        context.l10n.notFoundInNotes,
+                        style: context.text.chip.copyWith(color: context.colors.warning),
+                      ),
                     ),
                   ],
                 ),
@@ -343,10 +345,13 @@ class _SourceRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 22,
-              height: 22,
+              constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: context.colors.selected, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: context.colors.selected,
+                borderRadius: BorderRadius.circular(FikraRadius.full),
+              ),
               child: Text('$index', style: context.text.meta.copyWith(color: context.colors.accent, height: 1.1)),
             ),
             const SizedBox(width: 8),

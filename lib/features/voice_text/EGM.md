@@ -74,3 +74,7 @@ WhisperRun now redacts text and raw error strings for every diagnostic/JSONL run
 ## Motion & delight (redesign phase 7)
 
 `VoiceTextRecording` wraps `vt-stop` in `RecordingPulse` (`vt-stop-pulse`) while recording; capture, storage and permission paths are unchanged.
+
+## Finishing (redesign phase 8)
+
+`VoiceTextScreen` marks its top `vtTitle` page title with `Semantics(header: true)`.

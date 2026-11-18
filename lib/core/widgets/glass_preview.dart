@@ -53,7 +53,7 @@ class GlassReviewPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tier = ref.watch(glassTierProvider(MediaQuery.disableAnimationsOf(context)));
+    final tier = effectiveGlassTier(context, ref);
     return SizedBox(
       height: 100,
       child: Stack(

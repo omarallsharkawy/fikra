@@ -31,7 +31,7 @@ class FloatingNavigation extends StatelessWidget {
 
   /// BackdropGroup's default key is new per build: every rebuild (each tab
   /// switch) would update both filters and repaint both glass layers.
-  static final _backdrop = BackdropKey();
+  static final _backdropKey = BackdropKey();
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class FloatingNavigation extends StatelessWidget {
             offset: keyboard && !FikraMotion.reduced(context) ? const Offset(0, .18) : Offset.zero,
             duration: const Duration(milliseconds: 100),
             child: BackdropGroup(
-              backdropKey: _backdrop,
+              backdropKey: _backdropKey,
               child: aboveBar == null
                   ? barRow
                   : Column(

@@ -94,5 +94,43 @@ void main() {
         }
       }
     });
+    test('Pearl $name: glass sheet and toast text and icons pass WCAG AA across every tier and backdrop', () {
+      final bloom = composite(c.bloomCool, composite(c.bloomWarm, c.canvas, c.bloomWarmAlpha), c.bloomCoolAlpha);
+      final toastBackdrops = [
+        ('solid', c.surface),
+        for (final (label, under) in [
+          ('black', Colors.black),
+          ('white', Colors.white),
+          ('canvas', c.canvas),
+          ('bloom', bloom),
+        ])
+          ('frosted/$label', composite(c.surface, under, FikraPalette.glassBackingAlpha)),
+      ];
+      for (final (tierBg, bg) in toastBackdrops) {
+        for (final (role, fg) in [
+          ('toast/sheet body', c.textPrimary),
+          ('sheet secondary', c.textSecondary),
+          ('toast undo action', c.accent),
+        ]) {
+          expect(contrast(fg, bg), greaterThanOrEqualTo(4.5), reason: '$name $role on $tierBg');
+        }
+        for (final (iconRole, fg) in [
+          ('primary icon', c.textPrimary),
+          ('secondary icon', c.textSecondary),
+          ('accent icon', c.accent),
+          ('danger icon', c.danger),
+        ]) {
+          expect(contrast(fg, bg), greaterThanOrEqualTo(3.0), reason: '$name $iconRole on $tierBg');
+        }
+      }
+      // Modal sheets sit above the barrier scrim, and SheetOption danger rows sit on opaque surface.
+      for (final under in [Colors.black, Colors.white, c.canvas, bloom]) {
+        final scrimmed = composite(const Color(0xFF000000), under, c.scrim.a);
+        final sheetBg = composite(c.surface, scrimmed, FikraPalette.glassBackingAlpha);
+        expect(contrast(c.textPrimary, sheetBg), greaterThanOrEqualTo(4.5), reason: '$name sheet title on scrimmed');
+        expect(contrast(c.textSecondary, sheetBg), greaterThanOrEqualTo(4.5), reason: '$name sheet meta on scrimmed');
+      }
+      expect(contrast(c.danger, c.surface), greaterThanOrEqualTo(4.5), reason: '$name danger option on SolidSurface');
+    });
   }
 }

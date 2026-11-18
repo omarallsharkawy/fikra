@@ -17,10 +17,10 @@ User-facing default strings resolve from `context.l10n`, in
   `photo_thumb.dart` and `voice_player.dart`. Screens import this barrel.
 - `solid_surface.dart`: `SolidSurface(child, radius, padding, borderColor,
   borderWidth, color, width, height)`; an opaque surface plus line hairline.
-- `glass.dart`: `Glass(child, radius, padding)` for existing floating controls
-  only. Solid uses opaque surface; frosted/optical backing uses 90% surface and
-  exactly one BackdropFilter.grouped with sigma 24. Non-overlapping siblings
-  must share a BackdropGroup; overlapping lenses must not share that key.
+- `glass.dart`: `Glass(child, radius, borderRadius, padding, blurEnabled = true)` for
+  floating controls, sheets and toast capsules. Solid (and `MediaQuery.highContrast`) uses opaque surface; frosted/optical backing uses 90% surface and
+  at most one `BackdropFilter.grouped(enabled: blurEnabled)` with sigma 24. Non-overlapping siblings
+  must share a BackdropGroup; overlapping lenses or toasts must not share that key.
 - `glass_lens.dart`: `GlassLens(child, radius, opacity)` is an optical overlay above a
   backed Glass, with the package's LiquidGlassLens/LiquidGlassStyle API. Blur 7,
   surface tint 20%, saturation/refractionIndex 1.02, no dispersion, touch,
@@ -35,7 +35,8 @@ User-facing default strings resolve from `context.l10n`, in
   inset light/contact, lens inner rim/lower reflection and material shadows;
   no ShaderMask or saveLayer.
 - `glass_quality.dart`: GlassTier {solid,frosted,optical}, debug/profile
-  glassTierOverrideProvider, and glassTierProvider(disableAnimations).
+  glassTierOverrideProvider, glassTierProvider(disableAnimations), and
+  `effectiveGlassTier(context, ref)` (forces `solid` when `MediaQuery.maybeHighContrastOf(context)` is true).
   The single motion input is MediaQuery.disableAnimations. Effective tier is
   the minimum of watchdog ceiling, battery (solid), motion (frosted), and
   override. Release ignores overrides; no product override UI exists.
@@ -85,13 +86,13 @@ User-facing default strings resolve from `context.l10n`, in
   - `AsyncBody<T>({value, data, onRetry})`: renders a Riverpod `AsyncValue<T>`.
 - `sheets.dart`
   - `Future<T?> showFikraSheet<T>(context, {required title, required builder, tall = false})`.
-  - `SheetOption({label, icon, onTap, danger = false, selected})`; `selected` exposes a single-choice sheet's current option to TalkBack.
+  - `SheetOption({label, icon, onTap, danger = false, selected, enabled = true})`; `selected` exposes a single-choice sheet's current option to TalkBack, and `enabled: false` dims inner content inside an opaque `SolidSurface`.
 - `dialogs.dart`
   - `Future<bool> confirmDestructive(context, {required title, required message, confirmLabel, danger = true})`,
     with `danger: false` drawing the confirm as the primary button (a confirmation that loses nothing),
     pushed through the file-private `_FikraDialogRoute`.
 - `toasts.dart`
-  - `void showToast(context, message, {String? actionLabel, VoidCallback? onAction})` and `toastActionDuration` (6 s).
+  - `void showToast(context, message, {String? actionLabel, VoidCallback? onAction})`, `void showMessengerToast(messenger, message, {String? actionLabel, VoidCallback? onAction, BuildContext? measureContext})`, and `toastActionDuration` (6 s).
   - `Future<bool> runAction(context, action, {success, failure})`.
 - `photo_thumb.dart`
   - `PhotoThumb({required String path})`: square-cropped local photo, decoded at thumbnail size, with an icon when it can't be decoded.
@@ -114,10 +115,11 @@ User-facing default strings resolve from `context.l10n`, in
 - `FikraBadge.label` overrides only the text. Colors still come from `kind`.
 - `FikraIconButton` always has a hit area of at least 48 dp, and `label` is its
   screen reader label.
-- `SegmentedPill` height defaults to `Pressable.minTargetSize + 10`, which keeps each
-  segment at least 48 dp high; callers that grow with text scale pass a taller
-  `height`. Labels are one line with ellipsis. `semanticLabels` replace the read
-  text (for counts), and `segmentKeys` key each segment's semantics node. The selected pill follows `Directionality`.
+- `SegmentedPill`: when `height` is omitted, outer height is 58 dp at 1.0x and grows
+  up to two centered lines at larger text scales (`> 1.0x`); callers reserving a
+  fixed dock extent pass an explicit `height` (one line with ellipsis). Each segment
+  stays at least 48 dp high. `semanticLabels` replace the read text (for counts),
+  and `segmentKeys` key each segment's semantics node. The selected pill follows `Directionality`.
   Under Reduce Motion it jumps instead of springing.
 - `SegmentedPill` label colors are interpolated from the animation value, so a
   label is never light-on-light mid-slide.
@@ -147,10 +149,11 @@ User-facing default strings resolve from `context.l10n`, in
   the height above the bottom safe area (less the keyboard inset when that is
   smaller), pads its footer above that safe area (not while the keyboard covers
   it), and gives `builder` that bounded height with no scroll view, for lazy
-  lists with a footer. Non-tall sheets are unchanged. The shell's fill is the
-  opaque `surface`, so its content sits in a transparent `Material` above that
-  fill; otherwise ListTile and InkWell ink would paint under it, invisible (and
-  ListTile asserts in debug).
+  lists with a footer. Non-tall sheets are unchanged. The sheet's outer shell is
+  tiered `Glass` (opaque `surface` at solid/high-contrast, 90% `surface` + sigma-24
+  blur at frosted/optical, with blur disabled while offscreen at `animation.value <= 0`),
+  and its content sits in a transparent `Material` above that fill; otherwise
+  ListTile and InkWell ink would paint under it, invisible (and ListTile asserts in debug).
 - `confirmDestructive` resolves the default confirm label before pushing its route. `runAction` resolves its default failure message before awaiting.
 - `runAction` catches every exception and error thrown by `action`. It returns
   true only after `action` completes, and shows `success` only then. It captures
@@ -203,8 +206,8 @@ User-facing default strings resolve from `context.l10n`, in
 
 ## Undo toast (links phase 5a)
 
-- `showToast` with both `actionLabel` and `onAction` adds one `SnackBarAction` (Undo) and stays `toastActionDuration` (6 s) instead of 3 s; without them it is unchanged. The messenger reads `persist` once, so the Undo toast is shown with `persist: true` and its text (`_TimedToast`) times it out itself: it follows `MediaQuery.accessibleNavigationOf` while shown, waiting for the next toast while a screen reader is on and leaving 6 s after it is turned off (or after it was shown). The timer does nothing once the button was pressed or a newer `showToast` replaced it. The SnackBar's own live region announces it. A newer toast replaces it (`hideCurrentSnackBar`), so its Undo can no longer be pressed.
-- The action text uses `colors.accentLight`: the default (`inversePrimary`) was invisible on the white light-theme toast. `test/toast_test.dart` checks 4.5:1 contrast in both themes, the timings, the screen reader turned on and off mid-toast, and replacement.
+- `showToast` / `showMessengerToast` with both `actionLabel` and `onAction` adds one `SnackBarAction` (Undo) inside `_ToastCapsule` and stays `toastActionDuration` (6 s) instead of 3 s; without them it stays 3 s. The messenger reads `persist` once, so the Undo toast is shown with `persist: true` and `_ToastCapsule` times it out itself: it follows `MediaQuery.accessibleNavigationOf` while shown, waiting for the next toast while a screen reader is on and leaving 6 s after it is turned off (or after it was shown). The timer does nothing once the button was pressed or a newer toast replaced it. The SnackBar's own live region announces it. A newer toast replaces it (`hideCurrentSnackBar`), so its Undo can no longer be pressed.
+- The action text uses `colors.accent`: the default (`inversePrimary`) was invisible on the light-theme toast. `test/toast_test.dart` checks 4.5:1 contrast against the capsule's drawn `ColoredBox` backing in both themes and solid/frosted tiers, the timings, the screen reader turned on and off mid-toast, and replacement.
 
 ## Pearl verification
 
@@ -238,3 +241,11 @@ semantics) at the directional end inside `TextFieldTapRegion` whenever
 - `glass_quality.dart`: adds `NavBarShrinkOverride` and `navBarShrinkEnabledProvider` (default `false`, ignored in `kReleaseMode`).
 - `glass_preview.dart`: `GlassDebugOverlay` renders `debug-shrink-bar-toggle` (`FikraChip`) in debug/profile builds when `glassPreviewEnabledProvider` is enabled, toggling `navBarShrinkEnabledProvider`. `GlassReviewPanel` is unchanged.
 - `selectors.dart`: `SegmentedPill` renders segment labels with `RollingText` so visible count changes roll changed digits while preserving TalkBack labels and Reduce Motion.
+
+## Finishing: glass sheets/toasts, accessibility & large text (redesign phase 8)
+
+- `glass_quality.dart`: adds `effectiveGlassTier(BuildContext, WidgetRef)`, returning `GlassTier.solid` when `MediaQuery.maybeHighContrastOf(context) ?? false`, otherwise watching `glassTierProvider(disableAnimations)`. `Glass`, `GlassLens` and `GlassReviewPanel` use it.
+- `glass.dart` & `glass_edge.dart`: `Glass` adds optional `borderRadius` and `blurEnabled = true` (`BackdropFilter.grouped(enabled: blurEnabled)` and `GlassWatchdog` registration gated on `blurEnabled` and `!highContrast`); `GlassEdge` adds optional `borderRadius` for top-rounded sheet corners.
+- `sheets.dart`: `showFikraSheet` wraps its container in `_SheetKeyboardInset` + `_SheetSurface` (ungrouped `Glass` with top-only `FikraRadius.xxl` corners and `blurEnabled: !_offscreen`, disabling blur when `ModalRoute.animation.value <= 0`, while reading `viewInsetsOf` outside `_SheetSurface` so `Glass` does not rebuild on keyboard frames). Drag handle is wrapped in `ExcludeSemantics`; `title` uses `Semantics(header: true)`; `SheetOption` adds `enabled = true` so disabled rows dim inner content inside an opaque `SolidSurface`. `confirmDestructive` (`dialogs.dart`) remains solid.
+- `toasts.dart`: `showToast`, `showMessengerToast` and `runAction` measure the capsule width once and pass `SnackBar(width: capsuleWidth)` around `_ToastCapsule` (`ValueKey('toast-capsule')`), an ungrouped floating `Glass` capsule inside a transparent zero-elevation `SnackBar` whose `Material` hit area matches the visible capsule. Bottom clearance comes from `AppShell`'s `snackBarTheme.insetPadding` (floating bar + Add + safe area) or root `snackBarTheme.insetPadding` plus `Scaffold`'s built-in safe-area / `viewInsets` positioning, with no `MediaQuery.viewInsetsOf` or `NavigationInset` dependency inside `_ToastCapsule`.
+- `fikra_field.dart`, `selectors.dart`, `buttons.dart`: `FikraField` places `SolidSurface` in `Positioned.fill` behind a `minHeight: 48` `TextField` (`isDense: true`, `contentPadding: vertical: 11`) so it is 48 dp at 1.0x focused and unfocused in light and dark and grows at large text; `FikraChip` (`Center` with `widthFactor: 1, heightFactor: 1`) and `FikraButton` use `minHeight` constraints; `SegmentedPill` wraps up to two centered lines and grows height above 1.0x when `height` is omitted.

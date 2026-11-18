@@ -130,7 +130,9 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
         Row(
           children: [
             BackButton(onPressed: () => context.pop()),
-            Expanded(child: Text(context.l10n.linksTitle, style: context.text.title)),
+            Expanded(
+              child: Semantics(header: true, child: Text(context.l10n.linksTitle, style: context.text.title)),
+            ),
           ],
         ),
         Expanded(

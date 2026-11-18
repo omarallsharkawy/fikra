@@ -195,7 +195,13 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
             : ListView(
                 padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 24),
                 children: [
-                  Text(context.l10n.editNoteTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      context.l10n.editNoteTitle,
+                      style: context.text.title.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   FikraField(
                     controller: _title,

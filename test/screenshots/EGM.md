@@ -68,3 +68,7 @@ In `screens_test.dart`, `14_settings` opens Settings via `ValueKey('header-setti
 ## Motion & delight (redesign phase 7)
 
 `phase7_motion_test.dart` renders `phase7_save_tick` (mid-animation), `phase7_recording` (pulse ring and live waveform), `phase7_capsule_recording`, `phase7_capsule_transcribing` and `phase7_shrunk_bar` in Arabic/English × light/dark using `saveScreenshot(..., settle: Duration.zero)` and deterministic frosting.
+
+## Finishing (redesign phase 8)
+
+`phase8_finishing_test.dart` captures all 14 main screens and sheets at text scale `2.0` (`360 × 800` dp) in Arabic and English light mode (`phase8_scale2_*`), plus a frosted glass sheet (`phase8_glass_sheet`) and a frosted glass toast with Undo above the floating tab bar (`phase8_glass_toast`) in Arabic and English, light and dark.

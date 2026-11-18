@@ -60,9 +60,7 @@ Future<bool> changeSuggestedPair(
         : () async {
             final failed = l10n.undoFailed;
             final messenger = ScaffoldMessenger.maybeOf(root);
-            void fail() => messenger
-              ?..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(failed), duration: const Duration(seconds: 3)));
+            void fail() => showMessengerToast(messenger, failed);
             if (!guard.claim()) return fail();
             try {
               // Skipped quietly when the pair changed meanwhile, like undoLinks.

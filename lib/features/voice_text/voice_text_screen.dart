@@ -148,7 +148,10 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                       FikraSpace.s32,
                     ),
                     children: [
-                      Text(l.vtTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                      Semantics(
+                        header: true,
+                        child: Text(l.vtTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                      ),
                       const SizedBox(height: FikraSpace.s8),
                       Align(
                         alignment: AlignmentDirectional.centerStart,

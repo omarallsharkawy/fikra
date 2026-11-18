@@ -243,9 +243,7 @@ VoidCallback _undo(BuildContext context, Future<void> Function() undo) {
   final messenger = ScaffoldMessenger.maybeOf(context);
   // The container outlives the page, so Undo works after it closed.
   final guard = ProviderScope.containerOf(context, listen: false).read(selectionBusyProvider.notifier);
-  void fail() => messenger
-    ?..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(failed), duration: const Duration(seconds: 3)));
+  void fail() => showMessengerToast(messenger, failed);
   return () async {
     if (!guard.claim()) return fail();
     try {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show OrdinalSortKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -164,70 +165,78 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
               ? const SizedBox.shrink()
               : Stack(
                   children: [
-                    IndexedStack(
-                      index: state.segment,
-                      children: [
-                        for (var segment = 0; segment < 2; segment++)
-                          CustomScrollView(
-                            key: ValueKey('links-list-${project.id}-$segment'),
-                            controller: state.scrolls[segment],
-                            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                            slivers: [
-                              SliverToBoxAdapter(child: SizedBox(height: LibraryControls.extent(context))),
-                              SliverToBoxAdapter(
-                                child: LibraryChips(
-                                  key: ValueKey('links-chips-${project.id}'),
-                                  index: index,
-                                  groups: groups,
-                                  chip: state.chip,
-                                  onChip: (chip) => setState(() => state.chip = chip),
-                                ),
-                              ),
-                              if (segment == 0 && view.browse.isEmpty)
-                                SliverToBoxAdapter(child: _empty(state, index, suggestions: false))
-                              else if (segment == 0)
-                                SliverPadding(
-                                  padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-                                  sliver: SliverList.builder(
-                                    itemCount: view.browse.length,
-                                    itemBuilder: (_, i) {
-                                      final id = view.browse[i].note.id;
-                                      return StaggeredEntry(
-                                        key: ValueKey('browse-slot-$id'),
-                                        stagger: _browseStagger,
-                                        itemId: id,
-                                        child: BrowseNoteCard(key: ValueKey('browse-$id'), entry: view.browse[i]),
-                                      );
-                                    },
-                                  ),
-                                )
-                              else ...[
-                                SliverPadding(
-                                  padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-                                  sliver: SuggestionSliver(
-                                    key: ValueKey((project.id, state.chip, state.query)),
-                                    entries: view.suggestions,
-                                    empty: _empty(state, index, suggestions: true),
-                                    stagger: _suggestionsStagger,
+                    Semantics(
+                      container: true,
+                      sortKey: const OrdinalSortKey(1),
+                      child: IndexedStack(
+                        index: state.segment,
+                        children: [
+                          for (var segment = 0; segment < 2; segment++)
+                            CustomScrollView(
+                              key: ValueKey('links-list-${project.id}-$segment'),
+                              controller: state.scrolls[segment],
+                              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                              slivers: [
+                                SliverToBoxAdapter(child: SizedBox(height: LibraryControls.extent(context))),
+                                SliverToBoxAdapter(
+                                  child: LibraryChips(
+                                    key: ValueKey('links-chips-${project.id}'),
+                                    index: index,
+                                    groups: groups,
+                                    chip: state.chip,
+                                    onChip: (chip) => setState(() => state.chip = chip),
                                   ),
                                 ),
+                                if (segment == 0 && view.browse.isEmpty)
+                                  SliverToBoxAdapter(child: _empty(state, index, suggestions: false))
+                                else if (segment == 0)
+                                  SliverPadding(
+                                    padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+                                    sliver: SliverList.builder(
+                                      itemCount: view.browse.length,
+                                      itemBuilder: (_, i) {
+                                        final id = view.browse[i].note.id;
+                                        return StaggeredEntry(
+                                          key: ValueKey('browse-slot-$id'),
+                                          stagger: _browseStagger,
+                                          itemId: id,
+                                          child: BrowseNoteCard(key: ValueKey('browse-$id'), entry: view.browse[i]),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                else ...[
+                                  SliverPadding(
+                                    padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+                                    sliver: SuggestionSliver(
+                                      key: ValueKey((project.id, state.chip, state.query)),
+                                      entries: view.suggestions,
+                                      empty: _empty(state, index, suggestions: true),
+                                      stagger: _suggestionsStagger,
+                                    ),
+                                  ),
+                                ],
+                                const SliverToBoxAdapter(child: NavigationInsetSpacer(extra: 24)),
                               ],
-                              const SliverToBoxAdapter(child: NavigationInsetSpacer(extra: 24)),
-                            ],
-                          ),
-                      ],
+                            ),
+                        ],
+                      ),
                     ),
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: LibraryControls(
-                        key: ValueKey('links-controls-${project.id}'),
-                        search: state.search,
-                        onSearch: (value) => _onSearch(state, value),
-                        suggestions: index.suggestions.length,
-                        segment: state.segment,
-                        onSegment: (i) => setState(() => state.segment = i),
-                        sort: state.sort,
-                        onSort: (sort) => setState(() => state.sort = sort),
+                    Semantics(
+                      container: true,
+                      sortKey: const OrdinalSortKey(0),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: LibraryControls(
+                          key: ValueKey('links-controls-${project.id}'),
+                          search: state.search,
+                          onSearch: (value) => _onSearch(state, value),
+                          suggestions: index.suggestions.length,
+                          segment: state.segment,
+                          onSegment: (i) => setState(() => state.segment = i),
+                          sort: state.sort,
+                          onSort: (sort) => setState(() => state.sort = sort),
+                        ),
                       ),
                     ),
                   ],

@@ -70,19 +70,40 @@ void main() {
     });
 
     for (final brightness in Brightness.values) {
-      testWidgets('the Undo button is readable on the ${brightness.name} toast', (tester) async {
-        await show(
-          tester,
-          (c) => showToast(c, 'linked', actionLabel: 'Undo', onAction: () {}),
-          brightness: brightness,
-        );
-        final label = find.descendant(of: find.byType(SnackBarAction), matching: find.byType(RichText));
-        final color = (tester.renderObject(label) as RenderParagraph).text.style!.color!;
-        final background = Theme.of(tester.element(label)).snackBarTheme.backgroundColor!;
-        final (a, b) = (color.computeLuminance(), background.computeLuminance());
-        final contrast = (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
-        expect(contrast, greaterThanOrEqualTo(4.5));
-      });
+      for (final tier in [GlassTier.solid, GlassTier.frosted]) {
+        testWidgets('the Undo button is readable on the ${brightness.name} ${tier.name} toast', (tester) async {
+          await host(
+            tester,
+            brightness: brightness,
+            overrides: [glassTierProvider(false).overrideWith((ref) => tier)],
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showToast(context, 'linked', actionLabel: 'Undo', onAction: () {}),
+                child: const Text('go'),
+              ),
+            ),
+          );
+          await tester.tap(find.text('go'));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 400));
+
+          final label = find.descendant(of: find.byType(SnackBarAction), matching: find.byType(RichText));
+          final color = (tester.renderObject(label) as RenderParagraph).text.style!.color!;
+          final backing = tester
+              .widget<ColoredBox>(
+                find
+                    .descendant(of: find.byKey(const ValueKey('toast-capsule')), matching: find.byType(ColoredBox))
+                    .first,
+              )
+              .color;
+          for (final under in [Colors.black, Colors.white]) {
+            final background = Color.alphaBlend(backing, under);
+            final (a, b) = (color.computeLuminance(), background.computeLuminance());
+            final contrast = (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
+            expect(contrast, greaterThanOrEqualTo(4.5));
+          }
+        });
+      }
     }
 
     testWidgets('with a screen reader the Undo toast waits for the next one', (tester) async {

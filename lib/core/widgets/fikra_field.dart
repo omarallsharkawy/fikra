@@ -97,65 +97,76 @@ class _FikraFieldState extends State<FikraField> {
         : light
         ? context.colors.borderGraph
         : context.colors.line;
-    final pill = SolidSurface(
-      radius: FikraRadius.full,
-      padding: EdgeInsetsDirectional.fromSTEB(20, 0, clearable ? 0 : 20, 0),
-      borderColor: border,
-      // A hairline vanishes on light surfaces; inputs need a visible edge.
-      borderWidth: widget.error || _focus.hasFocus || light ? 1 : FikraSpace.hairline,
-      height: FikraSpace.field,
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: _focus,
-              autofocus: widget.autofocus,
-              onChanged: widget.onChanged,
-              onSubmitted: widget.onSubmitted,
-              keyboardType: widget.keyboardType,
-              obscureText: widget.obscure,
-              textInputAction: widget.textInputAction,
-              maxLength: widget.maxLength,
-              style: context.text.field,
-              decoration: InputDecoration(
-                isCollapsed: true,
-                border: InputBorder.none,
-                counterText: '',
-                hintText: widget.hint,
-                hintStyle: context.text.field.copyWith(color: context.colors.textSecondary),
+    final row = ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: FikraSpace.field),
+      child: Padding(
+        padding: EdgeInsetsDirectional.fromSTEB(20, 0, clearable ? 0 : 20, 0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controller,
+                focusNode: _focus,
+                autofocus: widget.autofocus,
+                onChanged: widget.onChanged,
+                onSubmitted: widget.onSubmitted,
+                keyboardType: widget.keyboardType,
+                obscureText: widget.obscure,
+                textInputAction: widget.textInputAction,
+                maxLength: widget.maxLength,
+                textAlignVertical: TextAlignVertical.center,
+                style: context.text.field,
+                decoration: InputDecoration(
+                  isDense: true,
+                  constraints: const BoxConstraints(minHeight: FikraSpace.field),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                  border: InputBorder.none,
+                  counterText: '',
+                  hintText: widget.hint,
+                  hintStyle: context.text.field.copyWith(color: context.colors.textSecondary),
+                ),
               ),
             ),
-          ),
-          if (clearable)
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: controller,
-              builder: (context, value, _) => value.text.isNotEmpty
-                  ? const SizedBox(width: Pressable.minTargetSize)
-                  : Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 20),
-                      child: widget.icon == null
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              padding: const EdgeInsetsDirectional.only(start: 12),
-                              child: Icon(widget.icon, color: context.colors.textSecondary, size: 20),
-                            ),
-                    ),
-            )
-          else if (widget.icon != null) ...[
-            const SizedBox(width: 12),
-            Icon(widget.icon, color: context.colors.textSecondary, size: 20),
+            if (clearable)
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller,
+                builder: (context, value, _) => value.text.isNotEmpty
+                    ? const SizedBox(width: Pressable.minTargetSize)
+                    : Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 20),
+                        child: widget.icon == null
+                            ? const SizedBox.shrink()
+                            : Padding(
+                                padding: const EdgeInsetsDirectional.only(start: 12),
+                                child: Icon(widget.icon, color: context.colors.textSecondary, size: 20),
+                              ),
+                      ),
+              )
+            else if (widget.icon != null) ...[
+              const SizedBox(width: 12),
+              Icon(widget.icon, color: context.colors.textSecondary, size: 20),
+            ],
           ],
-        ],
+        ),
       ),
     );
-    if (!clearable) return pill;
-    // Overlay outside SolidSurface's border so the clear control keeps a full 48×48 dp target.
-    return SizedBox(
-      height: FikraSpace.field,
-      child: Stack(
-        children: [
-          pill,
+    // SolidSurface fills behind the row so focus border width changes never shift field height,
+    // and the clear control overlays outside the border to keep a full 48×48 dp target.
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Positioned.fill(
+          child: SolidSurface(
+            radius: FikraRadius.full,
+            padding: EdgeInsets.zero,
+            borderColor: border,
+            // A hairline vanishes on light surfaces; inputs need a visible edge.
+            borderWidth: widget.error || _focus.hasFocus || light ? 1 : FikraSpace.hairline,
+            child: const SizedBox.expand(),
+          ),
+        ),
+        row,
+        if (clearable)
           PositionedDirectional(
             end: 0,
             top: 0,
@@ -179,8 +190,7 @@ class _FikraFieldState extends State<FikraField> {
               ),
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }

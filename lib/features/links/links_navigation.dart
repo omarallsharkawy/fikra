@@ -88,21 +88,31 @@ extension _LinksNavigation on _LinksScreenState {
               ),
             Expanded(
               child: ListView.builder(
-                itemExtent: 64,
                 itemCount: hidden.length,
                 itemBuilder: (context, index) {
                   final note = hidden[index];
-                  return ListTile(
-                    title: Text(
-                      _graphTitle(context, note),
-                      style: context.text.body,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: SolidSurface(
+                      radius: FikraRadius.md,
+                      padding: EdgeInsets.zero,
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(FikraRadius.md)),
+                          title: Text(
+                            _graphTitle(context, note),
+                            style: context.text.body,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            _openNote(note.id);
+                          },
+                        ),
+                      ),
                     ),
-                    onTap: () {
-                      Navigator.pop(sheetContext);
-                      _openNote(note.id);
-                    },
                   );
                 },
               ),
@@ -120,14 +130,24 @@ extension _LinksNavigation on _LinksScreenState {
       builder: (sheetContext) => SizedBox(
         height: MediaQuery.sizeOf(sheetContext).height * 0.55,
         child: ListView.builder(
-          itemExtent: 72,
           itemCount: layout.hiddenRows.length,
           itemBuilder: (context, index) {
             final row = layout.hiddenRows[index];
-            return ListTile(
-              title: Text(row.cluster, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text(Fmt.notes(context.l10n, row.notes.length), style: context.text.meta),
-              onTap: () => Navigator.pop(sheetContext, row),
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SolidSurface(
+                radius: FikraRadius.md,
+                padding: EdgeInsets.zero,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(FikraRadius.md)),
+                    title: Text(row.cluster, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(Fmt.notes(context.l10n, row.notes.length), style: context.text.meta),
+                    onTap: () => Navigator.pop(sheetContext, row),
+                  ),
+                ),
+              ),
             );
           },
         ),

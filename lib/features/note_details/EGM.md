@@ -131,3 +131,7 @@ Edit's policy-only changes participate in the dirty guard. Attachment replacemen
 ## Ordering & IA (redesign phase 4)
 
 `NoteDetailsScreen` exposes a visible `note-edit` pill button (`SolidSurface` + `Icons.edit_outlined` + `edit` label, >= 48×48 dp target, `edit` semantics) in the top header row beside `options`, pushing `/note/<id>/edit` directly without opening the options sheet. While `_moving` is true, `note-edit` dims to 0.4 opacity and ignores taps alongside `options`. `_openingEdit` guards it from the tap until the editor closes, so a double tap opens one editor. The `Edit` row in `options` remains as a secondary path.
+
+## Finishing (redesign phase 8)
+
+`note_details_body.dart` marks the note title and `topicsHeader` with `Semantics(header: true)`; `edit_note_screen.dart` marks `editNote` with `Semantics(header: true)`; `_InlineAction` (`note_link_row.dart`) uses `minHeight: 36` + `Flexible` label so large text grows cleanly without overflowing.

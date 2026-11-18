@@ -47,3 +47,7 @@ measureLargeLibrary is the exact diagnostic body called by links_index_test. It 
 ## Motion & delight (redesign phase 7)
 
 `fikraTest` accepts optional `glassPreview` (enabling `glassPreviewEnabledProvider`), `saveScreenshot` accepts optional `settle` (`Duration`, default 400 ms; `Duration.zero` captures mid-animation frames), and `RecordingFake` accepts optional `amplitudeSequence` for deterministic live waveform tests and screenshots.
+
+## Finishing (redesign phase 8)
+
+`fikraTest` accepts optional `double? textScale` (setting `tester.platformDispatcher.textScaleFactorTestValue` and clearing it in `addTearDown`). `a11y_fixture.dart` provides `seedA11yApp` and `visitAllMainScreensAndSheets`, shared across `phase8_accessibility_test.dart`, `phase8_large_text_test.dart` and `screenshots/phase8_finishing_test.dart`.

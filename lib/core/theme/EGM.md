@@ -40,7 +40,8 @@ and lerp, including material alphas.
 
 `test/pearl_contrast_test.dart` implements the spec's exact WCAG method: composite
 sRGB, round channels to 8-bit, linearise at .04045, compare at normal-text AA
-4.5:1 (3:1 non-text for the group markers on surface and canvas). It checks all reading fills, 90% glass over black/white, status pairs,
+4.5:1 (3:1 non-text for the group markers on surface and canvas). It checks all reading fills, 90% glass over black/white, glass sheet and toast text/icons across solid and frosted backdrops (including scrimmed sheets and opaque `SolidSurface` danger options), status pairs,
 canvas and conservative overlapping blooms, and 1001 Add-gradient positions. PearlGradientAngle preserves physical CSS angles
 for non-square capsules; an explicit geometry test covers 125/135/145 degrees.
+`fikra_theme.dart` configures `snackBarTheme` (`colors.surface`, `StadiumBorder`, `insetPadding: EdgeInsets.fromLTRB(16, 5, 16, 12)`) for floating toast capsules.
 Run `flutter analyze` and the tests outside the socket-restricted sandbox.

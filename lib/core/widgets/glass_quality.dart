@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'glass_power.dart';
@@ -47,3 +48,10 @@ final glassTierProvider = Provider.family<GlassTier, bool>((ref, disableAnimatio
   if (!kReleaseMode) cap(ref.watch(glassTierOverrideProvider) ?? GlassTier.optical);
   return tier;
 });
+
+/// Resolves the active [GlassTier] for [context], forcing [GlassTier.solid]
+/// when the platform requests high contrast or reduced transparency.
+GlassTier effectiveGlassTier(BuildContext context, WidgetRef ref) {
+  if (MediaQuery.maybeHighContrastOf(context) ?? false) return GlassTier.solid;
+  return ref.watch(glassTierProvider(MediaQuery.maybeDisableAnimationsOf(context) ?? false));
+}

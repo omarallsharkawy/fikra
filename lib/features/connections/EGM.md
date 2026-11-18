@@ -101,3 +101,9 @@ profile workload is wired through glass_perf_scenario and is not run here.
 
 - `LinksLibraryScreen` owns per-segment `StaggerController`s (`_browseStagger`, `_suggestionsStagger`) so at most 8 visible Browse or Suggestions cards fade/rise on a visible first load or visible project switch (`onProjectChanged`), and keys `LibraryControls` and `LibraryChips` by `project.id` so count rolls (`SegmentedPill` Suggestions count and group/topic `ChoiceTag` counts) occur only within the visible project.
 - `BrowseNoteCard` passes `CardOrigin` (`FikraRadius.md`) to `/links/note/:id`, and `NoteConnectionsScreen`'s `connections-note` passes `(note, origin)` to `/note/:id`.
+
+## Finishing (redesign phase 8)
+
+- `LinksLibraryScreen` assigns `OrdinalSortKey(0)` to `LibraryControls` and `OrdinalSortKey(1)` to the `IndexedStack` so TalkBack traverses search/sort/segments before list items.
+- `LibraryControls` gives `links-search` vertical padding (`14`) for a >= 48 dp tap target and scales `controlHeight` with `textScaler` so `extent` clears large text.
+- `LibraryChips` uses `Wrap` + `Semantics(header: true)` for section headings; `NoteConnectionsScreen` marks its title and section headings with `Semantics(header: true)`.

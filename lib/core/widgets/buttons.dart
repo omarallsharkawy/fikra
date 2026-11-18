@@ -79,7 +79,7 @@ class FikraButton extends StatelessWidget {
             label,
             style: text.copyWith(color: fg),
             overflow: growForText ? TextOverflow.visible : TextOverflow.ellipsis,
-            maxLines: maxLines,
+            maxLines: growForText ? maxLines : (maxLines ?? 1),
             textAlign: TextAlign.center,
           ),
         ),
@@ -91,10 +91,9 @@ class FikraButton extends StatelessWidget {
         onTap: enabled ? onPressed : null,
         semanticLabel: label,
         child: Container(
-          height: growForText ? null : FikraSpace.button,
-          constraints: growForText ? const BoxConstraints(minHeight: FikraSpace.button) : null,
+          constraints: const BoxConstraints(minHeight: FikraSpace.button),
           width: expand ? double.infinity : null,
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 0),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 6),
           decoration: BoxDecoration(
             gradient: gradient,
             color: color,

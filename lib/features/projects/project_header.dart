@@ -212,7 +212,7 @@ class ProjectHeader extends ConsumerWidget {
           final settingsWidth = showLabels ? labelledSettingsWidth : unlabelledSettingsWidth;
           final actionWidth = showLabels ? labelledActionWidth : unlabelledActionWidth;
           final chipWidth = constraints.maxWidth - leadingWidth - titleWidth - titleGap - settingsWidth - actionWidth;
-          final text = Text(title, style: titleStyle, maxLines: 1, softWrap: false);
+          final text = Semantics(header: true, child: Text(title, style: titleStyle, maxLines: 1, softWrap: false));
           final heading = leading == null
               ? text
               : Row(

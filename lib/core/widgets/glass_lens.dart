@@ -19,7 +19,7 @@ class GlassLens extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tier = ref.watch(glassTierProvider(MediaQuery.disableAnimationsOf(context)));
+    final tier = effectiveGlassTier(context, ref);
     if (tier != GlassTier.optical) {
       // Overlapping lenses must not share the bar's backdrop key.
       return Opacity(

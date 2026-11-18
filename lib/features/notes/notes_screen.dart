@@ -336,9 +336,12 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
                           if (n == null) {
                             return Padding(
                               padding: const EdgeInsets.only(top: 10, bottom: 10),
-                              child: Text(
-                                row.header!,
-                                style: context.text.section.copyWith(color: context.colors.textSecondary),
+                              child: Semantics(
+                                header: true,
+                                child: Text(
+                                  row.header!,
+                                  style: context.text.section.copyWith(color: context.colors.textSecondary),
+                                ),
                               ),
                             );
                           }

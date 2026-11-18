@@ -34,9 +34,13 @@ class LibraryChips extends ConsumerWidget {
       if (index.topicCounts.isNotEmpty) ...[
         Padding(
           padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 12, FikraSpace.screen, 4),
-          child: Row(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 2,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Expanded(child: Text(context.l10n.topicsHeader, style: context.text.section)),
+              Semantics(header: true, child: Text(context.l10n.topicsHeader, style: context.text.section)),
               Text(context.l10n.linksSuggestedForYou, style: context.text.meta),
             ],
           ),
@@ -69,6 +73,6 @@ class LibraryChips extends ConsumerWidget {
 
   Widget _heading(BuildContext context, String title) => Padding(
     padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 12, FikraSpace.screen, 4),
-    child: Text(title, style: context.text.section),
+    child: Semantics(header: true, child: Text(title, style: context.text.section)),
   );
 }

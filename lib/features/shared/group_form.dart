@@ -172,7 +172,7 @@ class GroupColorPicker extends StatelessWidget {
                   height: 34,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: groupColor(context, c),
+                    color: groupColor(context, c) ?? context.colors.chip,
                     border: Border.all(
                       color: c == selected ? context.colors.textPrimary : context.colors.line,
                       width: c == selected ? 2.5 : 1,

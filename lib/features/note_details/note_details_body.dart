@@ -15,7 +15,10 @@ class _Body extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
       children: [
-        Text(noteTitle(context, note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+        Semantics(
+          header: true,
+          child: Text(noteTitle(context, note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+        ),
         const SizedBox(height: 6),
         Row(
           children: [
@@ -88,7 +91,10 @@ class _Body extends ConsumerWidget {
         ],
         if (note.conceptList.isNotEmpty) ...[
           const SizedBox(height: 24),
-          Text(context.l10n.topicsHeader, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+          Semantics(
+            header: true,
+            child: Text(context.l10n.topicsHeader, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+          ),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [for (final c in note.conceptList) FikraChip(label: c)]),
         ],

@@ -53,3 +53,7 @@ The complete chat/composer column consumes NavigationInset.of(context), keeping 
 ## Ordering & IA (redesign phase 4)
 
 When chat entries exist, `AskScreen` renders `ask-clear-chat` via `HeaderActionButton` (visible caption `clear`, semantic label `clearChatA11y`, disabled while `_thinking`).
+
+## Finishing (redesign phase 8)
+
+`AskScreen` wraps `notFoundInNotes` in `Flexible` and sizes `_SourceRow`'s index badge with `minWidth/minHeight: 22` so large text wraps and grows cleanly at 2.0× scale.

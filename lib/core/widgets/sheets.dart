@@ -6,6 +6,7 @@ import '../motion/motion.dart';
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
+import 'glass.dart';
 import 'solid_surface.dart';
 
 /// Bottom sheet shell: top radius 38, handle, title, fit to content.
@@ -36,33 +37,21 @@ Future<T?> showFikraSheet<T>(
           ),
     builder: (context) {
       final head = [
-        Center(
-          child: Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(color: context.colors.borderGraph, borderRadius: BorderRadius.circular(2)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(title, style: context.text.cardTitle),
-        const SizedBox(height: 16),
-      ];
-      Widget shell(Widget content, {double? height, double safeBottom = 0}) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-        child: Container(
-          height: height,
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
-            border: Border(
-              top: BorderSide(color: context.colors.line, width: FikraSpace.hairline),
+        ExcludeSemantics(
+          child: Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: context.colors.borderGraph, borderRadius: BorderRadius.circular(2)),
             ),
           ),
-          padding: EdgeInsets.fromLTRB(22, 12, 22, 28 + safeBottom),
-          // The route's own Material is transparent and sits under this opaque
-          // fill, so rows (ListTile, InkWell) need a Material above it for ink.
-          child: Material(type: MaterialType.transparency, child: content),
         ),
+        const SizedBox(height: 16),
+        Semantics(header: true, child: Text(title, style: context.text.cardTitle)),
+        const SizedBox(height: 16),
+      ];
+      Widget shell(Widget content, {double? height, double safeBottom = 0}) => _SheetKeyboardInset(
+        child: _SheetSurface(height: height, padding: EdgeInsets.fromLTRB(22, 12, 22, 28 + safeBottom), child: content),
       );
       if (!tall) {
         return shell(
@@ -99,6 +88,72 @@ Future<T?> showFikraSheet<T>(
   );
 }
 
+class _SheetKeyboardInset extends StatelessWidget {
+  const _SheetKeyboardInset({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: child,
+    );
+  }
+}
+
+class _SheetSurface extends StatefulWidget {
+  const _SheetSurface({required this.padding, required this.child, this.height});
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+  final double? height;
+
+  @override
+  State<_SheetSurface> createState() => _SheetSurfaceState();
+}
+
+class _SheetSurfaceState extends State<_SheetSurface> {
+  Animation<double>? _animation;
+  bool _offscreen = false;
+
+  void _onAnimation() {
+    final next = (_animation?.value ?? 1) <= 0;
+    if (next != _offscreen && mounted) setState(() => _offscreen = next);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final animation = ModalRoute.of(context)?.animation;
+    if (!identical(animation, _animation)) {
+      _animation?.removeListener(_onAnimation);
+      _animation = animation;
+      _offscreen = (animation?.value ?? 1) <= 0;
+      animation?.addListener(_onAnimation);
+    }
+  }
+
+  @override
+  void dispose() {
+    _animation?.removeListener(_onAnimation);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget surface = Glass(
+      radius: FikraRadius.xxl,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
+      padding: widget.padding,
+      blurEnabled: !_offscreen,
+      // The route's own Material is transparent and sits under this fill,
+      // so rows (ListTile, InkWell) need a Material above it for ink.
+      child: Material(type: MaterialType.transparency, child: widget.child),
+    );
+    if (widget.height != null) surface = SizedBox(height: widget.height, child: surface);
+    return surface;
+  }
+}
+
 /// Option row used inside sheets (rename, delete, …).
 class SheetOption extends StatelessWidget {
   const SheetOption({
@@ -108,6 +163,7 @@ class SheetOption extends StatelessWidget {
     required this.onTap,
     this.danger = false,
     this.selected,
+    this.enabled = true,
   });
   final String label;
   final IconData icon;
@@ -116,29 +172,32 @@ class SheetOption extends StatelessWidget {
 
   /// Set for single-choice lists, so TalkBack reads the current option as selected.
   final bool? selected;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final fg = danger ? context.colors.danger : context.colors.textPrimary;
+    final row = Row(
+      children: [
+        Icon(icon, color: fg, size: 20),
+        const SizedBox(width: 12),
+        // A long label (or large text) wraps instead of overflowing.
+        Flexible(
+          child: Text(label, style: context.text.section.copyWith(color: fg)),
+        ),
+      ],
+    );
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Pressable(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         pressedScale: 0.98,
         selected: selected,
+        semanticLabel: enabled ? null : label,
         child: SolidSurface(
           radius: FikraRadius.md,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Row(
-            children: [
-              Icon(icon, color: fg, size: 20),
-              const SizedBox(width: 12),
-              // A long label (or large text) wraps instead of overflowing.
-              Flexible(
-                child: Text(label, style: context.text.section.copyWith(color: fg)),
-              ),
-            ],
-          ),
+          child: enabled ? row : Opacity(opacity: 0.4, child: row),
         ),
       ),
     );

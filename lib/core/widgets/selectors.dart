@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -20,8 +22,8 @@ class FikraChip extends StatelessWidget {
       selected: onTap == null ? null : selected,
       minTarget: onTap != null,
       child: Container(
-        height: onTap == null ? 30 : 36,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        constraints: BoxConstraints(minHeight: onTap == null ? 30 : 36),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: selected ? context.colors.selected : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
@@ -29,6 +31,7 @@ class FikraChip extends StatelessWidget {
         ),
         child: Center(
           widthFactor: 1,
+          heightFactor: 1,
           child: Text(
             label,
             style: context.text.chip.copyWith(color: selected ? context.colors.accent : context.colors.textPrimary),
@@ -40,7 +43,7 @@ class FikraChip extends StatelessWidget {
 }
 
 /// Segmented control: the selected pill slides with the smooth spring
-/// (instantly under Remove animations). Each segment is a 48 dp target.
+/// (instantly under Remove animations). Each segment is at least a 48 dp target.
 class SegmentedPill extends StatefulWidget {
   const SegmentedPill({
     super.key,
@@ -49,7 +52,7 @@ class SegmentedPill extends StatefulWidget {
     required this.onChanged,
     this.semanticLabels,
     this.segmentKeys,
-    this.height = Pressable.minTargetSize + 10,
+    this.height,
   });
   final List<String> options;
   final int selected;
@@ -59,8 +62,9 @@ class SegmentedPill extends StatefulWidget {
   final List<String>? semanticLabels;
   final List<Key>? segmentKeys;
 
-  /// Callers that scale with the text size pass a taller height.
-  final double height;
+  /// Fixed outer height when a floating dock reserves an exact extent; when
+  /// omitted, defaults to 58 dp at 1.0x and grows up to two lines at large text.
+  final double? height;
 
   @override
   State<SegmentedPill> createState() => _SegmentedPillState();
@@ -89,15 +93,21 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final fixedHeight = widget.height;
     return SolidSurface(
       radius: FikraRadius.full,
       padding: const EdgeInsets.all(4),
-      height: widget.height,
+      height: fixedHeight,
       child: LayoutBuilder(
         builder: (context, c) {
           final w = c.maxWidth / widget.options.length;
           final rtl = Directionality.of(context) == TextDirection.rtl;
-          return Stack(
+          final textScaler = MediaQuery.textScalerOf(context);
+          final canWrap = fixedHeight == null && textScaler.scale(1.0) > 1.0;
+          final horizontalPad = canWrap ? 4.0 : 8.0;
+          final maxLines = canWrap ? 2 : 1;
+
+          Widget stack = Stack(
             children: [
               AnimatedBuilder(
                 animation: _c,
@@ -110,7 +120,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: context.colors.selected,
-                      borderRadius: BorderRadius.all(Radius.circular(FikraRadius.full)),
+                      borderRadius: const BorderRadius.all(Radius.circular(FikraRadius.full)),
                     ),
                   ),
                 ),
@@ -133,10 +143,11 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                               child: ExcludeSemantics(
                                 excluding: widget.semanticLabels != null,
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding: EdgeInsets.symmetric(horizontal: horizontalPad),
                                   child: RollingText(
                                     widget.options[i],
-                                    maxLines: 1,
+                                    textAlign: canWrap ? TextAlign.center : null,
+                                    maxLines: maxLines,
                                     overflow: TextOverflow.ellipsis,
                                     // Follows the pill, so a label is never light-on-light mid-slide.
                                     style: context.text.chip.copyWith(
@@ -158,6 +169,29 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
               ),
             ],
           );
+
+          if (fixedHeight != null) return stack;
+          final minInner = math.max(Pressable.minTargetSize, Pressable.minTargetSize + 2 - 2 * FikraSpace.hairline);
+          var innerHeight = minInner;
+          if (canWrap) {
+            final labelStyle = DefaultTextStyle.of(context).style.merge(context.text.chip);
+            final locale = Localizations.maybeLocaleOf(context);
+            final maxTextWidth = math.max(0.0, w - horizontalPad * 2);
+            for (final opt in widget.options) {
+              final painter = TextPainter(
+                text: TextSpan(text: opt, style: labelStyle),
+                textAlign: TextAlign.center,
+                textDirection: Directionality.of(context),
+                textScaler: textScaler,
+                locale: locale,
+                maxLines: 2,
+                ellipsis: '…',
+              )..layout(maxWidth: maxTextWidth);
+              innerHeight = math.max(innerHeight, painter.height.ceilToDouble() + 12);
+              painter.dispose();
+            }
+          }
+          return SizedBox(height: innerHeight, child: stack);
         },
       ),
     );

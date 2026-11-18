@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/fikra_widgets.dart';
 import '../../data/groups_repository.dart';
 import '../../data/local/database.dart';
 
@@ -81,9 +82,7 @@ Map<String, int> groupNoteCounts(Iterable<Note> notes) {
 Future<bool> runGroupAction(BuildContext context, Future<void> Function() action, {String? success}) async {
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.maybeOf(context);
-  void toast(String m) => messenger
-    ?..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(m), duration: const Duration(seconds: 3)));
+  void toast(String m) => showMessengerToast(messenger, m, measureContext: context.mounted ? context : null);
   try {
     await action();
     if (success != null) toast(success);

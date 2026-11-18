@@ -58,6 +58,7 @@ void fikraTest(
   Object? tags,
   GlassTier? glassTier,
   bool glassPreview = false,
+  double? textScale,
   Brightness brightness = Brightness.dark,
   FileOpener? opener,
   Locale locale = const Locale('ar'),
@@ -88,6 +89,10 @@ void fikraTest(
     addTearDown(tester.platformDispatcher.clearLocaleTestValue);
     tester.platformDispatcher.platformBrightnessTestValue = brightness;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    if (textScale != null) {
+      tester.platformDispatcher.textScaleFactorTestValue = textScale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    }
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     await initializeDateFormatting();
     mockAudioPlayers(events: audioEvents, pause: pauseAudio);

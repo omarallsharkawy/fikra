@@ -72,3 +72,4 @@ The lazy list adds NavigationInset.of(context) to its existing 24 dp bottom padd
 ## Motion & delight (redesign phase 7)
 
 - `NotesScreen` staggers at most the first 8 visible `NoteCard`s on a visible first load or visible project switch via `StaggerController` + `StaggeredEntry`, and opens `/note/${n.id}` with `extra: (n, origin)` from `NoteCard.onOpenWithOrigin` (`CardOrigin` with `FikraRadius.lg`) outside selection mode (`NoteCard` requires exactly one of `onTap` or `onOpenWithOrigin`).
+- Phase 8: day section headings on `NotesScreen` are marked `Semantics(header: true)`.

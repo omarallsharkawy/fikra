@@ -27,7 +27,7 @@ class LibraryControls extends StatefulWidget {
   final LinksSort sort;
   final ValueChanged<LinksSort> onSort;
 
-  static double controlHeight(BuildContext context) => math.max(52, MediaQuery.textScalerOf(context).scale(20) + 28);
+  static double controlHeight(BuildContext context) => math.max(52, MediaQuery.textScalerOf(context).scale(24) + 28);
   static double segmentHeight(BuildContext context) =>
       math.max(Pressable.minTargetSize + 10, MediaQuery.textScalerOf(context).scale(20) + 36);
   static double extent(BuildContext context) => controlHeight(context) + segmentHeight(context) + 20;
@@ -82,6 +82,7 @@ class _LibraryControlsState extends State<LibraryControls> {
                         hintStyle: context.text.field.copyWith(color: context.colors.textSecondary),
                         border: InputBorder.none,
                         isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),

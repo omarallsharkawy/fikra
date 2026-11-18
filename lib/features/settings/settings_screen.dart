@@ -28,16 +28,13 @@ class SettingsScreen extends ConsumerWidget {
     if (!ok || !context.mounted) return;
     // With no projects left, the router sends the user to the welcome screen.
     final messenger = ScaffoldMessenger.of(context);
-    void toast(String m) => messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(m)));
     try {
       await ref.read(settingsRepoProvider).wipeAllData();
-      toast(l10n.eraseAllDone);
+      showMessengerToast(messenger, l10n.eraseAllDone);
     } on WipeFilesException {
-      toast(l10n.eraseAllPartial);
+      showMessengerToast(messenger, l10n.eraseAllPartial);
     } catch (_) {
-      toast(l10n.eraseAllFailed);
+      showMessengerToast(messenger, l10n.eraseAllFailed);
     }
   }
 
@@ -75,7 +72,10 @@ class SettingsScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
               children: [
-                Text(context.l10n.settingsTitle, style: t.title.copyWith(fontWeight: FontWeight.w700)),
+                Semantics(
+                  header: true,
+                  child: Text(context.l10n.settingsTitle, style: t.title.copyWith(fontWeight: FontWeight.w700)),
+                ),
                 section(context.l10n.appearance),
                 SegmentedPill(
                   options: [context.l10n.themeSystem, context.l10n.themeLight, context.l10n.themeDark],

@@ -14,6 +14,7 @@ class RollingText extends StatefulWidget {
     this.text, {
     super.key,
     this.style,
+    this.textAlign,
     this.maxLines,
     this.overflow,
     this.textScaler,
@@ -22,6 +23,7 @@ class RollingText extends StatefulWidget {
 
   final String text;
   final TextStyle? style;
+  final TextAlign? textAlign;
   final int? maxLines;
   final TextOverflow? overflow;
   final TextScaler? textScaler;
@@ -124,6 +126,7 @@ class _RollingTextState extends State<RollingText> with SingleTickerProviderStat
       final text = Text(
         widget.text,
         style: widget.style,
+        textAlign: widget.textAlign,
         maxLines: widget.maxLines,
         overflow: widget.overflow,
         textScaler: widget.textScaler,

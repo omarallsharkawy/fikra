@@ -120,3 +120,8 @@ GroupFilterRow adds optional `counts` (displayed beside group names) and `clearS
 - `inline_recorder.dart`: wraps the recording dot in `RecordingPulse` and drives `recording-waveform` (`RepaintBoundary` + `CustomPaint`) via an optional `levelUpdates` `Listenable` and a 90 ms (`FikraMotion.waveformStep`) smoothing `AnimationController`, so amplitude samples repaint only the waveform without rebuilding the parent screen. Updates `_from`/`_to` without `setState` when `TickerMode` is disabled or Reduce Motion is on.
 - `attachment_editor.dart`, `attachment_voice.dart`, `attachment_toolbar.dart`, `save_tick_button.dart`: `AttachmentEditing` exposes `levelUpdates` (`90 ms` amplitude listener) and `isAddComposer`, updates `RecordingActivity` live/elapsed state once per second, wraps `add-stop` in `RecordingPulse` (`add-stop-pulse`), and renders `add-save` via `SaveTickButton` (`Icons.check_rounded` at rest) + `@visibleForTesting` `SaveTickMark` in `save_tick_button.dart`.
 - `group_form.dart` & `project_picker.dart`: `ChoiceTag` and `ProjectRow` render labels/counts with `RollingText`.
+
+## Finishing (redesign phase 8)
+
+- `note_groups.dart` (`runGroupAction`), `note_link_actions.dart` and `selection_actions.dart`: group writes and undo failure messages use `showMessengerToast` so every toast renders as the floating glass capsule.
+- `group_form.dart` & `group_options.dart`: `GroupColorPicker`'s "no colour" swatch fills with opaque `colors.chip`, and `_Disabled` passes `SheetOption(enabled: false)` so disabled option rows stay opaque over glass sheets.

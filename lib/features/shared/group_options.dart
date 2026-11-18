@@ -65,6 +65,7 @@ Future<void> showGroupOptions(BuildContext context, WidgetRef ref, NoteGroup gro
                   key: const ValueKey('group-nest'),
                   label: l10n.putInGroup,
                   icon: Icons.drive_folder_upload_outlined,
+                  enabled: false,
                   onTap: () {},
                 ),
               )
@@ -175,7 +176,7 @@ class _Disabled extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          IgnorePointer(child: Opacity(opacity: 0.4, child: child)),
+          IgnorePointer(child: child),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 18, 10),
             child: ExcludeSemantics(

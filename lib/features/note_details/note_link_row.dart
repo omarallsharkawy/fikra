@@ -165,8 +165,8 @@ class _InlineAction extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Container(
-            height: 36,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            constraints: const BoxConstraints(minHeight: 36),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             decoration: BoxDecoration(
               color: context.colors.chip,
               borderRadius: BorderRadius.circular(FikraRadius.full),
@@ -177,7 +177,9 @@ class _InlineAction extends StatelessWidget {
               children: [
                 Icon(icon, size: 18, color: fg),
                 const SizedBox(width: 6),
-                Text(label, style: context.text.chip.copyWith(color: fg)),
+                Flexible(
+                  child: Text(label, style: context.text.chip.copyWith(color: fg)),
+                ),
               ],
             ),
           ),

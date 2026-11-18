@@ -52,12 +52,10 @@ ThemeData buildFikraTheme(Brightness brightness) {
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: colors.chip,
+      backgroundColor: colors.surface,
       contentTextStyle: text.body,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(FikraRadius.md),
-        side: BorderSide(color: colors.line, width: FikraSpace.hairline),
-      ),
+      insetPadding: const EdgeInsets.fromLTRB(16, 5, 16, 12),
+      shape: const StadiumBorder(),
     ),
     dialogTheme: const DialogThemeData(backgroundColor: Colors.transparent, elevation: 0),
     bottomSheetTheme: BottomSheetThemeData(
