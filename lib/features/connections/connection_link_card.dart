@@ -26,7 +26,7 @@ class ConnectionLinkCard extends StatelessWidget {
         children: [
           Expanded(
             child: Pressable(
-              onTap: () => openConnections(context, entry.other.id),
+              onTap: () => openConnections(context, entry.other.id, initial: projectNote(entry.other)),
               onLongPress: onOptions,
               child: Padding(
                 padding: const EdgeInsets.all(16),

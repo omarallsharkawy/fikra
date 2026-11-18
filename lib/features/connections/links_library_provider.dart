@@ -7,7 +7,7 @@ import '../shared/note_groups.dart';
 import 'links_index.dart';
 
 /// The per-note half, rebuilt only when the notes list emits. Link writes
-/// (accept, reject, analysis) reuse it, so their re-derive stays inline.
+/// (accept, reject, analysis) reuse it across background pair derivations.
 final libraryNotesProvider = FutureProvider.autoDispose.family<LibraryNotes, String>((ref, projectId) async {
   final notes = ref.watch(notesOfProjectProvider(projectId));
   final notesFuture = ref.watch(notesOfProjectProvider(projectId).future);
@@ -38,9 +38,9 @@ final linksLibraryProvider = FutureProvider.autoDispose.family<LinksIndex, Strin
   ]);
   final allLinks = loaded[1] as List<NoteLink>;
   final allGroups = loaded[2] as List<NoteGroup>;
-  return deriveLinksIndex(
-    loaded[0] as LibraryNotes,
-    [
+  final input = (
+    notes: loaded[0] as LibraryNotes,
+    links: [
       for (final l in allLinks)
         (
           id: l.id,
@@ -54,9 +54,13 @@ final linksLibraryProvider = FutureProvider.autoDispose.family<LinksIndex, Strin
           createdAt: l.createdAt,
         ),
     ],
-    [for (final g in allGroups) (id: g.id, projectId: g.projectId, parentId: g.parentId)],
-    source: allLinks,
+    groups: [for (final g in allGroups) (id: g.id, projectId: g.projectId, parentId: g.parentId)],
   );
+  final index = input.notes.byId.length >= 1000
+      ? await compute(_deriveIndex, input, debugLabel: 'links-library-pairs')
+      : _deriveIndex(input);
+  index.attachLinksSource(allLinks);
+  return index;
 });
 
 LibraryNote projectNote(Note n) => (
@@ -69,3 +73,6 @@ LibraryNote projectNote(Note n) => (
   topic: n.cluster,
   createdAt: n.createdAt,
 );
+
+typedef _IndexInput = ({LibraryNotes notes, List<LibraryLink> links, List<LibraryGroup> groups});
+LinksIndex _deriveIndex(_IndexInput input) => deriveLinksIndex(input.notes, input.links, input.groups);

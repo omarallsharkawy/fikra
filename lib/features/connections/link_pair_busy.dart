@@ -65,7 +65,7 @@ class LinkPairBusy extends Notifier<Map<String, bool>> {
         if (e.value.project == project && state[e.key] == true) e,
     ];
     if (finished.isEmpty) return;
-    final live = {for (final s in index.suggestions) pairKey(s.a.id, s.b.id)};
+    final live = index.suggestionPairs;
     for (final e in finished) {
       if (!live.contains(e.value.pair) || !identical(index.linksSource, e.value.stale)) _remove(e.key);
     }

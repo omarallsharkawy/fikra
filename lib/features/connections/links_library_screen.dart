@@ -18,6 +18,7 @@ import 'library_chips.dart';
 import 'library_controls.dart';
 import 'links_index.dart';
 import 'links_library_provider.dart';
+import 'note_connections_provider.dart';
 import 'suggestion_sliver.dart';
 
 class LinksLibraryScreen extends ConsumerStatefulWidget {
@@ -98,6 +99,8 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
       _suggestionsStagger.onProjectChanged(next?.id, tickerEnabled: _tickerEnabled);
     });
     if (project == null) return const SizedBox.shrink();
+    // Warm shared adjacency before a tap; completion does not rebuild the library.
+    ref.listen(connectionsIndexProvider(project.id), (_, _) {});
     final state = _projects.putIfAbsent(project.id, _ProjectView.new);
     final source = ref.watch(linksLibraryProvider(project.id));
     final liveGroups = ref.watch(groupsOfProjectProvider(project.id));

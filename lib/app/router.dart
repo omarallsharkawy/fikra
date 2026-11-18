@@ -12,6 +12,7 @@ import '../features/ask/ask_screen.dart';
 import '../features/links/links_screen.dart';
 import '../features/connections/links_library_screen.dart';
 import '../features/connections/note_connections_screen.dart';
+import '../features/connections/links_index.dart';
 import '../features/note_details/edit_note_screen.dart';
 import '../features/note_details/note_details_screen.dart';
 import '../features/note_details/pdf_viewer_screen.dart';
@@ -99,11 +100,19 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'graph', pageBuilder: (_, s) => _pushed(s, const LinksScreen())),
                   GoRoute(
                     path: 'note/:id',
-                    pageBuilder: (_, s) => _pushed(
-                      s,
-                      NoteConnectionsScreen(noteId: s.pathParameters['id']!),
-                      origin: s.extra is CardOrigin ? s.extra as CardOrigin : null,
-                    ),
+                    pageBuilder: (_, s) {
+                      final id = s.pathParameters['id']!;
+                      final (initial, origin) = switch (s.extra) {
+                        (final LibraryNote? n, final CardOrigin? o) => (n?.id == id ? n : null, o),
+                        final CardOrigin o => (null, o),
+                        _ => (null, null),
+                      };
+                      return _pushed(
+                        s,
+                        NoteConnectionsScreen(noteId: id, initial: initial),
+                        origin: origin,
+                      );
+                    },
                   ),
                 ],
               ),

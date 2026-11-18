@@ -10,8 +10,8 @@ import '../../l10n/localizations.dart';
 import '../shared/note_presentation.dart';
 import 'links_index.dart';
 
-void openConnections(BuildContext context, String id, {CardOrigin? origin}) =>
-    context.push('/links/note/$id', extra: origin);
+void openConnections(BuildContext context, String id, {LibraryNote? initial, CardOrigin? origin}) =>
+    context.push('/links/note/$id', extra: (initial, origin));
 
 class LibraryNoteText extends StatelessWidget {
   const LibraryNoteText({super.key, required this.note, this.lines = 1});
@@ -46,6 +46,7 @@ class BrowseNoteCard extends StatelessWidget {
         onTap: () => openConnections(
           cardContext,
           entry.note.id,
+          initial: entry.note,
           origin: CardOrigin.fromContext(cardContext, borderRadius: FikraRadius.md),
         ),
         pressedScale: .98,

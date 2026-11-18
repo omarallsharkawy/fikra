@@ -24,7 +24,7 @@ topic counts count only ungrouped confirmed-linked notes with nonblank clusters.
 
 `libraryNotesProvider(project)` runs the per-note half only when the notes list
 emits (compute for >=1,000 notes). `linksLibraryProvider(project)` watches it,
-links and groups, and runs the links half inline, so an accept/reject reuses the
+links and groups, and runs the links half off the UI isolate for large projects, so an accept/reject reuses the
 note half. It shares its snapshot with pushed connections pages and records the
 stored links list as `linksSource`. Host diagnostic at 5,000 notes / 9,998 rows:
 notes half ~19 ms, links half ~20 ms cold and ~8 ms median on a link write,
@@ -68,8 +68,7 @@ the combined search/chip. Search never derives source data or starts an isolate.
   an empty quoted query, on both segments.
 - Connections shows the source note, confirmed entries (shared linksOfNote),
   this note's suggestions (minus pairs already confirmed, since the links stream
-  can lead the derived index) and shared link picker. Both lists are memoized
-  by source identity. The page's own note in a suggestion is not a link. Confirmed options/long press
+  can lead the derived index) and shared link picker. Both lists use the shared project adjacency and per-note suggestion indexes. The page's own note in a suggestion is not a link. Confirmed options/long press
   delegate to showLinkOptions, retaining edit/removal and failure semantics.
   Its source card opens full details; other rows push another connections page.
   A missing/moved note pops only its current route; invalid background pages
@@ -100,10 +99,17 @@ profile workload is wired through glass_perf_scenario and is not run here.
 ## Motion & delight (redesign phase 7)
 
 - `LinksLibraryScreen` owns per-segment `StaggerController`s (`_browseStagger`, `_suggestionsStagger`) so at most 8 visible Browse or Suggestions cards fade/rise on a visible first load or visible project switch (`onProjectChanged`), and keys `LibraryControls` and `LibraryChips` by `project.id` so count rolls (`SegmentedPill` Suggestions count and group/topic `ChoiceTag` counts) occur only within the visible project.
-- `BrowseNoteCard` passes `CardOrigin` (`FikraRadius.md`) to `/links/note/:id`, and `NoteConnectionsScreen`'s `connections-note` passes `(note, origin)` to `/note/:id`.
+- `BrowseNoteCard` passes `(LibraryNote, CardOrigin)` (`FikraRadius.md`) to `/links/note/:id`, and `NoteConnectionsScreen`'s `connections-note` passes `(note, origin)` to `/note/:id`.
 
 ## Finishing (redesign phase 8)
 
 - `LinksLibraryScreen` assigns `OrdinalSortKey(0)` to `LibraryControls` and `OrdinalSortKey(1)` to the `IndexedStack` so TalkBack traverses search/sort/segments before list items.
 - `LibraryControls` gives `links-search` vertical padding (`14`) for a >= 48 dp tap target and scales `controlHeight` with `textScaler` so `extent` clears large text.
 - `LibraryChips` uses `Wrap` + `Semantics(header: true)` for section headings; `NoteConnectionsScreen` marks its title and section headings with `Semantics(header: true)`.
+
+## Push and suggestion performance
+
+- `connectionsIndexProvider(project)` maps stored notes and confirmed adjacency once per source emission, off the UI isolate for large projects. The library warms it without rebuilding on completion; the cached index survives consecutive opens. `noteConnectionsProvider(noteId)` selects that adjacency and `LinksIndex.suggestionsByNote`, excluding confirmed pairs while the derived snapshot catches up. Two pushed pages share the project work.
+- Connections paints its own opaque PearlCanvas within the existing shell insets. ID-validated previews populate a reserved title/two-line body area immediately; live notes replace them. Static title and section shapes cover cold entry. Section snapshots stay fixed until the route entrance completes. NavigationInset remains the scroll clearance.
+- Large-project pair derivation uses `compute`; the returned index is reattached to the original links-list identity for stale-lock release. Suggestion pair sets and per-note lookups are cached in the index.
+- SuggestionSliver caches pair keys, child widgets and child indices. Claim-only busy changes reach cards, not the list. Successful locks start one incremental collapse; new source snapshots retain unchanged row widgets, removal order and Undo behavior. Lock release checks cached live-pair membership before restoring a row, so stale parent entries cannot restart its collapse timer.

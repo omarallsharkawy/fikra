@@ -60,7 +60,7 @@ class _SuggestionCardState extends ConsumerState<SuggestionCard> {
             for (final n in [e.a, e.b])
               Pressable(
                 key: ValueKey('suggestion-note-${e.link.id}-${n.id}'),
-                onTap: n.id == widget.here ? null : () => openConnections(context, n.id),
+                onTap: n.id == widget.here ? null : () => openConnections(context, n.id, initial: n),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: LibraryNoteText(note: n),

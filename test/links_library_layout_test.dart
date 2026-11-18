@@ -90,7 +90,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final stable = tester.state(find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'cd'));
+      final stableFinder = find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'cd');
+      final stable = tester.state(stableFinder);
+      final stableWidget = tester.widget(stableFinder);
       entries.value = [b];
       await tester.pump();
       if (reduced) {
@@ -108,10 +110,47 @@ void main() {
         await tester.pump(const Duration(milliseconds: 120));
         expect(find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'ab'), findsNothing);
       }
-      expect(tester.state(find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'cd')), same(stable));
+      expect(tester.state(stableFinder), same(stable));
+      expect(tester.widget(stableFinder), same(stableWidget), reason: 'unrelated rows do not rebuild');
       await tester.pumpWidget(const SizedBox());
     });
   }
+
+  testWidgets('fresh snapshot unlock with stale parent entries keeps the original collapse deadline', (tester) async {
+    final a = suggestion('ab', 'a', 'b'), b = suggestion('cd', 'c', 'd');
+    LinksIndex snapshot(bool removed) => deriveLinks('p', [a.a, a.b, b.a, b.b], [if (!removed) a.link, b.link], []);
+    var next = Completer<LinksIndex>()..complete(snapshot(false));
+    await host(
+      tester,
+      CustomScrollView(
+        slivers: [
+          SuggestionSliver(entries: [a, b]),
+        ],
+      ),
+      overrides: [linksLibraryProvider('p').overrideWith((ref) => next.future)],
+    );
+    final container = ProviderScope.containerOf(tester.element(find.byType(SuggestionSliver)));
+    final source = container.listen(linksLibraryProvider('p'), (_, _) {});
+    addTearDown(source.close);
+    await tester.pump();
+    final guard = container.read(linkPairBusyProvider.notifier);
+    guard.claim('p:a|b', project: 'p', pair: 'a|b');
+    guard.finish('p:a|b', success: true);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 110));
+    next = Completer<LinksIndex>()..complete(snapshot(true));
+    container.invalidate(linksLibraryProvider('p'));
+    await tester.pump();
+    await tester.pump();
+    expect(container.read(linkPairBusyProvider), isEmpty);
+    // Parent deliberately retains its pre-write list while the lock releases.
+    final leaving = find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'ab');
+    final fade = find.ancestor(of: leaving, matching: find.byType(FadeTransition));
+    expect(tester.widget<FadeTransition>(fade).opacity.value, lessThan(1));
+    await tester.pump(const Duration(milliseconds: 120));
+    expect(leaving, findsNothing, reason: 'unlock must not restart or cancel the original collapse');
+    await tester.pumpWidget(const SizedBox());
+  });
 
   for (final locked in [false, true]) {
     testWidgets('two removals within 220 ms keep the first row in place (${locked ? 'accept lock' : 'new list'})', (

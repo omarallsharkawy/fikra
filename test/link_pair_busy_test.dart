@@ -27,12 +27,19 @@ void main() {
     addTearDown(busy.close);
     next.complete(live);
     await container.read(linksLibraryProvider('p').future);
+    var completions = 0;
+    final completed = container.listen(linkPairBusyProvider.select((pairs) => pairs['p:a|b'] == true), (_, _) {
+      completions++;
+    });
+    addTearDown(completed.close);
     final guard = container.read(linkPairBusyProvider.notifier);
     expect(guard.claim('p:a|b', project: 'p', pair: 'a|b'), isTrue);
+    expect(completions, 0, reason: 'a claim alone must not notify removal listeners');
     guard.finish('p:a|b', success: false);
     expect(container.read(linkPairBusyProvider), isEmpty);
     expect(guard.claim('p:a|b', project: 'p', pair: 'a|b'), isTrue);
     guard.finish('p:a|b', success: true);
+    expect(completions, 1);
     // Success marks the pair done at once, so lists start collapsing it.
     expect(container.read(linkPairBusyProvider), {'p:a|b': true});
     expect(guard.claim('p:a|b', project: 'p', pair: 'a|b'), isFalse);
