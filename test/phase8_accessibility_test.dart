@@ -76,9 +76,8 @@ void main() {
                     ? const <String>{}
                     : brightness == Brightness.light
                     ? switch (screenName) {
-                        'notes_list' || 'add_typed' => {l.settings},
-                        'links_browse' || 'links_suggestions' => {l.settings, l.linksSuggestedForYou},
-                        'ask_answer' => {l.settings, l.askDemoBadge},
+                        'links_browse' || 'links_suggestions' => {l.linksSuggestedForYou},
+                        'ask_answer' => {l.askDemoBadge},
                         'voice_text_settings' => {l.vtExperimental},
                         _ => const <String>{},
                       }
@@ -201,11 +200,11 @@ void main() {
             expect(askIdx, greaterThan(linksIdx));
             expect(addIdx, greaterThan(askIdx));
 
-            // Header controls in RTL follow right-to-left visual order: project pill -> Settings.
-            final pillIdx = ordered.indexOf(l.projectPillA11y(data.project.name));
+            // Header controls in RTL follow top-to-bottom, right-to-left visual order: Settings (row 1) -> project pill (row 2).
             final settingsIdx = ordered.indexOf(l.settings);
-            expect(pillIdx, greaterThanOrEqualTo(0));
-            expect(settingsIdx, greaterThan(pillIdx));
+            final pillIdx = ordered.indexOf(l.projectPillA11y(data.project.name));
+            expect(settingsIdx, greaterThanOrEqualTo(0));
+            expect(pillIdx, greaterThan(settingsIdx));
           }
 
           // Links Browse: LibraryControls (search/sort/segments) precede list cards in traversal order.

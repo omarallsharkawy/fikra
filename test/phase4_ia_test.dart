@@ -696,74 +696,85 @@ void main() {
         await pumpUntil(tester, find.text('Seed'));
         await tester.pump(const Duration(milliseconds: 400));
 
-        void checkHeaderControl(Finder finder, {required String visibleCaption, required String a11y}) {
+        void checkHeaderControl(Finder finder, {required String visibleLabel, required String a11y}) {
           expect(finder, findsOneWidget);
-          expect(find.descendant(of: finder, matching: find.text(visibleCaption)), findsOneWidget);
+          final labelFinder = find.descendant(of: finder, matching: find.text(visibleLabel));
+          final iconFinder = find.descendant(of: finder, matching: find.byType(Icon));
+          final surfaceFinder = find.descendant(of: finder, matching: find.byType(SolidSurface));
+          expect(labelFinder, findsOneWidget);
+          expect(iconFinder, findsOneWidget);
+          expect(surfaceFinder, findsOneWidget);
+          expect(
+            (tester.getCenter(iconFinder).dy - tester.getCenter(labelFinder).dy).abs(),
+            lessThan(2),
+            reason: '$visibleLabel must sit horizontally beside its icon',
+          );
+          expect(tester.getSize(surfaceFinder).height, greaterThanOrEqualTo(Pressable.minTargetSize));
           final size = tester.getSize(finder);
           expect(size.width, greaterThanOrEqualTo(Pressable.minTargetSize));
           expect(size.height, greaterThanOrEqualTo(Pressable.minTargetSize));
           expect(tester.getSemantics(finder).label, a11y);
         }
 
-        // Notes header: Settings labelled.
+        // Notes header: Settings pill.
         checkHeaderControl(
           find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
+          visibleLabel: l.settings,
           a11y: l.settings,
         );
 
-        // Add header: Settings labelled.
+        // Add header: Settings pill.
         await tester.tap(Tabs.addButton);
         await tester.pump(const Duration(milliseconds: 400));
         checkHeaderControl(
           find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
+          visibleLabel: l.settings,
           a11y: l.settings,
         );
 
-        // Links library header: Graph + Settings labelled.
+        // Links library header: Graph + Settings pills.
         await tester.tap(Tabs.finder(Tabs.links));
         await tester.pump(const Duration(milliseconds: 400));
         checkHeaderControl(
           find.byKey(const ValueKey('links-open-graph')).hitTestable(),
-          visibleCaption: l.headerGraph,
+          visibleLabel: l.headerGraph,
           a11y: l.linksOpenGraph,
         );
         checkHeaderControl(
           find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
+          visibleLabel: l.settings,
           a11y: l.settings,
         );
 
-        // Graph header: Search + Settings labelled.
+        // Graph header: Search + Settings pills.
         await tester.tap(find.byKey(const ValueKey('links-open-graph')).hitTestable());
         await pumpUntil(tester, find.byKey(const ValueKey('graph-search-open')));
         await tester.pump(const Duration(milliseconds: 500));
         checkHeaderControl(
           find.byKey(const ValueKey('graph-search-open')).hitTestable(),
-          visibleCaption: l.headerSearch,
+          visibleLabel: l.headerSearch,
           a11y: l.graphSearchHint,
         );
         checkHeaderControl(
           find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
+          visibleLabel: l.settings,
           a11y: l.settings,
         );
         tester.element(find.byKey(const ValueKey('graph-search-open')).hitTestable()).pop();
         await tester.pump(const Duration(milliseconds: 400));
 
-        // Ask header: Clear + Settings labelled.
+        // Ask header: Clear + Settings pills.
         await tester.tap(Tabs.finder(Tabs.ask));
         await pumpUntil(tester, find.text('Hello'));
         await tester.pump(const Duration(milliseconds: 400));
         checkHeaderControl(
           find.byKey(const ValueKey('ask-clear-chat')).hitTestable(),
-          visibleCaption: l.clear,
+          visibleLabel: l.clear,
           a11y: l.clearChatA11y,
         );
         checkHeaderControl(
           find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
+          visibleLabel: l.settings,
           a11y: l.settings,
         );
       }),
@@ -815,6 +826,12 @@ void main() {
         expect(find.descendant(of: settingsBtn, matching: find.text(l.settings)), findsNothing);
         expect(tester.getSize(graphBtn).width, greaterThanOrEqualTo(Pressable.minTargetSize));
         expect(tester.getSize(settingsBtn).width, greaterThanOrEqualTo(Pressable.minTargetSize));
+        expect(tester.getSize(find.descendant(of: graphBtn, matching: find.byType(SolidSurface))), const Size(48, 48));
+        expect(
+          tester.getSize(find.descendant(of: settingsBtn, matching: find.byType(SolidSurface))),
+          const Size(48, 48),
+        );
+        expect(tester.widget<Icon>(find.descendant(of: settingsBtn, matching: find.byType(Icon))).size, 24);
         expect(tester.getSemantics(graphBtn).label, l.linksOpenGraph);
         expect(tester.getSemantics(settingsBtn).label, l.settings);
       }),

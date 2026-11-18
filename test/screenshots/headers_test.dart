@@ -27,5 +27,23 @@ void main() {
         }
       }
     });
+
+    testWidgets('notes header light ($language)', (tester) async {
+      addTearDown(tester.view.reset);
+      final locale = Locale(language);
+      final l10n = lookupAppLocalizations(locale);
+      final header = (title: l10n.notesTitle, action: false);
+      await pumpProjectHeaders(
+        tester,
+        locale: locale,
+        brightness: Brightness.light,
+        headers: [header],
+        width: 390,
+        height: 180,
+        scale: 1.0,
+      );
+      expectHeaderLayout(tester, header, l10n, 390, 1.0);
+      await saveScreenshot(tester, 'headers/$language/notes_light');
+    });
   }
 }
