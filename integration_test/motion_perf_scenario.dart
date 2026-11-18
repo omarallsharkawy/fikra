@@ -54,7 +54,6 @@ Future<Map<String, Object>> runMotionPerformance(
     }
   });
 
-  addTearDown(() => container.read(navBarShrinkEnabledProvider.notifier).setEnabled(false));
   container.read(navBarShrinkEnabledProvider.notifier).setEnabled(true);
   try {
     position.jumpTo(0);

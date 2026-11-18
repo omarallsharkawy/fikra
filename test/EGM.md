@@ -130,10 +130,13 @@ The real runner previously reported 589 passing and five failures in the partial
 
 ## Floating navigation (redesign phase 2)
 
-floating_navigation_test covers immediate down visibility, ordered live changes
+floating_navigation_test covers zero-lens quick taps and reselection, 200 ms (`kLensHoldDelay`)
+hold visibility, immediate slide-before-200ms lens engagement, ordered live changes
 and exact selectionClick calls, shared/independent backdrop keys, end clamping,
-no extra branch-child builds, spring/release,
-pointer cancel and vertical leave/reentry, quick taps/reselection, reduced motion,
+no extra branch-child builds, immediate release fade alongside spring settle (stopping hidden
+animations within 150 ms), hold-timer cancellation (release, cancel, vertical escape,
+external index change, keyboard open, dispose), fresh drag threshold on a second press
+after drag cancellation while the original finger stays down, vertical leave/reentry, reduced motion,
 TalkBack activation/selection, keyboard hiding, RTL/LTR placement and 3× text.
 floating_shell_test covers a complete last Notes card above controls/safe area,
 a real details widget pushed on Notes’ branch navigator plus scroll preservation,

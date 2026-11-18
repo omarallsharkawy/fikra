@@ -34,4 +34,4 @@ The same FIKRA_GLASS_PERF drive runs links_perf_scenario once per tier: six Brow
 
 ## Motion workloads (redesign phase 7)
 
-`motion_perf_scenario.dart` (`runMotionPerformance`, called per tier from `glass_perf_scenario.dart` under `'motion'`) measures two traced workloads with `glassFrameReport` (`build` and `raster` `p50/p90/p95/p99` plus budget exceedances): `note_open` (six container-transform card opens from `NotesScreen` and back pops) and `scroll_shrink_bar` (six 2-second alternating scroll sweeps with `navBarShrinkEnabledProvider` enabled and restored in `finally`/`addTearDown`). Do not run on-device from the sandbox.
+`motion_perf_scenario.dart` (`runMotionPerformance`, called per tier from `glass_perf_scenario.dart` under `'motion'`) measures two traced workloads with `glassFrameReport` (`build` and `raster` `p50/p90/p95/p99` plus budget exceedances): `note_open` (six container-transform card opens from `NotesScreen` and back pops) and `scroll_shrink_bar` (six 2-second alternating scroll sweeps with `navBarShrinkEnabledProvider` enabled and restored in `finally`). Do not run on-device from the sandbox.

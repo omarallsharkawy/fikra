@@ -11,28 +11,38 @@ The shell positions it 12 dp above the bottom safe area. Labels reuse navNotes,
 navLinks, navAsk and navAdd. RTL places Notes rightmost and Add left of the bar.
 
 `sliding_tab_bar.dart` owns the gesture and capsule. A scoped
-HorizontalDragGestureRecognizer uses normal Flutter horizontal slop with
-DragStartBehavior.down. A Listener starts the lens and selects on pointer-down
-without waiting for the recognizer. Raw moves update the lens and check vertical
-leave; accepted horizontal updates change tabs. Leaving more than 60 dp above or
-below the 72 dp bar cancels for the rest of that pointer. Pointer cancel, release,
-and keyboard opening settle to the current selection. Only the owning pointer
-can end the gesture. A tap on the current tab requests initialLocation; traversing
-back to it never resets its stack. A generation counter prevents interrupted
-spring completion from fading a newly pressed lens.
+`_OwnedHorizontalDragRecognizer` (`HorizontalDragGestureRecognizer` subclass that
+ignores pointers while `!enabled` or another pointer owns the bar) uses normal
+Flutter horizontal slop with `DragStartBehavior.down` and
+`onlyAcceptDragOnThreshold = true`. A Listener selects on pointer-down and starts
+a `kLensHoldDelay` (200 ms) timer without showing the lens; plain taps keep lens
+opacity at 0 throughout and after. The lens engages either when the 200 ms hold
+timer fires or as soon as horizontal drag is accepted. Raw moves check vertical
+leave and update the lens once engaged; accepted horizontal updates change tabs.
+Leaving more than 60 dp above or below the bar cancels for the rest of that
+pointer. Pointer cancel, release, external index changes, keyboard disable
+(`!enabled`), and dispose cancel any pending hold timer (guarded by a generation
+counter) and settle when the lens is visible; `_finish()` rejects the active
+pointer on the drag recognizer so a new press while an old cancelled finger is
+still down must cross its own horizontal slop or wait 200 ms. Only the owning
+pointer can end the gesture. A tap on the current tab requests initialLocation;
+traversing back to it never resets its stack.
 
 The lens is 88 dp tall and one tab plus 20 dp wide; its centre is clamped to tab
 centres at the ends (5 dp shape overhang outside the bar). An unbounded animation
-controller drives a Transform, never shell setState. The hover ValueNotifier only
-changes at tab boundaries. A separate 140 ms pulse controller fades the lens into
-the opaque selected pill after a mass-1 / stiffness-420 / damping-24 spring.
+controller drives a Transform, never shell setState. The hover ValueNotifier is
+set only while the lens is engaged and changes at tab boundaries. On release
+after an engaged lens, the 140 ms pulse controller starts fading the lens into
+the opaque selected pill right away, alongside the mass-1 / stiffness-420 /
+damping-24 spring settle, and stops the position controller as soon as the fade
+is dismissed (~140 ms). Plain taps start neither controller.
 Reduce Motion removes the spring and icon scale, retaining pointer tracking/fade.
 Only changed tab indices navigate and call HapticFeedback.selectionClick.
 The background and label row have RepaintBoundaries; child branch navigators
 never listen to either controller. The existing branch veil is unchanged.
 
 `tab_label.dart` supplies button/selected/label/tap Semantics, keyboard activation,
-and the accent icon (1.13 scale while held). Visible labels stay one line with
+and the accent icon (1.13 scale while the lens is held over that tab). Visible labels stay one line with
 ellipsis and cap text scaling at 1.4 to preserve the minimum 48 dp touch targets.
 TalkBack uses its own tap callback and never needs to slide.
 
@@ -41,8 +51,8 @@ native shader opacity preserves refraction during release; no Opacity encloses
 the optical lens. The overlapping fallback has its own backdrop key, separate
 from the non-overlapping bar/Add shared key. The bar/Add key is one static
 `BackdropKey`, so it stays stable across rebuilds and does not repaint both glass
-layers on every tab switch. The lens settles with a pixel-level spring tolerance
-(about 0.4 s) and follows only the first finger; a tab change made elsewhere ends
+layers on every tab switch. The lens settles alongside the 140 ms release fade
+and follows only the first finger; a tab change made elsewhere ends
 the press or retargets the settle.
 
 Verification: floating_navigation_test.dart, floating_shell_test.dart, the

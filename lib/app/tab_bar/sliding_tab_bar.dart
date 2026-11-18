@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,9 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/glass_lens.dart';
 import 'tab_label.dart';
+
+/// Hold duration before a stationary press engages the floating glass lens.
+const kLensHoldDelay = Duration(milliseconds: 200);
 
 /// Pointer tracking is confined to this box. Only the lens listens to its
 /// pixel-position controller; branch navigators never listen to pointer moves.
@@ -38,15 +42,16 @@ class FikraNavBar extends StatefulWidget {
 class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin {
   static const _spring = SpringDescription(mass: 1, stiffness: 420, damping: 24);
 
-  /// About one device pixel. The default 0.001 px tolerance keeps this
-  /// underdamped spring (decay 12/s) ticking, and the lens's backdrop pass
-  /// alive, for ~1.2 s after release; this ends it at ~0.45 s.
+  /// About one device pixel. Ends the underdamped spring promptly alongside the
+  /// release fade rather than ticking at sub-pixel deltas.
   static const _tolerance = Tolerance(distance: .3, velocity: 6);
   late final _x = AnimationController.unbounded(vsync: this);
   late final _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 140));
   final _hover = ValueNotifier<int?>(null);
+  Timer? _holdTimer;
   int? _pointer;
   double _pointerX = 0;
+  _OwnedHorizontalDragRecognizer? _drag;
 
   /// The drag recognizer holds the arena. It reports only the latest finger,
   /// so it gates switching while positions come from the tracked pointer.
@@ -58,6 +63,7 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
   double get _tabWidth => (_width - 10) / widget.items.length;
   double _centre(int i) => 5 + (_rtl ? widget.items.length - 1 - i : i) * _tabWidth + _tabWidth / 2;
+  double _clampX(double x) => x.clamp(5 + _tabWidth / 2, _width - 5 - _tabWidth / 2);
   int _hit(double x) {
     final physical = ((x - 5) / _tabWidth).floor().clamp(0, widget.items.length - 1);
     return _rtl ? widget.items.length - 1 - physical : physical;
@@ -67,6 +73,9 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   void initState() {
     super.initState();
     _selected = widget.index;
+    _pulse.addStatusListener((status) {
+      if (status == AnimationStatus.dismissed) _x.stop();
+    });
   }
 
   @override
@@ -78,9 +87,23 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
     _selected = widget.index;
     if (_pointer != null) {
       if (external || !widget.enabled || widget.index < 0) _finish();
-    } else if (external && _x.isAnimating) {
+    } else if (external && (_x.isAnimating || _pulse.isAnimating)) {
       _settle();
     }
+  }
+
+  void _cancelHold() {
+    _holdTimer?.cancel();
+    _holdTimer = null;
+  }
+
+  void _engageLens({required bool centerOnTab}) {
+    if (_pointer == null) return;
+    _cancelHold();
+    final i = centerOnTab && _selected >= 0 ? _selected : _hit(_pointerX);
+    _x.value = centerOnTab ? _centre(i) : _clampX(_pointerX);
+    _hover.value = i;
+    _pulse.value = 1;
   }
 
   void _choose(int index) {
@@ -92,18 +115,24 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   }
 
   void _down(PointerDownEvent event) {
-    if (_pointer != null) return;
+    if (_pointer != null || !widget.enabled) return;
     _generation++;
+    _cancelHold();
     _pointer = event.pointer;
+    _dragging = false;
     _changed = false;
     _x.stop();
-    _pulse.stop();
+    if (_pulse.value != 0 || _pulse.isAnimating) _pulse.reset();
     _pointerX = event.localPosition.dx;
     final i = _hit(_pointerX);
     _x.value = _centre(i);
-    _hover.value = i;
-    _pulse.value = 1; // visible on the very first frame after pointer-down
     _choose(i);
+    if (_pointer == null) return;
+    final generation = _generation;
+    _holdTimer = Timer(kLensHoldDelay, () {
+      if (!mounted || _pointer == null || generation != _generation) return;
+      _engageLens(centerOnTab: true);
+    });
   }
 
   double _effectiveShrink(BuildContext context) =>
@@ -120,15 +149,18 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
       return;
     }
     _pointerX = p.dx;
-    _x.value = p.dx.clamp(5 + _tabWidth / 2, _width - 5 - _tabWidth / 2);
+    if (_pulse.value == 0) return;
+    _x.value = _clampX(p.dx);
     final i = _hit(p.dx);
     _hover.value = i;
     if (_dragging) _choose(i);
   }
 
-  void _dragStart(DragStartDetails _) {
+  void _activateDrag() {
+    if (_pointer == null) return;
     _dragging = true;
-    if (_pointer != null) _choose(_hit(_pointerX));
+    _engageLens(centerOnTab: false);
+    _choose(_hit(_pointerX));
   }
 
   void _up(PointerUpEvent event) {
@@ -138,30 +170,38 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   }
 
   void _finish() {
-    if (_pointer == null) return;
+    final pointer = _pointer;
+    if (pointer == null) return;
+    _cancelHold();
+    _generation++;
     _pointer = null;
+    _dragging = false;
     _hover.value = null;
+    // Drop recognizer tracking/accepted state so a new finger while the old
+    // one stays down must still cross its own horizontal slop or wait 200 ms.
+    _drag?.rejectGesture(pointer);
     _settle();
   }
 
   void _settle() {
-    final generation = ++_generation;
+    if (_pulse.value == 0) {
+      _x.stop();
+      return;
+    }
     final target = _selected < 0 ? _x.value : _centre(_selected);
     if (FikraMotion.reduced(context)) {
       _x.value = target;
-      _pulse.reverse();
     } else {
-      _x
-          .animateWith(SpringSimulation(_spring, _x.value, target, _x.velocity, tolerance: _tolerance, snapToEnd: true))
-          .whenCompleteOrCancel(() {
-            if (mounted && generation == _generation) _pulse.reverse();
-          });
+      _x.animateWith(SpringSimulation(_spring, _x.value, target, _x.velocity, tolerance: _tolerance, snapToEnd: true));
     }
+    _pulse.reverse();
   }
 
   @override
   void dispose() {
+    _cancelHold();
     _generation++;
+    _drag = null;
     _hover.dispose();
     _x.dispose();
     _pulse.dispose();
@@ -216,7 +256,7 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
                     width: w + 20,
                     height: lensHeight,
                     child: Transform.translate(
-                      offset: Offset(_x.value.clamp(5 + w / 2, _width - 5 - w / 2) - (w + 20) / 2, 0),
+                      offset: Offset(_clampX(_x.value) - (w + 20) / 2, 0),
                       child: IgnorePointer(
                         child: ExcludeSemantics(
                           child: SizedBox(key: const ValueKey('nav-lens'), child: lens),
@@ -270,13 +310,18 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
         child: RawGestureDetector(
           behavior: HitTestBehavior.opaque,
           gestures: {
-            HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
-              HorizontalDragGestureRecognizer.new,
-              (recognizer) => recognizer
-                ..dragStartBehavior = DragStartBehavior.down
-                ..onStart = _dragStart
-                ..onEnd = ((_) => _dragging = false)
-                ..onCancel = (() => _dragging = false),
+            _OwnedHorizontalDragRecognizer: GestureRecognizerFactoryWithHandlers<_OwnedHorizontalDragRecognizer>(
+              () => _OwnedHorizontalDragRecognizer(
+                (pointer) => widget.enabled && (_pointer == null || _pointer == pointer),
+              ),
+              (recognizer) {
+                _drag = recognizer
+                  ..dragStartBehavior = DragStartBehavior.down
+                  ..onlyAcceptDragOnThreshold = true
+                  ..onStart = ((_) => _activateDrag())
+                  ..onEnd = ((_) => _dragging = false)
+                  ..onCancel = (() => _dragging = false);
+              },
             ),
           },
           child: AnimatedBuilder(
@@ -290,4 +335,14 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
       );
     },
   );
+}
+
+class _OwnedHorizontalDragRecognizer extends HorizontalDragGestureRecognizer {
+  _OwnedHorizontalDragRecognizer(this.ownsPointer);
+  final bool Function(int pointer) ownsPointer;
+
+  @override
+  void addPointer(PointerDownEvent event) {
+    if (ownsPointer(event.pointer)) super.addPointer(event);
+  }
 }
