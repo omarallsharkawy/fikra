@@ -73,3 +73,5 @@ Users can add OpenAI-compatible, Gemini, ElevenLabs or Qwen services and opt in 
 Connections pushes paint Pearl and reserve loading content from their first frame. Project adjacency and per-note suggestions are shared across opens; successful suggestion removals update only that row.
 
 ProjectHeader puts the title and horizontal header action pills (including the 48 dp Settings pill, collapsing to a 48 dp icon-only circle when narrow or at large text scale) on Row 1, and places the project switcher chip on Row 2.
+
+Note-open transforms keep page text at final size and scale 1 inside the morphing clip; source cards fade through a paint-only opacity wrapper. Notes and Links library branch visibility is observed by a small motion leaf, so tab switches do not rebuild either screen.

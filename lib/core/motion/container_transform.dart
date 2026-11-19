@@ -1,9 +1,12 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderOpacity;
 
 import 'motion.dart';
 import 'page_transitions.dart';
+
+part 'container_transform_source.dart';
 
 /// Origin rectangle and live on-screen lookup for a tapped card opening a page.
 class CardOrigin {
@@ -40,6 +43,13 @@ class CardOrigin {
 
   Rect? _rectBeforeOverlayRebuild() =>
       _element != null ? _liveGlobalRect(_element.target, checkTickerMode: false) : currentRect?.call();
+
+  void _fadeSource(double opacity) {
+    final element = _element?.target;
+    if (element == null || !element.mounted) return;
+    final box = element.renderObject;
+    if (box is _CardSource) box.opacity = opacity;
+  }
 
   static Rect? _liveGlobalRect(Element? element, {required bool checkTickerMode}) {
     if (element == null || !element.mounted) return null;
@@ -92,6 +102,12 @@ class _ContainerTransformRoute<T> extends PageRoute<T> {
 
   @override
   bool get maintainState => true;
+
+  @override
+  void dispose() {
+    _page.origin._fadeSource(1);
+    super.dispose();
+  }
 
   @override
   Duration get transitionDuration => FikraMotion.push;
@@ -192,7 +208,6 @@ class _ContainerTransformRoute<T> extends PageRoute<T> {
           var scrimColor = Colors.transparent;
           var containerColor = Colors.transparent;
           var slideOffset = Offset.zero;
-          var scale = 1.0;
           var pageOpacity = 1.0;
           var borderAlpha = 0.0;
 
@@ -216,7 +231,6 @@ class _ContainerTransformRoute<T> extends PageRoute<T> {
             pageOpacity = crossFade.transform(t);
             containerColor = Color.lerp(scheme.surface, theme.scaffoldBackgroundColor, pageOpacity)!;
             scrimColor = scheme.scrim.withValues(alpha: scheme.scrim.a * 0.55 * t);
-            scale = fullSize.width > 0 ? (rect.width / fullSize.width).clamp(0.0, 1.0) : 1.0;
             borderAlpha = t < 0.98 ? (1 - t).clamp(0.0, 1.0) : 0.0;
           } else if (raw < 0.999) {
             final buttonPop = reversing && !gesture;
@@ -232,6 +246,7 @@ class _ContainerTransformRoute<T> extends PageRoute<T> {
           }
 
           final borderRadius = BorderRadius.circular(radius);
+          _page.origin._fadeSource(flying ? 1 - pageOpacity : 1);
           // Keep one stable ancestor tree around pageChild across open, rest,
           // predictive back, non-flying pop and Reduce Motion so the page never
           // reparents or remounts its State.
@@ -258,11 +273,7 @@ class _ContainerTransformRoute<T> extends PageRoute<T> {
                       maxHeight: fullSize.height,
                       child: Transform.translate(
                         offset: slideOffset,
-                        child: Transform.scale(
-                          alignment: Alignment.topCenter,
-                          scale: scale,
-                          child: Opacity(opacity: pageOpacity, child: pageChild),
-                        ),
+                        child: Opacity(opacity: pageOpacity, child: pageChild),
                       ),
                     ),
                   ),

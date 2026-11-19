@@ -187,3 +187,8 @@ Suggestion Undo: links_groups_moves_test (`pair accept/reject Undo` group) resto
 - `links_library_layout_test` checks unchanged row widget identity, State preservation and the original collapse deadline when a fresh snapshot unlocks a pair before parent entries update. `link_pair_busy_test` also checks claim-only changes do not notify completed-pair selectors.
 
 The 5,000-note fixture measured nine unrelated row builds before the change and zero after accept/reject; Undo also retains unrelated rows. Validation completed 759 unit/widget tests and 69 screenshot cases in separate Flutter engine processes. Standard launcher gates are blocked here by localhost socket permissions.
+
+## Note-open and branch performance (P0.1)
+
+- `container_transform_test.dart`: several forward/reverse samples require identity linear transforms and no FittedBox above Arabic page text, final-size content, the existing clip/radius and opacity curves, live-card reverse targeting, and full-rect fade-only Reduce Motion with short pop. Source render opacity fades oppositely, restores on pop/interrupted-push disposal, and stays unchanged under Reduce Motion.
+- `branch_build_test.dart`: Flutter's element build callback counts zero NotesScreen/LinksLibraryScreen builds across repeated real-shell branch switches; Notes, Browse and Suggestions staggers stop offstage and a running stagger stops when Reduce Motion is enabled. Existing selection, first-load/project-switch stagger and route-state preservation tests remain unchanged.
