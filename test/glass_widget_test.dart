@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:fikra/core/theme/fikra_theme.dart';
 import 'package:fikra/core/theme/tokens.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
@@ -61,11 +63,44 @@ void main() {
     await host(tester, const Glass(child: Text('تحكم')), tier: GlassTier.solid);
     expect(find.byType(BackdropFilter), findsNothing);
   });
-  testWidgets('frosted material has exactly one blur', (tester) async {
+  testWidgets('frosted material has exactly one sigma-16 blur and theme backing alpha', (tester) async {
     await host(tester, const Glass(child: Text('تحكم')), tier: GlassTier.frosted);
     expect(find.byType(BackdropFilter), findsOneWidget);
     final filter = tester.widget<BackdropFilter>(find.byType(BackdropFilter));
     expect(filter.enabled, isTrue);
+    expect(filter.filter, ImageFilter.blur(sigmaX: 16, sigmaY: 16));
+    final backing = tester.widget<ColoredBox>(
+      find.descendant(of: find.byType(Glass), matching: find.byType(ColoredBox)).first,
+    );
+    expect(backing.color.a, closeTo(FikraPalette.light.glassBackingAlpha, 1e-6));
+  });
+  testWidgets('dark frosted glass uses 0.72 backing alpha with sigma-16 blur', (tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        glassPowerSaveProvider.overrideWithValue(const AsyncData(false)),
+        glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.read(glassTierOverrideProvider.notifier).force(GlassTier.frosted);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: buildFikraTheme(Brightness.dark),
+          home: const Scaffold(
+            body: Center(child: Glass(child: Text('تحكم'))),
+          ),
+        ),
+      ),
+    );
+    addTearDown(() async => tester.pumpWidget(const SizedBox.shrink()));
+    final filter = tester.widget<BackdropFilter>(find.byType(BackdropFilter));
+    expect(filter.filter, ImageFilter.blur(sigmaX: 16, sigmaY: 16));
+    final backing = tester.widget<ColoredBox>(
+      find.descendant(of: find.byType(Glass), matching: find.byType(ColoredBox)).first,
+    );
+    expect(backing.color.a, closeTo(0.72, 1e-6));
   });
   testWidgets('non-overlapping siblings share a BackdropGroup key', (tester) async {
     await host(
@@ -95,9 +130,9 @@ void main() {
     expect(find.byType(BackdropFilter), findsNothing);
     expect(find.byType(LiquidGlassLens), findsNothing);
   });
-  testWidgets('MediaQuery reduce motion caps optical at frosted', (tester) async {
+  testWidgets('MediaQuery reduce motion forces solid with no backdrop filter', (tester) async {
     await host(tester, const Glass(child: GlassLens(child: Text('تحكم'))), reduced: true);
-    expect(find.byType(BackdropFilter), findsNWidgets(2));
+    expect(find.byType(BackdropFilter), findsNothing);
     expect(find.byType(LiquidGlassLens), findsNothing);
   });
   testWidgets('optical wrapper supplies the Pearl package lens recipe', (tester) async {

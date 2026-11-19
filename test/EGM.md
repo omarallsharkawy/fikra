@@ -187,3 +187,8 @@ Suggestion Undo: links_groups_moves_test (`pair accept/reject Undo` group) resto
 - `links_library_layout_test` checks unchanged row widget identity, State preservation and the original collapse deadline when a fresh snapshot unlocks a pair before parent entries update. `link_pair_busy_test` also checks claim-only changes do not notify completed-pair selectors.
 
 The 5,000-note fixture measured nine unrelated row builds before the change and zero after accept/reject; Undo also retains unrelated rows. Validation completed 759 unit/widget tests and 69 screenshot cases in separate Flutter engine processes. Standard launcher gates are blocked here by localhost socket permissions.
+
+## Phase 0.2 & 0.3 coverage
+
+- `glass_quality_test.dart`, `glass_widget_test.dart`, `floating_navigation_test.dart`, `toast_test.dart`, `pearl_contrast_test.dart`, and `phase8_glass_surfaces_test.dart`: verify Reduce Motion forces `GlassTier.solid`, `+` button / bottom sheets / toasts / `LibraryControls` contain no `BackdropFilter`, and the floating tab bar (and grouped `ActivityCapsule`) retains sigma-16 `BackdropFilter` with 0.90 light / 0.72 dark backing alpha (solid under power save / high contrast / reduce motion).
+- `arabic_normalization_test.dart`: covers `normalizeArabic` (Alef/ة/ى/ؤ/ئ, tashkeel/tatweel, Arabic-Indic digits, Latin case, whitespace, preserved `ال`), `matchesNormalizedArabic` (`ال` tolerance without false matches), Notes search widget flow, `LinksIndex`, and `DemoAiService.ask` (including cache invalidation).

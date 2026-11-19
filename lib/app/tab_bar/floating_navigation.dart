@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../core/motion/motion.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/widgets/glass.dart';
+import '../../core/widgets/glass_edge.dart';
 import '../../l10n/localizations.dart';
 import 'sliding_tab_bar.dart';
 
@@ -30,7 +30,7 @@ class FloatingNavigation extends StatelessWidget {
   static const clearance = height + gap + lensOverhang;
 
   /// BackdropGroup's default key is new per build: every rebuild (each tab
-  /// switch) would update both filters and repaint both glass layers.
+  /// switch) would update both filters and repaint the tab bar and capsule.
   static final _backdropKey = BackdropKey();
 
   @override
@@ -65,24 +65,26 @@ class FloatingNavigation extends StatelessWidget {
             onTap: () => onSelect(0, branch == 0),
             selected: branch == 0,
             semanticLabel: context.l10n.navAdd,
-            child: Glass(
-              padding: EdgeInsets.zero,
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(shape: BoxShape.circle, gradient: context.colors.addGradient),
-                // Selected: an on-accent ring set 4 dp inside the edge, so it reads apart from the glass
-                // rim; an accent ring would vanish into the accent gradient.
-                padding: const EdgeInsets.all(4),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: branch == 0
-                        ? Border.all(color: context.colors.onAccent.withValues(alpha: .9), width: 1.5)
-                        : null,
-                  ),
-                  child: Center(child: Icon(Icons.add_rounded, size: 28, color: context.colors.onAccent)),
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: context.colors.addGradient,
+                border: Border.all(color: context.colors.rim.withValues(alpha: context.colors.rimAlpha), width: 1),
+                boxShadow: glassShadows(context.colors),
+              ),
+              // Selected: an on-accent ring set 4 dp inside the edge, so it reads apart from the rim;
+              // an accent ring would vanish into the accent gradient.
+              padding: const EdgeInsets.all(4),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: branch == 0
+                      ? Border.all(color: context.colors.onAccent.withValues(alpha: .9), width: 1.5)
+                      : null,
                 ),
+                child: Center(child: Icon(Icons.add_rounded, size: 28, color: context.colors.onAccent)),
               ),
             ),
           ),

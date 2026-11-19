@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
-import 'glass.dart';
+import 'glass_edge.dart';
 
 /// How long a toast with an action (Undo) stays: long enough to reach it.
 const toastActionDuration = Duration(seconds: 6);
@@ -27,7 +27,7 @@ void showToast(BuildContext context, String message, {String? actionLabel, VoidC
   );
 }
 
-/// Shows a floating glass toast capsule on a captured [messenger] (for example
+/// Shows a solid floating toast pill on a captured [messenger] (for example
 /// after an async write whose originating page may have closed).
 void showMessengerToast(
   ScaffoldMessengerState? messenger,
@@ -113,9 +113,9 @@ void showMessengerToast(
 /// Toasts shown by [showMessengerToast] so far.
 var _toasts = 0;
 
-/// Floating glass capsule content of a toast. When [leaving] is set, closes
-/// the toast [toastActionDuration] after it was shown, or after the screen
-/// reader was turned off, and never while a screen reader is on.
+/// Solid high-contrast floating pill content of a toast. When [leaving] is set,
+/// closes the toast [toastActionDuration] after it was shown, or after the
+/// screen reader was turned off, and never while a screen reader is on.
 class _ToastCapsule extends StatefulWidget {
   const _ToastCapsule({required this.message, this.actionLabel, this.stacked = false, this.onAction, this.leaving});
   final String message;
@@ -160,12 +160,24 @@ class _ToastCapsuleState extends State<_ToastCapsule> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final light = Theme.of(context).brightness == Brightness.light;
     final actionLabel = widget.actionLabel;
     final onAction = widget.onAction;
 
+    Widget pill({required double radius, required EdgeInsetsGeometry padding, required Widget child}) => DecoratedBox(
+      key: const ValueKey('toast-capsule'),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: light ? c.borderGraph : c.line, width: 1),
+        boxShadow: glassShadows(c),
+      ),
+      child: Padding(padding: padding, child: child),
+    );
+
     if (actionLabel == null || onAction == null) {
-      return Glass(
-        key: const ValueKey('toast-capsule'),
+      return pill(
         radius: FikraRadius.full,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Text(widget.message, style: context.text.body),
@@ -185,13 +197,12 @@ class _ToastCapsuleState extends State<_ToastCapsule> {
       child: SnackBarAction(
         label: actionLabel,
         // The default action colour (inversePrimary) vanishes on the light toast.
-        textColor: context.colors.accent,
+        textColor: c.accent,
         onPressed: onAction,
       ),
     );
 
-    return Glass(
-      key: const ValueKey('toast-capsule'),
+    return pill(
       radius: widget.stacked ? FikraRadius.xl : FikraRadius.full,
       padding: widget.stacked
           ? const EdgeInsets.fromLTRB(18, 10, 10, 4)

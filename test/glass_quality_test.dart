@@ -33,11 +33,9 @@ void main() {
           );
           addTearDown(container.dispose);
           container.read(glassTierOverrideProvider.notifier).force(forced);
-          final expected = powerSave
+          final expected = powerSave || reduced || forced == GlassTier.solid
               ? GlassTier.solid
-              : forced == GlassTier.solid
-              ? GlassTier.solid
-              : reduced || forced == GlassTier.frosted
+              : forced == GlassTier.frosted
               ? GlassTier.frosted
               : GlassTier.optical;
           expect(container.read(glassTierProvider(reduced)), expected);

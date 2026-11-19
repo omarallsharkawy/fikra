@@ -52,8 +52,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
   /// The group filter: a group id (with its sub-groups), or null for all.
   String? _filter;
 
-  // Lower-cased search text per note, rebuilt only when the note changes, so
-  // a keystroke doesn't re-lowercase thousands of notes.
+  // Normalized search text per note, rebuilt only when the note changes, so
+  // a keystroke doesn't re-normalize thousands of notes.
   final _haystacks = <String, (String, String, String, String)>{};
 
   // The filtered + grouped list, recomputed only when the notes, the groups,
@@ -129,7 +129,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
     if (cached != null && cached.$1 == n.title && cached.$2 == n.displayText && cached.$3 == n.concepts) {
       return cached.$4;
     }
-    final h = '${n.title}\n${n.displayText}\n${n.concepts}'.toLowerCase();
+    final h = normalizeArabic('${n.title}\n${n.displayText}\n${n.concepts}');
     _haystacks[n.id] = (n.title, n.displayText, n.concepts, h);
     return h;
   }
@@ -155,14 +155,16 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
     _lastDay = today;
     _lastLocale = context.l10n.localeName;
     _groupsById = {for (final g in groups) g.id: g};
-    final q = _query.toLowerCase();
+    final q = normalizeArabic(_query);
     final filter = _filter;
     final inGroup = filter == null ? null : groupWithChildren(groups, filter);
     final filtered = q.isEmpty && inGroup == null
         ? all
         : [
             for (final n in all)
-              if ((inGroup == null || inGroup.contains(n.groupId)) && (q.isEmpty || _haystack(n).contains(q))) n,
+              if ((inGroup == null || inGroup.contains(n.groupId)) &&
+                  (q.isEmpty || matchesNormalizedArabic(_haystack(n), q)))
+                n,
           ];
     // watchNotes orders by createdAt DESC, so oldest-first is that list
     // reversed (ties mirror the newest order, as the former sort did).

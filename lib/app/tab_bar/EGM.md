@@ -49,11 +49,12 @@ TalkBack uses its own tap callback and never needs to slide.
 GlassLens chooses optics or the same capsule with frosted/solid material. Its
 native shader opacity preserves refraction during release; no Opacity encloses
 the optical lens. The overlapping fallback has its own backdrop key, separate
-from the non-overlapping bar/Add shared key. The bar/Add key is one static
-`BackdropKey`, so it stays stable across rebuilds and does not repaint both glass
-layers on every tab switch. The lens settles alongside the 140 ms release fade
-and follows only the first finger; a tab change made elsewhere ends
-the press or retargets the settle.
+from the tab bar and ActivityCapsule shared key. The Add button (`nav-add`) is
+an opaque gradient circle with rim border and `glassShadows` and no `Glass` /
+`BackdropFilter`. The bar/capsule key is one static `BackdropKey`, so it stays
+stable across rebuilds and does not repaint both glass layers on every tab switch.
+The lens settles alongside the 140 ms release fade and follows only the first
+finger; a tab change made elsewhere ends the press or retargets the settle.
 
 Verification: floating_navigation_test.dart, floating_shell_test.dart, the
 floating_navigation screenshot matrix and glass_widget_test.dart. The profile

@@ -1,13 +1,15 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/theme/tokens.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:fikra/core/widgets/glass_power.dart';
 import 'package:fikra/core/widgets/glass_watchdog.dart';
+import 'package:fikra/features/connections/library_controls.dart';
+import 'package:fikra/features/connections/links_index.dart';
 import 'package:fikra/features/notes/notes_screen.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderBackdropFilter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
@@ -37,7 +39,7 @@ void main() {
           glassPowerSaveProvider.overrideWithValue(const AsyncData(false)),
           glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
           glassTierProvider(false).overrideWith((ref) => tier),
-          glassTierProvider(true).overrideWith((ref) => tier == GlassTier.solid ? GlassTier.solid : GlassTier.frosted),
+          glassTierProvider(true).overrideWith((ref) => GlassTier.solid),
         ],
         child: MaterialApp(
           locale: const Locale('ar'),
@@ -56,11 +58,11 @@ void main() {
     addTearDown(() async => tester.pumpWidget(const SizedBox.shrink()));
   }
 
-  group('glass bottom sheets', () {
-    testWidgets('frosted and optical sheets have one sigma-24 blur, opaque inner rows and no optical lens', (
+  group('solid bottom sheets', () {
+    testWidgets('sheets never use BackdropFilter or Glass across every tier and keep opaque inner rows', (
       tester,
     ) async {
-      for (final tier in [GlassTier.frosted, GlassTier.optical]) {
+      for (final tier in GlassTier.values) {
         await pumpHost(
           tester,
           Builder(
@@ -83,16 +85,16 @@ void main() {
         );
         await tester.tap(find.text('open'));
         await tester.pump();
-        // Frame 0: animation is 0.0 (sheet still offscreen), so blur must be disabled.
-        final initialFilters = find.descendant(of: find.byType(BottomSheet), matching: find.byType(BackdropFilter));
-        expect(initialFilters, findsOneWidget);
-        expect(tester.widget<BackdropFilter>(initialFilters).filter, ImageFilter.blur(sigmaX: 24, sigmaY: 24));
-        expect((tester.renderObject(initialFilters) as RenderBackdropFilter).enabled, isFalse);
-
         await tester.pumpAndSettle();
-        expect(tester.renderObject<RenderBackdropFilter>(initialFilters).enabled, isTrue);
-        expect(tester.widget<BackdropFilter>(initialFilters).filter, ImageFilter.blur(sigmaX: 24, sigmaY: 24));
+
+        expect(find.descendant(of: find.byType(BottomSheet), matching: find.byType(BackdropFilter)), findsNothing);
+        expect(find.descendant(of: find.byType(BottomSheet), matching: find.byType(Glass)), findsNothing);
         expect(find.descendant(of: find.byType(BottomSheet), matching: find.byType(LiquidGlassLens)), findsNothing);
+
+        final sheetBox = tester.widget<DecoratedBox>(find.byKey(const ValueKey('sheet-surface')));
+        final sheetDec = sheetBox.decoration as BoxDecoration;
+        expect(sheetDec.color, FikraPalette.light.surface);
+        expect(sheetDec.color!.a, 1.0);
 
         // Content rows and fields inside the sheet stay on opaque SolidSurface.
         final surfaces = tester.widgetList<Container>(
@@ -109,46 +111,13 @@ void main() {
           }
         }
 
-        // Closing removes the sheet and its blur completely.
         await tester.tap(find.text('عدّل'));
         await tester.pumpAndSettle();
         expect(find.byType(BottomSheet), findsNothing);
-        expect(find.byType(BackdropFilter), findsNothing);
       }
     });
 
-    testWidgets('solid tier and highContrast omit sheet BackdropFilter and use opaque surface', (tester) async {
-      for (final (tier, highContrast) in [(GlassTier.solid, false), (GlassTier.frosted, true)]) {
-        await pumpHost(
-          tester,
-          Builder(
-            builder: (context) => TextButton(
-              onPressed: () => showFikraSheet<void>(
-                context,
-                title: 'خيارات',
-                builder: (sheet) => SheetOption(label: 'عدّل', icon: Icons.edit_outlined, onTap: () {}),
-              ),
-              child: const Text('open'),
-            ),
-          ),
-          tier: tier,
-          highContrast: highContrast,
-        );
-        await tester.tap(find.text('open'));
-        await tester.pump();
-        await tester.pumpAndSettle();
-        expect(find.descendant(of: find.byType(BottomSheet), matching: find.byType(BackdropFilter)), findsNothing);
-        final sheetGlass = find.descendant(of: find.byType(BottomSheet), matching: find.byType(Glass));
-        final backing = tester.widget<ColoredBox>(
-          find.descendant(of: sheetGlass, matching: find.byType(ColoredBox)).first,
-        );
-        expect(backing.color.a, 1.0);
-        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
-        await tester.pumpAndSettle();
-      }
-    });
-
-    testWidgets('confirmDestructive dialogs stay solid even at frosted tier', (tester) async {
+    testWidgets('confirmDestructive dialogs stay solid even at optical tier', (tester) async {
       await pumpHost(
         tester,
         Builder(
@@ -157,7 +126,7 @@ void main() {
             child: const Text('ask'),
           ),
         ),
-        tier: GlassTier.frosted,
+        tier: GlassTier.optical,
       );
       await tester.tap(find.text('ask'));
       await tester.pumpAndSettle();
@@ -167,10 +136,30 @@ void main() {
     });
   });
 
-  group('glass toast capsule', () {
-    testWidgets('frosted toast has one sigma-24 blur, solid and highContrast have none, and runAction uses glass', (
-      tester,
-    ) async {
+  group('solid library controls', () {
+    testWidgets('LibraryControls contains no BackdropFilter or Glass even at optical tier', (tester) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await pumpHost(
+        tester,
+        LibraryControls(
+          search: controller,
+          onSearch: (_) {},
+          suggestions: 2,
+          segment: 0,
+          onSegment: (_) {},
+          sort: LinksSort.newest,
+          onSort: (_) {},
+        ),
+        tier: GlassTier.optical,
+      );
+      expect(find.descendant(of: find.byType(LibraryControls), matching: find.byType(BackdropFilter)), findsNothing);
+      expect(find.descendant(of: find.byType(LibraryControls), matching: find.byType(Glass)), findsNothing);
+    });
+  });
+
+  group('solid toast capsule', () {
+    testWidgets('toasts and runAction use a solid opaque pill with no BackdropFilter', (tester) async {
       await pumpHost(
         tester,
         Builder(
@@ -185,35 +174,21 @@ void main() {
             ],
           ),
         ),
-        tier: GlassTier.frosted,
+        tier: GlassTier.optical,
       );
       await tester.tap(find.text('toast'));
       await tester.pumpAndSettle();
       final capsule = find.byKey(const ValueKey('toast-capsule'));
       expect(capsule, findsOneWidget);
-      final toastFilter = find.descendant(of: capsule, matching: find.byType(BackdropFilter));
-      expect(toastFilter, findsOneWidget);
-      expect(tester.widget<BackdropFilter>(toastFilter).filter, ImageFilter.blur(sigmaX: 24, sigmaY: 24));
+      expect(find.descendant(of: capsule, matching: find.byType(BackdropFilter)), findsNothing);
+      expect(find.descendant(of: capsule, matching: find.byType(Glass)), findsNothing);
+      final dec = tester.widget<DecoratedBox>(capsule).decoration as BoxDecoration;
+      expect(dec.color!.a, 1.0);
 
       await tester.tap(find.text('run'));
       await tester.pumpAndSettle();
       expect(find.text('تم'), findsOneWidget);
-      expect(find.descendant(of: capsule, matching: find.byType(BackdropFilter)), findsOneWidget);
-
-      await pumpHost(
-        tester,
-        Builder(
-          builder: (context) => TextButton(onPressed: () => showToast(context, 'اتحفظت'), child: const Text('toast')),
-        ),
-        tier: GlassTier.frosted,
-        highContrast: true,
-      );
-      await tester.tap(find.text('toast'));
-      await tester.pumpAndSettle();
-      expect(
-        find.descendant(of: find.byKey(const ValueKey('toast-capsule')), matching: find.byType(BackdropFilter)),
-        findsNothing,
-      );
+      expect(find.descendant(of: capsule, matching: find.byType(BackdropFilter)), findsNothing);
     });
 
     testWidgets('taps and drags just beside and just below a toast reach the widgets underneath', (tester) async {
@@ -283,7 +258,7 @@ void main() {
     });
 
     fikraTest(
-      'shell toast uses its own single ungrouped blur, clears bar and Add, and rises above open keyboard',
+      'shell toast has no blur, clears bar and Add, rises above open keyboard, while tab bar keeps sigma-16 blur',
       glassTier: GlassTier.frosted,
       (tester, db) async {
         phone(tester);
@@ -305,9 +280,14 @@ void main() {
         expect(toastBottom, lessThan(tester.getTopLeft(find.byKey(const ValueKey('floating-tab-bar'))).dy));
         expect(toastBottom, lessThan(tester.getTopLeft(Tabs.addButton).dy));
 
-        final toastFilter = find.descendant(of: capsule, matching: find.byType(BackdropFilter));
-        expect(toastFilter, findsOneWidget);
-        expect(tester.renderObject<RenderBackdropFilter>(toastFilter).backdropKey, isNull);
+        expect(find.descendant(of: capsule, matching: find.byType(BackdropFilter)), findsNothing);
+        expect(find.descendant(of: Tabs.addButton, matching: find.byType(BackdropFilter)), findsNothing);
+        final barFilter = find.descendant(
+          of: find.byKey(const ValueKey('floating-tab-bar')),
+          matching: find.byType(BackdropFilter),
+        );
+        expect(barFilter, findsOneWidget);
+        expect(tester.widget<BackdropFilter>(barFilter).filter, ImageFilter.blur(sigmaX: 16, sigmaY: 16));
 
         // Open keyboard (300 dp): toast moves above the keyboard.
         tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);

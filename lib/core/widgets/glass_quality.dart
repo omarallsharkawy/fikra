@@ -44,7 +44,7 @@ final glassTierProvider = Provider.family<GlassTier, bool>((ref, disableAnimatio
 
   // Before Android answers, keep the material cheap.
   if (ref.watch(glassPowerSaveProvider).value ?? true) cap(GlassTier.solid);
-  if (disableAnimations) cap(GlassTier.frosted);
+  if (disableAnimations) cap(GlassTier.solid);
   if (!kReleaseMode) cap(ref.watch(glassTierOverrideProvider) ?? GlassTier.optical);
   return tier;
 });

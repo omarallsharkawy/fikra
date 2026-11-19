@@ -55,6 +55,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     required this.lensHighlightAlpha,
     required this.lensInnerAlpha,
     required this.lensShadowAlpha,
+    required this.glassBackingAlpha,
   });
 
   final Color canvas;
@@ -109,8 +110,8 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
   final double lensHighlightAlpha;
   final double lensInnerAlpha;
   final double lensShadowAlpha;
+  final double glassBackingAlpha;
 
-  static const glassBackingAlpha = 0.90;
   static const lensTintAlpha = 0.20;
   static const lensSpectrumGain = 1.15;
 
@@ -172,6 +173,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     lensHighlightAlpha: 0.86,
     lensInnerAlpha: 0.32,
     lensShadowAlpha: 0.12,
+    glassBackingAlpha: 0.90,
   );
 
   static const dark = FikraPalette(
@@ -224,6 +226,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     lensHighlightAlpha: 0.64,
     lensInnerAlpha: 0.16,
     lensShadowAlpha: 0.24,
+    glassBackingAlpha: 0.72,
   );
 
   @override
@@ -277,6 +280,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     double? lensHighlightAlpha,
     double? lensInnerAlpha,
     double? lensShadowAlpha,
+    double? glassBackingAlpha,
   }) => FikraPalette(
     canvas: canvas ?? this.canvas,
     surface: surface ?? this.surface,
@@ -327,6 +331,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     lensHighlightAlpha: lensHighlightAlpha ?? this.lensHighlightAlpha,
     lensInnerAlpha: lensInnerAlpha ?? this.lensInnerAlpha,
     lensShadowAlpha: lensShadowAlpha ?? this.lensShadowAlpha,
+    glassBackingAlpha: glassBackingAlpha ?? this.glassBackingAlpha,
   );
 
   @override
@@ -383,6 +388,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
       lensHighlightAlpha: lensHighlightAlpha + (other.lensHighlightAlpha - lensHighlightAlpha) * t,
       lensInnerAlpha: lensInnerAlpha + (other.lensInnerAlpha - lensInnerAlpha) * t,
       lensShadowAlpha: lensShadowAlpha + (other.lensShadowAlpha - lensShadowAlpha) * t,
+      glassBackingAlpha: glassBackingAlpha + (other.glassBackingAlpha - glassBackingAlpha) * t,
     );
   }
 }

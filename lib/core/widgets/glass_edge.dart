@@ -4,17 +4,16 @@ import '../theme/tokens.dart';
 
 /// Static paint only: no ShaderMask, saveLayer, or animation controller.
 class GlassEdge extends CustomPainter {
-  const GlassEdge(this.colors, this.radius, {this.borderRadius, this.lens = false, this.opacity = 1});
+  const GlassEdge(this.colors, this.radius, {this.lens = false, this.opacity = 1});
   final FikraPalette colors;
   final double radius;
-  final BorderRadius? borderRadius;
   final bool lens;
   final double opacity;
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final outer = borderRadius?.toRRect(rect) ?? RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    final outer = RRect.fromRectAndRadius(rect, Radius.circular(radius));
     final inner = outer.deflate(1);
     final rim = lens ? colors.lensRim : colors.rim;
     final alpha = lens ? colors.lensRimAlpha : colors.rimAlpha;
@@ -84,11 +83,7 @@ class GlassEdge extends CustomPainter {
 
   @override
   bool shouldRepaint(GlassEdge old) =>
-      old.colors != colors ||
-      old.radius != radius ||
-      old.borderRadius != borderRadius ||
-      old.lens != lens ||
-      old.opacity != opacity;
+      old.colors != colors || old.radius != radius || old.lens != lens || old.opacity != opacity;
 }
 
 List<BoxShadow> glassShadows(FikraPalette c, {bool lens = false}) => [
