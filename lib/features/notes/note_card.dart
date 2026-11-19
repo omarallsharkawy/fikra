@@ -46,94 +46,99 @@ class NoteCard extends ConsumerWidget {
     final on = selected ?? false;
     // The thicker border takes its width from the padding, so nothing moves.
     final inset = on ? 2 - FikraSpace.hairline : 0.0;
-    return Pressable(
-      onTap: onOpenWithOrigin == null
-          ? onTap
-          : () => onOpenWithOrigin!(CardOrigin.fromContext(context, borderRadius: FikraRadius.lg)),
-      onLongPress: onLongPress,
-      selected: selected,
-      pressedScale: 0.98,
-      child: SolidSurface(
-        radius: FikraRadius.lg,
-        padding: EdgeInsets.fromLTRB(18 - inset, 16 - inset, 18 - inset, 16 - inset),
-        borderColor: on ? context.colors.accent : null,
-        borderWidth: on ? 2 : FikraSpace.hairline,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                if (selected != null) ...[
-                  Icon(
-                    selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                    key: ValueKey('note-check-${note.id}'),
-                    size: 22,
-                    color: selected ? context.colors.accent : context.colors.textSecondary,
+    return ContainerTransformSource(
+      child: Pressable(
+        onTap: onOpenWithOrigin == null
+            ? onTap
+            : () => onOpenWithOrigin!(CardOrigin.fromContext(context, borderRadius: FikraRadius.lg)),
+        onLongPress: onLongPress,
+        selected: selected,
+        pressedScale: 0.98,
+        child: SolidSurface(
+          radius: FikraRadius.lg,
+          padding: EdgeInsets.fromLTRB(18 - inset, 16 - inset, 18 - inset, 16 - inset),
+          borderColor: on ? context.colors.accent : null,
+          borderWidth: on ? 2 : FikraSpace.hairline,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (selected != null) ...[
+                    Icon(
+                      selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                      key: ValueKey('note-check-${note.id}'),
+                      size: 22,
+                      color: selected ? context.colors.accent : context.colors.textSecondary,
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  for (final item in attachmentIcons(note, attachments)) ...[
+                    Icon(item.icon, size: 18, color: context.colors.textSecondary),
+                    if (item.count > 1) Text(' ${item.count}', style: context.text.meta),
+                    const SizedBox(width: 6),
+                  ],
+                  const SizedBox(width: 2),
+                  Expanded(
+                    child: Text(
+                      noteTitle(context, note),
+                      style: context.text.cardTitleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
+                  Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
                 ],
-                for (final item in attachmentIcons(note, attachments)) ...[
-                  Icon(item.icon, size: 18, color: context.colors.textSecondary),
-                  if (item.count > 1) Text(' ${item.count}', style: context.text.meta),
-                  const SizedBox(width: 6),
-                ],
-                const SizedBox(width: 2),
-                Expanded(
-                  child: Text(
-                    noteTitle(context, note),
-                    style: context.text.cardTitleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
+              ),
+              if (note.displayText.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(note.displayText, style: context.text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
-            ),
-            if (note.displayText.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(note.displayText, style: context.text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
-            ],
-            const SizedBox(height: 10),
-            if (group != null) ...[
-              GroupTag(key: ValueKey('note-group-${note.id}'), group: group),
-              const SizedBox(height: 6),
-            ],
-            if (attachments.any(
-              (a) =>
-                  a.kind == AttachmentKind.voice &&
-                  (a.transcriptionStatus == TranscriptionStatus.queued ||
-                      a.transcriptionStatus == TranscriptionStatus.running),
-            )) ...[
-              FikraBadge(
-                key: ValueKey('transcribing-${note.id}'),
-                kind: BadgeKind.processing,
-                label: context.l10n.trWorking,
+              const SizedBox(height: 10),
+              if (group != null) ...[
+                GroupTag(key: ValueKey('note-group-${note.id}'), group: group),
+                const SizedBox(height: 6),
+              ],
+              if (attachments.any(
+                (a) =>
+                    a.kind == AttachmentKind.voice &&
+                    (a.transcriptionStatus == TranscriptionStatus.queued ||
+                        a.transcriptionStatus == TranscriptionStatus.running),
+              )) ...[
+                FikraBadge(
+                  key: ValueKey('transcribing-${note.id}'),
+                  kind: BadgeKind.processing,
+                  label: context.l10n.trWorking,
+                ),
+                const SizedBox(height: FikraSpace.s8),
+              ],
+              FikraSwitcher(
+                alignment: AlignmentDirectional.topStart,
+                child: KeyedSubtree(
+                  key: ValueKey(note.status),
+                  child: switch (note.status) {
+                    ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing),
+                    ProcessingStatus.failed => FikraBadge(
+                      kind: BadgeKind.failed,
+                      label: context.l10n.noteAnalysisFailed,
+                    ),
+                    ProcessingStatus.ready => Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        if (note.rewrite == RewriteStatus.pending)
+                          FikraBadge(kind: BadgeKind.processing, label: context.l10n.noteRewriteSuggested),
+                        for (final c in concepts.take(3)) _ConceptTag(c),
+                        if (concepts.isEmpty && note.rewrite != RewriteStatus.pending)
+                          FikraBadge(kind: BadgeKind.saved, label: context.l10n.noteSavedBadge),
+                      ],
+                    ),
+                  },
+                ),
               ),
-              const SizedBox(height: FikraSpace.s8),
             ],
-            FikraSwitcher(
-              alignment: AlignmentDirectional.topStart,
-              child: KeyedSubtree(
-                key: ValueKey(note.status),
-                child: switch (note.status) {
-                  ProcessingStatus.processing => const FikraBadge(kind: BadgeKind.processing),
-                  ProcessingStatus.failed => FikraBadge(kind: BadgeKind.failed, label: context.l10n.noteAnalysisFailed),
-                  ProcessingStatus.ready => Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      if (note.rewrite == RewriteStatus.pending)
-                        FikraBadge(kind: BadgeKind.processing, label: context.l10n.noteRewriteSuggested),
-                      for (final c in concepts.take(3)) _ConceptTag(c),
-                      if (concepts.isEmpty && note.rewrite != RewriteStatus.pending)
-                        FikraBadge(kind: BadgeKind.saved, label: context.l10n.noteSavedBadge),
-                    ],
-                  ),
-                },
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

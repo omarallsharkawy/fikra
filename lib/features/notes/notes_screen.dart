@@ -10,6 +10,7 @@ import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/motion.dart';
 import '../../core/motion/stagger.dart';
+import '../../core/motion/stagger_visibility.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -45,7 +46,8 @@ class NotesScreen extends ConsumerStatefulWidget {
 class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProviderStateMixin, _Selection {
   final _search = TextEditingController();
   late final StaggerController _stagger = StaggerController(this);
-  bool _tickerEnabled = true;
+  // Snapshot only: StaggerVisibility owns the inherited visibility dependency.
+  bool get _tickerEnabled => TickerMode.getValuesNotifier(context).value.enabled;
   String _query = '';
   Timer? _debounce;
 
@@ -69,13 +71,6 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
   Map<String, int> _rowOf = const {};
   Map<String, NoteGroup> _groupsById = const {};
   int _matchCount = 0;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _tickerEnabled = TickerMode.valuesOf(context).enabled;
-    _stagger.syncVisibility(tickerEnabled: _tickerEnabled, reduced: FikraMotion.reduced(context));
-  }
 
   @override
   void dispose() {
@@ -214,7 +209,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
       _stagger.maybeStart(
         projectId: project?.id,
         visibleIds: _rows.map((r) => r.note?.id).whereType<String>(),
-        tickerEnabled: TickerMode.valuesOf(context).enabled,
+        tickerEnabled: _tickerEnabled,
         reduced: FikraMotion.reduced(context),
       );
     }
@@ -230,6 +225,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          StaggerVisibility(controllers: [_stagger], onHidden: _endSelection),
           if (selection == null)
             ProjectHeader(title: context.l10n.notesTitle)
           else

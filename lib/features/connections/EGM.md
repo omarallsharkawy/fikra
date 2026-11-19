@@ -100,6 +100,8 @@ profile workload is wired through glass_perf_scenario and is not run here.
 
 - `LinksLibraryScreen` owns per-segment `StaggerController`s (`_browseStagger`, `_suggestionsStagger`) so at most 8 visible Browse or Suggestions cards fade/rise on a visible first load or visible project switch (`onProjectChanged`), and keys `LibraryControls` and `LibraryChips` by `project.id` so count rolls (`SegmentedPill` Suggestions count and group/topic `ChoiceTag` counts) occur only within the visible project.
 - `BrowseNoteCard` passes `(LibraryNote, CardOrigin)` (`FikraRadius.md`) to `/links/note/:id`, and `NoteConnectionsScreen`'s `connections-note` passes `(note, origin)` to `/note/:id`.
+- P0.1: `StaggerVisibility` owns branch visibility changes and stops both segment staggers offstage. First-load/project-switch decisions read a non-subscribing TickerMode snapshot; tab switches cause zero library screen builds (`test/branch_build_test.dart`).
+- Browse and connections source cards wrap their existing pressables in `ContainerTransformSource` for a paint-only fade during note open/pop. Existing pressable/test keys and route extras remain.
 
 ## Finishing (redesign phase 8)
 

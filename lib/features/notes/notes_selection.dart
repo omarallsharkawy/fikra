@@ -10,13 +10,6 @@ mixin _Selection on ConsumerState<NotesScreen> {
   /// new set, so its identity tells one selection from the next.
   Set<String>? _selection;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // False while another tab is shown (or a page covers this one).
-    if (!TickerMode.valuesOf(context).enabled) _selection = null;
-  }
-
   void _startSelection(String id) {
     FocusManager.instance.primaryFocus?.unfocus();
     // A toast (an earlier Undo) would sit over the action bar.

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/motion/motion.dart';
 import '../../core/motion/stagger.dart';
+import '../../core/motion/stagger_visibility.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../l10n/localizations.dart';
@@ -52,17 +53,9 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
   final _projects = <String, _ProjectView>{};
   late final StaggerController _browseStagger = StaggerController(this);
   late final StaggerController _suggestionsStagger = StaggerController(this);
-  bool _tickerEnabled = true;
+  // Snapshot only: StaggerVisibility owns the inherited visibility dependency.
+  bool get _tickerEnabled => TickerMode.getValuesNotifier(context).value.enabled;
   bool _openingGraph = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _tickerEnabled = TickerMode.valuesOf(context).enabled;
-    final reduced = FikraMotion.reduced(context);
-    _browseStagger.syncVisibility(tickerEnabled: _tickerEnabled, reduced: reduced);
-    _suggestionsStagger.syncVisibility(tickerEnabled: _tickerEnabled, reduced: reduced);
-  }
 
   @override
   void dispose() {
@@ -115,7 +108,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
     }
     final view = index?.filter(chip: state.chip, search: state.query, sort: state.sort);
     if (index != null && view != null) {
-      final tickerEnabled = TickerMode.valuesOf(context).enabled;
+      final tickerEnabled = _tickerEnabled;
       final reduced = FikraMotion.reduced(context);
       if (state.segment == 0) {
         _browseStagger.maybeStart(
@@ -136,6 +129,7 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        StaggerVisibility(controllers: [_browseStagger, _suggestionsStagger]),
         ProjectHeader(
           title: context.l10n.linksTitle,
           trailing: HeaderActionButton(

@@ -42,33 +42,35 @@ class BrowseNoteCard extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
     child: Builder(
-      builder: (cardContext) => Pressable(
-        onTap: () => openConnections(
-          cardContext,
-          entry.note.id,
-          initial: entry.note,
-          origin: CardOrigin.fromContext(cardContext, borderRadius: FikraRadius.md),
-        ),
-        pressedScale: .98,
-        child: SolidSurface(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              LibraryNoteText(note: entry.note),
-              const SizedBox(height: 12),
-              Text(Fmt.links(context.l10n, entry.others.length), style: context.text.meta),
-              const SizedBox(height: 4),
-              Text(
-                [
-                  // Isolated so a mixed Arabic/English title never reorders the row.
-                  for (final n in entry.others.take(2)) Fmt.isolate(noteTitleText(context, n.title)),
-                  if (entry.others.length > 2) '+${entry.others.length - 2}',
-                ].join(' · '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.text.meta.copyWith(color: context.colors.textSecondary),
-              ),
-            ],
+      builder: (cardContext) => ContainerTransformSource(
+        child: Pressable(
+          onTap: () => openConnections(
+            cardContext,
+            entry.note.id,
+            initial: entry.note,
+            origin: CardOrigin.fromContext(cardContext, borderRadius: FikraRadius.md),
+          ),
+          pressedScale: .98,
+          child: SolidSurface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LibraryNoteText(note: entry.note),
+                const SizedBox(height: 12),
+                Text(Fmt.links(context.l10n, entry.others.length), style: context.text.meta),
+                const SizedBox(height: 4),
+                Text(
+                  [
+                    // Isolated so a mixed Arabic/English title never reorders the row.
+                    for (final n in entry.others.take(2)) Fmt.isolate(noteTitleText(context, n.title)),
+                    if (entry.others.length > 2) '+${entry.others.length - 2}',
+                  ].join(' · '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.meta.copyWith(color: context.colors.textSecondary),
+                ),
+              ],
+            ),
           ),
         ),
       ),
