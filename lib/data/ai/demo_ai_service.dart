@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../core/format.dart';
 import '../../l10n/app_localizations.dart';
 
 import '../local/database.dart';
@@ -31,6 +32,19 @@ class DemoAiService implements AiService {
   }
 
   final Duration latency;
+
+  // Normalized search text per note, rebuilt only when searchable fields change.
+  final _haystacks = <String, (String, String, String, String)>{};
+
+  String _haystack(Note n) {
+    final cached = _haystacks[n.id];
+    if (cached != null && cached.$1 == n.title && cached.$2 == n.displayText && cached.$3 == n.concepts) {
+      return cached.$4;
+    }
+    final h = normalizeArabic('${n.title} ${n.displayText} ${n.concepts}');
+    _haystacks[n.id] = (n.title, n.displayText, n.concepts, h);
+    return h;
+  }
 
   /// keyword (lowercase) -> (concept, cluster)
   static const _dictionary = <String, (String, String)>{
@@ -83,14 +97,12 @@ class DemoAiService implements AiService {
   static const _stopWords = {
     'في',
     'من',
-    'على',
+    'علي',
     'عن',
-    'إلى',
-    'الى',
+    'الي',
     'اللي',
     'ده',
     'دي',
-    'إيه',
     'ايه',
     'كنت',
     'كاتب',
@@ -98,7 +110,6 @@ class DemoAiService implements AiService {
     'هو',
     'هي',
     'و',
-    'أو',
     'او',
     'مع',
     'كل',
@@ -115,6 +126,10 @@ class DemoAiService implements AiService {
     'about',
     'my',
   };
+
+  static final _normalizedDictionary = <(String, String, String)>[
+    for (final e in _dictionary.entries) (normalizeArabic(e.key), e.value.$1, e.value.$2),
+  ];
 
   @override
   Future<NoteInsights> analyze(Note note, List<Note> projectNotes) async {
@@ -160,13 +175,17 @@ class DemoAiService implements AiService {
     final tokens = _tokens(question);
     final scored = <(Note, double)>[];
     for (final n in projectNotes) {
-      final hay = '${n.title} ${n.displayText} ${n.concepts}'.toLowerCase();
+      final hay = _haystack(n);
       var score = 0.0;
       for (final t in tokens) {
-        if (hay.contains(t)) score += 1;
+        if (matchesNormalizedArabic(hay, t)) score += 1;
       }
       score += 2 * n.conceptList.toSet().intersection(qConcepts).length;
       if (score > 0) scored.add((n, score));
+    }
+    if (_haystacks.length > projectNotes.length * 2 && projectNotes.isNotEmpty) {
+      final live = {for (final n in projectNotes) n.id};
+      _haystacks.removeWhere((id, _) => !live.contains(id));
     }
     scored.sort((a, b) => b.$2.compareTo(a.$2));
     final top = scored.take(3).map((e) => e.$1).toList();
@@ -184,32 +203,33 @@ class DemoAiService implements AiService {
 
   static Future<List<String>> detectConcepts(String text, {Locale locale = const Locale('ar')}) async {
     final labels = await _labels(locale);
-    final lower = text.toLowerCase();
+    final normalized = normalizeArabic(text);
     final out = <String>[];
-    for (final e in _dictionary.entries) {
-      if (_containsWord(lower, e.key) && !out.contains(labels[e.value.$1])) out.add(labels[e.value.$1] as String);
+    for (final (key, concept, _) in _normalizedDictionary) {
+      if (_containsWord(normalized, key) && !out.contains(labels[concept])) out.add(labels[concept] as String);
     }
     return out.take(5).toList();
   }
 
   static Future<String> clusterFor(String text, {Locale locale = const Locale('ar')}) async {
     final labels = await _labels(locale);
-    final lower = text.toLowerCase();
+    final normalized = normalizeArabic(text);
     final counts = <String, int>{};
-    for (final e in _dictionary.entries) {
-      if (_containsWord(lower, e.key)) counts.update(e.value.$2, (v) => v + 1, ifAbsent: () => 1);
+    for (final (key, _, cluster) in _normalizedDictionary) {
+      if (_containsWord(normalized, key)) counts.update(cluster, (v) => v + 1, ifAbsent: () => 1);
     }
     if (counts.isEmpty) return lookupAppLocalizations(locale).clusterGeneral;
     return labels[(counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key] as String;
   }
 
-  static bool _containsWord(String lower, String key) {
+  static bool _containsWord(String normalized, String key) {
     // Latin keys match whole words ("api" not in "rapid" / "apiary"). Arabic
-    // keys match anywhere, so prefixed forms like "بالتضمينات" still count.
+    // keys match with normalization and leading-ال tolerance, so prefixed forms
+    // like "بالتضمينات" still count.
     if (RegExp(r'^[a-z]+$').hasMatch(key)) {
-      return RegExp('(^|[^a-z])${RegExp.escape(key)}(?![a-z])').hasMatch(lower);
+      return RegExp('(^|[^a-z])${RegExp.escape(key)}(?![a-z])').hasMatch(normalized);
     }
-    return lower.contains(key);
+    return matchesNormalizedArabic(normalized, key);
   }
 
   /// Simulated rewrite: tidy spacing, expand known terms, capitalize, end with
@@ -243,10 +263,10 @@ class DemoAiService implements AiService {
     return s.length > 140 ? '${s.substring(0, 140)}…' : s;
   }
 
-  static List<String> _tokens(String q) => q
-      .toLowerCase()
-      .replaceAll(RegExp(r'[^\p{L}\p{N}\s]', unicode: true), ' ')
-      .split(RegExp(r'\s+'))
-      .where((w) => w.length > 2 && !_stopWords.contains(w))
-      .toList();
+  static List<String> _tokens(String q) =>
+      normalizeArabic(q)
+          .replaceAll(RegExp(r'[^\p{L}\p{N}\s]', unicode: true), ' ')
+          .split(RegExp(r'\s+'))
+          .where((w) => w.length > 2 && !_stopWords.contains(w))
+          .toList();
 }

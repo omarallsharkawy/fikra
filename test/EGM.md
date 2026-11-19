@@ -192,3 +192,8 @@ The 5,000-note fixture measured nine unrelated row builds before the change and 
 
 - `container_transform_test.dart`: several forward/reverse samples require identity linear transforms and no FittedBox above Arabic page text, final-size content, the existing clip/radius and opacity curves, live-card reverse targeting, and full-rect fade-only Reduce Motion with short pop. Source render opacity fades oppositely, restores on pop/interrupted-push disposal, and stays unchanged under Reduce Motion.
 - `branch_build_test.dart`: Flutter's element build callback counts zero NotesScreen/LinksLibraryScreen builds across repeated real-shell branch switches; Notes, Browse and Suggestions staggers stop offstage and a running stagger stops when Reduce Motion is enabled. Existing selection, first-load/project-switch stagger and route-state preservation tests remain unchanged.
+
+## Phase 0.2 & 0.3 coverage
+
+- `glass_quality_test.dart`, `glass_widget_test.dart`, `floating_navigation_test.dart`, `toast_test.dart`, `pearl_contrast_test.dart`, and `phase8_glass_surfaces_test.dart`: verify Reduce Motion forces `GlassTier.solid`, `+` button / bottom sheets / toasts / `LibraryControls` contain no `BackdropFilter`, and the floating tab bar (and grouped `ActivityCapsule`) retains sigma-16 `BackdropFilter` with 0.90 light / 0.72 dark backing alpha (solid under power save / high contrast / reduce motion).
+- `arabic_normalization_test.dart`: covers `normalizeArabic` (Alef/ة/ى/ؤ/ئ, tashkeel/tatweel, Arabic-Indic digits, Latin case, whitespace, preserved `ال`), `matchesNormalizedArabic` (`ال` tolerance without false matches), Notes search widget flow, `LinksIndex`, and `DemoAiService.ask` (including cache invalidation).

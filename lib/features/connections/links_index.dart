@@ -1,3 +1,4 @@
+import '../../core/format.dart';
 import '../shared/link_pairs.dart';
 
 /// Sendable projections keep derivation independent of Flutter and storage.
@@ -49,7 +50,7 @@ class LibraryNotes {
   /// Position in [newest], for cheap integer ordering of neighbour lists.
   final Map<String, int> rank;
 
-  /// Lowercased title, body and concepts. Keystrokes only run `contains`.
+  /// Normalized title, body and concepts. Keystrokes only run matching.
   final Map<String, String> haystacks;
 }
 
@@ -74,7 +75,7 @@ LibraryNotes deriveLibraryNotes(LibraryNotesInput input) {
     newest,
     oldest,
     {for (final (i, n) in newest.indexed) n.id: i},
-    {for (final n in newest) n.id: '${n.title}\n${n.text}\n${n.concepts}'.toLowerCase()},
+    {for (final n in newest) n.id: normalizeArabic('${n.title}\n${n.text}\n${n.concepts}')},
   );
 }
 
@@ -128,7 +129,7 @@ class LinksIndex {
     String search = '',
     LinksSort sort = LinksSort.newest,
   }) {
-    final query = search.trim().toLowerCase();
+    final query = normalizeArabic(search);
     final key = (chip, query, sort);
     final cached = _views[key];
     if (cached != null) return cached;
@@ -137,7 +138,7 @@ class LinksIndex {
     bool matches(LibraryNote n) =>
         (chip.group == null || (groups?.contains(n.groupId) ?? false)) &&
         (chip.topic == null || (n.groupId == null && n.topic?.trim() == chip.topic)) &&
-        (query.isEmpty || haystacks[n.id]!.contains(query));
+        (query.isEmpty || matchesNormalizedArabic(haystacks[n.id]!, query));
     final view = (
       browse: _orders[sort]!.where((r) => matches(r.note)).toList(),
       suggestions: suggestions.where((s) => matches(s.a) || matches(s.b)).toList(),

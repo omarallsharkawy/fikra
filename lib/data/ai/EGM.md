@@ -45,7 +45,7 @@ Interface contract:
 `DemoAiService.ask`:
 
 - Uses a fixed 1200 ms delay. The `latency` constructor argument does not affect it.
-- Scores +1 per query token found in the note's title, display text and concepts, and +2 per shared concept. Only the top 3 notes with a score above 0 are cited.
+- Normalizes queries and per-note haystacks with `normalizeArabic` (caching haystacks by note ID + searchable fields, pruned when exceeding twice the note count) and matches tokens with `matchesNormalizedArabic`. Scores +1 per matched query token and +2 per shared concept. Only the top 3 notes with a score above 0 are cited.
 - With no match it returns `found: false` and empty `sourceIds`.
 
 Helpers:

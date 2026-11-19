@@ -1,9 +1,10 @@
-import 'dart:ui' show Tristate;
+import 'dart:ui' show ImageFilter, Tristate;
 
 import 'package:fikra/app/tab_bar/floating_navigation.dart';
 import 'package:fikra/app/tab_bar/sliding_tab_bar.dart' show kLensHoldDelay;
 import 'package:fikra/app/shell.dart' show FikraBranchContainer;
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/widgets/glass.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 import 'package:fikra/core/widgets/glass_lens.dart';
 import 'package:fikra/core/widgets/glass_watchdog.dart';
@@ -34,6 +35,7 @@ double _pillOpacity(WidgetTester tester) => tester
 Future<ValueNotifier<int>> hostNavigation(
   WidgetTester tester, {
   bool reduced = false,
+  bool highContrast = false,
   GlassTier tier = GlassTier.solid,
   TextDirection direction = TextDirection.rtl,
   List<int>? changes,
@@ -42,6 +44,7 @@ Future<ValueNotifier<int>> hostNavigation(
   ValueNotifier<bool>? keyboardOpen,
   double textScale = 1,
   List<Widget>? branches,
+  Widget? aboveBar,
 }) async {
   final branch = ValueNotifier(1);
   addTearDown(branch.dispose);
@@ -56,6 +59,7 @@ Future<ValueNotifier<int>> hostNavigation(
       FloatingNavigation(
         branch: index,
         keyboardOpen: isKeyboardOpen,
+        aboveBar: aboveBar,
         onSelect: (index, reselect) {
           changes?.add(index);
           reselections?.add(reselect);
@@ -68,7 +72,7 @@ Future<ValueNotifier<int>> hostNavigation(
     ProviderScope(
       overrides: [
         glassTierProvider(false).overrideWith((ref) => tier),
-        glassTierProvider(true).overrideWith((ref) => GlassTier.frosted),
+        glassTierProvider(true).overrideWith((ref) => GlassTier.solid),
         glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
       ],
       child: MaterialApp(
@@ -79,6 +83,7 @@ Future<ValueNotifier<int>> hostNavigation(
         home: MediaQuery(
           data: MediaQueryData(
             disableAnimations: reduced,
+            highContrast: highContrast,
             viewInsets: EdgeInsets.only(bottom: keyboard),
             textScaler: TextScaler.linear(textScale),
           ),
@@ -182,8 +187,22 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('bar and Add share one stable backdrop key and overlapping lens uses a separate key', (tester) async {
-    final branch = await hostNavigation(tester, tier: GlassTier.frosted);
+  testWidgets('Add button has no BackdropFilter; bar and aboveBar share one stable sigma-16 key; lens uses another', (
+    tester,
+  ) async {
+    final branch = await hostNavigation(
+      tester,
+      tier: GlassTier.frosted,
+      aboveBar: const Glass(child: Text('capsule')),
+    );
+    expect(find.descendant(of: Tabs.addButton, matching: find.byType(BackdropFilter)), findsNothing);
+    final barFilter = find.descendant(
+      of: find.byKey(const ValueKey('floating-tab-bar')),
+      matching: find.byType(BackdropFilter),
+    );
+    expect(barFilter, findsOneWidget);
+    expect(tester.widget<BackdropFilter>(barFilter).filter, ImageFilter.blur(sigmaX: 16, sigmaY: 16));
+
     BackdropKey? keyOf(Element e) => (e.renderObject! as RenderBackdropFilter).backdropKey;
     final filters = find.byType(BackdropFilter).evaluate().map(keyOf).toList();
     expect(filters, hasLength(2));
@@ -204,6 +223,17 @@ void main() {
     expect(lensKey, isNot(same(shared.first)));
     await pointer.up();
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('tab bar drops BackdropFilter under solid tier, reduce motion and high contrast', (tester) async {
+    for (final (tier, reduced, highContrast) in [
+      (GlassTier.solid, false, false),
+      (GlassTier.frosted, true, false),
+      (GlassTier.frosted, false, true),
+    ]) {
+      await hostNavigation(tester, tier: tier, reduced: reduced, highContrast: highContrast);
+      expect(find.byType(BackdropFilter), findsNothing);
+    }
   });
 
   testWidgets('lens stays clamped at both bar ends while the finger is outside horizontally', (tester) async {

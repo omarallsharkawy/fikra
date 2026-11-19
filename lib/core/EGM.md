@@ -8,7 +8,7 @@ holds no domain, storage or network logic.
 
 ## Interface
 
-- `format.dart`: `Fmt` static methods return display strings.
+- `format.dart`: `Fmt` static methods return display strings, plus pure Arabic/Latin search helpers `normalizeArabic(String)` (single-pass Alef/ة/ى/ؤ/ئ unification, tashkeel/tatweel removal, Arabic-Indic digits to 0-9, Latin lowercasing, whitespace collapse; preserves `ال`) and `matchesNormalizedArabic(String haystack, String query)` (direct substring or multi-token match tolerating a leading `ال` on haystack tokens when the query token has none).
   - `time(AppLocalizations, DateTime)`: locale-specific 12-hour clock.
   - `dayHeader(AppLocalizations, DateTime, {DateTime? now})`: today, yesterday, or weekday/date.
   - `relative(AppLocalizations, DateTime, {DateTime? now})`: localized ICU minutes/hours or day header.

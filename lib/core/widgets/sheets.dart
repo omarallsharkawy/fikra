@@ -6,7 +6,7 @@ import '../motion/motion.dart';
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'glass_edge.dart';
 import 'solid_surface.dart';
 
 /// Bottom sheet shell: top radius 38, handle, title, fit to content.
@@ -101,55 +101,36 @@ class _SheetKeyboardInset extends StatelessWidget {
   }
 }
 
-class _SheetSurface extends StatefulWidget {
+class _SheetSurface extends StatelessWidget {
   const _SheetSurface({required this.padding, required this.child, this.height});
   final EdgeInsetsGeometry padding;
   final Widget child;
   final double? height;
 
-  @override
-  State<_SheetSurface> createState() => _SheetSurfaceState();
-}
-
-class _SheetSurfaceState extends State<_SheetSurface> {
-  Animation<double>? _animation;
-  bool _offscreen = false;
-
-  void _onAnimation() {
-    final next = (_animation?.value ?? 1) <= 0;
-    if (next != _offscreen && mounted) setState(() => _offscreen = next);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final animation = ModalRoute.of(context)?.animation;
-    if (!identical(animation, _animation)) {
-      _animation?.removeListener(_onAnimation);
-      _animation = animation;
-      _offscreen = (animation?.value ?? 1) <= 0;
-      animation?.addListener(_onAnimation);
-    }
-  }
-
-  @override
-  void dispose() {
-    _animation?.removeListener(_onAnimation);
-    super.dispose();
-  }
+  static const _radius = BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl));
 
   @override
   Widget build(BuildContext context) {
-    Widget surface = Glass(
-      radius: FikraRadius.xxl,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(FikraRadius.xxl)),
-      padding: widget.padding,
-      blurEnabled: !_offscreen,
-      // The route's own Material is transparent and sits under this fill,
-      // so rows (ListTile, InkWell) need a Material above it for ink.
-      child: Material(type: MaterialType.transparency, child: widget.child),
+    final c = context.colors;
+    Widget surface = DecoratedBox(
+      key: const ValueKey('sheet-surface'),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: _radius,
+        border: Border.all(color: c.line, width: FikraSpace.hairline),
+        boxShadow: glassShadows(c),
+      ),
+      child: ClipRRect(
+        borderRadius: _radius,
+        // The route's own Material is transparent and sits under this fill,
+        // so rows (ListTile, InkWell) need a Material above it for ink.
+        child: Material(
+          type: MaterialType.transparency,
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
     );
-    if (widget.height != null) surface = SizedBox(height: widget.height, child: surface);
+    if (height != null) surface = SizedBox(height: height, child: surface);
     return surface;
   }
 }
