@@ -441,7 +441,7 @@ void main() {
       }
     });
     report['fps_tabs'] = await live('tabs', () async {
-      for (final branch in [2, 3, 0, 1, 2, 1]) {
+      for (final branch in [2, 3, 4, 1, 2, 1]) {
         await during(() async {
           await tester.tap(find.byKey(ValueKey(branch == 0 ? 'nav-add' : 'nav-${branch - 1}')));
           await wait(FikraMotion.enter.inMilliseconds);

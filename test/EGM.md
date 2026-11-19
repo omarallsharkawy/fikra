@@ -197,3 +197,13 @@ The 5,000-note fixture measured nine unrelated row builds before the change and 
 
 - `glass_quality_test.dart`, `glass_widget_test.dart`, `floating_navigation_test.dart`, `toast_test.dart`, `pearl_contrast_test.dart`, and `phase8_glass_surfaces_test.dart`: verify Reduce Motion forces `GlassTier.solid`, `+` button / bottom sheets / toasts / `LibraryControls` contain no `BackdropFilter`, and the floating tab bar (and grouped `ActivityCapsule`) retains sigma-16 `BackdropFilter` with 0.90 light / 0.72 dark backing alpha (solid under power save / high contrast / reduce motion).
 - `arabic_normalization_test.dart`: covers `normalizeArabic` (Alef/ة/ى/ؤ/ئ, tashkeel/tatweel, Arabic-Indic digits, Latin case, whitespace, preserved `ال`), `matchesNormalizedArabic` (`ال` tolerance without false matches), Notes search widget flow, `LinksIndex`, and `DemoAiService.ask` (including cache invalidation).
+
+## Concept navigation (phase 1B)
+
+concept_navigation_test covers 360 dp AR/EN labels at 1/1.3, icon-only at 1.4/2,
+FAB spacing, spring frames/retarget/haptics, routes/settings alias, full-screen Add
+inset and previous-tab X/back. me_test covers unique confirmed pairs, calendar-day
+bounds and project switches, all sections, project sheet and cancel-before-wipe.
+motion_test replaces veil tests with incoming/outgoing opacity/scale and instant
+Reduce Motion. Existing recording, accessibility, header and screenshot callers
+use Me and composer close where expectations changed.

@@ -35,6 +35,8 @@ double _pillOpacity(WidgetTester tester) => tester
 Future<ValueNotifier<int>> hostNavigation(
   WidgetTester tester, {
   bool reduced = false,
+  Locale locale = const Locale('ar'),
+  double width = 358,
   bool highContrast = false,
   GlassTier tier = GlassTier.solid,
   TextDirection direction = TextDirection.rtl,
@@ -79,7 +81,7 @@ Future<ValueNotifier<int>> hostNavigation(
         theme: buildFikraTheme(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ar'),
+        locale: locale,
         home: MediaQuery(
           data: MediaQueryData(
             disableAnimations: reduced,
@@ -92,7 +94,7 @@ Future<ValueNotifier<int>> hostNavigation(
             child: Scaffold(
               body: Center(
                 child: SizedBox(
-                  width: 358,
+                  width: width,
                   child: ValueListenableBuilder<int>(
                     valueListenable: branch,
                     builder: (context, index, _) => keyboardOpen == null
@@ -115,7 +117,7 @@ Future<ValueNotifier<int>> hostNavigation(
 }
 
 void main() {
-  testWidgets('quick tap switches immediately with normal pill and zero lens opacity throughout and after', (
+  testWidgets('quick tap switches the branch with a sliding pill and zero lens opacity throughout and after', (
     tester,
   ) async {
     final changes = <int>[];
@@ -138,6 +140,7 @@ void main() {
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
     expect(_pillOpacity(tester), 1);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
 
     await tester.pump(const Duration(milliseconds: 250));
@@ -245,8 +248,8 @@ void main() {
       await pointer.moveTo(Offset(x, bar.center.dy));
       await tester.pump();
       final lens = tester.getRect(find.byKey(_lens));
-      expect(lens.left, greaterThanOrEqualTo(bar.left - 5.01));
-      expect(lens.right, lessThanOrEqualTo(bar.right + 5.01));
+      expect(lens.left, greaterThanOrEqualTo(bar.left - 6.01));
+      expect(lens.right, lessThanOrEqualTo(bar.right + 6.01));
     }
     await pointer.up();
     await tester.pumpAndSettle();
@@ -318,6 +321,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 80));
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
     expect(tester.getCenter(find.byKey(const ValueKey('nav-selected-pill'))).dx, linksCenter.dx);
   });
@@ -336,6 +340,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 150));
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -351,6 +356,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 250));
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -365,6 +371,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
     }
     expect(find.byKey(_lens), findsNothing);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -459,6 +466,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 80));
     expect(find.byKey(_lens), findsNothing);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -610,7 +618,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     try {
       final branch = await hostNavigation(tester);
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 4; i++) {
         final data = tester.getSemantics(Tabs.finder(i)).getSemanticsData();
         expect(data.flagsCollection.isButton, isTrue);
         expect(data.flagsCollection.isSelected, i == 0 ? Tristate.isTrue : Tristate.isFalse);
@@ -653,7 +661,7 @@ void main() {
   for (final direction in TextDirection.values) {
     testWidgets('$direction orders Notes first and Add at the trailing edge at large text', (tester) async {
       await hostNavigation(tester, direction: direction, textScale: 3);
-      final xs = [for (var i = 0; i < 3; i++) tester.getCenter(Tabs.finder(i)).dx];
+      final xs = [for (var i = 0; i < 4; i++) tester.getCenter(Tabs.finder(i)).dx];
       final addX = tester.getCenter(Tabs.addButton).dx;
       if (direction == TextDirection.rtl) {
         expect(xs[0], greaterThan(xs[1]));
@@ -664,7 +672,7 @@ void main() {
         expect(xs[1], lessThan(xs[2]));
         expect(addX, greaterThan(xs[2]));
       }
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 4; i++) {
         expect(tester.getSize(Tabs.finder(i)).width, greaterThanOrEqualTo(48));
       }
       expect(tester.takeException(), isNull);

@@ -19,7 +19,7 @@ Not covered by these contracts: `android/` (a default Flutter host), `integratio
 ## Subdirectories & System Boundaries
 
 - lib: [./lib/EGM.md](./lib/EGM.md) - All application source and the `main()` entry point.
-- lib/app: [./lib/app/EGM.md](./lib/app/EGM.md) - Build mode, providers, routes, and the three-tab shell with a separate Add button.
+- lib/app: [./lib/app/EGM.md](./lib/app/EGM.md) - Build mode, providers, routes, and the four-tab shell with a separate Add button.
 - lib/core: [./lib/core/EGM.md](./lib/core/EGM.md) - Formatting, theme, motion, and shared widgets. Imports nothing from `app`, `data`, or `features`.
 - lib/data: [./lib/data/EGM.md](./lib/data/EGM.md) - Repositories, schema, files, analysis queue, and the AI boundary.
 - lib/l10n: [./lib/l10n/EGM.md](./lib/l10n/EGM.md) - Approved Arabic/English copy, generated lookups, and demo vocabulary.
@@ -72,6 +72,6 @@ Users can add OpenAI-compatible, Gemini, ElevenLabs or Qwen services and opt in 
 
 Connections pushes paint Pearl and reserve loading content from their first frame. Project adjacency and per-note suggestions are shared across opens; successful suggestion removals update only that row.
 
-ProjectHeader puts the title and horizontal header action pills (including the 48 dp Settings pill, collapsing to a 48 dp icon-only circle when narrow or at large text scale) on Row 1, and places the project switcher chip on Row 2.
+ProjectHeader keeps the title/actions above the project switcher chip. Settings lives in the Me tab; no Settings header pill or text-width measurement remains.
 
 Note-open transforms keep page text at final size and scale 1 inside the morphing clip; source cards fade through a paint-only opacity wrapper. Notes and Links library branch visibility is observed by a small motion leaf, so tab switches do not rebuild either screen.

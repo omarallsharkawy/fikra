@@ -406,70 +406,72 @@ void main() {
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
           final semantics = tester.ensureSemantics();
+          try {
+            final fake = RecordingFake([]);
+            final prev = RecordPlatform.instance;
+            RecordPlatform.instance = fake;
+            addTearDown(() => RecordPlatform.instance = prev);
 
-          final fake = RecordingFake([]);
-          final prev = RecordPlatform.instance;
-          RecordPlatform.instance = fake;
-          addTearDown(() => RecordPlatform.instance = prev);
+            await pumpUntil(tester, find.text(ar.startNewProject));
+            await pumpFuture(tester, () => LocalProjectsRepository(db).create('كبسولة'));
+            await pumpUntil(tester, find.text('كبسولة'));
+            final insetBefore = NavigationInset.of(tester.element(find.byType(NotesScreen)));
 
-          await pumpUntil(tester, find.text(ar.startNewProject));
-          await pumpFuture(tester, () => LocalProjectsRepository(db).create('كبسولة'));
-          await pumpUntil(tester, find.text('كبسولة'));
-          final insetBefore = NavigationInset.of(tester.element(find.byType(NotesScreen)));
+            await tester.tap(Tabs.addButton);
+            await pumpUntil(tester, find.byType(AddScreen));
+            final add = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
+            await pumpFuture(tester, add.startRecording);
+            await tester.pump();
 
-          await tester.tap(Tabs.addButton);
-          await pumpUntil(tester, find.byType(AddScreen));
-          final add = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
-          await pumpFuture(tester, add.startRecording);
-          await tester.pump();
+            // Hidden on Add tab itself.
+            expect(find.byKey(const ValueKey('activity-capsule')), findsNothing);
 
-          // Hidden on Add tab itself.
-          expect(find.byKey(const ValueKey('activity-capsule')), findsNothing);
+            // Switch to Notes tab: capsule appears above the bar, never covers nav-add, never changes NavigationInset.
+            await tester.tap(find.byKey(const ValueKey('add-close')));
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 450));
+            final capsule = find.byKey(const ValueKey('activity-capsule'));
+            expect(capsule, findsOneWidget);
+            expect(find.descendant(of: capsule, matching: find.byType(RecordingPulse)), findsNothing);
+            expect(tester.binding.hasScheduledFrame, isFalse);
+            expect(NavigationInset.of(tester.element(find.byType(NotesScreen))), insetBefore);
+            expect(find.text(ar.capsuleRecording), findsOneWidget);
+            expect(find.text('0:00'), findsOneWidget);
 
-          // Switch to Notes tab: capsule appears above the bar, never covers nav-add, never changes NavigationInset.
-          await tester.tap(Tabs.finder(Tabs.notes));
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 450));
-          final capsule = find.byKey(const ValueKey('activity-capsule'));
-          expect(capsule, findsOneWidget);
-          expect(find.descendant(of: capsule, matching: find.byType(RecordingPulse)), findsNothing);
-          expect(tester.binding.hasScheduledFrame, isFalse);
-          expect(NavigationInset.of(tester.element(find.byType(NotesScreen))), insetBefore);
-          expect(find.text(ar.capsuleRecording), findsOneWidget);
-          expect(find.text('0:00'), findsOneWidget);
+            final capRect = tester.getRect(capsule);
+            final barRect = tester.getRect(find.byType(FikraNavBar));
+            final addRect = tester.getRect(Tabs.addButton);
+            expect(capRect.bottom, lessThanOrEqualTo(barRect.top));
+            expect(capRect.overlaps(addRect), isFalse);
+            expect(tester.getSemantics(capsule).label, ar.capsuleRecordingA11y);
 
-          final capRect = tester.getRect(capsule);
-          final barRect = tester.getRect(find.byType(FikraNavBar));
-          final addRect = tester.getRect(Tabs.addButton);
-          expect(capRect.bottom, lessThanOrEqualTo(barRect.top));
-          expect(capRect.overlaps(addRect), isFalse);
-          expect(tester.getSemantics(capsule).label, ar.capsuleRecordingA11y);
+            // Timer ticks once per second; TalkBack label stays static without elapsed time.
+            await tester.pump(const Duration(seconds: 2));
+            expect(find.text('0:02'), findsOneWidget);
+            expect(tester.getSemantics(capsule).label, ar.capsuleRecordingA11y);
 
-          // Timer ticks once per second; TalkBack label stays static without elapsed time.
-          await tester.pump(const Duration(seconds: 2));
-          expect(find.text('0:02'), findsOneWidget);
-          expect(tester.getSemantics(capsule).label, ar.capsuleRecordingA11y);
+            // Hides with the keyboard like the bar.
+            tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 300));
+            expect(capsule.hitTestable(), findsNothing);
+            tester.view.viewInsets = FakeViewPadding.zero;
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 300));
+            expect(capsule.hitTestable(), findsOneWidget);
 
-          // Hides with the keyboard like the bar.
-          tester.view.viewInsets = const FakeViewPadding(bottom: 300);
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 300));
-          expect(capsule.hitTestable(), findsNothing);
-          tester.view.viewInsets = FakeViewPadding.zero;
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 300));
-          expect(capsule.hitTestable(), findsOneWidget);
+            // Tapping capsule returns to Add tab where recording owns the activity.
+            await tester.tap(capsule);
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 400));
+            expect(find.byType(AddScreen), findsOneWidget);
+            expect(find.byKey(const ValueKey('activity-capsule')), findsNothing);
 
-          // Tapping capsule returns to Add tab where recording owns the activity.
-          await tester.tap(capsule);
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 400));
-          expect(find.byType(AddScreen), findsOneWidget);
-          expect(find.byKey(const ValueKey('activity-capsule')), findsNothing);
-
-          await pumpFuture(tester, add.cancelRecording);
-          await tester.pump(const Duration(milliseconds: 300));
-          semantics.dispose();
+            await pumpFuture(tester, add.cancelRecording);
+            await tester.pump(const Duration(milliseconds: 300));
+          } finally {
+            semantics.dispose();
+          }
         },
       );
     }
@@ -482,44 +484,53 @@ void main() {
       transcriptionEngine: FakeTranscriptionEngine(action: (_, _) => transcribingGate.future),
       (tester, db) async {
         final semantics = tester.ensureSemantics();
-        await pumpUntil(tester, find.text(ar.startNewProject));
-        await pumpFuture(tester, () => LocalProjectsRepository(db).create('تفريغ'));
-        await pumpUntil(tester, find.text('تفريغ'));
+        try {
+          await pumpUntil(tester, find.text(ar.startNewProject));
+          await pumpFuture(tester, () => LocalProjectsRepository(db).create('تفريغ'));
+          await pumpUntil(tester, find.text('تفريغ'));
 
-        await tester.tap(Tabs.addButton);
-        await pumpUntil(tester, find.byType(AddScreen));
-        final add = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
-        add.updateDraft(
-          () => add.draftFiles = [
-            const AttachmentDraft(
-              kind: AttachmentKind.voice,
-              path: '/voice.m4a',
-              durationMs: 3000,
-              policy: TranscriptionPolicy.afterSave,
-            ),
-          ],
-        );
-        await tester.pump();
-        final save = find.byKey(const ValueKey('add-save'));
-        await Scrollable.ensureVisible(tester.element(save), alignment: 0.5);
-        await tester.pump(const Duration(milliseconds: 400));
-        await tester.tap(save);
-        await tester.pump(FikraMotion.saveTick + const Duration(milliseconds: 100));
+          await tester.tap(Tabs.addButton);
+          await pumpUntil(tester, find.byType(AddScreen));
+          final add = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
+          add.updateDraft(
+            () => add.draftFiles = [
+              const AttachmentDraft(
+                kind: AttachmentKind.voice,
+                path: '/voice.m4a',
+                durationMs: 3000,
+                policy: TranscriptionPolicy.afterSave,
+              ),
+            ],
+          );
+          await tester.pump();
+          final save = find.byKey(const ValueKey('add-save'));
+          await Scrollable.ensureVisible(tester.element(save), alignment: 0.5);
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.tap(save);
+          await pumpFuture(tester, () async {
+            while (add.saving) {
+              await Future<void>.delayed(const Duration(milliseconds: 5));
+            }
+          });
+          await tester.pump(FikraMotion.saveTick + const Duration(milliseconds: 100));
 
-        final capsule = find.byKey(const ValueKey('activity-capsule'));
-        await pumpUntil(tester, capsule);
-        ScaffoldMessenger.of(tester.element(capsule)).hideCurrentSnackBar();
-        await tester.pump(const Duration(milliseconds: 450));
-        expect(find.descendant(of: capsule, matching: find.byType(RecordingPulse)), findsNothing);
-        expect(find.text(ar.capsuleTranscribing), findsOneWidget);
-        expect(tester.getSemantics(capsule).label, ar.capsuleTranscribingA11y);
+          final capsule = find.byKey(const ValueKey('activity-capsule'));
+          await pumpUntil(tester, capsule);
+          ScaffoldMessenger.of(tester.element(capsule)).hideCurrentSnackBar();
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 450));
+          expect(find.descendant(of: capsule, matching: find.byType(RecordingPulse)), findsNothing);
+          expect(find.descendant(of: capsule, matching: find.text(ar.capsuleTranscribing)), findsOneWidget);
+          expect(tester.getSemantics(capsule).label, ar.capsuleTranscribingA11y);
 
-        await tester.tap(capsule);
-        await pumpUntil(tester, find.byType(NoteDetailsScreen));
+          await tester.tap(capsule);
+          await pumpUntil(tester, find.byType(NoteDetailsScreen));
 
-        transcribingGate.complete('تم التفريغ');
-        await tester.pump(const Duration(milliseconds: 300));
-        semantics.dispose();
+          transcribingGate.complete('تم التفريغ');
+          await tester.pump(const Duration(milliseconds: 300));
+        } finally {
+          semantics.dispose();
+        }
       },
     );
   });

@@ -40,7 +40,7 @@ void main() {
           l10n.linksSuggestionsCountA11y(3),
         );
         expect(find.text(l10n.linksSuggestionsCount(3)), findsOneWidget);
-        await tester.tap(find.byKey(const ValueKey('group-filter-parent')));
+        await tester.tap(find.byKey(const ValueKey('group-filter-parent')).hitTestable());
         await tester.pumpAndSettle();
         expect(find.byType(BrowseNoteCard), findsNWidgets(2));
         expect(find.byKey(const ValueKey('group-filter-child')), findsOneWidget);

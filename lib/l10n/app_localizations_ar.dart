@@ -1959,4 +1959,31 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get capsuleTranscribingA11y => 'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navMap => 'الخريطة';
+
+  @override
+  String get navMe => 'أنا';
+
+  @override
+  String get newIdea => 'فكرة جديدة';
+
+  @override
+  String get meIdeas => 'الأفكار';
+
+  @override
+  String get meLinks => 'الروابط';
+
+  @override
+  String get meWeekDays => 'أيام الأسبوع ده';
+
+  @override
+  String get meAppearanceLanguage => 'المظهر واللغة';
+
+  @override
+  String get meVoiceServices => 'الصوت والخدمات';
 }

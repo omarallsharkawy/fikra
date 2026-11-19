@@ -1669,5 +1669,41 @@
   "capsuleTranscribingA11y": "بيفرّغ التسجيل. دوس عشان تفتح الملاحظة",
   "@capsuleTranscribingA11y": {
     "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "Concept navigation and Me screen: navHome."
+  },
+  "navMap": "الخريطة",
+  "@navMap": {
+    "description": "Concept navigation and Me screen: navMap."
+  },
+  "navMe": "أنا",
+  "@navMe": {
+    "description": "Concept navigation and Me screen: navMe."
+  },
+  "newIdea": "فكرة جديدة",
+  "@newIdea": {
+    "description": "Concept navigation and Me screen: newIdea."
+  },
+  "meIdeas": "الأفكار",
+  "@meIdeas": {
+    "description": "Concept navigation and Me screen: meIdeas."
+  },
+  "meLinks": "الروابط",
+  "@meLinks": {
+    "description": "Concept navigation and Me screen: meLinks."
+  },
+  "meWeekDays": "أيام الأسبوع ده",
+  "@meWeekDays": {
+    "description": "Concept navigation and Me screen: meWeekDays."
+  },
+  "meAppearanceLanguage": "المظهر واللغة",
+  "@meAppearanceLanguage": {
+    "description": "Concept navigation and Me screen: meAppearanceLanguage."
+  },
+  "meVoiceServices": "الصوت والخدمات",
+  "@meVoiceServices": {
+    "description": "Concept navigation and Me screen: meVoiceServices."
   }
 }

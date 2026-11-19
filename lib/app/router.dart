@@ -18,7 +18,7 @@ import '../features/note_details/note_details_screen.dart';
 import '../features/note_details/pdf_viewer_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/projects/welcome_screen.dart';
-import '../features/settings/settings_screen.dart';
+import '../features/me/me_screen.dart';
 import '../features/voice_text/voice_text_screen.dart';
 import '../features/voice_text/service_form_screen.dart';
 import 'providers.dart';
@@ -121,9 +121,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [GoRoute(path: '/ask', builder: (_, _) => const AskScreen())],
           ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/me', builder: (_, _) => const MeScreen())],
+          ),
         ],
       ),
-      GoRoute(path: '/settings', pageBuilder: (_, s) => _pushed(s, const SettingsScreen())),
+      GoRoute(path: '/settings', redirect: (_, _) => '/me'),
       GoRoute(path: '/settings/voice-text', pageBuilder: (_, s) => _pushed(s, const VoiceTextScreen())),
       GoRoute(path: '/settings/voice-text/service/new', pageBuilder: (_, s) => _pushed(s, const ServiceFormScreen())),
       GoRoute(

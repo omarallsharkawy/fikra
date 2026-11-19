@@ -141,6 +141,7 @@ void main() {
       // Once the tick finishes with no typing, tab leave, or newer save, it navigates to /notes.
       await tester.pump(FikraMotion.saveTick);
       await pumpUntil(tester, find.byType(NotesScreen));
+      await tester.pump(const Duration(milliseconds: 120)); // outgoing composer fade
       expect(find.byType(AddScreen), findsNothing);
       expect(find.text('تلقائي'), findsOneWidget);
     });
@@ -223,7 +224,7 @@ void main() {
         expect(paints(rootBoundary), rootBefore);
 
         // Hide Add tab: amplitude samples still accumulate without repainting offstage waveform or scheduling tickers.
-        await tester.tap(Tabs.finder(Tabs.notes));
+        await tester.tap(find.byKey(const ValueKey('add-close')));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 450));
         final hiddenWaveBefore = paints(waveBoundary);
@@ -414,71 +415,74 @@ void main() {
       'no roll on first build; rolls changed digits in Western & Arabic-Indic; preserves maxLines & TalkBack',
       (tester) async {
         final semantics = tester.ensureSemantics();
-        Widget box(String text, {bool reduced = false, String? a11y, int? maxLines}) => MaterialApp(
-          theme: buildFikraTheme(Brightness.dark),
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: reduced),
-            child: Scaffold(
-              body: Center(
-                child: SizedBox(
-                  width: 140,
-                  child: RollingText(
-                    text,
-                    key: const ValueKey('roll'),
-                    semanticLabel: a11y,
-                    maxLines: maxLines,
-                    overflow: maxLines != null ? TextOverflow.ellipsis : null,
+        try {
+          Widget box(String text, {bool reduced = false, String? a11y, int? maxLines}) => MaterialApp(
+            theme: buildFikraTheme(Brightness.dark),
+            home: MediaQuery(
+              data: MediaQueryData(disableAnimations: reduced),
+              child: Scaffold(
+                body: Center(
+                  child: SizedBox(
+                    width: 140,
+                    child: RollingText(
+                      text,
+                      key: const ValueKey('roll'),
+                      semanticLabel: a11y,
+                      maxLines: maxLines,
+                      overflow: maxLines != null ? TextOverflow.ellipsis : null,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
+          );
 
-        // First build: plain Text, zero RollingDigit widgets.
-        await tester.pumpWidget(box('اقتراحات 12', a11y: 'اقتراحات، 12'));
-        expect(find.byType(RollingDigit), findsNothing);
-        expect(find.text('اقتراحات 12'), findsOneWidget);
+          // First build: plain Text, zero RollingDigit widgets.
+          await tester.pumpWidget(box('اقتراحات 12', a11y: 'اقتراحات، 12'));
+          expect(find.byType(RollingDigit), findsNothing);
+          expect(find.text('اقتراحات 12'), findsOneWidget);
 
-        // Change 12 -> 13: '1' stays static Text, only '2'->'3' mounts RollingDigit; TalkBack reads final value.
-        await tester.pumpWidget(box('اقتراحات 13', a11y: 'اقتراحات، 13'));
-        await tester.pump(const Duration(milliseconds: 80));
-        expect(find.byType(RollingDigit), findsOneWidget);
-        expect(tester.getSemantics(find.byKey(const ValueKey('roll'))).label, 'اقتراحات، 13');
-        await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
-        expect(find.byType(RollingDigit), findsNothing);
-        expect(find.text('اقتراحات 13'), findsOneWidget);
+          // Change 12 -> 13: '1' stays static Text, only '2'->'3' mounts RollingDigit; TalkBack reads final value.
+          await tester.pumpWidget(box('اقتراحات 13', a11y: 'اقتراحات، 13'));
+          await tester.pump(const Duration(milliseconds: 80));
+          expect(find.byType(RollingDigit), findsOneWidget);
+          expect(tester.getSemantics(find.byKey(const ValueKey('roll'))).label, 'اقتراحات، 13');
+          await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
+          expect(find.byType(RollingDigit), findsNothing);
+          expect(find.text('اقتراحات 13'), findsOneWidget);
 
-        // Multi-line label with maxLines: 2 keeps identical height before, during, and after roll.
-        const longPrefix = 'مجموعة طويلة جداً للتجربة السطر التاني ';
-        await tester.pumpWidget(box('${longPrefix}2', maxLines: 2));
-        await tester.pump();
-        final restHeight = tester.getSize(find.byKey(const ValueKey('roll'))).height;
-        await tester.pumpWidget(box('${longPrefix}3', maxLines: 2));
-        await tester.pump(const Duration(milliseconds: 60));
-        expect(find.byType(RollingDigit), findsOneWidget);
-        expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
-        await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
-        expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
+          // Multi-line label with maxLines: 2 keeps identical height before, during, and after roll.
+          const longPrefix = 'مجموعة طويلة جداً للتجربة السطر التاني ';
+          await tester.pumpWidget(box('${longPrefix}2', maxLines: 2));
+          await tester.pump();
+          final restHeight = tester.getSize(find.byKey(const ValueKey('roll'))).height;
+          await tester.pumpWidget(box('${longPrefix}3', maxLines: 2));
+          await tester.pump(const Duration(milliseconds: 60));
+          expect(find.byType(RollingDigit), findsOneWidget);
+          expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
+          await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
+          expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
 
-        // Arabic-Indic numerals: ١٢ -> ١٣ rolls only the changed Arabic-Indic digit.
-        await tester.pumpWidget(box('١٢'));
-        await tester.pump();
-        expect(find.byType(RollingDigit), findsNothing);
-        await tester.pumpWidget(box('١٣'));
-        await tester.pump(const Duration(milliseconds: 60));
-        final digit = tester.widget<RollingDigit>(find.byType(RollingDigit));
-        expect(digit.oldChar, '٢');
-        expect(digit.newChar, '٣');
-        await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
-        expect(find.text('١٣'), findsOneWidget);
+          // Arabic-Indic numerals: ١٢ -> ١٣ rolls only the changed Arabic-Indic digit.
+          await tester.pumpWidget(box('١٢'));
+          await tester.pump();
+          expect(find.byType(RollingDigit), findsNothing);
+          await tester.pumpWidget(box('١٣'));
+          await tester.pump(const Duration(milliseconds: 60));
+          final digit = tester.widget<RollingDigit>(find.byType(RollingDigit));
+          expect(digit.oldChar, '٢');
+          expect(digit.newChar, '٣');
+          await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
+          expect(find.text('١٣'), findsOneWidget);
 
-        // Reduce Motion: updates immediately with zero RollingDigit widgets.
-        await tester.pumpWidget(box('١٤', reduced: true));
-        await tester.pump(const Duration(milliseconds: 60));
-        expect(find.byType(RollingDigit), findsNothing);
-        expect(find.text('١٤'), findsOneWidget);
-        semantics.dispose();
+          // Reduce Motion: updates immediately with zero RollingDigit widgets.
+          await tester.pumpWidget(box('١٤', reduced: true));
+          await tester.pump(const Duration(milliseconds: 60));
+          expect(find.byType(RollingDigit), findsNothing);
+          expect(find.text('١٤'), findsOneWidget);
+        } finally {
+          semantics.dispose();
+        }
       },
     );
 

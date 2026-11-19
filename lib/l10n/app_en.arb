@@ -1650,5 +1650,41 @@
   "capsuleTranscribingA11y": "Transcribing recording. Tap to open note",
   "@capsuleTranscribingA11y": {
     "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Concept navigation and Me screen: navHome."
+  },
+  "navMap": "Map",
+  "@navMap": {
+    "description": "Concept navigation and Me screen: navMap."
+  },
+  "navMe": "Me",
+  "@navMe": {
+    "description": "Concept navigation and Me screen: navMe."
+  },
+  "newIdea": "New idea",
+  "@newIdea": {
+    "description": "Concept navigation and Me screen: newIdea."
+  },
+  "meIdeas": "Ideas",
+  "@meIdeas": {
+    "description": "Concept navigation and Me screen: meIdeas."
+  },
+  "meLinks": "Links",
+  "@meLinks": {
+    "description": "Concept navigation and Me screen: meLinks."
+  },
+  "meWeekDays": "Days this week",
+  "@meWeekDays": {
+    "description": "Concept navigation and Me screen: meWeekDays."
+  },
+  "meAppearanceLanguage": "Appearance & language",
+  "@meAppearanceLanguage": {
+    "description": "Concept navigation and Me screen: meAppearanceLanguage."
+  },
+  "meVoiceServices": "Voice & services",
+  "@meVoiceServices": {
+    "description": "Concept navigation and Me screen: meVoiceServices."
   }
 }

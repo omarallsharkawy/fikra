@@ -32,7 +32,7 @@ voice2_fixture.dart seeds realistic machine/correction/copy-marker/revision stat
 
 ## Floating navigation (redesign phase 2)
 
-Tabs.finder supports three visible indices: notes=0, links=1, ask=2. Add is
+Tabs.finder supports four visible indices: notes=0 (Home), links=1 (Map), ask=2, me=3. Add is
 Tabs.addButton (nav-add), never a tab index. All existing Add callers are updated.
 The harness optionally accepts glassTier for deterministic frosted screenshots;
 production automatic tier selection is unchanged. Existing DB/resource teardown

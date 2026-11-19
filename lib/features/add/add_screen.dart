@@ -14,7 +14,7 @@ import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
-import '../projects/project_header.dart';
+import '../../app/composer_navigation.dart';
 import '../shared/attachment_editor.dart';
 import '../shared/note_presentation.dart';
 import '../shared/transcription_notifications.dart';
@@ -107,7 +107,23 @@ class _AddScreenState extends ConsumerState<AddScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ProjectHeader(title: context.l10n.addTitle),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 20, 12),
+          child: Row(
+            children: [
+              FikraIconButton(
+                key: const ValueKey('add-close'),
+                icon: Icons.close_rounded,
+                label: context.l10n.close,
+                onTap: () => ComposerNavigation.closeOf(context),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Semantics(header: true, child: Text(context.l10n.newIdea, style: context.text.title)),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: ListView(
             padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 24 + NavigationInset.of(context)),

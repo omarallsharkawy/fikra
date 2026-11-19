@@ -8,7 +8,7 @@ import '../../core/widgets/glass_edge.dart';
 import '../../l10n/localizations.dart';
 import 'sliding_tab_bar.dart';
 
-/// Branch IDs stay stable: Add owns branch 0, visible tabs own branches 1–3.
+/// Branch IDs stay stable: Add owns branch 0, visible tabs own branches 1–4.
 class FloatingNavigation extends StatelessWidget {
   const FloatingNavigation({
     super.key,
@@ -44,12 +44,13 @@ class FloatingNavigation extends StatelessWidget {
       children: [
         Flexible(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 280),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: FikraNavBar(
               items: [
-                (context.l10n.navNotes, Icons.sticky_note_2_outlined),
-                (context.l10n.navLinks, Icons.hub_outlined),
+                (context.l10n.navHome, Icons.home_outlined),
+                (context.l10n.navMap, Icons.hub_outlined),
                 (context.l10n.navAsk, Icons.chat_bubble_outline_rounded),
+                (context.l10n.navMe, Icons.person_outline_rounded),
               ],
               index: branch - 1,
               enabled: !keyboard,
@@ -58,7 +59,7 @@ class FloatingNavigation extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         RepaintBoundary(
           child: Pressable(
             key: const ValueKey('nav-add'),
@@ -110,7 +111,7 @@ class FloatingNavigation extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 280), child: aboveBar),
+                        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 400), child: aboveBar),
                         barRow,
                       ],
                     ),
