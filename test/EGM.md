@@ -207,3 +207,8 @@ bounds and project switches, all sections, project sheet and cancel-before-wipe.
 motion_test replaces veil tests with incoming/outgoing opacity/scale and instant
 Reduce Motion. Existing recording, accessibility, header and screenshot callers
 use Me and composer close where expectations changed.
+## Brand redesign (phase 1a)
+
+- `pearl_contrast_test.dart`: checks WCAG AA contrast (`>= 4.5:1` text, `>= 3:1` icons/large) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes, plus typography bounds (`NotoSansArabic`, zero `letterSpacing`, all sizes `>= 12.5` sp).
+- `welcome_redesign_test.dart`: verifies primary CTA direct creation of default project («أفكاري» / "My ideas") without a name dialog, secondary CTA demo seed, absence of auth buttons, LTR↔RTL pixel mirroring of `WelcomeHeroPainter`, 2.0× large-text scrolling without overflow, and Reduce Motion skipping entrance animation.
+- `home_redesign_test.dart`: verifies `activeDaysThisWeek` rolling 7-day counting, voice/files/group chip filtering and lime active fill, tinted type badges, warning pending-rewrite badge, link-count pill (`connectionsIndexProvider`), conditional action strip hidden at 0 and prioritized (failed → suggestions → rewrites) with Links suggestions navigation and session dismissal, and active-days chip hidden at 0.

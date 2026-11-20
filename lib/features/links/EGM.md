@@ -158,3 +158,4 @@ The graph is now the optional `/links/graph` route pushed inside the Links shell
 - `links_surface.dart` uses `HeaderActionButton` for `graph-search-open` (visible caption `headerSearch`, semantic label `graphSearchHint`).
 - `_GraphSearchPanel` (`links_search.dart`) does not make `graph-search-field` clearable: the adjacent `graph-search-close` already clears and closes, so there is no second X.
 - Phase 8: `_showCluster` and `_showMoreClusters` (`links_navigation.dart`) wrap sheet `ListTile` rows (with rounded `FikraRadius.md` `shape`) in opaque `SolidSurface` + `Material(type: MaterialType.transparency)` without fixed `itemExtent`, keeping reading rows and ink clipped cleanly on glass sheets and scalable at large text.
+- Brand redesign (phase 1a): `_ReasonCapsule` (`edges_painter.dart`) and `_capsules` (`graph_overlays.dart`) apply `height: 1.25` to single-line 12.5 sp `meta` capsules so reason pills continue to fit between rows without overlap.

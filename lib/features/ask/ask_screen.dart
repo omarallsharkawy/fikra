@@ -230,8 +230,8 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                     child: Container(
                       width: FikraSpace.field,
                       height: FikraSpace.field,
-                      decoration: BoxDecoration(gradient: context.colors.addGradient, shape: BoxShape.circle),
-                      child: Icon(Icons.arrow_upward_rounded, color: context.colors.onAccent),
+                      decoration: BoxDecoration(color: context.colors.brandLime, shape: BoxShape.circle),
+                      child: Icon(Icons.arrow_upward_rounded, color: context.colors.onBrandLime),
                     ),
                   ),
                 ),
@@ -257,11 +257,10 @@ class _UserBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: context.colors.chip,
-            border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
-            borderRadius: BorderRadius.circular(FikraRadius.md),
+            color: context.colors.brandBlue,
+            borderRadius: BorderRadius.circular(FikraRadius.lg),
           ),
-          child: Text(text, style: context.text.body),
+          child: Text(text, style: context.text.body.copyWith(color: context.colors.onBrandBlue)),
         ),
       ),
     );
@@ -305,7 +304,7 @@ class _AnswerBubble extends StatelessWidget {
               Text(entry.body, style: context.text.answer),
               if (sources.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(context.l10n.sources, style: context.text.meta.copyWith(fontSize: 12)),
+                Text(context.l10n.sources, style: context.text.meta),
                 const SizedBox(height: 6),
                 for (var i = 0; i < sources.length; i++)
                   Padding(

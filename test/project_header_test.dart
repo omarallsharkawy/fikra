@@ -6,6 +6,7 @@ import 'package:fikra/data/local/database.dart';
 import 'package:fikra/features/projects/project_header.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -110,6 +111,13 @@ void expectHeaderLayout(
 }) {
   final root = find.ancestor(of: find.text(header.title), matching: find.byType(ProjectHeader));
   expect(find.descendant(of: root, matching: find.byKey(const ValueKey('header-settings'))), findsNothing);
+  final title = find.text(header.title);
+  final titleParagraph = tester.renderObject<RenderParagraph>(title);
+  expect((titleParagraph.text as TextSpan).style!.fontSize, 28);
+  expect(titleParagraph.textScaler.scale(28), closeTo(28 * scale, 0.01));
+  final rtl = l10n.localeName == 'ar';
+  expect(Directionality.of(tester.element(title)), rtl ? TextDirection.rtl : TextDirection.ltr);
+
   final name = expectedProjectName ?? l10n.sampleProjectName;
   final chip = find.descendant(
     of: root,

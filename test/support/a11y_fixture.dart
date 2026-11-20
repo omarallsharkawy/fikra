@@ -37,7 +37,7 @@ Future<SeededA11yData> seedA11yApp(
 }) async {
   final l = lookupAppLocalizations(locale);
   final ar = locale.languageCode == 'ar';
-  await pumpUntil(tester, find.text(l.startNewProject));
+  await pumpUntil(tester, find.text(l.welcomeStartWriting));
   final seeded = await pumpFuture(tester, () async {
     final projects = LocalProjectsRepository(db);
     final notesRepo = LocalNotesRepository(db);

@@ -1986,4 +1986,101 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get meVoiceServices => 'الصوت والخدمات';
+
+  @override
+  String get welcomeEyebrow => 'فِكرة';
+
+  @override
+  String get welcomeBrandTitle => 'فِكرة';
+
+  @override
+  String get welcomeTagline => 'اكتب. اربط. اسأل.';
+
+  @override
+  String get welcomeSubtitle => 'أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.';
+
+  @override
+  String get welcomeStartWriting => 'ابدأ الكتابة';
+
+  @override
+  String get welcomeTrySample => 'جرّب بمشروع تجريبي';
+
+  @override
+  String get welcomeFooter => 'ملاحظاتك محفوظة على جهازك · بدون حساب';
+
+  @override
+  String get defaultProjectName => 'أفكاري';
+
+  @override
+  String get filterVoice => 'صوت';
+
+  @override
+  String get filterFiles => 'ملفات';
+
+  @override
+  String get badgePdf => 'PDF';
+
+  @override
+  String get filterEmptyTitle => 'مفيش ملاحظات هنا';
+
+  @override
+  String get filterEmptyBody => 'مفيش ملاحظات بالفلتر ده لسه.';
+
+  @override
+  String actionStripFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة فشل تحليلها',
+      few: '$count ملاحظات فشل تحليلها',
+      two: 'ملاحظتين فشل تحليلهم',
+      one: 'ملاحظة فشل تحليلها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripRetry => 'أعد المحاولة';
+
+  @override
+  String actionStripSuggestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رابط مقترح جديد',
+      few: '$count روابط مقترحة جديدة',
+      two: 'رابطين مقترحين جداد',
+      one: 'رابط مقترح جديد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String actionStripRewrites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صياغة مستنية رأيك',
+      few: '$count صياغات مستنية رأيك',
+      two: 'صياغتين مستنيين رأيك',
+      one: 'صياغة مستنية رأيك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripDismiss => 'اخفي التنبيه';
+
+  @override
+  String activeDaysThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوم الأسبوع ده',
+      few: '$count أيام الأسبوع ده',
+      two: 'يومين الأسبوع ده',
+      one: 'يوم واحد الأسبوع ده',
+    );
+    return '$_temp0';
+  }
 }

@@ -1686,5 +1686,101 @@
   "meVoiceServices": "Voice & services",
   "@meVoiceServices": {
     "description": "Concept navigation and Me screen: meVoiceServices."
+  },
+  "welcomeEyebrow": "فِكرة",
+  "@welcomeEyebrow": {
+    "description": "Small brand eyebrow label above the hero title on the welcome screen."
+  },
+  "welcomeBrandTitle": "Fikrah",
+  "@welcomeBrandTitle": {
+    "description": "Large brand title on the welcome screen."
+  },
+  "welcomeTagline": "Write it. Link it. Ask it.",
+  "@welcomeTagline": {
+    "description": "Short three-word tagline on the welcome screen."
+  },
+  "welcomeSubtitle": "Your ideas, connected. Ask your notes anything and get answers from your own thinking.",
+  "@welcomeSubtitle": {
+    "description": "Supporting line on the welcome screen."
+  },
+  "welcomeStartWriting": "Start writing",
+  "@welcomeStartWriting": {
+    "description": "Primary CTA on the welcome screen that creates the default project and opens Notes."
+  },
+  "welcomeTrySample": "Try a sample project",
+  "@welcomeTrySample": {
+    "description": "Secondary CTA on the welcome screen that seeds the sample project."
+  },
+  "welcomeFooter": "Your notes stay on your device · no account",
+  "@welcomeFooter": {
+    "description": "Privacy footer on the welcome screen."
+  },
+  "defaultProjectName": "My ideas",
+  "@defaultProjectName": {
+    "description": "Default project name created directly from the welcome screen."
+  },
+  "filterVoice": "Voice",
+  "@filterVoice": {
+    "description": "Filter chip and note-card badge label for voice notes."
+  },
+  "filterFiles": "Files",
+  "@filterFiles": {
+    "description": "Filter chip label for notes with PDF or image attachments."
+  },
+  "badgePdf": "PDF",
+  "@badgePdf": {
+    "description": "Short PDF badge label on note cards."
+  },
+  "filterEmptyTitle": "No matching notes",
+  "@filterEmptyTitle": {
+    "description": "Empty state title when a type filter (voice/files) matches no notes."
+  },
+  "filterEmptyBody": "No notes match this filter yet.",
+  "@filterEmptyBody": {
+    "description": "Empty state body when a type filter matches no notes."
+  },
+  "actionStripFailed": "{count, plural, one{1 note failed to analyze} other{{count} notes failed to analyze}}",
+  "@actionStripFailed": {
+    "description": "Action strip message when one or more notes failed analysis.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRetry": "Retry",
+  "@actionStripRetry": {
+    "description": "Short retry label on the failed-analysis action strip."
+  },
+  "actionStripSuggestions": "{count, plural, one{1 new link suggestion} other{{count} new link suggestions}}",
+  "@actionStripSuggestions": {
+    "description": "Action strip message when new link suggestions are waiting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRewrites": "{count, plural, one{1 rewrite waiting for review} other{{count} rewrites waiting for review}}",
+  "@actionStripRewrites": {
+    "description": "Action strip message when note rewrites are waiting for review.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripDismiss": "Dismiss",
+  "@actionStripDismiss": {
+    "description": "Screen reader label for dismissing the notes action strip for the current session."
+  },
+  "activeDaysThisWeek": "{count, plural, one{1 day this week} other{{count} days this week}}",
+  "@activeDaysThisWeek": {
+    "description": "Chip showing how many distinct days in the rolling 7-day window have at least one note.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

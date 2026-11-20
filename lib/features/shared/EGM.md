@@ -125,3 +125,10 @@ GroupFilterRow adds optional `counts` (displayed beside group names) and `clearS
 
 - `note_groups.dart` (`runGroupAction`), `note_link_actions.dart` and `selection_actions.dart`: group writes and undo failure messages use `showMessengerToast` so every toast renders as the floating glass capsule.
 - `group_form.dart` & `group_options.dart`: `GroupColorPicker`'s "no colour" swatch fills with opaque `colors.chip`, and `_Disabled` passes `SheetOption(enabled: false)` so disabled option rows stay opaque over glass sheets.
+
+## Brand redesign (phase 1a)
+
+- `group_form.dart`: selected `ChoiceTag` fills with `brandLime` and `onBrandLime` w700 ink.
+- `group_filter.dart`: `GroupFilterRow` adds optional `leadingChips` (placed after "All" and before user groups) and `allSelected` override, preserving defaults for Links and Graph.
+- `note_groups.dart`: `GroupTag` uses 12.5 sp `meta` (removed 11.5 sp override).
+- `save_tick_button.dart` & `attachment_toolbar.dart`: `SaveTickButton` uses solid `brandLime` + `onBrandLime`; `add-stop` uses `dangerBg` foreground on `danger` fill.

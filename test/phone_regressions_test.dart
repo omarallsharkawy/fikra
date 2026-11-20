@@ -24,7 +24,7 @@ void phone(WidgetTester tester, {double width = 390}) {
 }
 
 Future<List<Note>> graphNotes(WidgetTester tester, FikraDatabase db) async {
-  await pumpUntil(tester, find.text(lookupAppLocalizations(tester.platformDispatcher.locale).startNewProject));
+  await pumpUntil(tester, find.text(lookupAppLocalizations(tester.platformDispatcher.locale).welcomeStartWriting));
   final notes = await pumpFuture(tester, () async {
     final project = await LocalProjectsRepository(db).create('project');
     final repo = LocalNotesRepository(db);
@@ -96,7 +96,7 @@ void main() {
     ) async {
       phone(tester);
       final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       final note = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('project');
         return LocalNotesRepository(db).create(
@@ -168,7 +168,7 @@ void main() {
     fikraTest('RTL file-size glyph order is number then Latin unit in $screen', (tester, db) async {
       phone(tester);
       final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       final note = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('project');
         final repo = LocalNotesRepository(db);

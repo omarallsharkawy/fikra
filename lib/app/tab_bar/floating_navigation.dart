@@ -71,21 +71,21 @@ class FloatingNavigation extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: context.colors.addGradient,
+                color: context.colors.brandBlue,
                 border: Border.all(color: context.colors.rim.withValues(alpha: context.colors.rimAlpha), width: 1),
                 boxShadow: glassShadows(context.colors),
               ),
               // Selected: an on-accent ring set 4 dp inside the edge, so it reads apart from the rim;
-              // an accent ring would vanish into the accent gradient.
+              // an accent ring would vanish into the brand-blue fill.
               padding: const EdgeInsets.all(4),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: branch == 0
-                      ? Border.all(color: context.colors.onAccent.withValues(alpha: .9), width: 1.5)
+                      ? Border.all(color: context.colors.onBrandBlue.withValues(alpha: .9), width: 1.5)
                       : null,
                 ),
-                child: Center(child: Icon(Icons.add_rounded, size: 28, color: context.colors.onAccent)),
+                child: Center(child: Icon(Icons.add_rounded, size: 28, color: context.colors.onBrandBlue)),
               ),
             ),
           ),

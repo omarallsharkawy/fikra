@@ -19,7 +19,7 @@ import 'support/app_harness.dart';
 void main() {
   final l10n = lookupAppLocalizations(const Locale('ar'));
   fikraTest('welcome -> demo project -> notes list -> links tab', (tester, db) async {
-    final tryDemo = find.text(l10n.trySampleProject);
+    final tryDemo = find.text(l10n.welcomeTrySample);
     await pumpUntil(tester, tryDemo);
     expect(Directionality.of(tester.element(tryDemo)), TextDirection.rtl);
 
@@ -34,8 +34,8 @@ void main() {
   });
 
   fikraTest('notes search filters after a short pause and clears instantly', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.trySampleProject));
-    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.welcomeTrySample));
+    await tester.tap(find.text(l10n.welcomeTrySample));
     await pumpUntil(tester, find.text(l10n.sample7Title));
     expect(find.text(l10n.sample6Title), findsWidgets);
 
@@ -54,8 +54,8 @@ void main() {
   });
 
   fikraTest('settings: theme choice applies and wipe returns to welcome', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.trySampleProject));
-    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.welcomeTrySample));
+    await tester.tap(find.text(l10n.welcomeTrySample));
     await pumpUntil(tester, find.text(l10n.sample7Title));
 
     await tester.tap(Tabs.finder(Tabs.me));
@@ -84,16 +84,16 @@ void main() {
     await tester.tap(find.text(l10n.eraseAll));
     await pumpUntil(tester, find.text(l10n.eraseAllConfirm));
     await tester.tap(find.text(l10n.eraseAllConfirm));
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     await pumpUntil(tester, find.text(l10n.eraseAllDone));
     expect(await pumpFuture(tester, () => db.select(db.notes).get()), isEmpty);
     // The theme choice survives the wipe.
-    expect(Theme.of(tester.element(find.text(l10n.startNewProject))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text(l10n.welcomeStartWriting))).brightness, Brightness.light);
   });
 
   fikraTest('add: one composer box holds title, text, tools and save', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.trySampleProject));
-    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.welcomeTrySample));
+    await tester.tap(find.text(l10n.welcomeTrySample));
     await pumpUntil(tester, find.text(l10n.sample7Title));
 
     await tester.tap(Tabs.addButton);
@@ -119,19 +119,19 @@ void main() {
   });
 
   fikraTest('deleting the last project returns to welcome', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
 
     final projects = LocalProjectsRepository(db);
     final p = await pumpFuture(tester, () => projects.create('مؤقت'));
     await pumpUntil(tester, find.text('مؤقت'));
 
     await pumpFuture(tester, () => projects.delete(p.id));
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     expect(await pumpFuture(tester, () => db.select(db.projects).get()), isEmpty);
   });
 
   fikraTest('a note from another project still shows its related notes', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     final projects = LocalProjectsRepository(db);
     final notes = LocalNotesRepository(db);
 
@@ -171,7 +171,7 @@ void main() {
     });
 
     Future<Note> seed(WidgetTester tester, FikraDatabase db) async {
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       late Note note;
       await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('مشروع');
@@ -297,7 +297,7 @@ void main() {
   });
 
   fikraTest('an opened note shows its content on the first frame, before the query returns', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     late Note note;
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('مشروع');
@@ -341,7 +341,7 @@ void main() {
     tester,
     db,
   ) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     late Note note;
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('مشروع');

@@ -79,3 +79,6 @@ Floating navigation now captures four tabs, a full-screen Add without chrome,
 and Me statistics in AR/EN × light/dark. Add exits through add-close before
 returning to tab captures. Header galleries omit Settings and keep project chips;
 shared accessibility fixtures enter Me through nav-3 and close Add with X.
+## Brand redesign (phase 1a)
+
+Welcome-screen screenshot fixtures wait on `welcomeStartWriting` / `welcomeTrySample` and capture the new geometric hero, brand typography, solid lime CTA, and flat canvas across AR/EN × dark/light.

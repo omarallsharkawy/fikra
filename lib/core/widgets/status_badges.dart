@@ -5,7 +5,7 @@ import '../theme/tokens.dart';
 
 import 'solid_surface.dart';
 
-enum BadgeKind { demo, saved, processing, failed }
+enum BadgeKind { demo, saved, processing, failed, warning }
 
 class FikraBadge extends StatelessWidget {
   const FikraBadge({super.key, required this.kind, this.label});
@@ -19,11 +19,15 @@ class FikraBadge extends StatelessWidget {
       BadgeKind.saved => (context.l10n.badgeSaved, context.colors.success, context.colors.successBg),
       BadgeKind.processing => (context.l10n.badgeAnalyzing, context.colors.textSecondary, context.colors.chip),
       BadgeKind.failed => (context.l10n.badgeFailed, context.colors.danger, context.colors.dangerBg),
+      BadgeKind.warning => (context.l10n.noteRewriteSuggested, context.colors.warning, context.colors.warningBg),
     };
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(FikraRadius.full)),
-      child: Text(label ?? text, style: context.text.meta.copyWith(color: fg)),
+      child: Text(
+        label ?? text,
+        style: context.text.meta.copyWith(color: fg, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

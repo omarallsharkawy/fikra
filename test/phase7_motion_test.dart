@@ -63,7 +63,7 @@ void main() {
             ),
           );
 
-          await pumpUntil(tester, find.text(ar.startNewProject));
+          await pumpUntil(tester, find.text(ar.welcomeStartWriting));
           final project = await pumpFuture(tester, () => LocalProjectsRepository(db).create('مشروع'));
           await pumpUntil(tester, find.text('مشروع'));
 
@@ -114,7 +114,7 @@ void main() {
       tester,
       db,
     ) async {
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       await pumpFuture(tester, () => LocalProjectsRepository(db).create('مشروع'));
       await pumpUntil(tester, find.text('مشروع'));
 
@@ -192,7 +192,7 @@ void main() {
         RecordPlatform.instance = fake;
         addTearDown(() => RecordPlatform.instance = prev);
 
-        await pumpUntil(tester, find.text(ar.startNewProject));
+        await pumpUntil(tester, find.text(ar.welcomeStartWriting));
         await pumpFuture(tester, () => LocalProjectsRepository(db).create('صوت'));
         await pumpUntil(tester, find.text('صوت'));
         await tester.tap(Tabs.addButton);
@@ -247,7 +247,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        await pumpUntil(tester, find.text(ar.startNewProject));
+        await pumpUntil(tester, find.text(ar.welcomeStartWriting));
 
         final projects = LocalProjectsRepository(db);
         final notesRepo = LocalNotesRepository(db);
@@ -487,7 +487,7 @@ void main() {
     );
 
     fikraTest('Suggestions segment count and Links chip counts roll when updated live', (tester, db) async {
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       final projects = LocalProjectsRepository(db);
       final notesRepo = LocalNotesRepository(db);
       final groupsRepo = LocalGroupsRepository(db);

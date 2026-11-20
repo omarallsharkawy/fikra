@@ -245,3 +245,11 @@ semantics) at the directional end inside `TextFieldTapRegion` whenever
 - `glass.dart` & `glass_edge.dart`: removed dead `borderRadius` and `blurEnabled` params; `Glass` uses `Glass.blurSigma` (16) and `colors.glassBackingAlpha` (0.90 light, 0.72 dark) and skips watchdog registration when animations are disabled.
 - `sheets.dart`: `_SheetSurface` is a stateless solid Pearl surface (`c.surface`, top `FikraRadius.xxl`, hairline `line` border, `glassShadows`, no `BackdropFilter`).
 - `toasts.dart`: `_ToastCapsule` renders a solid opaque high-contrast floating pill (`c.surface`, `borderGraph`/`line` 1 dp border, `glassShadows`, no `BackdropFilter`), keeping the same measured widths, hit pass-through, timings and Undo contrast.
+
+## Brand redesign (phase 1a)
+
+- `pearl_canvas.dart`: removed corner blooms; `PearlCanvasPainter.paintRect` paints flat `colors.canvas` at `opacity`.
+- `buttons.dart`: `FikraButtonStyle.primary` uses solid `brandLime` with `onBrandLime` ink in both themes and `FikraRadius.md`; `secondary` uses a 1 dp `line` border.
+- `selectors.dart`: `FikraChip` and `SegmentedPill` active states use `brandLime` fill with `onBrandLime` ink.
+- `fikra_field.dart`: uses `FikraRadius.md` (18 dp) corners.
+- `status_badges.dart`: adds `BadgeKind.warning` (`warning` on `warningBg`) and uses 12.5 sp `meta` w600.

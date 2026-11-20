@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
-
 import '../../core/format.dart';
 import '../../core/motion/container_transform.dart';
-import '../../core/motion/pressable.dart';
 import '../../core/motion/motion.dart';
+import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
+import '../connections/note_connections_provider.dart';
 import '../shared/note_groups.dart';
 import '../shared/note_presentation.dart';
 
@@ -41,9 +41,12 @@ class NoteCard extends ConsumerWidget {
     final concepts = note.conceptList;
     final attachments =
         ref.watch(projectAttachmentsProvider(note.projectId)).value?[note.id] ?? const <NoteAttachment>[];
+    final linkCount = ref.watch(connectionsIndexProvider(note.projectId).select((v) => v.value?[note.id]?.length ?? 0));
     final selected = this.selected;
     final group = this.group;
     final on = selected ?? false;
+    final kindBadges = _kindBadges(context, note, attachments);
+    final hasTopMeta = selected != null || kindBadges.isNotEmpty;
     // The thicker border takes its width from the padding, so nothing moves.
     final inset = on ? 2 - FikraSpace.hairline : 0.0;
     return ContainerTransformSource(
@@ -62,42 +65,66 @@ class NoteCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  if (selected != null) ...[
-                    Icon(
-                      selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                      key: ValueKey('note-check-${note.id}'),
-                      size: 22,
-                      color: selected ? context.colors.accent : context.colors.textSecondary,
+              if (hasTopMeta) ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (selected != null) ...[
+                      Icon(
+                        selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                        key: ValueKey('note-check-${note.id}'),
+                        size: 22,
+                        color: selected ? context.colors.accent : context.colors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: kindBadges.isEmpty
+                          ? const SizedBox.shrink()
+                          : Wrap(spacing: 6, runSpacing: 4, children: kindBadges),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
+                    Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
                   ],
-                  for (final item in attachmentIcons(note, attachments)) ...[
-                    Icon(item.icon, size: 18, color: context.colors.textSecondary),
-                    if (item.count > 1) Text(' ${item.count}', style: context.text.meta),
-                    const SizedBox(width: 6),
-                  ],
-                  const SizedBox(width: 2),
-                  Expanded(
-                    child: Text(
-                      noteTitle(context, note),
-                      style: context.text.cardTitleSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  noteTitle(context, note),
+                  style: context.text.cardTitleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ] else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        noteTitle(context, note),
+                        style: context.text.cardTitleSmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
-                ],
-              ),
+                    const SizedBox(width: 8),
+                    Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
+                  ],
+                ),
               if (note.displayText.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Text(note.displayText, style: context.text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
               const SizedBox(height: 10),
-              if (group != null) ...[
-                GroupTag(key: ValueKey('note-group-${note.id}'), group: group),
+              if (group != null || linkCount > 0) ...[
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (group != null) GroupTag(key: ValueKey('note-group-${note.id}'), group: group),
+                    if (linkCount > 0) _LinkCountPill(noteId: note.id, count: linkCount),
+                  ],
+                ),
                 const SizedBox(height: 6),
               ],
               if (attachments.any(
@@ -128,7 +155,11 @@ class NoteCard extends ConsumerWidget {
                       runSpacing: 6,
                       children: [
                         if (note.rewrite == RewriteStatus.pending)
-                          FikraBadge(kind: BadgeKind.processing, label: context.l10n.noteRewriteSuggested),
+                          FikraBadge(
+                            key: ValueKey('note-rewrite-${note.id}'),
+                            kind: BadgeKind.warning,
+                            label: context.l10n.noteRewriteSuggested,
+                          ),
                         for (final c in concepts.take(3)) _ConceptTag(c),
                         if (concepts.isEmpty && note.rewrite != RewriteStatus.pending)
                           FikraBadge(kind: BadgeKind.saved, label: context.l10n.noteSavedBadge),
@@ -139,6 +170,90 @@ class NoteCard extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+List<Widget> _kindBadges(BuildContext context, Note note, List<NoteAttachment> attachments) {
+  final counts = <AttachmentKind, int>{};
+  for (final a in attachments) {
+    counts.update(a.kind, (v) => v + 1, ifAbsent: () => 1);
+  }
+  if (counts.isEmpty) {
+    return switch (note.source) {
+      NoteSource.voice => [_TypeBadge(noteId: note.id, kind: AttachmentKind.voice, count: 1)],
+      NoteSource.pdf => [_TypeBadge(noteId: note.id, kind: AttachmentKind.pdf, count: 1)],
+      NoteSource.text => const [],
+    };
+  }
+  return [
+    for (final kind in AttachmentKind.values)
+      if (counts.containsKey(kind)) _TypeBadge(noteId: note.id, kind: kind, count: counts[kind]!),
+  ];
+}
+
+class _TypeBadge extends StatelessWidget {
+  const _TypeBadge({required this.noteId, required this.kind, required this.count});
+  final String noteId;
+  final AttachmentKind kind;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l10n = context.l10n;
+    final (IconData icon, String base, Color fg, Color bg) = switch (kind) {
+      AttachmentKind.voice => (Icons.mic_none_rounded, l10n.filterVoice, c.brandPurpleFg, c.brandPurpleTint),
+      AttachmentKind.pdf => (Icons.picture_as_pdf_outlined, l10n.badgePdf, c.brandBlueFg, c.brandBlueTint),
+      AttachmentKind.image => (Icons.image_outlined, l10n.photosTitle, c.brandSlateFg, c.brandSlateTint),
+    };
+    final label = count > 1 ? '$base · $count' : base;
+    return Container(
+      key: ValueKey('note-type-${kind.name}-$noteId'),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(FikraRadius.full)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: fg),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: context.text.meta.copyWith(color: fg, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LinkCountPill extends StatelessWidget {
+  const _LinkCountPill({required this.noteId, required this.count});
+  final String noteId;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      label: Fmt.links(context.l10n, count),
+      excludeSemantics: true,
+      child: Container(
+        key: ValueKey('note-links-$noteId'),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+        decoration: BoxDecoration(color: c.brandLimeTint, borderRadius: BorderRadius.circular(FikraRadius.full)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.link_rounded, size: 14, color: c.brandLimeFg),
+            const SizedBox(width: 4),
+            Text(
+              '$count',
+              style: context.text.meta.copyWith(color: c.brandLimeFg, fontWeight: FontWeight.w700),
+            ),
+          ],
         ),
       ),
     );
@@ -158,7 +273,7 @@ class _ConceptTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(FikraRadius.full),
         border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
       ),
-      child: Text(label, style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 11.5)),
+      child: Text(label, style: context.text.meta),
     );
   }
 }

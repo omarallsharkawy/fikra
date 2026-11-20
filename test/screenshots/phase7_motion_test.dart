@@ -78,7 +78,7 @@ void main() {
           final isAr = locale.languageCode == 'ar';
           String path(String name) => '${locale.languageCode}/${brightness.name}/phase7_$name';
 
-          await pumpUntil(tester, find.text(l10n.startNewProject));
+          await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
           await pumpFuture(tester, () async {
             final p = await LocalProjectsRepository(db).create(isAr ? 'مشروع التخرج' : 'Capstone');
             final repo = LocalNotesRepository(db);

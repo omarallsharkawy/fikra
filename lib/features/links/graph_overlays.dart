@@ -57,7 +57,11 @@ extension _GraphOverlays on _LinksScreenState {
       _selected,
       obstacles: obstacles,
       measure: (label, width) {
-        final size = textSize(label, context.text.meta.copyWith(color: context.colors.accent), width - 18);
+        final size = textSize(
+          label,
+          context.text.meta.copyWith(color: context.colors.accent, height: 1.25),
+          width - 18,
+        );
         return Size(size.width + 18, size.height + 8);
       },
     );

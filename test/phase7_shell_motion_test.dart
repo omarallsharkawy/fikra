@@ -70,7 +70,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        await pumpUntil(tester, find.text(ar.startNewProject));
+        await pumpUntil(tester, find.text(ar.welcomeStartWriting));
 
         final projects = LocalProjectsRepository(db);
         final notesRepo = LocalNotesRepository(db);
@@ -272,7 +272,7 @@ void main() {
         disableAnimations: true,
       );
       addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('هادئ');
         await LocalNotesRepository(db).create(projectId: p.id, title: 'بسيط', text: 'نص', source: NoteSource.text);
@@ -302,7 +302,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        await pumpUntil(tester, find.text(ar.startNewProject));
+        await pumpUntil(tester, find.text(ar.welcomeStartWriting));
         await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('شريط');
           final repo = LocalNotesRepository(db);
@@ -412,7 +412,7 @@ void main() {
             RecordPlatform.instance = fake;
             addTearDown(() => RecordPlatform.instance = prev);
 
-            await pumpUntil(tester, find.text(ar.startNewProject));
+            await pumpUntil(tester, find.text(ar.welcomeStartWriting));
             await pumpFuture(tester, () => LocalProjectsRepository(db).create('كبسولة'));
             await pumpUntil(tester, find.text('كبسولة'));
             final insetBefore = NavigationInset.of(tester.element(find.byType(NotesScreen)));
@@ -485,7 +485,7 @@ void main() {
       (tester, db) async {
         final semantics = tester.ensureSemantics();
         try {
-          await pumpUntil(tester, find.text(ar.startNewProject));
+          await pumpUntil(tester, find.text(ar.welcomeStartWriting));
           await pumpFuture(tester, () => LocalProjectsRepository(db).create('تفريغ'));
           await pumpUntil(tester, find.text('تفريغ'));
 

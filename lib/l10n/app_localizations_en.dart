@@ -1941,4 +1941,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meVoiceServices => 'Voice & services';
+
+  @override
+  String get welcomeEyebrow => 'فِكرة';
+
+  @override
+  String get welcomeBrandTitle => 'Fikrah';
+
+  @override
+  String get welcomeTagline => 'Write it. Link it. Ask it.';
+
+  @override
+  String get welcomeSubtitle =>
+      'Your ideas, connected. Ask your notes anything and get answers from your own thinking.';
+
+  @override
+  String get welcomeStartWriting => 'Start writing';
+
+  @override
+  String get welcomeTrySample => 'Try a sample project';
+
+  @override
+  String get welcomeFooter => 'Your notes stay on your device · no account';
+
+  @override
+  String get defaultProjectName => 'My ideas';
+
+  @override
+  String get filterVoice => 'Voice';
+
+  @override
+  String get filterFiles => 'Files';
+
+  @override
+  String get badgePdf => 'PDF';
+
+  @override
+  String get filterEmptyTitle => 'No matching notes';
+
+  @override
+  String get filterEmptyBody => 'No notes match this filter yet.';
+
+  @override
+  String actionStripFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes failed to analyze',
+      one: '1 note failed to analyze',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripRetry => 'Retry';
+
+  @override
+  String actionStripSuggestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new link suggestions',
+      one: '1 new link suggestion',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String actionStripRewrites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rewrites waiting for review',
+      one: '1 rewrite waiting for review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripDismiss => 'Dismiss';
+
+  @override
+  String activeDaysThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days this week',
+      one: '1 day this week',
+    );
+    return '$_temp0';
+  }
 }

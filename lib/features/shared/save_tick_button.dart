@@ -49,7 +49,7 @@ class SaveTickButton extends StatelessWidget {
                           Opacity(
                             opacity: 1 - p,
                             child: DecoratedBox(
-                              decoration: BoxDecoration(gradient: c.addGradient, shape: BoxShape.circle),
+                              decoration: BoxDecoration(color: c.brandLime, shape: BoxShape.circle),
                               child: const SizedBox.expand(),
                             ),
                           ),
@@ -69,7 +69,7 @@ class SaveTickButton extends StatelessWidget {
                             opacity: restingOut,
                             child: Transform.scale(
                               scale: 0.7 + 0.3 * restingOut,
-                              child: Icon(Icons.check_rounded, size: 22, color: c.onAccent),
+                              child: Icon(Icons.check_rounded, size: 22, color: c.onBrandLime),
                             ),
                           ),
                         if (checkProgress > 0) SaveTickMark(progress: checkProgress, color: c.success),
@@ -83,13 +83,13 @@ class SaveTickButton extends StatelessWidget {
         : Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(gradient: c.addGradient, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: c.brandLime, shape: BoxShape.circle),
             child: loading
                 ? Padding(
                     padding: const EdgeInsets.all(13),
-                    child: CircularProgressIndicator(strokeWidth: 2, color: c.onAccent),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: c.onBrandLime),
                   )
-                : Icon(Icons.check_rounded, size: 22, color: c.onAccent),
+                : Icon(Icons.check_rounded, size: 22, color: c.onBrandLime),
           );
     return Pressable(
       onTap: activeTap,

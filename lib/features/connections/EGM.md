@@ -115,3 +115,7 @@ profile workload is wired through glass_perf_scenario and is not run here.
 - Connections paints its own opaque PearlCanvas within the existing shell insets. ID-validated previews populate a reserved title/two-line body area immediately; live notes replace them. Static title and section shapes cover cold entry. Section snapshots stay fixed until the route entrance completes. NavigationInset remains the scroll clearance.
 - Large-project pair derivation uses `compute`; the returned index is reattached to the original links-list identity for stale-lock release. Suggestion pair sets and per-note lookups are cached in the index.
 - SuggestionSliver caches pair keys, child widgets and child indices. Claim-only busy changes reach cards, not the list. Successful locks start one incremental collapse; new source snapshots retain unchanged row widgets, removal order and Undo behavior. Lock release checks cached live-pair membership before restoring a row, so stale parent entries cannot restart its collapse timer.
+
+## Brand redesign (phase 1a)
+
+- `links_library_provider.dart` & `links_library_screen.dart`: adds `linksLibraryRequestedSegmentProvider` so Notes' conditional action strip can open `/links` directly on segment 1 (Suggestions) without changing router paths.

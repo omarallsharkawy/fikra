@@ -95,6 +95,13 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
     // Warm shared adjacency before a tap; completion does not rebuild the library.
     ref.listen(connectionsIndexProvider(project.id), (_, _) {});
     final state = _projects.putIfAbsent(project.id, _ProjectView.new);
+    final requestedSegment = ref.watch(linksLibraryRequestedSegmentProvider);
+    if (requestedSegment != null) {
+      state.segment = requestedSegment;
+      Future<void>.microtask(() {
+        if (mounted) ref.read(linksLibraryRequestedSegmentProvider.notifier).clear();
+      });
+    }
     final source = ref.watch(linksLibraryProvider(project.id));
     final liveGroups = ref.watch(groupsOfProjectProvider(project.id));
     final groups = liveGroups.value ?? const [];

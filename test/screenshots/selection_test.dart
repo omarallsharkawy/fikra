@@ -61,7 +61,7 @@ void main() {
             await frames();
           }
 
-          await pumpUntil(tester, find.text(l10n.startNewProject));
+          await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
           final (notes, parent, child) = await pumpFuture(tester, () async {
             final projects = LocalProjectsRepository(db);
             final repo = LocalNotesRepository(db);

@@ -76,3 +76,8 @@ single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 ## Finishing (redesign phase 8)
 
 `ProjectHeader` marks its screen `title` with `Semantics(header: true)`.
+
+## Brand redesign (phase 1a)
+
+- `welcome_screen.dart`: bold geometric hero (`WelcomeHeroPainter`, `@visibleForTesting`, mirrored horizontally in RTL with lime start-edge circle, purple top-end circle, and overlapping rotated blue rounded square), lime eyebrow (`welcomeEyebrow`), large brand title (`welcomeBrandTitle`), tagline (`welcomeTagline`), subtitle (`welcomeSubtitle`), primary full-width lime CTA (`welcome-start` / `welcomeStartWriting`) creating `defaultProjectName` directly with no name dialog, secondary outlined CTA (`welcome-sample` / `welcomeTrySample`) running `seedDemoProject`, and local-only privacy footer (`welcomeFooter`). No auth buttons. Scrollable for large text; staggered spring fade/scale-in (`FikraSprings.smooth`) is skipped under Reduce Motion.
+- Verification: `test/welcome_redesign_test.dart`.

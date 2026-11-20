@@ -25,7 +25,7 @@ class FikraChip extends StatelessWidget {
         constraints: BoxConstraints(minHeight: onTap == null ? 30 : 36),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? context.colors.selected : context.colors.chip,
+          color: selected ? context.colors.brandLime : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
           border: selected ? null : Border.all(color: context.colors.line, width: FikraSpace.hairline),
         ),
@@ -34,7 +34,9 @@ class FikraChip extends StatelessWidget {
           heightFactor: 1,
           child: Text(
             label,
-            style: context.text.chip.copyWith(color: selected ? context.colors.accent : context.colors.textPrimary),
+            style: context.text.chip.copyWith(
+              color: selected ? context.colors.onBrandLime : context.colors.textPrimary,
+            ),
           ),
         ),
       ),
@@ -119,7 +121,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                   width: w,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: context.colors.selected,
+                      color: context.colors.brandLime,
                       borderRadius: const BorderRadius.all(Radius.circular(FikraRadius.full)),
                     ),
                   ),
@@ -153,7 +155,7 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                                     style: context.text.chip.copyWith(
                                       color: Color.lerp(
                                         context.colors.textSecondary,
-                                        context.colors.accent,
+                                        context.colors.onBrandLime,
                                         (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
                                       ),
                                     ),

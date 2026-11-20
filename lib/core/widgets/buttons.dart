@@ -60,10 +60,10 @@ class FikraButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !loading;
-    final (Gradient? gradient, Color? color, Color fg, TextStyle text) = switch (style) {
-      FikraButtonStyle.primary => (context.colors.addGradient, null, context.colors.onAccent, context.text.button),
-      FikraButtonStyle.secondary => (null, context.colors.surface, context.colors.textPrimary, context.text.section),
-      FikraButtonStyle.danger => (null, context.colors.dangerBg, context.colors.danger, context.text.section),
+    final (Color color, Color fg, TextStyle text) = switch (style) {
+      FikraButtonStyle.primary => (context.colors.brandLime, context.colors.onBrandLime, context.text.button),
+      FikraButtonStyle.secondary => (context.colors.surface, context.colors.textPrimary, context.text.section),
+      FikraButtonStyle.danger => (context.colors.dangerBg, context.colors.danger, context.text.section),
     };
     final content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -95,12 +95,9 @@ class FikraButton extends StatelessWidget {
           width: expand ? double.infinity : null,
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 6),
           decoration: BoxDecoration(
-            gradient: gradient,
             color: color,
-            borderRadius: BorderRadius.circular(FikraRadius.full),
-            border: style == FikraButtonStyle.secondary
-                ? Border.all(color: context.colors.line, width: FikraSpace.hairline)
-                : null,
+            borderRadius: BorderRadius.circular(FikraRadius.md),
+            border: style == FikraButtonStyle.secondary ? Border.all(color: context.colors.line, width: 1) : null,
           ),
           // `alignment` would make the container fill the available width,
           // so compact buttons hug their content instead.
