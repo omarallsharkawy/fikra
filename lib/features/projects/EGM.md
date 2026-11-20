@@ -19,8 +19,11 @@ Project selection and creation. It holds the header used by every tab, the proje
 ## Invariants
 
 - `askProjectName` returns a trimmed, non-blank name of at most 40 characters, or `null` when cancelled.
-- `ProjectHeader` places the screen title (and optional `leading`) at the start of Row 1 and trailing action(s) + Settings (`header-settings`) at the end, with at least `FikraSpace.s12` gap. When `textScaler <= 1.6` and labelled pills fit beside the title, `HeaderActionButton` renders as a horizontal pill; otherwise it collapses to a 48 dp icon-only circle.
-- If even the 48 dp icon-only controls cannot fit beside the single-line title, controls occupy a separate row below the title with `FikraSpace.s8` vertical gap. Title text only wraps (up to 2 lines with ellipsis) if the heading alone exceeds row width.
+- `ProjectHeader` places title and optional leading/trailing actions in Row 1.
+  There is no Settings action or TextPainter measurement. Bare actions show
+  labels at >=340 dp available width and <=1.6 text scale; wrapped actions and
+  narrower/larger layouts use 48 dp icon-only controls. The trailing control takes
+  its natural width up to 45% of the row; the remaining title can wrap.
 - Row 2 places the project chip on its own line below the title at the start side with its natural width (up to the row width, ellipsizing long names) and a 48 dp touch target.
 - Project deletion requires `confirmDestructive`.
 - Project writes run through `runAction`, so failures show a toast instead of throwing into the UI.
@@ -32,7 +35,7 @@ Project selection and creation. It holds the header used by every tab, the proje
 - Calls `ProjectsRepository.create`, `rename`, `delete`, and `setCurrent`.
 - `ProjectsRepository.delete` removes the project row, cascades to its notes, links, and chat entries through foreign keys, and deletes the notes' files.
 - `seedDemoProject` writes a demo project and its notes.
-- Opens bottom sheets, pushes `/settings` from the header, and shows toasts.
+- Opens bottom sheets, shows toasts.
 
 ## Localization
 
@@ -42,7 +45,7 @@ Header, sheets and welcome copy use `context.l10n`; project names remain stored 
 
 - Run: `flutter analyze && flutter test`
 
-- `test/project_header_test.dart` loads the actual fonts and covers Arabic Add title regression, every tab header in both directions at 320/390 dp and text scales 1/1.3, wrapped action fallback, >= 48 dp settings pill navigation to `/settings`, Row 2 project chip alignment and ellipsis, 360 dp / 2.0x icon-only collapse without overflow, RTL edge alignment, and `boldText`/letter-word spacing accessibility overrides around the collapse threshold.
+- `test/project_header_test.dart` covers both locales at 320/390 dp and 1/1.3/2 text scale, project chip alignment/ellipsis, accessibility spacing, and wrapped action semantics.
 - `test/screenshots/headers_test.dart` renders eight dark header galleries plus light-mode Notes header captures (`notes_light`) under `build/screenshots/headers/{ar,en}/`.
 
 ## Links phase 3
@@ -66,7 +69,7 @@ single Pearl Add gradient and onAccent. Typography, layout and springs remain.
 ## Ordering & IA (redesign phase 4)
 
 - `showProjectSwitcher` orders rows via shared `orderProjects` (`project-row-<id>`): the currently selected project first, then remaining projects from most recent `Project.createdAt` descending.
-- `ProjectHeader` renders its Settings control (`header-settings`) and `HeaderActionButton` trailing actions as horizontal `SolidSurface` pills (icon + label) via `_HeaderLabelScope` when `textScaler <= 1.6` and Row 1 width fits them; otherwise labels drop cleanly to 48 dp icon-only circles (24 dp icon) without shrinking touch targets or changing TalkBack labels. `HeaderActionButton` nests optional `Tooltip` inside `Pressable` so the button's `Semantics` node stays at the widget root. Label room is measured only for a bare `HeaderActionButton` trailing; any other trailing widget is wrapped in `_HeaderLabelScope(showLabel: false)`, so a button inside it is icon-only and cannot overflow. The project switcher chip sits in Row 2 on its own line below the title.
+- Settings now lives in Me. HeaderActionButton retains opaque surfaces and 48 dp targets; project-switcher ordering and management guards are unchanged.
 
 `project_switcher.dart` (re-exported by `project_header.dart`) holds `showProjectSwitcher`, `_projectActions`, `deleteProjectMessage`, and `askProjectName` so `project_header.dart` stays focused on `HeaderActionButton` and `ProjectHeader`.
 

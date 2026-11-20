@@ -145,12 +145,12 @@ void main() {
           expect(notesTitleNode.flagsCollection.isHeader, isTrue);
 
           final navNotes = tester.getSemantics(Tabs.finder(Tabs.notes));
-          expect(navNotes.label, l.navNotes);
+          expect(navNotes.label, l.navHome);
           expect(navNotes.flagsCollection.isButton, isTrue);
           expect(navNotes.flagsCollection.isSelected, Tristate.isTrue);
 
           final navLinks = tester.getSemantics(Tabs.finder(Tabs.links));
-          expect(navLinks.label, l.navLinks);
+          expect(navLinks.label, l.navMap);
           expect(navLinks.flagsCollection.isButton, isTrue);
           expect(navLinks.flagsCollection.isSelected, Tristate.isFalse);
 
@@ -191,8 +191,8 @@ void main() {
             }
 
             walkTraversal(root);
-            final notesIdx = ordered.indexOf(l.navNotes);
-            final linksIdx = ordered.indexOf(l.navLinks);
+            final notesIdx = ordered.indexOf(l.navHome);
+            final linksIdx = ordered.indexOf(l.navMap);
             final askIdx = ordered.indexOf(l.navAsk);
             final addIdx = ordered.indexOf(l.navAdd);
             expect(notesIdx, greaterThanOrEqualTo(0));
@@ -200,11 +200,9 @@ void main() {
             expect(askIdx, greaterThan(linksIdx));
             expect(addIdx, greaterThan(askIdx));
 
-            // Header controls in RTL follow top-to-bottom, right-to-left visual order: Settings (row 1) -> project pill (row 2).
-            final settingsIdx = ordered.indexOf(l.settings);
-            final pillIdx = ordered.indexOf(l.projectPillA11y(data.project.name));
-            expect(settingsIdx, greaterThanOrEqualTo(0));
-            expect(pillIdx, greaterThan(settingsIdx));
+            expect(ordered.indexOf(l.navMe), greaterThan(askIdx));
+            expect(ordered.indexOf(l.projectPillA11y(data.project.name)), greaterThanOrEqualTo(0));
+            expect(find.byKey(const ValueKey('header-settings')), findsNothing);
           }
 
           // Links Browse: LibraryControls (search/sort/segments) precede list cards in traversal order.

@@ -11,7 +11,6 @@ import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'support/app_harness.dart';
@@ -55,9 +54,11 @@ void main() {
     await pumpUntil(tester, find.text(ar.trySampleProject));
     await tester.tap(find.text(ar.trySampleProject));
     await pumpUntil(tester, find.text(ar.sample7Title));
-    await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
+    await tester.tap(Tabs.finder(Tabs.me));
     await pumpUntil(tester, find.byType(SettingsScreen));
     await tester.pump(const Duration(milliseconds: 500));
+    await Scrollable.ensureVisible(tester.element(find.text(ar.languageEnglish)), alignment: .4);
+    await tester.pump(const Duration(milliseconds: 250));
     await tester.tap(find.text(ar.languageEnglish));
     await pumpUntil(tester, find.text(en.appearance));
     expect(testL10n(tester).localeName, 'en');
@@ -70,15 +71,17 @@ void main() {
     // A fresh repository reads the persisted row, independent of provider state.
     final reopened = LocalSettingsRepository(db, AttachmentStore());
     expect(await pumpFuture(tester, () => reopened.watchLanguage().first), AppLanguage.en);
-    context.pop();
+    await tester.tap(Tabs.finder(Tabs.notes));
     await pumpUntil(tester, find.text(en.notesTitle));
     expect(Directionality.of(tester.element(Tabs.finder(Tabs.notes))), TextDirection.ltr);
     // Stored sample text and its topics remain in their creation language.
     expect(find.text(ar.sample7Title), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
+    await tester.tap(Tabs.finder(Tabs.me));
     await pumpUntil(tester, find.text(en.appearance));
     await tester.pump(const Duration(milliseconds: 500));
+    await Scrollable.ensureVisible(tester.element(find.text(en.languageArabic)), alignment: .4);
+    await tester.pump(const Duration(milliseconds: 250));
     await tester.tap(find.text(en.languageArabic));
     await pumpUntil(tester, find.text(ar.appearance));
     expect(Directionality.of(tester.element(find.text(ar.appearance))), TextDirection.rtl);

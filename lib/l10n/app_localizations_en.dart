@@ -1914,4 +1914,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get capsuleTranscribingA11y => 'Transcribing recording. Tap to open note';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMap => 'Map';
+
+  @override
+  String get navMe => 'Me';
+
+  @override
+  String get newIdea => 'New idea';
+
+  @override
+  String get meIdeas => 'Ideas';
+
+  @override
+  String get meLinks => 'Links';
+
+  @override
+  String get meWeekDays => 'Days this week';
+
+  @override
+  String get meAppearanceLanguage => 'Appearance & language';
+
+  @override
+  String get meVoiceServices => 'Voice & services';
 }

@@ -62,6 +62,11 @@ void main() {
           tester.testTextInput.hide();
           FocusManager.instance.primaryFocus?.unfocus();
           await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const ValueKey('add-close')));
+          await tester.pumpAndSettle();
+          await tester.tap(Tabs.finder(Tabs.me));
+          await tester.pumpAndSettle();
+          await capture('me');
           await tester.tap(Tabs.finder(Tabs.notes));
           await tester.pumpAndSettle();
           final scrollable = find.descendant(

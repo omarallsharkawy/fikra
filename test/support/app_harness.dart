@@ -40,9 +40,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-/// Visible tab indexes, independent of the four persistent shell branches.
+/// Visible tab indexes, independent of the five persistent shell branches.
 abstract final class Tabs {
-  static const notes = 0, links = 1, ask = 2;
+  static const notes = 0, links = 1, ask = 2, me = 3;
   static Finder get addButton => find.byKey(const ValueKey('nav-add'));
   static Finder finder(int i) => find.byKey(ValueKey('nav-$i'));
 }

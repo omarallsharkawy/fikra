@@ -233,6 +233,9 @@ Future<void> visitAllMainScreensAndSheets(
   await settleFrames();
   await onScreen('add_typed');
 
+  await tester.tap(find.byKey(const ValueKey('add-close')));
+  await settleFrames();
+
   // 8. Links Browse
   await tester.tap(Tabs.finder(Tabs.links));
   await pumpUntil(tester, find.byType(LinksLibraryScreen));
@@ -280,11 +283,7 @@ Future<void> visitAllMainScreensAndSheets(
   await onScreen('ask_answer');
 
   // 13. Settings
-  final askSettings = find.descendant(
-    of: find.byType(AskScreen),
-    matching: find.byKey(const ValueKey('header-settings')),
-  );
-  await tester.tap(askSettings);
+  await tester.tap(Tabs.finder(Tabs.me));
   await pumpUntil(tester, find.byType(SettingsScreen));
   await settleFrames();
   await onScreen('settings');

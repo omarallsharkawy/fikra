@@ -72,3 +72,10 @@ In `screens_test.dart`, `14_settings` opens Settings via `ValueKey('header-setti
 ## Finishing (redesign phase 8)
 
 `phase8_finishing_test.dart` captures all 14 main screens and sheets at text scale `2.0` (`360 × 800` dp) in Arabic and English light mode (`phase8_scale2_*`), plus a frosted glass sheet (`phase8_glass_sheet`) and a frosted glass toast with Undo above the floating tab bar (`phase8_glass_toast`) in Arabic and English, light and dark.
+
+## Concept navigation (phase 1B)
+
+Floating navigation now captures four tabs, a full-screen Add without chrome,
+and Me statistics in AR/EN × light/dark. Add exits through add-close before
+returning to tab captures. Header galleries omit Settings and keep project chips;
+shared accessibility fixtures enter Me through nav-3 and close Add with X.

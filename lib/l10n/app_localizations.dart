@@ -3301,6 +3301,60 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة'**
   String get capsuleTranscribingA11y;
+
+  /// Concept navigation and Me screen: navHome.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرئيسية'**
+  String get navHome;
+
+  /// Concept navigation and Me screen: navMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get navMap;
+
+  /// Concept navigation and Me screen: navMe.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنا'**
+  String get navMe;
+
+  /// Concept navigation and Me screen: newIdea.
+  ///
+  /// In ar, this message translates to:
+  /// **'فكرة جديدة'**
+  String get newIdea;
+
+  /// Concept navigation and Me screen: meIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأفكار'**
+  String get meIdeas;
+
+  /// Concept navigation and Me screen: meLinks.
+  ///
+  /// In ar, this message translates to:
+  /// **'الروابط'**
+  String get meLinks;
+
+  /// Concept navigation and Me screen: meWeekDays.
+  ///
+  /// In ar, this message translates to:
+  /// **'أيام الأسبوع ده'**
+  String get meWeekDays;
+
+  /// Concept navigation and Me screen: meAppearanceLanguage.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر واللغة'**
+  String get meAppearanceLanguage;
+
+  /// Concept navigation and Me screen: meVoiceServices.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصوت والخدمات'**
+  String get meVoiceServices;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

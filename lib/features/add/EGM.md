@@ -25,7 +25,12 @@ Save resolves only unresolved new-recording defaults; an explicit off chip overr
 
 ## Floating navigation (redesign phase 2)
 
-Add is entered through nav-add, a floating gradient button; its StatefulShellBranch and draft lifecycle remain unchanged. The composer ListView adds NavigationInset.of(context) to its existing 24 dp bottom padding. The shell hides both floating controls while the keyboard is open and reduces the inset to zero.
+Add is entered through nav-add and stays branch 0 with its existing draft and
+recording lifecycle. Its top bar has add-close (logical start X) and New idea.
+ComposerNavigation closes to the previous branch (Home by default); system back
+uses the same shell-owned callback. The shell hides both chrome and
+NavigationInset on Add through the keyboard hide path. List padding stays 24 dp.
+
 
 ## Motion & delight (redesign phase 7)
 

@@ -136,7 +136,7 @@ void main() {
           await saveScreenshot(tester, path('recording'), settle: Duration.zero);
 
           // 3. Activity capsule above the bar while recording on another tab.
-          await tester.tap(Tabs.finder(Tabs.notes));
+          await tester.tap(find.byKey(const ValueKey('add-close')));
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 450));
           await tester.pump(const Duration(seconds: 1));

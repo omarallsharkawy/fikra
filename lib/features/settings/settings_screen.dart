@@ -7,6 +7,8 @@ import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/format.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../me/me_stats_tiles.dart';
+import '../projects/project_switcher.dart';
 
 /// Appearance, local data and what this build is.
 class SettingsScreen extends ConsumerWidget {
@@ -60,23 +62,26 @@ class SettingsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-            child: Row(
-              children: [
-                FikraIconButton(icon: Icons.arrow_back_rounded, label: context.l10n.back, onTap: () => context.pop()),
-              ],
-            ),
-          ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
+              padding: EdgeInsets.fromLTRB(FikraSpace.screen, 16, FikraSpace.screen, 32 + NavigationInset.of(context)),
               children: [
                 Semantics(
                   header: true,
-                  child: Text(context.l10n.settingsTitle, style: t.title.copyWith(fontWeight: FontWeight.w700)),
+                  child: Text(context.l10n.navMe, style: t.title.copyWith(fontWeight: FontWeight.w700)),
                 ),
-                section(context.l10n.appearance),
+                const SizedBox(height: 20),
+                const MeStatsTiles(),
+                section(context.l10n.projectsTitle),
+                SheetOption(
+                  key: const ValueKey('me-projects'),
+                  label: ref.watch(selectedProjectProvider)?.name ?? context.l10n.noProject,
+                  icon: Icons.folder_outlined,
+                  onTap: () => showProjectSwitcher(context, ref),
+                ),
+                section(context.l10n.meAppearanceLanguage),
+                Text(context.l10n.appearance, style: t.caption),
+                const SizedBox(height: 8),
                 SegmentedPill(
                   options: [context.l10n.themeSystem, context.l10n.themeLight, context.l10n.themeDark],
                   selected: _themes.indexOf(theme),
@@ -90,7 +95,7 @@ class SettingsScreen extends ConsumerWidget {
                   selected: _languages.indexOf(language),
                   onChanged: (i) => runAction(context, () => ref.read(settingsRepoProvider).setLanguage(_languages[i])),
                 ),
-                section(context.l10n.vtVoiceSection),
+                section(context.l10n.meVoiceServices),
                 SheetOption(
                   key: const ValueKey('settings-voice-text'),
                   label: '${context.l10n.vtTitle} · ${context.l10n.vtExperimental}',
