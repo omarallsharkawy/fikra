@@ -3301,6 +3301,120 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة'**
   String get capsuleTranscribingA11y;
+
+  /// Small brand eyebrow label above the hero title on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'فِكرة'**
+  String get welcomeEyebrow;
+
+  /// Large brand title on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'فِكرة'**
+  String get welcomeBrandTitle;
+
+  /// Short three-word tagline on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب. اربط. اسأل.'**
+  String get welcomeTagline;
+
+  /// Supporting line on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.'**
+  String get welcomeSubtitle;
+
+  /// Primary CTA on the welcome screen that creates the default project and opens Notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ الكتابة'**
+  String get welcomeStartWriting;
+
+  /// Secondary CTA on the welcome screen that seeds the sample project.
+  ///
+  /// In ar, this message translates to:
+  /// **'جرّب بمشروع تجريبي'**
+  String get welcomeTrySample;
+
+  /// Privacy footer on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظاتك محفوظة على جهازك · بدون حساب'**
+  String get welcomeFooter;
+
+  /// Default project name created directly from the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكاري'**
+  String get defaultProjectName;
+
+  /// Filter chip and note-card badge label for voice notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'صوت'**
+  String get filterVoice;
+
+  /// Filter chip label for notes with PDF or image attachments.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملفات'**
+  String get filterFiles;
+
+  /// Short PDF badge label on note cards.
+  ///
+  /// In ar, this message translates to:
+  /// **'PDF'**
+  String get badgePdf;
+
+  /// Empty state title when a type filter (voice/files) matches no notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات هنا'**
+  String get filterEmptyTitle;
+
+  /// Empty state body when a type filter matches no notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات بالفلتر ده لسه.'**
+  String get filterEmptyBody;
+
+  /// Action strip message when one or more notes failed analysis.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{ملاحظة فشل تحليلها} two{ملاحظتين فشل تحليلهم} few{{count} ملاحظات فشل تحليلها} other{{count} ملاحظة فشل تحليلها}}'**
+  String actionStripFailed(int count);
+
+  /// Short retry label on the failed-analysis action strip.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعد المحاولة'**
+  String get actionStripRetry;
+
+  /// Action strip message when new link suggestions are waiting.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{رابط مقترح جديد} two{رابطين مقترحين جداد} few{{count} روابط مقترحة جديدة} other{{count} رابط مقترح جديد}}'**
+  String actionStripSuggestions(int count);
+
+  /// Action strip message when note rewrites are waiting for review.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{صياغة مستنية رأيك} two{صياغتين مستنيين رأيك} few{{count} صياغات مستنية رأيك} other{{count} صياغة مستنية رأيك}}'**
+  String actionStripRewrites(int count);
+
+  /// Screen reader label for dismissing the notes action strip for the current session.
+  ///
+  /// In ar, this message translates to:
+  /// **'اخفي التنبيه'**
+  String get actionStripDismiss;
+
+  /// Chip showing how many distinct days in the rolling 7-day window have at least one note.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{يوم واحد الأسبوع ده} two{يومين الأسبوع ده} few{{count} أيام الأسبوع ده} other{{count} يوم الأسبوع ده}}'**
+  String activeDaysThisWeek(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

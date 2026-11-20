@@ -72,3 +72,7 @@ In `screens_test.dart`, `14_settings` opens Settings via `ValueKey('header-setti
 ## Finishing (redesign phase 8)
 
 `phase8_finishing_test.dart` captures all 14 main screens and sheets at text scale `2.0` (`360 × 800` dp) in Arabic and English light mode (`phase8_scale2_*`), plus a frosted glass sheet (`phase8_glass_sheet`) and a frosted glass toast with Undo above the floating tab bar (`phase8_glass_toast`) in Arabic and English, light and dark.
+
+## Brand redesign (phase 1a)
+
+Welcome-screen screenshot fixtures wait on `welcomeStartWriting` / `welcomeTrySample` and capture the new geometric hero, brand typography, solid lime CTA, and flat canvas across AR/EN × dark/light.

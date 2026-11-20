@@ -45,3 +45,11 @@ canvas and conservative overlapping blooms, and 1001 Add-gradient positions. Pea
 for non-square capsules; an explicit geometry test covers 125/135/145 degrees.
 `fikra_theme.dart` configures `snackBarTheme` (`colors.surface`, `StadiumBorder`, `insetPadding: EdgeInsets.fromLTRB(16, 5, 16, 12)`) for floating toast capsules.
 Run `flutter analyze` and the tests outside the socket-restricted sandbox.
+
+## Brand redesign (phase 1a)
+
+- `FikraPalette` adds brand fill/ink/foreground/tint tokens: `brandLime`, `brandBlue`, `brandPurple`, `brandSlate`, plus `on*`, `*Fg`, and `*Tint` variants in constructor, `copyWith` and `lerp`.
+- Neutral surfaces/text align to the dark (`#0E1013`/`#171A20`/`#22262F`/`#2E3440`, `#F3F5F7`/`#A1AAB8`) and light (`#F5F5F2`/`#FFFFFF`/`#ECEEEB`/`#DCDFE4`, `#14181F`/`#525B68`) concept palettes; `bloomCoolAlpha` and `bloomWarmAlpha` are zeroed.
+- Semantic tokens remap to the brand (`accent` = `brandLimeFg`, `onAccent` = `#111214` dark / `#FFFFFF` light, `selected` = `#242B1A` dark / `#EEF6D4` light; Material `secondary` = `brandBlue`, `tertiary` = `brandPurple`).
+- `FikraRadius` updates to `sm: 16`, `md: 18`, `lg: 20`, `xl: 24`, `xxl: 28`, `full: 999`. `FikraText` keeps `NotoSansArabic` with zero `letterSpacing`, raises `meta` to `12.5` sp, and bolds headings (`title` 28/w800, `cardTitleSmall` 17/w700, `body` 16/1.55, `caption` 14/1.5, `chip` 13/w600).
+- `test/pearl_contrast_test.dart` asserts WCAG AA (`>= 4.5:1` text, `>= 3:1` large/icons) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes plus typography bounds (`>= 12.5` sp).

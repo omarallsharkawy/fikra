@@ -32,7 +32,7 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await pumpUntil(tester, find.text(l.startNewProject));
+    await pumpUntil(tester, find.text(l.welcomeStartWriting));
     return pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('Voice project');
       final notes = LocalNotesRepository(db);

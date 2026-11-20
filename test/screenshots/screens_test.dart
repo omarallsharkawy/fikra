@@ -47,10 +47,10 @@ void main() {
           phone(tester);
           BuildContext ctx() => tester.element(find.byType(Scaffold).last);
 
-          await pumpUntil(tester, find.text(l10n.trySampleProject));
+          await pumpUntil(tester, find.text(l10n.welcomeTrySample));
           await capture('01_welcome');
 
-          await tester.tap(find.text(l10n.trySampleProject));
+          await tester.tap(find.text(l10n.welcomeTrySample));
           await pumpUntil(tester, find.text(l10n.sample7Title));
           await capture('02_notes');
 

@@ -35,7 +35,7 @@ void main() {
     List<String>? texts,
     AppLocalizations? l10n,
   }) async {
-    await pumpUntil(tester, find.text((l10n ?? ar).startNewProject));
+    await pumpUntil(tester, find.text((l10n ?? ar).welcomeStartWriting));
     final notes = await pumpFuture(tester, () async {
       final repo = LocalNotesRepository(db);
       final p = await LocalProjectsRepository(db).create('project');
@@ -662,9 +662,9 @@ void main() {
     (tester, db) async {
       tester.view.devicePixelRatio = 3;
       tester.view.physicalSize = const Size(390 * 3, 560 * 3);
-      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
       addTearDown(tester.view.reset);
       final [a, b] = await seed(tester, db, ['A', 'B']);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
       await open(tester, a);
       await openPicker(tester);
       await tapKey(tester, 'link-pick-${b.id}');

@@ -139,7 +139,7 @@ class GroupTag extends StatelessWidget {
                 group.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 11.5),
+                style: context.text.meta.copyWith(color: context.colors.textSecondary),
               ),
             ),
           ],

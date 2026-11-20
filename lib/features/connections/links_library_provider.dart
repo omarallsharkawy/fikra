@@ -76,3 +76,16 @@ LibraryNote projectNote(Note n) => (
 
 typedef _IndexInput = ({LibraryNotes notes, List<LibraryLink> links, List<LibraryGroup> groups});
 LinksIndex _deriveIndex(_IndexInput input) => deriveLinksIndex(input.notes, input.links, input.groups);
+
+class _LinksLibraryRequestedSegment extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void request(int segment) => state = segment;
+  void clear() => state = null;
+}
+
+/// One-shot segment request (e.g. from Notes action strip to open Suggestions).
+final linksLibraryRequestedSegmentProvider = NotifierProvider<_LinksLibraryRequestedSegment, int?>(
+  _LinksLibraryRequestedSegment.new,
+);

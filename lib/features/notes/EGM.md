@@ -75,3 +75,10 @@ The lazy list adds NavigationInset.of(context) to its existing 24 dp bottom padd
 - Phase 8: day section headings on `NotesScreen` are marked `Semantics(header: true)`.
 - P0.1: `StaggerVisibility` owns branch visibility changes and stops the stagger offstage. The screen reads a non-subscribing TickerMode snapshot for first-load/project-switch decisions; ordinary tab switches cause zero screen builds (`test/branch_build_test.dart`). Clearing an active selection still rebuilds once after hiding.
 - `NoteCard` wraps its existing pressable in `ContainerTransformSource`, allowing a paint-only source fade with no per-frame card builds during note open/pop.
+
+## Brand redesign (phase 1a)
+
+- `note_card.dart`: neutral `SolidSurface` (radius 20, hairline border), bold title, 2-line preview, time; tinted type badge pills (`note-type-voice-*` purple, `note-type-pdf-*` blue retaining `Icons.picture_as_pdf_outlined`, `note-type-image-*` slate, none for text); link-count pill (`note-links-*`, lime tint) reading `connectionsIndexProvider(note.projectId)` with zero per-card DB queries; pending rewrites use distinct `BadgeKind.warning` (`note-rewrite-*`).
+- `notes_action_strip.dart`: exports `NotesActionKind`, `dismissedActionStripsProvider`, `activeDaysThisWeek`, `ActiveDaysChip` (`notes-active-days`, rolling 7-day distinct-day count, hidden at 0, no broken-streak state), `NotesActionStrip` (`notes-action-strip`, `notes-action-strip-tap`, `notes-action-strip-dismiss`, 48 dp min height), and `resolveNotesActionStrip` with priority (1) failed analysis → retry, (2) new link suggestions → Links Suggestions segment, (3) pending rewrites → open note, dismissible per project for the session.
+- `notes_screen.dart`: adds `NotesKindFilter { voice, files }`, renders `ActiveDaysChip` above search, conditional `NotesActionStrip` under search, and `GroupFilterRow` with `notes-filter-voice` and `notes-filter-files` leading chips (active chip lime fill + dark ink) before user groups. Keeps day headers, multi-select, `ListView.builder`, `StaggerVisibility`, and `normalizeArabic` search.
+- Verification: `test/home_redesign_test.dart`.

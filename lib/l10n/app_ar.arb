@@ -1669,5 +1669,101 @@
   "capsuleTranscribingA11y": "بيفرّغ التسجيل. دوس عشان تفتح الملاحظة",
   "@capsuleTranscribingA11y": {
     "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "welcomeEyebrow": "فِكرة",
+  "@welcomeEyebrow": {
+    "description": "Small brand eyebrow label above the hero title on the welcome screen."
+  },
+  "welcomeBrandTitle": "فِكرة",
+  "@welcomeBrandTitle": {
+    "description": "Large brand title on the welcome screen."
+  },
+  "welcomeTagline": "اكتب. اربط. اسأل.",
+  "@welcomeTagline": {
+    "description": "Short three-word tagline on the welcome screen."
+  },
+  "welcomeSubtitle": "أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.",
+  "@welcomeSubtitle": {
+    "description": "Supporting line on the welcome screen."
+  },
+  "welcomeStartWriting": "ابدأ الكتابة",
+  "@welcomeStartWriting": {
+    "description": "Primary CTA on the welcome screen that creates the default project and opens Notes."
+  },
+  "welcomeTrySample": "جرّب بمشروع تجريبي",
+  "@welcomeTrySample": {
+    "description": "Secondary CTA on the welcome screen that seeds the sample project."
+  },
+  "welcomeFooter": "ملاحظاتك محفوظة على جهازك · بدون حساب",
+  "@welcomeFooter": {
+    "description": "Privacy footer on the welcome screen."
+  },
+  "defaultProjectName": "أفكاري",
+  "@defaultProjectName": {
+    "description": "Default project name created directly from the welcome screen."
+  },
+  "filterVoice": "صوت",
+  "@filterVoice": {
+    "description": "Filter chip and note-card badge label for voice notes."
+  },
+  "filterFiles": "ملفات",
+  "@filterFiles": {
+    "description": "Filter chip label for notes with PDF or image attachments."
+  },
+  "badgePdf": "PDF",
+  "@badgePdf": {
+    "description": "Short PDF badge label on note cards."
+  },
+  "filterEmptyTitle": "مفيش ملاحظات هنا",
+  "@filterEmptyTitle": {
+    "description": "Empty state title when a type filter (voice/files) matches no notes."
+  },
+  "filterEmptyBody": "مفيش ملاحظات بالفلتر ده لسه.",
+  "@filterEmptyBody": {
+    "description": "Empty state body when a type filter matches no notes."
+  },
+  "actionStripFailed": "{count, plural, one{ملاحظة فشل تحليلها} two{ملاحظتين فشل تحليلهم} few{{count} ملاحظات فشل تحليلها} other{{count} ملاحظة فشل تحليلها}}",
+  "@actionStripFailed": {
+    "description": "Action strip message when one or more notes failed analysis.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRetry": "أعد المحاولة",
+  "@actionStripRetry": {
+    "description": "Short retry label on the failed-analysis action strip."
+  },
+  "actionStripSuggestions": "{count, plural, one{رابط مقترح جديد} two{رابطين مقترحين جداد} few{{count} روابط مقترحة جديدة} other{{count} رابط مقترح جديد}}",
+  "@actionStripSuggestions": {
+    "description": "Action strip message when new link suggestions are waiting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRewrites": "{count, plural, one{صياغة مستنية رأيك} two{صياغتين مستنيين رأيك} few{{count} صياغات مستنية رأيك} other{{count} صياغة مستنية رأيك}}",
+  "@actionStripRewrites": {
+    "description": "Action strip message when note rewrites are waiting for review.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripDismiss": "اخفي التنبيه",
+  "@actionStripDismiss": {
+    "description": "Screen reader label for dismissing the notes action strip for the current session."
+  },
+  "activeDaysThisWeek": "{count, plural, one{يوم واحد الأسبوع ده} two{يومين الأسبوع ده} few{{count} أيام الأسبوع ده} other{{count} يوم الأسبوع ده}}",
+  "@activeDaysThisWeek": {
+    "description": "Chip showing how many distinct days in the rolling 7-day window have at least one note.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

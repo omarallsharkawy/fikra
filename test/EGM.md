@@ -197,3 +197,9 @@ The 5,000-note fixture measured nine unrelated row builds before the change and 
 
 - `glass_quality_test.dart`, `glass_widget_test.dart`, `floating_navigation_test.dart`, `toast_test.dart`, `pearl_contrast_test.dart`, and `phase8_glass_surfaces_test.dart`: verify Reduce Motion forces `GlassTier.solid`, `+` button / bottom sheets / toasts / `LibraryControls` contain no `BackdropFilter`, and the floating tab bar (and grouped `ActivityCapsule`) retains sigma-16 `BackdropFilter` with 0.90 light / 0.72 dark backing alpha (solid under power save / high contrast / reduce motion).
 - `arabic_normalization_test.dart`: covers `normalizeArabic` (Alef/ة/ى/ؤ/ئ, tashkeel/tatweel, Arabic-Indic digits, Latin case, whitespace, preserved `ال`), `matchesNormalizedArabic` (`ال` tolerance without false matches), Notes search widget flow, `LinksIndex`, and `DemoAiService.ask` (including cache invalidation).
+
+## Brand redesign (phase 1a)
+
+- `pearl_contrast_test.dart`: checks WCAG AA contrast (`>= 4.5:1` text, `>= 3:1` icons/large) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes, plus typography bounds (`NotoSansArabic`, zero `letterSpacing`, all sizes `>= 12.5` sp).
+- `welcome_redesign_test.dart`: verifies primary CTA direct creation of default project («أفكاري» / "My ideas") without a name dialog, secondary CTA demo seed, absence of auth buttons, LTR↔RTL pixel mirroring of `WelcomeHeroPainter`, 2.0× large-text scrolling without overflow, and Reduce Motion skipping entrance animation.
+- `home_redesign_test.dart`: verifies `activeDaysThisWeek` rolling 7-day counting, voice/files/group chip filtering and lime active fill, tinted type badges, warning pending-rewrite badge, link-count pill (`connectionsIndexProvider`), conditional action strip hidden at 0 and prioritized (failed → suggestions → rewrites) with Links suggestions navigation and session dismissal, and active-days chip hidden at 0.

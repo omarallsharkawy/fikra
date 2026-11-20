@@ -37,11 +37,37 @@ void main() {
   });
   test('WCAG reference and 90% composite rounding match the spec', () {
     expect(contrast(Colors.black, Colors.white), 21);
-    expect(composite(FikraPalette.light.surface, Colors.black, .90), const Color(0xffe5e5e3));
-    expect(composite(FikraPalette.dark.surface, Colors.white, .90), const Color(0xff42494e));
+    expect(composite(FikraPalette.light.surface, Colors.black, .90), const Color(0xffe6e6e6));
+    expect(composite(FikraPalette.dark.surface, Colors.white, .90), const Color(0xff2e3136));
+  });
+  test('Typography keeps Arabic zero letterSpacing and raises smallest meta size to >= 12.5 sp', () {
+    for (final c in [FikraPalette.light, FikraPalette.dark]) {
+      final t = FikraText(c);
+      final styles = [
+        t.title,
+        t.cardTitle,
+        t.cardTitleSmall,
+        t.section,
+        t.bodyLarge,
+        t.answer,
+        t.body,
+        t.field,
+        t.caption,
+        t.nav,
+        t.button,
+        t.chip,
+        t.meta,
+      ];
+      for (final s in styles) {
+        expect(s.fontFamily, 'NotoSansArabic');
+        expect(s.letterSpacing ?? 0, 0);
+        expect(s.fontSize, greaterThanOrEqualTo(12.5));
+      }
+      expect(t.meta.fontSize, greaterThanOrEqualTo(12.5));
+    }
   });
   for (final (name, c) in [('light', FikraPalette.light), ('dark', FikraPalette.dark)]) {
-    test('Pearl $name: every text-bearing surface passes normal text AA', () {
+    test('Brand $name: every text-bearing surface passes normal text AA', () {
       void check(String pair, Color text, Color bg) =>
           expect(contrast(text, bg), greaterThanOrEqualTo(4.5), reason: '$name $pair');
       for (final (surface, bg) in [
@@ -66,13 +92,9 @@ void main() {
         // Color.lerp returns float channels; round as the contrast method requires.
         check('Add gradient sample $i', c.onAccent, composite(color, Colors.black, 1));
       }
-      // Conservative bound for simultaneous maximum blooms, regardless of geometry.
-      final bloom = composite(c.bloomCool, composite(c.bloomWarm, c.canvas, c.bloomWarmAlpha), c.bloomCoolAlpha);
-      check('body/blooms', c.textPrimary, bloom);
-      check('secondary/blooms', c.textSecondary, bloom);
       // Tab-bar glass: light stays 0.90 (passes over black and white); dark uses
       // 0.72 over dark-theme surfaces (and textPrimary still passes over white).
-      final tabBackdrops = name == 'light' ? [Colors.black, Colors.white] : [Colors.black, c.canvas, c.surface, bloom];
+      final tabBackdrops = name == 'light' ? [Colors.black, Colors.white] : [Colors.black, c.canvas, c.surface];
       for (final backdrop in tabBackdrops) {
         final bg = composite(c.surface, backdrop, c.glassBackingAlpha);
         check('body/glass', c.textPrimary, bg);
@@ -88,7 +110,43 @@ void main() {
         check('status/own background', status, bg);
       }
     });
-    test('Pearl $name: group markers pass 3:1 non-text contrast on surface and canvas', () {
+    test('Brand $name: every brand fill, ink, foreground, and tinted badge passes WCAG AA', () {
+      void check(String pair, Color fg, Color bg, {double min = 4.5}) =>
+          expect(contrast(fg, bg), greaterThanOrEqualTo(min), reason: '$name $pair');
+
+      // Brand fills + ink.
+      check('onBrandLime/brandLime', c.onBrandLime, c.brandLime);
+      check('onBrandBlue/brandBlue', c.onBrandBlue, c.brandBlue);
+      check('onBrandPurple/brandPurple', c.onBrandPurple, c.brandPurple);
+      check('onBrandSlate/brandSlate', c.onBrandSlate, c.brandSlate);
+
+      // Brand foregrounds on opaque reading surfaces.
+      for (final (fgName, fg) in [
+        ('brandLimeFg', c.brandLimeFg),
+        ('brandBlueFg', c.brandBlueFg),
+        ('brandPurpleFg', c.brandPurpleFg),
+        ('brandSlateFg', c.brandSlateFg),
+      ]) {
+        for (final (bgName, bg) in [('canvas', c.canvas), ('surface', c.surface), ('chip', c.chip)]) {
+          check('$fgName/$bgName', fg, bg);
+        }
+      }
+
+      // Tinted badge pairs composited over surface and canvas.
+      for (final (badgeName, fg, tint) in [
+        ('limeBadge', c.brandLimeFg, c.brandLimeTint),
+        ('blueBadge', c.brandBlueFg, c.brandBlueTint),
+        ('purpleBadge', c.brandPurpleFg, c.brandPurpleTint),
+        ('slateBadge', c.brandSlateFg, c.brandSlateTint),
+      ]) {
+        for (final (bgName, bg) in [('surface', c.surface), ('canvas', c.canvas)]) {
+          final composited = composite(tint, bg, tint.a);
+          check('$badgeName/$bgName', fg, composited);
+          check('$badgeName icon/$bgName', fg, composited, min: 3.0);
+        }
+      }
+    });
+    test('Brand $name: group markers pass 3:1 non-text contrast on surface and canvas', () {
       for (final (group, marker) in [
         ('blue', c.groupBlue),
         ('sage', c.groupSage),
@@ -100,7 +158,7 @@ void main() {
         }
       }
     });
-    test('Pearl $name: solid sheet and toast text and icons pass WCAG AA', () {
+    test('Brand $name: solid sheet and toast text and icons pass WCAG AA', () {
       for (final (role, fg) in [
         ('toast/sheet body', c.textPrimary),
         ('sheet secondary', c.textSecondary),

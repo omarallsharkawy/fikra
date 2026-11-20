@@ -71,7 +71,7 @@ void main() {
       serviceKeys: settingsKeys,
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         final project = await pumpFuture(tester, () => LocalProjectsRepository(db).create('Alpha'));
         await pumpFuture(
           tester,
@@ -165,7 +165,7 @@ void main() {
         await tester.tap(eraseFinder);
         await tester.pump(const Duration(milliseconds: 400));
         await tester.tap(find.descendant(of: find.byType(Dialog), matching: find.text(l.eraseAllConfirm)));
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
       }),
     );
   }
@@ -183,7 +183,7 @@ void main() {
         addTearDown(() => unawaited(voiceBackend.dispose()));
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () => LocalProjectsRepository(db).create('Voice project'));
         await pumpUntil(tester, find.text('Voice project'));
 
@@ -261,7 +261,7 @@ void main() {
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         final (n1, n2, n3, group) = await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('Notes order');
           final notesRepo = LocalNotesRepository(db);
@@ -394,7 +394,7 @@ void main() {
   ) async {
     phone(tester);
     final ar = lookupAppLocalizations(const Locale('ar'));
-    await pumpUntil(tester, find.text(ar.startNewProject));
+    await pumpUntil(tester, find.text(ar.welcomeStartWriting));
 
     final (oldest, middle, newerA, newerB) = await pumpFuture(tester, () async {
       final repo = LocalProjectsRepository(db);
@@ -484,7 +484,7 @@ void main() {
       phone(tester);
       final ar = lookupAppLocalizations(const Locale('ar'));
 
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       final (a, b) = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('Search project');
         final notesRepo = LocalNotesRepository(db);
@@ -634,7 +634,7 @@ void main() {
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('Edit project');
           await LocalNotesRepository(db)
@@ -687,7 +687,7 @@ void main() {
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('Headers');
           await LocalNotesRepository(db).create(projectId: p.id, title: 'Seed', text: 'Body', source: NoteSource.text);
@@ -841,7 +841,7 @@ void main() {
   fikraTest('clearing an unfocused search field leaves focus and the keyboard off', (tester, db) async {
     phone(tester);
     final ar = lookupAppLocalizations(const Locale('ar'));
-    await pumpUntil(tester, find.text(ar.startNewProject));
+    await pumpUntil(tester, find.text(ar.welcomeStartWriting));
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('Search project');
       final notesRepo = LocalNotesRepository(db);

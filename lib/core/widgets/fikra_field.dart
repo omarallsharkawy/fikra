@@ -157,7 +157,7 @@ class _FikraFieldState extends State<FikraField> {
       children: [
         Positioned.fill(
           child: SolidSurface(
-            radius: FikraRadius.full,
+            radius: FikraRadius.md,
             padding: EdgeInsets.zero,
             borderColor: border,
             // A hairline vanishes on light surfaces; inputs need a visible edge.

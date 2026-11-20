@@ -17,7 +17,7 @@ Future<void> seedExternalProject(WidgetTester tester, FikraDatabase db, Locale l
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await pumpUntil(tester, find.text(lookupAppLocalizations(locale).startNewProject));
+  await pumpUntil(tester, find.text(lookupAppLocalizations(locale).welcomeStartWriting));
   await pumpFuture(tester, () => LocalProjectsRepository(db).create(externalProject));
   await pumpUntil(tester, find.text(externalProject));
 }

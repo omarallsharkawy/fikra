@@ -115,7 +115,7 @@ class _ReasonCapsule extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: context.text.meta.copyWith(color: context.colors.accent),
+          style: context.text.meta.copyWith(color: context.colors.accent, height: 1.25),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

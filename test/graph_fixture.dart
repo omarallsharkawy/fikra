@@ -11,7 +11,7 @@ import 'support/app_harness.dart';
 
 Future<List<Note>> seedGraph(WidgetTester tester, FikraDatabase db, {bool arabic = false}) async {
   final l10n = lookupAppLocalizations(Locale(arabic ? 'ar' : 'en'));
-  await pumpUntil(tester, find.text(l10n.startNewProject));
+  await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
   final notes = await pumpFuture(tester, () async {
     final project = await LocalProjectsRepository(db).create(arabic ? 'أفكاري' : 'My ideas');
     final titles = arabic

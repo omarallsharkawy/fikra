@@ -52,8 +52,8 @@ void main() {
   });
 
   fikraTest('language choice switches the entire app at runtime and persists', (tester, db) async {
-    await pumpUntil(tester, find.text(ar.trySampleProject));
-    await tester.tap(find.text(ar.trySampleProject));
+    await pumpUntil(tester, find.text(ar.welcomeTrySample));
+    await tester.tap(find.text(ar.welcomeTrySample));
     await pumpUntil(tester, find.text(ar.sample7Title));
     await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
     await pumpUntil(tester, find.byType(SettingsScreen));
@@ -96,9 +96,9 @@ void main() {
     tester,
     db,
   ) async {
-    await pumpUntil(tester, find.text(en.trySampleProject));
-    expect(Directionality.of(tester.element(find.text(en.trySampleProject))), TextDirection.ltr);
-    final container = ProviderScope.containerOf(tester.element(find.text(en.trySampleProject)));
+    await pumpUntil(tester, find.text(en.welcomeTrySample));
+    expect(Directionality.of(tester.element(find.text(en.welcomeTrySample))), TextDirection.ltr);
+    final container = ProviderScope.containerOf(tester.element(find.text(en.welcomeTrySample)));
     final project = await pumpFuture(
       tester,
       () => seedDemoProject(

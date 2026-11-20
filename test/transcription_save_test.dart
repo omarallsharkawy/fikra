@@ -42,7 +42,7 @@ void main() {
           tester.view.physicalSize = const Size(390, 844);
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
-          await pumpUntil(tester, find.text(l.startNewProject));
+          await pumpUntil(tester, find.text(l.welcomeStartWriting));
           final project = await pumpFuture(tester, () => LocalProjectsRepository(db).create('Save project'));
           await pumpFuture(tester, () => LocalSettingsRepository(db, _Copies()).setAutoTranscribe(automatic));
           Note? existing;
@@ -167,7 +167,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () => LocalProjectsRepository(db).create('Save project'));
         final settings = LocalSettingsRepository(db, _Copies());
         await pumpFuture(tester, () => settings.setAutoTranscribe(true));

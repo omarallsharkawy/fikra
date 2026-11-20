@@ -57,3 +57,7 @@ When chat entries exist, `AskScreen` renders `ask-clear-chat` via `HeaderActionB
 ## Finishing (redesign phase 8)
 
 `AskScreen` wraps `notFoundInNotes` in `Flexible` and sizes `_SourceRow`'s index badge with `minWidth/minHeight: 22` so large text wraps and grows cleanly at 2.0× scale.
+
+## Brand redesign (phase 1a)
+
+`_UserBubble` uses solid `brandBlue` fill with `onBrandBlue` ink (`FikraRadius.lg`); the send button uses solid `brandLime` with `onBrandLime` ink; the sources header uses 12.5 sp `meta`.
