@@ -1,4 +1,5 @@
 import 'package:fikra/app/providers.dart';
+import 'package:drift/native.dart';
 import 'package:fikra/core/format.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/demo/demo_seed.dart';
@@ -19,6 +20,44 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final ar = lookupAppLocalizations(const Locale('ar'));
   final en = lookupAppLocalizations(const Locale('en'));
+
+  testWidgets('fresh Arabic device starts in English and explicit language choices remain live', (tester) async {
+    final db = FikraDatabase(NativeDatabase.memory());
+    final settings = LocalSettingsRepository(db, AttachmentStore());
+    tester.platformDispatcher.localeTestValue = const Locale('ar');
+    tester.platformDispatcher.localesTestValue = [const Locale('ar')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [settingsRepoProvider.overrideWithValue(settings)],
+        child: Consumer(
+          builder: (context, ref, child) => MaterialApp(
+            locale: ref.watch(appLocaleProvider),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(builder: (context) => Text('${context.l10n.notesTitle}|${Directionality.of(context).name}')),
+          ),
+        ),
+      ),
+    );
+    try {
+      await pumpUntil(tester, find.text('Notes|ltr'));
+      await pumpFuture(tester, () => settings.setLanguage(AppLanguage.ar));
+      await pumpUntil(tester, find.text('الملاحظات|rtl'));
+      await pumpFuture(tester, () => settings.setLanguage(AppLanguage.system));
+      tester.platformDispatcher.localesTestValue = [const Locale('fr')];
+      await pumpUntil(tester, find.text('Notes|ltr'));
+      tester.platformDispatcher.localesTestValue = [const Locale('ar')];
+      await pumpUntil(tester, find.text('الملاحظات|rtl'));
+      await pumpFuture(tester, () => settings.setLanguage(AppLanguage.en));
+      await pumpUntil(tester, find.text('Notes|ltr'));
+    } finally {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(Duration.zero);
+      await pumpFuture(tester, db.close);
+    }
+  });
 
   test('Arabic ICU note forms use the final two digits for few and many', () {
     // Expected forms intentionally literal: these verify the translation itself.
@@ -92,7 +131,7 @@ void main() {
     tester.platformDispatcher.localesTestValue = [const Locale('en', 'US')];
     await pumpUntil(tester, find.text(en.appearance));
     tester.platformDispatcher.localesTestValue = [const Locale('fr')];
-    await pumpUntil(tester, find.text(ar.appearance));
+    await pumpUntil(tester, find.text(en.appearance));
   });
 
   fikraTest('English device starts LTR, creates English samples and answers in English', locale: const Locale('en'), (

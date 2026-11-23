@@ -43,7 +43,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(appThemeProvider).value ?? AppTheme.system;
-    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
+    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.en;
     final services = ref.watch(transcriptionServicesStateProvider);
     final c = context.colors;
     final t = context.text;

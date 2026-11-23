@@ -77,15 +77,12 @@ class LocalSettingsRepository implements SettingsRepository {
   @override
   Stream<AppLanguage> watchLanguage() => (db.select(db.settings)..where((s) => s.key.equals('language')))
       .watchSingleOrNull()
-      .map((s) => AppLanguage.values.asNameMap()[s?.value] ?? AppLanguage.system);
+      .map((s) => AppLanguage.values.asNameMap()[s?.value] ?? AppLanguage.en);
 
   @override
   Future<void> setLanguage(AppLanguage language) async {
-    if (language == AppLanguage.system) {
-      await (db.delete(db.settings)..where((s) => s.key.equals('language'))).go();
-    } else {
-      await db.into(db.settings).insertOnConflictUpdate(Setting(key: 'language', value: language.name));
-    }
+    // An explicit System choice must remain distinct from the English default.
+    await db.into(db.settings).insertOnConflictUpdate(Setting(key: 'language', value: language.name));
   }
 
   @override

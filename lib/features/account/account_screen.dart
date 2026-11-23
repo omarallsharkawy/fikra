@@ -175,7 +175,7 @@ class _ProductPreferences extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(appThemeProvider).value ?? AppTheme.system;
-    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
+    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.en;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

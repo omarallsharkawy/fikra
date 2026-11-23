@@ -43,8 +43,8 @@ void main() {
     expect(await settings.watchTheme().first, AppTheme.system);
   });
 
-  test('language defaults to system, persists, and unknown values fall back', () async {
-    expect(await settings.watchLanguage().first, AppLanguage.system);
+  test('language defaults to English and persists explicit Arabic and System choices', () async {
+    expect(await settings.watchLanguage().first, AppLanguage.en);
     await settings.setLanguage(AppLanguage.en);
     final reopened = LocalSettingsRepository(db, AttachmentStore());
     expect(await reopened.watchLanguage().first, AppLanguage.en);
@@ -52,9 +52,10 @@ void main() {
     expect(await reopened.watchLanguage().first, AppLanguage.ar);
     await settings.setLanguage(AppLanguage.system);
     expect(await reopened.watchLanguage().first, AppLanguage.system);
-    expect(await (db.select(db.settings)..where((s) => s.key.equals('language'))).get(), isEmpty);
+    final stored = await (db.select(db.settings)..where((s) => s.key.equals('language'))).getSingle();
+    expect(stored.value, 'system');
     await db.into(db.settings).insertOnConflictUpdate(const Setting(key: 'language', value: 'unknown'));
-    expect(await reopened.watchLanguage().first, AppLanguage.system);
+    expect(await reopened.watchLanguage().first, AppLanguage.en);
   });
 
   test('voice choices persist independently of UI language and survive reopening', () async {
@@ -63,7 +64,7 @@ void main() {
     await settings.setVoiceTextLanguage('auto');
     final reopened = LocalSettingsRepository(db, AttachmentStore());
     expect(await reopened.readVoiceTextChoices(), (modelName: 'small-egy-cs-q5_1', language: 'auto'));
-    expect(await reopened.watchLanguage().first, AppLanguage.system);
+    expect(await reopened.watchLanguage().first, AppLanguage.en);
     await settings.setVoiceTextModel('base-q5_1');
     await settings.setVoiceTextLanguage('en');
     expect(await reopened.readVoiceTextChoices(), (modelName: 'base-q5_1', language: 'en'));

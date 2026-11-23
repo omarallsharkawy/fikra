@@ -51,7 +51,7 @@ class FikraApp extends ConsumerWidget {
         );
       },
       locale: ref.watch(appLocaleProvider),
-      supportedLocales: const [Locale('ar'), Locale('en')],
+      supportedLocales: const [Locale('en'), Locale('ar')],
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: development ? ref.watch(productRouterProvider) : ref.watch(routerProvider),
     );

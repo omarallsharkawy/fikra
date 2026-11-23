@@ -97,6 +97,12 @@ void fikraTest(
     await initializeDateFormatting();
     mockAudioPlayers(events: audioEvents, pause: pauseAudio);
     final db = FikraDatabase(NativeDatabase.memory());
+    // The harness locale is an explicit scenario choice, independent of the
+    // production first-launch default (English even on an Arabic device).
+    await pumpFuture(
+      tester,
+      () => db.into(db.settings).insert(Setting(key: 'language', value: locale.languageCode == 'ar' ? 'ar' : 'en')),
+    );
     await tester.pumpWidget(
       RepaintBoundary(
         key: appBoundaryKey,
