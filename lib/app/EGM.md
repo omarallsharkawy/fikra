@@ -5,7 +5,7 @@
 Composition root of the FIKRA Flutter app. This package reads the build mode,
 wires `lib/data` implementations into Riverpod providers, defines the go_router
 route table and its redirects, and builds the root `MaterialApp.router` and the
-four-branch shell with three visible tabs and a floating Add button. Feature screens live in `lib/features` and are only referenced
+five-branch shell with four visible tabs and a floating Add button. Feature screens live in `lib/features` and are only referenced
 here as route targets; the local transcription adapter is also wired here behind the data engine interface. Floating controls live in [tab_bar](tab_bar/EGM.md).
 
 ## Interface
@@ -66,7 +66,8 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 | `/links/graph` | Redirect to `/links`, selects Map for current project | Branch 2 |
 | `/links/note/:id` | `NoteConnectionsScreen` | Pushed on branch 2 |
 | `/ask` | `AskScreen` | Shell branch 3 |
-| `/settings` | `SettingsScreen` | Top level, `pageBuilder:` via `_pushed` |
+| `/me` | `MeScreen` | Shell branch 4 |
+| `/settings` | Alias to `/me` | Redirect; voice-text deep links unchanged |
 | `/note/:id` | `NoteDetailsScreen` | Top level, `pageBuilder:` via `_pushed` |
 | `/note/:id/pdf/:attachmentId` | `PdfViewerScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
 | `/note/:id/edit` | `EditNoteScreen` | Child of `/note/:id`, `pageBuilder:` via `_pushed` |
@@ -78,20 +79,14 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 
 - `class AppShell extends StatefulWidget`: takes a `StatefulNavigationShell`
   (`shell`). Hosts the static Pearl background, full-height body and floating controls.
-  Supplies `NavigationInset` (92 dp plus bottom safe area, zero with the IME).
-- `class ShellBackground extends InheritedWidget`: exposes the background
-  `GlobalKey` through `ShellBackground.maybeOf(context)`.
+  Supplies `NavigationInset` (92 dp plus bottom safe area, zero with the IME or Add).
 - `FikraNavBar` is re-exported from [tab_bar/sliding_tab_bar.dart](tab_bar/sliding_tab_bar.dart):
   `items`, visible `index` (-1 for Add), `onSelect(index, reselect)`, `enabled`.
-  Keys `nav-0..2` refer to Notes/Links/Ask; `nav-add` identifies the separate button.
-- `FloatingNavigation`: maps visible tabs to unchanged branch IDs 1..3; Add is 0.
+  Keys `nav-0..3` refer to Home/Map/Ask/Me; `nav-add` identifies the separate button.
+- `FloatingNavigation`: maps visible tabs to unchanged branch IDs 1..4; Add is 0.
   Receives `keyboardOpen` from above Scaffold, which strips body viewInsets.
 - `class FikraBranchContainer extends StatefulWidget`: `index`, `children`.
   Passed to `StatefulShellRoute.navigatorContainerBuilder`.
-- `class TabVeil extends LeafRenderObjectWidget` (`@visibleForTesting`):
-  `opacity`, `palette`, `anchor`, `screen`.
-- `class RenderTabVeil extends RenderBox`: render object for `TabVeil`.
-
 ### `storage_error_screen.dart`: storage failure screen
 
 - `class StorageErrorScreen extends ConsumerWidget`: shown when the local
@@ -157,8 +152,8 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 
 ### Shell
 
-- Branch IDs remain add=0, notes=1, links=2, ask=3. The visible tab order is
-  notes, links, ask, mirrored in RTL; Add sits at the logical trailing side.
+- Branch IDs remain add=0, notes=1, links=2, ask=3, with me=4. Visible tabs are
+  Home, Map, Ask, Me, mirrored in RTL; Add sits at the logical trailing side.
   Startup still redirects to Notes. Add remains mounted with its draft state.
 - There is no bottomNavigationBar slot: content extends under the controls.
   One NavigationInset supplies bar (72), gap (12), lens overhang (8) and safe area.
@@ -176,19 +171,18 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 - `FikraBranchContainer` keeps every navigator in its original slot. Unselected
   branches are `Offstage`, have `TickerMode` disabled, and are wrapped in
   `ExcludeFocus`. Each branch has its own `RepaintBoundary`.
-- The tab transition is a veil in the Pearl canvas that clears over the
-  new tab. It must not scale or fade the tab itself. Per the comment in
-  `FikraBranchContainer.build`, rescaling re-rasterised the tab's text every
-  frame on GLES (for example Adreno 650) and missed the 144 Hz budget on about
-  20% of frames.
-- The tabs are transparent over the `AppShell` background, so the veil paints the
-  two static blooms in the anchor box's rectangle, not its own. Without a usable anchor,
-  `RenderTabVeil` assumes a `screen`-sized background at the view origin.
-- `RenderTabVeil` never takes hits (`hitTestSelf` returns `false`), and the veil
-  sits inside `IgnorePointer`.
-- Reduced motion is respected. `FikraNavBar` tracks without scale and snaps on release instead of
-  running its 420/24/mass-1 spring. `FikraBranchContainer` uses `FikraMotion.reducedFade` with
-  a linear curve.
+- `branch_container.dart` fades incoming content over 220 ms with a 0.98→1
+  decelerating scale and outgoing content over 110 ms. TickerMode, input, focus
+  and semantics are disabled immediately on outgoing branches; they go Offstage
+  after fading. Incoming branches set `alwaysIncludeSemantics: widget.active` on
+  `FadeTransition` so their semantics stay live from frame 0 while opacity starts
+  at 0. Controllers retarget without remounting navigators. Reduce Motion
+  switches in one frame. Only opacity/transform leaves tick.
+- The selected translucent pill slides on FikraSprings.smooth; labels cross-fade
+  their colors without changing text metrics. Plain taps never engage the lens.
+- `composer_navigation.dart` supplies the shell-owned close callback. Add hides
+  chrome and NavigationInset using the keyboard path. X and system back restore
+  the previous branch stack (Home by default); the composer stays mounted.
 - `FikraNavBar` positions the selected pill from the right in RTL and from the
   left otherwise.
 
@@ -227,7 +221,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 ## Verification
 
 - Run: `flutter analyze && flutter test`
-- Tests that exercise this package: `test/motion_test.dart` (shell and veil),
+- Tests that exercise this package: `test/motion_test.dart` (shell opacity/scale),
   `test/app_flow_test.dart`, and the shared harness in
   `test/support/app_harness.dart`.
 
@@ -241,7 +235,7 @@ Local data services include `linksRepoProvider` (`Provider<LinksRepository>`) an
 
 ## Experimental voice to text route
 
-`/settings/voice-text` pushes VoiceTextScreen with `_pushed` (MaterialPage), just like Settings and note pages. The feature owns its fakeable backend/controller providers; app providers supply the microphone lease, Whisper lease, saved-recording queue and settings repository. The real main entrypoint reaches it from Settings; no standalone test app remains.
+`/settings/voice-text` pushes VoiceTextScreen with `_pushed` (MaterialPage), like note pages. The feature owns its fakeable backend/controller providers; app providers supply the microphone lease, Whisper lease, saved-recording queue and settings repository. The real main entrypoint reaches it from Settings; no standalone test app remains.
 
 ## Saved recording transcription (phase 2)
 

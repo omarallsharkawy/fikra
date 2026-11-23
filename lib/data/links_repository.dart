@@ -4,32 +4,7 @@ import 'ids.dart';
 import 'link_label.dart';
 import 'local/database.dart';
 
-/// One link made by [LinksRepository.linkNotesForUndo]: its row id, its
-/// project, and the rows its pair had before (empty when it had none).
-class LinkChange {
-  const LinkChange({required this.linkId, required this.projectId, required this.before});
-  final String linkId;
-  final String projectId;
-  final List<NoteLink> before;
-}
-
-/// What [LinksRepository.acceptPairForUndo] or
-/// [LinksRepository.dismissPairForUndo] changed: the pair's rows right before
-/// and right after, in [projectId], so [LinksRepository.undoPairChange] can put
-/// the pair back exactly.
-class PairChange {
-  const PairChange({
-    required this.projectId,
-    required this.a,
-    required this.b,
-    required this.before,
-    required this.after,
-  });
-  final String projectId;
-  final String a, b;
-  final List<NoteLink> before;
-  final List<NoteLink> after;
-}
+part 'link_changes.dart';
 
 abstract interface class LinksRepository {
   Stream<List<NoteLink>> watchLinks(String projectId);
@@ -61,11 +36,13 @@ abstract interface class LinksRepository {
 
   /// [acceptPair] that also returns the pair's rows before and after, for
   /// [undoPairChange]. Null when it changed nothing (no live suggestion).
-  Future<PairChange?> acceptPairForUndo(String a, String b);
+  /// Returns [PairCommandStale] if either endpoint left [expectedProjectId].
+  Future<PairCommandResult?> acceptPairForUndo(String a, String b, {required String expectedProjectId});
 
   /// [dismissPair] that also returns the pair's rows before and after, for
   /// [undoPairChange]. Null when it changed nothing.
-  Future<PairChange?> dismissPairForUndo(String a, String b);
+  /// Returns [PairCommandStale] if either endpoint left [expectedProjectId].
+  Future<PairCommandResult?> dismissPairForUndo(String a, String b, {required String expectedProjectId});
 
   /// Puts the pair of [change] back exactly as it was before, in one
   /// transaction: the suggestion row with its id, reason, strength and state,
@@ -213,21 +190,24 @@ class LocalLinksRepository implements LinksRepository {
   Future<void> dismissPair(String a, String b) => _dismissPair(a, b);
 
   @override
-  Future<PairChange?> acceptPairForUndo(String a, String b) => _forUndo(a, b, () => _acceptPair(a, b));
+  Future<PairCommandResult?> acceptPairForUndo(String a, String b, {required String expectedProjectId}) =>
+      _forUndo(a, b, expectedProjectId, () => _acceptPair(a, b));
 
   @override
-  Future<PairChange?> dismissPairForUndo(String a, String b) => _forUndo(a, b, () => _dismissPair(a, b));
+  Future<PairCommandResult?> dismissPairForUndo(String a, String b, {required String expectedProjectId}) =>
+      _forUndo(a, b, expectedProjectId, () => _dismissPair(a, b));
 
-  Future<PairChange?> _forUndo(String a, String b, Future<void> Function() change) => db.transaction(() async {
-    if (a == b) return null;
-    final before = await _pairRows(a, b);
-    await change();
-    final after = await _pairRows(a, b);
-    if (_sameRows(before, after)) return null;
-    final notes = await (db.select(db.notes)..where((n) => n.id.isIn([a, b]))).get();
-    if (notes.length != 2) return null;
-    return PairChange(projectId: notes.first.projectId, a: a, b: b, before: before, after: after);
-  });
+  Future<PairCommandResult?> _forUndo(String a, String b, String expectedProjectId, Future<void> Function() change) =>
+      db.transaction(() async {
+        if (a == b) return null;
+        final notes = await (db.select(db.notes)..where((n) => n.id.isIn([a, b]))).get();
+        if (notes.length != 2 || notes.any((n) => n.projectId != expectedProjectId)) return const PairCommandStale();
+        final before = await _pairRows(a, b);
+        await change();
+        final after = await _pairRows(a, b);
+        if (_sameRows(before, after)) return null;
+        return PairChange(projectId: expectedProjectId, a: a, b: b, before: before, after: after);
+      });
 
   @override
   Future<bool> undoPairChange(PairChange change) => db.transaction(() async {

@@ -14,6 +14,8 @@ import 'package:fikra/data/repositories.dart';
 import 'package:fikra/data/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/fake_external_transcription.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -292,7 +294,7 @@ void main() {
       await notes.applyInsights(a.id, suggesting(b.id));
       await edge(b, a);
       final before = await allLinks();
-      final change = (await links.acceptPairForUndo(b.id, a.id))!;
+      final change = (await links.acceptPairForUndo(b.id, a.id, expectedProjectId: p.id))! as PairChange;
       expect(change.projectId, p.id);
       expect(change.before, unorderedEquals(before));
       expect((await allLinks()).single.origin, LinkOrigin.user);
@@ -309,13 +311,13 @@ void main() {
       final c = await note();
       await notes.applyInsights(a.id, suggesting(b.id));
       final before = await allLinks();
-      final change = (await links.dismissPairForUndo(a.id, b.id))!;
+      final change = (await links.dismissPairForUndo(a.id, b.id, expectedProjectId: p.id))! as PairChange;
       expect((await allLinks()).single.dismissed, isTrue);
       expect(await links.undoPairChange(change), isTrue);
       expect(await allLinks(), unorderedEquals(before));
       expect((await links.watchLinks(p.id).first).single.dismissed, isFalse);
 
-      final tombstone = (await links.dismissPairForUndo(c.id, a.id))!;
+      final tombstone = (await links.dismissPairForUndo(c.id, a.id, expectedProjectId: p.id))! as PairChange;
       expect(tombstone.before, isEmpty);
       expect(tombstone.after.single.dismissed, isTrue);
       expect(await links.undoPairChange(tombstone), isTrue);
@@ -327,7 +329,7 @@ void main() {
         final a = await note();
         final b = await note();
         await notes.applyInsights(a.id, suggesting(b.id));
-        return (a, b, (await links.acceptPairForUndo(a.id, b.id))!);
+        return (a, b, (await links.acceptPairForUndo(a.id, b.id, expectedProjectId: p.id))! as PairChange);
       }
 
       Future<void> skipped(PairChange change) async {
@@ -346,12 +348,12 @@ void main() {
 
       final (a, b, _) = await accepted();
       await links.removeLink((await allLinks()).singleWhere((l) => l.sourceId == a.id).id);
-      final rejected = (await links.dismissPairForUndo(a.id, b.id));
+      final rejected = (await links.dismissPairForUndo(a.id, b.id, expectedProjectId: p.id)) as PairChange?;
       expect(rejected, isNull, reason: 'already rejected by the removal');
       final c = await note();
       final d = await note();
       await notes.applyInsights(c.id, suggesting(d.id));
-      final relinked = (await links.dismissPairForUndo(c.id, d.id))!;
+      final relinked = (await links.dismissPairForUndo(c.id, d.id, expectedProjectId: p.id))! as PairChange;
       await links.linkNotes(c.id, [d.id]);
       await skipped(relinked);
 
@@ -370,10 +372,10 @@ void main() {
       final c = await note();
       final mine = (await links.linkNotes(a.id, [b.id])).single;
       final before = await allLinks();
-      expect(await links.acceptPairForUndo(a.id, c.id), isNull);
-      expect(await links.acceptPairForUndo(b.id, a.id), isNull);
-      expect(await links.dismissPairForUndo(a.id, b.id), isNull);
-      expect(await links.dismissPairForUndo(a.id, a.id), isNull);
+      expect(await links.acceptPairForUndo(a.id, c.id, expectedProjectId: p.id), isNull);
+      expect(await links.acceptPairForUndo(b.id, a.id, expectedProjectId: p.id), isNull);
+      expect(await links.dismissPairForUndo(a.id, b.id, expectedProjectId: p.id), isNull);
+      expect(await links.dismissPairForUndo(a.id, a.id, expectedProjectId: p.id), isNull);
       expect(await allLinks(), before);
       expect(before.single.id, mine);
     });
@@ -897,6 +899,7 @@ void main() {
     final settings = LocalSettingsRepository(
       db,
       AttachmentStore(documentsDir: () async => directory, tempDir: () async => directory),
+      transcriptionServices: MemoryTranscriptionServices(),
     );
     await settings.setLanguage(AppLanguage.en);
     await settings.wipeAllData();

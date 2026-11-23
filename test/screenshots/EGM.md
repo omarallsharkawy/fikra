@@ -2,7 +2,7 @@
 
 Design-review widget captures, tagged `screenshots` and skipped during normal tests. Run `rm -rf build/screenshots && flutter test test/screenshots --run-skipped -t screenshots`. Outputs live under `build/screenshots/{ar,en}/{dark,light}` and are generated, not checked-in goldens.
 
-`screens_test.dart` uses fixed sample time, real app fonts, phone dimensions and the real router. `20_pdf_failure.png` shows a saved PDF whose injected loader fails, in both languages and themes, with the external-open action available. Loaded PDFs are omitted because the widget harness does not initialize native PDFium; actual page rendering and gestures need a device check. `headers_test.dart` covers responsive headers.
+`screens_test.dart` uses fixed sample time, real app fonts, phone dimensions and the real router. `20_pdf_failure.png` shows a saved PDF whose injected loader fails, in both languages and themes, with the external-open action available. Loaded PDFs are omitted because the widget harness does not initialize native PDFium; actual page rendering and gestures need a device check. `headers_test.dart` covers responsive headers (eight dark width/scale galleries plus light-mode `notes_light` Notes header captures in Arabic and English).
 
 Multi-file fixtures render two PDFs, recordings and photos in both locales/themes: `21_details_files`, `22_edit_files`, `23_edit_files_bottom`, `24_add_files`, `25_notes_files`. Photos are generated temporary local PNG fixtures and removed after each test. Native audio is replaced by the harness channel fake. Check file-size LTR runs, card counts, file controls, overflow and RTL/LTR ordering.
 
@@ -47,11 +47,13 @@ uses addTearDown. Existing screens_test, transcription_test and voice2_test ente
 Add through Tabs.addButton. Render these fixtures with the existing screenshots
 command; no images have been rendered or visually approved in this environment.
 
-## Links library (redesign phase 3)
+## Links library and Map
+
+`links_map_test.dart` captures overview, cluster and ego, including dense ego at 2× scale. `links_library_test.dart` captures Browse, Suggestions, note connections and `74_links_map` in both locales and themes.
 
 ## Ordering & IA (redesign phase 4)
 
-In `screens_test.dart`, `14_settings` opens Settings via `ValueKey('header-settings')`, and `08_edit_note` opens Edit from `NoteDetailsScreen` via `ValueKey('note-edit')`.
+In `screens_test.dart`, `08_edit_note` opens Edit from `NoteDetailsScreen` via `ValueKey('note-edit')`.
 
 ## Motion & delight (redesign phase 7)
 
@@ -59,9 +61,14 @@ In `screens_test.dart`, `14_settings` opens Settings via `ValueKey('header-setti
 
 ## Finishing (redesign phase 8)
 
-`phase8_finishing_test.dart` captures all 14 main screens and sheets at text scale `2.0` (`360 × 800` dp) in Arabic and English light mode (`phase8_scale2_*`), plus a frosted glass sheet (`phase8_glass_sheet`) and a frosted glass toast with Undo above the floating tab bar (`phase8_glass_toast`) in Arabic and English, light and dark.
+`phase8_finishing_test.dart` captures all 14 main screens and sheets at text scale `2.0` (`360 × 800` dp) in Arabic and English light mode (`phase8_scale2_*`), plus a solid sheet (`phase8_glass_sheet`) and a solid toast with Undo above the floating tab bar (`phase8_glass_toast`) in Arabic and English, light and dark.
 
+## Concept navigation (phase 1B)
 
-## Links Map replacement
+Floating navigation now captures four tabs, a full-screen Add without chrome,
+and Me statistics in AR/EN × light/dark. Add exits through add-close before
+returning to tab captures. Header galleries omit Settings and keep project chips;
+shared accessibility fixtures enter Me through nav-3 and close Add with X.
+## Brand redesign (phase 1a)
 
-`links_map_test.dart` renders `76_map_overview`, `77_map_cluster`, `78_map_ego`, `79_map_dense_ego` and `80_map_dense_ego_scale2` (360 dp/2x) in Arabic/English x light/dark. Existing `10_links` and `11_links_selected` use Map; `74_links_map` replaces the graph header-route capture. The three graph-only screenshot files are removed. The reusable keyboard composition helper now lives in floating_navigation_test rather than importing a removed fixture. All captures use real fonts/router/SQLite and fixed sample time.
+Welcome-screen screenshot fixtures wait on `welcomeStartWriting` / `welcomeTrySample` and capture the new geometric hero, brand typography, solid lime CTA, and flat canvas across AR/EN × dark/light.

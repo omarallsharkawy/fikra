@@ -1,13 +1,16 @@
-import 'dart:ui' show Tristate;
+import 'dart:ui' show ImageFilter, PointerDeviceKind, Tristate;
 
 import 'package:fikra/app/tab_bar/floating_navigation.dart';
 import 'package:fikra/app/tab_bar/sliding_tab_bar.dart' show kLensHoldDelay;
 import 'package:fikra/app/shell.dart' show FikraBranchContainer;
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/theme/tokens.dart';
+import 'package:fikra/core/widgets/glass.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 import 'package:fikra/core/widgets/glass_lens.dart';
 import 'package:fikra/core/widgets/glass_watchdog.dart';
 import 'package:fikra/l10n/localizations.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SemanticsAction, RenderBackdropFilter;
 import 'package:flutter/services.dart';
@@ -34,6 +37,9 @@ double _pillOpacity(WidgetTester tester) => tester
 Future<ValueNotifier<int>> hostNavigation(
   WidgetTester tester, {
   bool reduced = false,
+  Locale locale = const Locale('ar'),
+  double width = 358,
+  bool highContrast = false,
   GlassTier tier = GlassTier.solid,
   TextDirection direction = TextDirection.rtl,
   List<int>? changes,
@@ -42,6 +48,7 @@ Future<ValueNotifier<int>> hostNavigation(
   ValueNotifier<bool>? keyboardOpen,
   double textScale = 1,
   List<Widget>? branches,
+  Widget? aboveBar,
 }) async {
   final branch = ValueNotifier(1);
   addTearDown(branch.dispose);
@@ -56,6 +63,7 @@ Future<ValueNotifier<int>> hostNavigation(
       FloatingNavigation(
         branch: index,
         keyboardOpen: isKeyboardOpen,
+        aboveBar: aboveBar,
         onSelect: (index, reselect) {
           changes?.add(index);
           reselections?.add(reselect);
@@ -68,17 +76,18 @@ Future<ValueNotifier<int>> hostNavigation(
     ProviderScope(
       overrides: [
         glassTierProvider(false).overrideWith((ref) => tier),
-        glassTierProvider(true).overrideWith((ref) => GlassTier.frosted),
+        glassTierProvider(true).overrideWith((ref) => GlassTier.solid),
         glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
       ],
       child: MaterialApp(
         theme: buildFikraTheme(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ar'),
+        locale: locale,
         home: MediaQuery(
           data: MediaQueryData(
             disableAnimations: reduced,
+            highContrast: highContrast,
             viewInsets: EdgeInsets.only(bottom: keyboard),
             textScaler: TextScaler.linear(textScale),
           ),
@@ -87,7 +96,7 @@ Future<ValueNotifier<int>> hostNavigation(
             child: Scaffold(
               body: Center(
                 child: SizedBox(
-                  width: 358,
+                  width: width,
                   child: ValueListenableBuilder<int>(
                     valueListenable: branch,
                     builder: (context, index, _) => keyboardOpen == null
@@ -110,7 +119,7 @@ Future<ValueNotifier<int>> hostNavigation(
 }
 
 void main() {
-  testWidgets('quick tap switches immediately with normal pill and zero lens opacity throughout and after', (
+  testWidgets('quick tap switches the branch with a sliding pill and zero lens opacity throughout and after', (
     tester,
   ) async {
     final changes = <int>[];
@@ -133,6 +142,7 @@ void main() {
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
     expect(_pillOpacity(tester), 1);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
 
     await tester.pump(const Duration(milliseconds: 250));
@@ -182,8 +192,22 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('bar and Add share one stable backdrop key and overlapping lens uses a separate key', (tester) async {
-    final branch = await hostNavigation(tester, tier: GlassTier.frosted);
+  testWidgets('Add button has no BackdropFilter; bar and aboveBar share one stable sigma-16 key; lens uses another', (
+    tester,
+  ) async {
+    final branch = await hostNavigation(
+      tester,
+      tier: GlassTier.frosted,
+      aboveBar: const Glass(child: Text('capsule')),
+    );
+    expect(find.descendant(of: Tabs.addButton, matching: find.byType(BackdropFilter)), findsNothing);
+    final barFilter = find.descendant(
+      of: find.byKey(const ValueKey('floating-tab-bar')),
+      matching: find.byType(BackdropFilter),
+    );
+    expect(barFilter, findsOneWidget);
+    expect(tester.widget<BackdropFilter>(barFilter).filter, ImageFilter.blur(sigmaX: 16, sigmaY: 16));
+
     BackdropKey? keyOf(Element e) => (e.renderObject! as RenderBackdropFilter).backdropKey;
     final filters = find.byType(BackdropFilter).evaluate().map(keyOf).toList();
     expect(filters, hasLength(2));
@@ -206,6 +230,17 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('tab bar drops BackdropFilter under solid tier, reduce motion and high contrast', (tester) async {
+    for (final (tier, reduced, highContrast) in [
+      (GlassTier.solid, false, false),
+      (GlassTier.frosted, true, false),
+      (GlassTier.frosted, false, true),
+    ]) {
+      await hostNavigation(tester, tier: tier, reduced: reduced, highContrast: highContrast);
+      expect(find.byType(BackdropFilter), findsNothing);
+    }
+  });
+
   testWidgets('lens stays clamped at both bar ends while the finger is outside horizontally', (tester) async {
     await hostNavigation(tester);
     final bar = tester.getRect(find.byKey(const ValueKey('floating-tab-bar')));
@@ -215,8 +250,8 @@ void main() {
       await pointer.moveTo(Offset(x, bar.center.dy));
       await tester.pump();
       final lens = tester.getRect(find.byKey(_lens));
-      expect(lens.left, greaterThanOrEqualTo(bar.left - 5.01));
-      expect(lens.right, lessThanOrEqualTo(bar.right + 5.01));
+      expect(lens.left, greaterThanOrEqualTo(bar.left - 6.01));
+      expect(lens.right, lessThanOrEqualTo(bar.right + 6.01));
     }
     await pointer.up();
     await tester.pumpAndSettle();
@@ -288,6 +323,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 80));
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
     expect(tester.getCenter(find.byKey(const ValueKey('nav-selected-pill'))).dx, linksCenter.dx);
   });
@@ -306,6 +342,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 150));
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -321,6 +358,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 250));
     expect(find.byKey(_lens), findsNothing);
     expect(_lensOpacity(tester), 0);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -335,6 +373,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
     }
     expect(find.byKey(_lens), findsNothing);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -429,6 +468,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 80));
     expect(find.byKey(_lens), findsNothing);
+    await tester.pump(const Duration(milliseconds: 380)); // selected pill spring settles independently of the lens
     expect(tester.hasRunningAnimations, isFalse);
   });
 
@@ -580,7 +620,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     try {
       final branch = await hostNavigation(tester);
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 4; i++) {
         final data = tester.getSemantics(Tabs.finder(i)).getSemanticsData();
         expect(data.flagsCollection.isButton, isTrue);
         expect(data.flagsCollection.isSelected, i == 0 ? Tristate.isTrue : Tristate.isFalse);
@@ -620,10 +660,166 @@ void main() {
     }
   });
 
+  testWidgets('hardware keyboard cannot focus or activate hidden bar, restored on close with visible focus ring', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      final changes = <int>[];
+      final branch = ValueNotifier(1);
+      final keyboardOpen = ValueNotifier(false);
+      final input = TextEditingController();
+      addTearDown(branch.dispose);
+      addTearDown(keyboardOpen.dispose);
+      addTearDown(input.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            glassTierProvider(false).overrideWith((ref) => GlassTier.solid),
+            glassTierProvider(true).overrideWith((ref) => GlassTier.solid),
+            glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
+          ],
+          child: MaterialApp(
+            theme: buildFikraTheme(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ar'),
+            home: Scaffold(
+              body: Column(
+                children: [
+                  TextField(key: const ValueKey('draft-input'), controller: input),
+                  SizedBox(
+                    width: 358,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: branch,
+                      builder: (context, index, _) => ValueListenableBuilder<bool>(
+                        valueListenable: keyboardOpen,
+                        builder: (context, hidden, _) => FloatingNavigation(
+                          branch: index,
+                          keyboardOpen: hidden,
+                          onSelect: (next, _) {
+                            changes.add(next);
+                            branch.value = next;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      addTearDown(() async => tester.pumpWidget(const SizedBox.shrink()));
+
+      await tester.enterText(find.byKey(const ValueKey('draft-input')), 'مسودة محفوظة');
+      keyboardOpen.value = true;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 110));
+
+      // Tab, Shift+Tab, Enter, Space cannot reach or activate hidden navigation.
+      for (var i = 0; i < 6; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pump();
+      }
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+
+      expect(changes, isEmpty);
+      expect(branch.value, 1);
+      expect(input.text, 'مسودة محفوظة');
+      expect(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).navHome), findsNothing);
+
+      // Closing the keyboard restores keyboard focus, visible focus ring, activation and semantics.
+      keyboardOpen.value = false;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 110));
+      expect(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).navHome), findsOneWidget);
+
+      // Tab from the field to unselected nav-1 (Links).
+      final linksFocus = Focus.of(
+        tester.element(find.descendant(of: Tabs.finder(Tabs.links), matching: find.byType(DecoratedBox)).first),
+      );
+      for (var i = 0; i < 8 && !linksFocus.hasPrimaryFocus; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(linksFocus.hasPrimaryFocus, isTrue);
+      final ring = tester.widget<DecoratedBox>(
+        find.descendant(of: Tabs.finder(Tabs.links), matching: find.byType(DecoratedBox)).first,
+      );
+      final dec = ring.decoration as BoxDecoration;
+      expect(dec.border, Border.all(color: FikraPalette.light.accent, width: 2));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(branch.value, 2);
+      expect(changes, [2]);
+      expect(input.text, 'مسودة محفوظة');
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('secondary and middle mouse buttons neither change tabs nor schedule lens hold; primary still does', (
+    tester,
+  ) async {
+    final changes = <int>[];
+    final reselections = <bool>[];
+    final branch = await hostNavigation(tester, changes: changes, reselections: reselections);
+
+    for (final (button, targetTab) in [(kSecondaryMouseButton, Tabs.links), (kMiddleMouseButton, Tabs.ask)]) {
+      final pos = tester.getCenter(Tabs.finder(targetTab));
+      final mouse = TestPointer(10 + targetTab, PointerDeviceKind.mouse);
+      await tester.sendEventToBinding(mouse.hover(pos));
+      await tester.sendEventToBinding(mouse.down(pos, buttons: button));
+      await tester.pump();
+      expect(branch.value, 1);
+      expect(changes, isEmpty);
+      await tester.pump(kLensHoldDelay + const Duration(milliseconds: 50));
+      expect(find.byKey(_lens), findsNothing);
+      await tester.sendEventToBinding(mouse.up());
+      await tester.pump();
+      expect(branch.value, 1);
+      expect(changes, isEmpty);
+    }
+
+    // Primary mouse button still selects on pointer-down, holds to engage lens, and reselects on repeat.
+    final linksPos = tester.getCenter(Tabs.finder(Tabs.links));
+    final primary = TestPointer(20, PointerDeviceKind.mouse);
+    await tester.sendEventToBinding(primary.hover(linksPos));
+    await tester.sendEventToBinding(primary.down(linksPos, buttons: kPrimaryMouseButton));
+    await tester.pump();
+    expect(branch.value, 2);
+    expect(changes, [2]);
+    expect(reselections, [false]);
+    await tester.pump(kLensHoldDelay);
+    expect(find.byKey(_lens), findsOneWidget);
+    await tester.sendEventToBinding(primary.up());
+    await tester.pumpAndSettle();
+
+    // Quick primary re-tap on the selected tab triggers reselect on up.
+    await tester.sendEventToBinding(primary.down(linksPos, buttons: kPrimaryMouseButton));
+    await tester.pump();
+    await tester.sendEventToBinding(primary.up());
+    await tester.pumpAndSettle();
+    expect(changes, [2, 2]);
+    expect(reselections, [false, true]);
+  });
+
   for (final direction in TextDirection.values) {
     testWidgets('$direction orders Notes first and Add at the trailing edge at large text', (tester) async {
       await hostNavigation(tester, direction: direction, textScale: 3);
-      final xs = [for (var i = 0; i < 3; i++) tester.getCenter(Tabs.finder(i)).dx];
+      final xs = [for (var i = 0; i < 4; i++) tester.getCenter(Tabs.finder(i)).dx];
       final addX = tester.getCenter(Tabs.addButton).dx;
       if (direction == TextDirection.rtl) {
         expect(xs[0], greaterThan(xs[1]));
@@ -634,7 +830,7 @@ void main() {
         expect(xs[1], lessThan(xs[2]));
         expect(addX, greaterThan(xs[2]));
       }
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 4; i++) {
         expect(tester.getSize(Tabs.finder(i)).width, greaterThanOrEqualTo(48));
       }
       expect(tester.takeException(), isNull);

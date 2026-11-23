@@ -46,7 +46,7 @@ void main() {
             await saveScreenshot(tester, '${locale.languageCode}/${brightness.name}/transcription_$name');
           }
 
-          await pumpUntil(tester, find.text(l.startNewProject));
+          await pumpUntil(tester, find.text(l.welcomeStartWriting));
           final fixture = await pumpFuture(tester, () async {
             final p = await LocalProjectsRepository(db).create(ar ? 'أفكار صوتية' : 'Voice ideas');
             final repo = LocalNotesRepository(db);

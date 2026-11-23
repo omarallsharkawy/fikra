@@ -87,6 +87,20 @@ class _MapCanvasState extends State<MapCanvas> {
     };
   }
 
+  String _count(MapNode node) => switch (node.kind) {
+    MapNodeKind.cluster || MapNodeKind.more => context.l10n.mapNotes(node.count),
+    MapNodeKind.note || MapNodeKind.suggestion => context.l10n.mapConnections(node.count),
+  };
+
+  String _semanticLabel(MapNode node) {
+    final title = _title(node);
+    return switch (node.kind) {
+      MapNodeKind.more => title,
+      MapNodeKind.suggestion => context.l10n.suggestedLinkA11y('$title, ${_count(node)}'),
+      MapNodeKind.cluster || MapNodeKind.note => '$title, ${_count(node)}',
+    };
+  }
+
   void _zoom(double factor) {
     final scale = _transform.value.getMaxScaleOnAxis();
     final next = (scale * factor).clamp(.25, 2.5);
@@ -201,9 +215,7 @@ class _MapCanvasState extends State<MapCanvas> {
           )..layout(maxWidth: rect.width - 20);
           final count = TextPainter(
             text: TextSpan(
-              text: (node.kind == MapNodeKind.cluster || node.kind == MapNodeKind.more)
-                  ? context.l10n.mapNotes(node.count)
-                  : context.l10n.mapConnections(node.count),
+              text: _count(node),
               style: context.text.meta.copyWith(color: context.colors.textSecondary),
             ),
             textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
@@ -260,12 +272,7 @@ class _MapCanvasState extends State<MapCanvas> {
                             picture: _cache.picture!,
                             layout: layout,
                             nodes: widget.level.nodes,
-                            labels: [
-                              for (final n in widget.level.nodes)
-                                n.kind == MapNodeKind.cluster
-                                    ? '${_title(n)}, ${context.l10n.mapNotes(n.count)}'
-                                    : '${_title(n)}, ${context.l10n.mapConnections(n.count)}',
-                            ],
+                            labels: widget.level.nodes.map(_semanticLabel).toList(),
                             rtl: rtl,
                             onNode: widget.onNode,
                           ),

@@ -46,10 +46,10 @@ void main() {
           phone(tester);
           BuildContext ctx() => tester.element(find.byType(Scaffold).last);
 
-          await pumpUntil(tester, find.text(l10n.trySampleProject));
+          await pumpUntil(tester, find.text(l10n.welcomeTrySample));
           await capture('01_welcome');
 
-          await tester.tap(find.text(l10n.trySampleProject));
+          await tester.tap(find.text(l10n.welcomeTrySample));
           await pumpUntil(tester, find.text(l10n.sample7Title));
           await capture('02_notes');
 
@@ -241,6 +241,8 @@ void main() {
           await tester.pump();
           await capture('09_add_typed');
 
+          await tester.tap(find.byKey(const ValueKey('add-close')));
+          await tester.pumpAndSettle();
           await tester.tap(Tabs.finder(Tabs.links));
           await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
           await capture('10_links');
@@ -287,7 +289,7 @@ void main() {
           await pumpUntil(tester, find.text(l10n.linksEmptyTitle));
           await capture('18_links_empty');
 
-          await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
+          await tester.tap(Tabs.finder(Tabs.me));
           await pumpUntil(tester, find.text(l10n.appearance));
           await capture('19_settings');
 

@@ -59,7 +59,7 @@ class _Toolbar extends StatelessWidget {
                     icon: Icons.stop_rounded,
                     label: context.l10n.stopRecording,
                     color: c.danger,
-                    foreground: c.accent,
+                    foreground: c.dangerBg,
                     pulse: onStop != null,
                     pulseColor: c.danger,
                     onTap: onStop,

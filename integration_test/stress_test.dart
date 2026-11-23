@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/motion/motion.dart';
@@ -341,8 +342,8 @@ void main() {
     // Links Map
     report['open_links_ms'] = await time(() async {
       await tester.tap(find.byKey(const ValueKey('nav-1')));
-      await until(find.byKey(const ValueKey('links-segment-0')));
-      await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+      await until(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
+      await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
       await until(find.byType(InteractiveViewer));
       await tester.pump();
     });
@@ -441,7 +442,7 @@ void main() {
       }
     });
     report['fps_tabs'] = await live('tabs', () async {
-      for (final branch in [2, 3, 0, 1, 2, 1]) {
+      for (final branch in [2, 3, 4, 1, 2, 1]) {
         await during(() async {
           await tester.tap(find.byKey(ValueKey(branch == 0 ? 'nav-add' : 'nav-${branch - 1}')));
           await wait(FikraMotion.enter.inMilliseconds);

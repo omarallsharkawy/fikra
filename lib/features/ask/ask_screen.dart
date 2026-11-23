@@ -22,15 +22,33 @@ class AskScreen extends ConsumerStatefulWidget {
 class _AskScreenState extends ConsumerState<AskScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
-  bool _thinking = false;
+  final _thinkingProjects = <String>{};
+  int _draftRevision = 0;
+  String _lastDraftText = '';
 
   // Messages already on screen. Only ids that arrive later animate in, so the
   // first load and a project switch show the history as-is.
   String? _chatProject;
   Set<String>? _seen;
 
+  bool _isThinking(String? projectId) => projectId != null && _thinkingProjects.contains(projectId);
+
+  @override
+  void initState() {
+    super.initState();
+    _input.addListener(_onInputChanged);
+  }
+
+  void _onInputChanged() {
+    if (_input.text == _lastDraftText) return;
+    _lastDraftText = _input.text;
+    _draftRevision++;
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _input.removeListener(_onInputChanged);
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -39,33 +57,42 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   Future<void> _send([String? preset]) async {
     final q = (preset ?? _input.text).trim();
     final project = ref.read(selectedProjectProvider);
-    if (q.isEmpty || project == null || _thinking) return;
-    setState(() => _thinking = true);
+    if (q.isEmpty || project == null || _thinkingProjects.contains(project.id)) return;
+    final projectId = project.id;
+    final draftRevision = _draftRevision;
+    setState(() => _thinkingProjects.add(projectId));
     final chat = ref.read(chatRepoProvider);
     try {
-      await chat.add(projectId: project.id, role: 'user', body: q);
-      if (preset == null) _input.clear(); // keep the draft until it's stored
-      _toBottom();
-      final notes = await ref.read(notesRepoProvider).notesOf(project.id);
+      await chat.add(projectId: projectId, role: 'user', body: q);
+      final sameProject = mounted && ref.read(selectedProjectProvider)?.id == projectId;
+      if (preset == null && sameProject && _draftRevision == draftRevision) {
+        _input.clear(); // keep the draft until stored, and never erase a newer draft
+      }
+      if (sameProject) _toBottom(projectId);
+      final notes = await ref.read(notesRepoProvider).notesOf(projectId);
       final answer = await ref.read(aiServiceProvider).ask(q, notes).timeout(const Duration(seconds: 60));
       await chat.add(
-        projectId: project.id,
+        projectId: projectId,
         role: 'assistant',
         body: answer.text,
         sourceIds: answer.sourceIds,
         found: answer.found,
       );
     } catch (_) {
-      if (mounted) showToast(context, context.l10n.askFailed);
+      if (mounted && ref.read(selectedProjectProvider)?.id == projectId) {
+        showToast(context, context.l10n.askFailed);
+      }
     } finally {
-      if (mounted) setState(() => _thinking = false);
-      _toBottom();
+      if (mounted) {
+        setState(() => _thinkingProjects.remove(projectId));
+        if (ref.read(selectedProjectProvider)?.id == projectId) _toBottom(projectId);
+      }
     }
   }
 
-  void _toBottom() {
+  void _toBottom(String projectId) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scroll.hasClients) return;
+      if (!mounted || !_scroll.hasClients || ref.read(selectedProjectProvider)?.id != projectId) return;
       // During an empty ↔ chat swap the outgoing list can still be attached;
       // the newest position is the visible one.
       final position = _scroll.positions.last;
@@ -79,14 +106,16 @@ class _AskScreenState extends ConsumerState<AskScreen> {
 
   Future<void> _clear() async {
     final project = ref.read(selectedProjectProvider);
-    if (project == null || _thinking) return;
+    if (project == null || _thinkingProjects.contains(project.id)) return;
     final ok = await confirmDestructive(
       context,
       title: context.l10n.clearChatTitle,
       message: context.l10n.clearChatBody,
       confirmLabel: context.l10n.clear,
     );
-    if (ok && mounted) await runAction(context, () => ref.read(chatRepoProvider).clear(project.id));
+    if (ok && mounted && !_thinkingProjects.contains(project.id)) {
+      await runAction(context, () => ref.read(chatRepoProvider).clear(project.id));
+    }
   }
 
   @override
@@ -94,6 +123,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
     final chatAsync = ref.watch(selectedChatProvider);
     final entries = chatAsync.value ?? const <ChatEntry>[];
     final projectId = ref.watch(selectedProjectProvider)?.id;
+    final thinking = _isThinking(projectId);
     if (projectId != _chatProject) {
       _chatProject = projectId;
       _seen = null;
@@ -119,7 +149,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
         children: [
           ProjectHeader(
             title: context.l10n.askTitle,
-            trailing: entries.isEmpty || _thinking
+            trailing: entries.isEmpty || thinking
                 ? null
                 : HeaderActionButton(
                     key: const ValueKey('ask-clear-chat'),
@@ -144,13 +174,13 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                 key: ValueKey(
                   chatAsync.hasError && !chatAsync.hasValue
                       ? 'error'
-                      : entries.isEmpty && !_thinking
+                      : entries.isEmpty && !thinking
                       ? 'empty'
                       : 'chat',
                 ),
                 child: chatAsync.hasError && !chatAsync.hasValue
                     ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
-                    : entries.isEmpty && !_thinking
+                    : entries.isEmpty && !thinking
                     ? ListView(
                         padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
                         children: [
@@ -186,7 +216,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                               ),
                             ),
                           FikraSwitcher(
-                            child: _thinking
+                            child: thinking
                                 ? Align(
                                     key: const ValueKey('thinking'),
                                     alignment: AlignmentDirectional.centerEnd,
@@ -217,21 +247,20 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                     hint: context.l10n.askHint,
                     textInputAction: TextInputAction.send,
                     maxLength: 500,
-                    onChanged: (_) => setState(() {}),
                     onSubmitted: (_) => _send(),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Opacity(
-                  opacity: _input.text.trim().isEmpty || _thinking ? 0.4 : 1,
+                  opacity: _input.text.trim().isEmpty || thinking ? 0.4 : 1,
                   child: Pressable(
-                    onTap: _input.text.trim().isEmpty || _thinking ? null : _send,
+                    onTap: _input.text.trim().isEmpty || thinking ? null : _send,
                     semanticLabel: context.l10n.send,
                     child: Container(
                       width: FikraSpace.field,
                       height: FikraSpace.field,
-                      decoration: BoxDecoration(gradient: context.colors.addGradient, shape: BoxShape.circle),
-                      child: Icon(Icons.arrow_upward_rounded, color: context.colors.onAccent),
+                      decoration: BoxDecoration(color: context.colors.brandLime, shape: BoxShape.circle),
+                      child: Icon(Icons.arrow_upward_rounded, color: context.colors.onBrandLime),
                     ),
                   ),
                 ),
@@ -257,11 +286,10 @@ class _UserBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: context.colors.chip,
-            border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
-            borderRadius: BorderRadius.circular(FikraRadius.md),
+            color: context.colors.brandBlue,
+            borderRadius: BorderRadius.circular(FikraRadius.lg),
           ),
-          child: Text(text, style: context.text.body),
+          child: Text(text, style: context.text.body.copyWith(color: context.colors.onBrandBlue)),
         ),
       ),
     );
@@ -305,7 +333,7 @@ class _AnswerBubble extends StatelessWidget {
               Text(entry.body, style: context.text.answer),
               if (sources.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(context.l10n.sources, style: context.text.meta.copyWith(fontSize: 12)),
+                Text(context.l10n.sources, style: context.text.meta),
                 const SizedBox(height: 6),
                 for (var i = 0; i < sources.length; i++)
                   Padding(

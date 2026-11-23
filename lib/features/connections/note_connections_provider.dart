@@ -9,8 +9,7 @@ import 'links_library_provider.dart';
 
 typedef NoteConnections = ({List<NoteLinkEntry> confirmed, List<SuggestionEntry> suggestions});
 
-/// Shared while the library or a pushed page listens; released on project exit.
-/// Mapping and adjacency happen once per source emission.
+/// Shared by every pushed page; mapping and adjacency happen once per emission.
 final connectionsIndexProvider = FutureProvider.autoDispose.family<Map<String, List<NoteLinkEntry>>, String>((
   ref,
   projectId,
@@ -24,7 +23,7 @@ final connectionsIndexProvider = FutureProvider.autoDispose.family<Map<String, L
     links.hasValue ? Future.value(links.requireValue) : linksFuture,
   ]);
   final input = (projectId: projectId, notes: loaded[0] as List<Note>, links: loaded[1] as List<NoteLink>);
-  return input.notes.length >= 1000
+  return shouldIsolateLinksDerivation(notes: input.notes.length, links: input.links.length, groups: 0)
       ? compute(_deriveConnections, input, debugLabel: 'note-connections-adjacency')
       : _deriveConnections(input);
 });

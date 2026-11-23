@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:fikra/core/widgets/pearl_canvas.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/local/database.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/connections_placeholder.dart';
 import 'package:fikra/features/connections/links_library_provider.dart';
 import 'package:flutter/rendering.dart';
@@ -107,7 +108,9 @@ void main() {
       final notes = await seedLibrary(tester, db);
       held.hold = cold;
       if (!cold) {
-        final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('links-segment-1'))));
+        final container = ProviderScope.containerOf(
+          tester.element(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse))),
+        );
         final warmNote = container.listen(noteProvider(notes.last.id), (_, _) {});
         addTearDown(warmNote.close);
         final warmConnections = container.listen(noteConnectionsProvider(notes.last.id), (_, _) {});
@@ -164,10 +167,12 @@ void main() {
       addTearDown(() => unawaited(held.pending.close()));
       final notes = await seedLibrary(tester, db);
       held.hold = true;
-      final container = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('links-segment-1'))));
+      final container = ProviderScope.containerOf(
+        tester.element(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse))),
+      );
       // Drop the shared derived snapshot too: this is a genuinely cold entry.
       container.invalidate(linksLibraryProvider(notes.last.projectId));
-      final context = tester.element(find.byKey(const ValueKey('links-segment-1')));
+      final context = tester.element(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
       context.go(
         '$path${notes.last.id}',
         extra: path.startsWith('/links') ? (projectNote(notes.first), null) : notes.first,
@@ -231,13 +236,13 @@ void main() {
         expect(tester.widget<NoteConnectionsScreen>(find.byType(NoteConnectionsScreen)).noteId, notes[5].id);
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+        await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
         await tester.pumpAndSettle();
         expect(find.byType(LinksMap), findsOneWidget);
         expect(find.byType(InteractiveViewer), findsOneWidget);
-        await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+        await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
         await tester.pumpAndSettle();
-        expect(find.byKey(const ValueKey('links-segment-1')), findsOneWidget);
+        expect(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)), findsOneWidget);
       },
     );
   }
@@ -257,7 +262,7 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(find.byType(NoteConnectionsScreen), findsNothing);
-      expect(find.byKey(const ValueKey('links-segment-1')), findsOneWidget);
+      expect(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)), findsOneWidget);
     });
   }
 

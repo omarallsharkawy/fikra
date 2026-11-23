@@ -130,11 +130,19 @@
   "noteTextA11y": "نص الملاحظة",
   "originalKeptHint": "النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.",
   "clusterGeneral": "أفكار عامة",
+  "moreGroups": "باقي المجموعات",
   "linksTitle": "الروابط",
   "linksEmptyTitle": "الروابط بتظهر هنا",
+  "linksEmptyBody": "ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.",
   "addNote": "ضيف ملاحظة",
+  "linksSummary": "{notesCount} · {linksCount}",
   "zoomIn": "كبّر",
   "zoomOut": "صغّر",
+  "resetView": "رجّع العرض",
+  "showGroupA11y": "اعرض {notesCount} في «{cluster}»",
+  "moreGroupsCount": "باقي المجموعات ({count})",
+  "noLinksYet": "لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.",
+  "nodeMeta": "{cluster} · {linksCount}",
   "openNote": "افتح الملاحظة",
   "askFailed": "مقدرناش نجاوب دلوقتي. جرّب تاني.",
   "clearChatTitle": "تمسح المحادثة؟",
@@ -270,6 +278,43 @@
     "placeholders": {
       "n": {
         "type": "int"
+      }
+    }
+  },
+  "@linksSummary": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@showGroupA11y": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "cluster": {
+        "type": "String"
+      }
+    }
+  },
+  "@moreGroupsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nodeMeta": {
+    "placeholders": {
+      "cluster": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
       }
     }
   },
@@ -607,21 +652,13 @@
   },
   "colorNone": "من غير لون",
   "colorBlue": "أزرق",
-  "@colorBlue": {
-    "description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."
-  },
+  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
   "colorGreen": "أخضر",
-  "@colorGreen": {
-    "description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."
-  },
+  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
   "colorYellow": "أصفر",
-  "@colorYellow": {
-    "description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."
-  },
+  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
   "colorGray": "رمادي",
-  "@colorGray": {
-    "description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."
-  },
+  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
   "groupParentLabel": "جوه مجموعة (اختياري)",
   "groupParentNone": "ولا واحدة",
   "moveNotesTitle": "تنقل {notes} لـ«{project}»؟",
@@ -741,6 +778,80 @@
   "groupRuleInvalidParent": "تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.",
   "groupRuleSelfParent": "مينفعش تحط المجموعة جوه نفسها.",
   "groupRuleHasChildren": "المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.",
+  "suggestedTopics": "مواضيع مقترحة",
+  "makeTopicGroup": "حوّل «{topic}» لمجموعة",
+  "@makeTopicGroup": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "graphGroupA11y": "مجموعة «{group}»، {notes}",
+  "@graphGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTopics": "باقي المواضيع",
+  "moreTopicsCount": "{count, plural, zero{مفيش مواضيع تانية} one{موضوع تاني} two{موضوعين تانيين} few{{count} مواضيع تانية} many{{count} موضوع تاني} other{{count} موضوع تاني}}",
+  "@moreTopicsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "graphNoteInGroup": "{title}، في مجموعة «{group}»",
+  "@graphNoteInGroup": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphSearchHint": "دوّر في الرسم",
+  "graphSearchEmpty": "مفيش نتايج",
+  "graphSearchNote": "ملاحظة",
+  "graphSearchLink": "رابط",
+  "graphSearchGroup": "مجموعة",
+  "graphSearchLimited": "مش ظاهرة في الرسم، هنفتح الملاحظة",
+  "graphCollapseGroup": "اقفل مجموعة «{group}»",
+  "@graphCollapseGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphExpandGroup": "افتح مجموعة «{group}»",
+  "@graphExpandGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapsedGroup": "مجموعة «{group}»، {notes}، مقفولة",
+  "@graphCollapsedGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك",
   "vtTitle": "تحويل الصوت لنص",
   "vtExperimental": "تجريبي",
   "vtIntro": "الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.",
@@ -1469,6 +1580,10 @@
   "@linksOldest": {
     "description": "Links library sort order."
   },
+  "linksOpenGraph": "افتح خريطة الروابط",
+  "@linksOpenGraph": {
+    "description": "Header action to open the optional graph."
+  },
   "linkNoReason": "من غير سبب مكتوب",
   "@linkNoReason": {
     "description": "Muted fallback for an empty link reason."
@@ -1523,6 +1638,14 @@
   "@notesSort": {
     "description": "Notes list sort button label and sort sheet title."
   },
+  "headerGraph": "الخريطة",
+  "@headerGraph": {
+    "description": "Short caption under the open-graph icon in the Links header."
+  },
+  "headerSearch": "دوّر",
+  "@headerSearch": {
+    "description": "Short caption under the search icon in the graph header."
+  },
   "capsuleRecording": "بيسجّل…",
   "@capsuleRecording": {
     "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
@@ -1538,6 +1661,138 @@
   "capsuleTranscribingA11y": "بيفرّغ التسجيل. دوس عشان تفتح الملاحظة",
   "@capsuleTranscribingA11y": {
     "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "Concept navigation and Me screen: navHome."
+  },
+  "navMap": "الخريطة",
+  "@navMap": {
+    "description": "Concept navigation and Me screen: navMap."
+  },
+  "navMe": "أنا",
+  "@navMe": {
+    "description": "Concept navigation and Me screen: navMe."
+  },
+  "newIdea": "فكرة جديدة",
+  "@newIdea": {
+    "description": "Concept navigation and Me screen: newIdea."
+  },
+  "meIdeas": "الأفكار",
+  "@meIdeas": {
+    "description": "Concept navigation and Me screen: meIdeas."
+  },
+  "meLinks": "الروابط",
+  "@meLinks": {
+    "description": "Concept navigation and Me screen: meLinks."
+  },
+  "meWeekDays": "أيام الأسبوع ده",
+  "@meWeekDays": {
+    "description": "Concept navigation and Me screen: meWeekDays."
+  },
+  "meAppearanceLanguage": "المظهر واللغة",
+  "@meAppearanceLanguage": {
+    "description": "Concept navigation and Me screen: meAppearanceLanguage."
+  },
+  "meVoiceServices": "الصوت والخدمات",
+  "@meVoiceServices": {
+    "description": "Concept navigation and Me screen: meVoiceServices."
+  },
+  "welcomeEyebrow": "فِكرة",
+  "@welcomeEyebrow": {
+    "description": "Small brand eyebrow label above the hero title on the welcome screen."
+  },
+  "welcomeBrandTitle": "فِكرة",
+  "@welcomeBrandTitle": {
+    "description": "Large brand title on the welcome screen."
+  },
+  "welcomeTagline": "اكتب. اربط. اسأل.",
+  "@welcomeTagline": {
+    "description": "Short three-word tagline on the welcome screen."
+  },
+  "welcomeSubtitle": "أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.",
+  "@welcomeSubtitle": {
+    "description": "Supporting line on the welcome screen."
+  },
+  "welcomeStartWriting": "ابدأ الكتابة",
+  "@welcomeStartWriting": {
+    "description": "Primary CTA on the welcome screen that creates the default project and opens Notes."
+  },
+  "welcomeTrySample": "جرّب بمشروع تجريبي",
+  "@welcomeTrySample": {
+    "description": "Secondary CTA on the welcome screen that seeds the sample project."
+  },
+  "welcomeFooter": "ملاحظاتك محفوظة على جهازك · بدون حساب",
+  "@welcomeFooter": {
+    "description": "Privacy footer on the welcome screen."
+  },
+  "defaultProjectName": "أفكاري",
+  "@defaultProjectName": {
+    "description": "Default project name created directly from the welcome screen."
+  },
+  "filterVoice": "صوت",
+  "@filterVoice": {
+    "description": "Filter chip and note-card badge label for voice notes."
+  },
+  "filterFiles": "ملفات",
+  "@filterFiles": {
+    "description": "Filter chip label for notes with PDF or image attachments."
+  },
+  "badgePdf": "PDF",
+  "@badgePdf": {
+    "description": "Short PDF badge label on note cards."
+  },
+  "filterEmptyTitle": "مفيش ملاحظات هنا",
+  "@filterEmptyTitle": {
+    "description": "Empty state title when a type filter (voice/files) matches no notes."
+  },
+  "filterEmptyBody": "مفيش ملاحظات بالفلتر ده لسه.",
+  "@filterEmptyBody": {
+    "description": "Empty state body when a type filter matches no notes."
+  },
+  "actionStripFailed": "{count, plural, one{ملاحظة فشل تحليلها} two{ملاحظتين فشل تحليلهم} few{{count} ملاحظات فشل تحليلها} other{{count} ملاحظة فشل تحليلها}}",
+  "@actionStripFailed": {
+    "description": "Action strip message when one or more notes failed analysis.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRetry": "أعد المحاولة",
+  "@actionStripRetry": {
+    "description": "Short retry label on the failed-analysis action strip."
+  },
+  "actionStripSuggestions": "{count, plural, one{رابط مقترح جديد} two{رابطين مقترحين جداد} few{{count} روابط مقترحة جديدة} other{{count} رابط مقترح جديد}}",
+  "@actionStripSuggestions": {
+    "description": "Action strip message when new link suggestions are waiting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRewrites": "{count, plural, one{صياغة مستنية رأيك} two{صياغتين مستنيين رأيك} few{{count} صياغات مستنية رأيك} other{{count} صياغة مستنية رأيك}}",
+  "@actionStripRewrites": {
+    "description": "Action strip message when note rewrites are waiting for review.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripDismiss": "اخفي التنبيه",
+  "@actionStripDismiss": {
+    "description": "Screen reader label for dismissing the notes action strip for the current session."
+  },
+  "activeDaysThisWeek": "{count, plural, one{يوم واحد الأسبوع ده} two{يومين الأسبوع ده} few{{count} أيام الأسبوع ده} other{{count} يوم الأسبوع ده}}",
+  "@activeDaysThisWeek": {
+    "description": "Chip showing how many distinct days in the rolling 7-day window have at least one note.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "linksMap": "الخريطة",
   "@linksMap": {

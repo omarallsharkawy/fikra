@@ -8,7 +8,20 @@ import 'glass_edge.dart';
 import 'glass_quality.dart';
 import 'glass_watchdog.dart';
 
-/// Floating controls only. Optical is a frosted backing with a separate
+/// Explicit visibility scope for mounted [Glass] widgets that stay in the tree
+/// while hidden (for example, floating navigation hidden by the keyboard).
+class GlassVisibility extends InheritedWidget {
+  const GlassVisibility({super.key, required this.visible, required super.child});
+  final bool visible;
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassVisibility>()?.visible ?? true;
+
+  @override
+  bool updateShouldNotify(GlassVisibility oldWidget) => visible != oldWidget.visible;
+}
+
+/// Floating tab-bar chrome only. Optical is a frosted backing with a separate
 /// [GlassLens] above it (see glass_lens.dart); reading content uses SolidSurface.
 /// Wrap non-overlapping siblings in BackdropGroup to share their backdrop pass.
 class Glass extends ConsumerStatefulWidget {
@@ -16,15 +29,15 @@ class Glass extends ConsumerStatefulWidget {
     super.key,
     required this.child,
     this.radius = FikraRadius.full,
-    this.borderRadius,
     this.padding = const EdgeInsets.all(12),
-    this.blurEnabled = true,
+    this.visible = true,
   });
   final Widget child;
   final double radius;
-  final BorderRadius? borderRadius;
   final EdgeInsetsGeometry padding;
-  final bool blurEnabled;
+  final bool visible;
+
+  static const blurSigma = 16.0;
 
   @override
   ConsumerState<Glass> createState() => _GlassState();
@@ -33,30 +46,22 @@ class Glass extends ConsumerStatefulWidget {
 class _GlassState extends ConsumerState<Glass> {
   GlassWatchdog? _watchdog;
 
-  void _syncWatchdog() {
-    _watchdog ??= ref.read(glassWatchdogProvider.notifier);
+  void _syncWatchdog(GlassTier tier) {
     final active =
-        widget.blurEnabled &&
+        tier != GlassTier.solid &&
+        widget.visible &&
+        GlassVisibility.of(context) &&
         !(MediaQuery.maybeHighContrastOf(context) ?? false) &&
+        !(MediaQuery.maybeDisableAnimationsOf(context) ?? false) &&
         TickerMode.valuesOf(context).enabled &&
         (ModalRoute.isCurrentOf(context) ?? true);
     if (active) {
-      _watchdog!.show(this, View.of(context).display.refreshRate);
+      final GlassWatchdog watchdog = _watchdog ?? ref.read(glassWatchdogProvider.notifier);
+      _watchdog = watchdog;
+      watchdog.show(this, View.of(context).display.refreshRate);
     } else {
-      _watchdog!.hide(this);
+      _watchdog?.hide(this);
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _syncWatchdog();
-  }
-
-  @override
-  void didUpdateWidget(covariant Glass oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.blurEnabled != widget.blurEnabled) _syncWatchdog();
   }
 
   @override
@@ -68,16 +73,16 @@ class _GlassState extends ConsumerState<Glass> {
   @override
   Widget build(BuildContext context) {
     final tier = effectiveGlassTier(context, ref);
+    _syncWatchdog(tier);
     final c = context.colors;
-    final borderRadius = widget.borderRadius ?? BorderRadius.circular(widget.radius);
+    final borderRadius = BorderRadius.circular(widget.radius);
     Widget body = ColoredBox(
-      color: c.surface.withValues(alpha: tier == GlassTier.solid ? 1 : FikraPalette.glassBackingAlpha),
+      color: c.surface.withValues(alpha: tier == GlassTier.solid ? 1 : c.glassBackingAlpha),
       child: Padding(padding: widget.padding, child: widget.child),
     );
     if (tier != GlassTier.solid) {
       body = BackdropFilter.grouped(
-        enabled: widget.blurEnabled,
-        filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: ui.ImageFilter.blur(sigmaX: Glass.blurSigma, sigmaY: Glass.blurSigma),
         child: body,
       );
     }
@@ -85,7 +90,7 @@ class _GlassState extends ConsumerState<Glass> {
       child: DecoratedBox(
         decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: glassShadows(c)),
         child: CustomPaint(
-          foregroundPainter: GlassEdge(c, widget.radius, borderRadius: widget.borderRadius),
+          foregroundPainter: GlassEdge(c, widget.radius),
           child: ClipRRect(borderRadius: borderRadius, child: body),
         ),
       ),

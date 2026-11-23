@@ -13,6 +13,7 @@ import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/add/add_screen.dart';
 import 'package:fikra/features/ask/ask_screen.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/links_index.dart';
 import 'package:fikra/features/notes/notes_screen.dart';
 import 'package:fikra/features/shared/attachment_editor.dart';
@@ -63,7 +64,7 @@ void main() {
             ),
           );
 
-          await pumpUntil(tester, find.text(ar.startNewProject));
+          await pumpUntil(tester, find.text(ar.welcomeStartWriting));
           final project = await pumpFuture(tester, () => LocalProjectsRepository(db).create('مشروع'));
           await pumpUntil(tester, find.text('مشروع'));
 
@@ -114,7 +115,7 @@ void main() {
       tester,
       db,
     ) async {
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       await pumpFuture(tester, () => LocalProjectsRepository(db).create('مشروع'));
       await pumpUntil(tester, find.text('مشروع'));
 
@@ -141,6 +142,7 @@ void main() {
       // Once the tick finishes with no typing, tab leave, or newer save, it navigates to /notes.
       await tester.pump(FikraMotion.saveTick);
       await pumpUntil(tester, find.byType(NotesScreen));
+      await tester.pump(const Duration(milliseconds: 120)); // outgoing composer fade
       expect(find.byType(AddScreen), findsNothing);
       expect(find.text('تلقائي'), findsOneWidget);
     });
@@ -191,7 +193,7 @@ void main() {
         RecordPlatform.instance = fake;
         addTearDown(() => RecordPlatform.instance = prev);
 
-        await pumpUntil(tester, find.text(ar.startNewProject));
+        await pumpUntil(tester, find.text(ar.welcomeStartWriting));
         await pumpFuture(tester, () => LocalProjectsRepository(db).create('صوت'));
         await pumpUntil(tester, find.text('صوت'));
         await tester.tap(Tabs.addButton);
@@ -223,7 +225,7 @@ void main() {
         expect(paints(rootBoundary), rootBefore);
 
         // Hide Add tab: amplitude samples still accumulate without repainting offstage waveform or scheduling tickers.
-        await tester.tap(Tabs.finder(Tabs.notes));
+        await tester.tap(find.byKey(const ValueKey('add-close')));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 450));
         final hiddenWaveBefore = paints(waveBoundary);
@@ -246,7 +248,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        await pumpUntil(tester, find.text(ar.startNewProject));
+        await pumpUntil(tester, find.text(ar.welcomeStartWriting));
 
         final projects = LocalProjectsRepository(db);
         final notesRepo = LocalNotesRepository(db);
@@ -319,8 +321,8 @@ void main() {
         // 4. Switch to Links tab: Browse animates once; opening Suggestions animates Suggestions once.
         final beforeLinks = tester.binding.clock.now();
         await tester.tap(Tabs.finder(Tabs.links));
-        await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
-        await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+        await pumpUntil(tester, find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
+        await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
         await pumpUntil(tester, find.byKey(ValueKey('browse-${p1Notes[11].id}')));
         expect(tester.binding.clock.now().difference(beforeLinks), lessThan(FikraMotion.staggerTotal));
         final browseEntry = find.byKey(ValueKey('browse-slot-${p1Notes[11].id}'));
@@ -330,12 +332,12 @@ void main() {
         await tester.pump(FikraMotion.staggerTotal + const Duration(milliseconds: 40));
         expect(browseStagger.isAnimating, isFalse);
 
-        await tester.tap(find.byKey(const ValueKey('links-segment-2')));
+        await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions)));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 30));
         final sugKey = pairKey(p1Notes[9].id, p1Notes[8].id);
         final sugEntries = find.descendant(
-          of: find.byKey(ValueKey('links-list-${p1.id}-1')),
+          of: find.byKey(LinksLibrarySegment.listKey(p1.id, LinksLibrarySegment.suggestions)),
           matching: find.byType(StaggeredEntry),
         );
         expect(sugEntries, findsOneWidget);
@@ -416,76 +418,79 @@ void main() {
       'no roll on first build; rolls changed digits in Western & Arabic-Indic; preserves maxLines & TalkBack',
       (tester) async {
         final semantics = tester.ensureSemantics();
-        Widget box(String text, {bool reduced = false, String? a11y, int? maxLines}) => MaterialApp(
-          theme: buildFikraTheme(Brightness.dark),
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: reduced),
-            child: Scaffold(
-              body: Center(
-                child: SizedBox(
-                  width: 140,
-                  child: RollingText(
-                    text,
-                    key: const ValueKey('roll'),
-                    semanticLabel: a11y,
-                    maxLines: maxLines,
-                    overflow: maxLines != null ? TextOverflow.ellipsis : null,
+        try {
+          Widget box(String text, {bool reduced = false, String? a11y, int? maxLines}) => MaterialApp(
+            theme: buildFikraTheme(Brightness.dark),
+            home: MediaQuery(
+              data: MediaQueryData(disableAnimations: reduced),
+              child: Scaffold(
+                body: Center(
+                  child: SizedBox(
+                    width: 140,
+                    child: RollingText(
+                      text,
+                      key: const ValueKey('roll'),
+                      semanticLabel: a11y,
+                      maxLines: maxLines,
+                      overflow: maxLines != null ? TextOverflow.ellipsis : null,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
+          );
 
-        // First build: plain Text, zero RollingDigit widgets.
-        await tester.pumpWidget(box('اقتراحات 12', a11y: 'اقتراحات، 12'));
-        expect(find.byType(RollingDigit), findsNothing);
-        expect(find.text('اقتراحات 12'), findsOneWidget);
+          // First build: plain Text, zero RollingDigit widgets.
+          await tester.pumpWidget(box('اقتراحات 12', a11y: 'اقتراحات، 12'));
+          expect(find.byType(RollingDigit), findsNothing);
+          expect(find.text('اقتراحات 12'), findsOneWidget);
 
-        // Change 12 -> 13: '1' stays static Text, only '2'->'3' mounts RollingDigit; TalkBack reads final value.
-        await tester.pumpWidget(box('اقتراحات 13', a11y: 'اقتراحات، 13'));
-        await tester.pump(const Duration(milliseconds: 80));
-        expect(find.byType(RollingDigit), findsOneWidget);
-        expect(tester.getSemantics(find.byKey(const ValueKey('roll'))).label, 'اقتراحات، 13');
-        await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
-        expect(find.byType(RollingDigit), findsNothing);
-        expect(find.text('اقتراحات 13'), findsOneWidget);
+          // Change 12 -> 13: '1' stays static Text, only '2'->'3' mounts RollingDigit; TalkBack reads final value.
+          await tester.pumpWidget(box('اقتراحات 13', a11y: 'اقتراحات، 13'));
+          await tester.pump(const Duration(milliseconds: 80));
+          expect(find.byType(RollingDigit), findsOneWidget);
+          expect(tester.getSemantics(find.byKey(const ValueKey('roll'))).label, 'اقتراحات، 13');
+          await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
+          expect(find.byType(RollingDigit), findsNothing);
+          expect(find.text('اقتراحات 13'), findsOneWidget);
 
-        // Multi-line label with maxLines: 2 keeps identical height before, during, and after roll.
-        const longPrefix = 'مجموعة طويلة جداً للتجربة السطر التاني ';
-        await tester.pumpWidget(box('${longPrefix}2', maxLines: 2));
-        await tester.pump();
-        final restHeight = tester.getSize(find.byKey(const ValueKey('roll'))).height;
-        await tester.pumpWidget(box('${longPrefix}3', maxLines: 2));
-        await tester.pump(const Duration(milliseconds: 60));
-        expect(find.byType(RollingDigit), findsOneWidget);
-        expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
-        await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
-        expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
+          // Multi-line label with maxLines: 2 keeps identical height before, during, and after roll.
+          const longPrefix = 'مجموعة طويلة جداً للتجربة السطر التاني ';
+          await tester.pumpWidget(box('${longPrefix}2', maxLines: 2));
+          await tester.pump();
+          final restHeight = tester.getSize(find.byKey(const ValueKey('roll'))).height;
+          await tester.pumpWidget(box('${longPrefix}3', maxLines: 2));
+          await tester.pump(const Duration(milliseconds: 60));
+          expect(find.byType(RollingDigit), findsOneWidget);
+          expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
+          await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
+          expect(tester.getSize(find.byKey(const ValueKey('roll'))).height, restHeight);
 
-        // Arabic-Indic numerals: ١٢ -> ١٣ rolls only the changed Arabic-Indic digit.
-        await tester.pumpWidget(box('١٢'));
-        await tester.pump();
-        expect(find.byType(RollingDigit), findsNothing);
-        await tester.pumpWidget(box('١٣'));
-        await tester.pump(const Duration(milliseconds: 60));
-        final digit = tester.widget<RollingDigit>(find.byType(RollingDigit));
-        expect(digit.oldChar, '٢');
-        expect(digit.newChar, '٣');
-        await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
-        expect(find.text('١٣'), findsOneWidget);
+          // Arabic-Indic numerals: ١٢ -> ١٣ rolls only the changed Arabic-Indic digit.
+          await tester.pumpWidget(box('١٢'));
+          await tester.pump();
+          expect(find.byType(RollingDigit), findsNothing);
+          await tester.pumpWidget(box('١٣'));
+          await tester.pump(const Duration(milliseconds: 60));
+          final digit = tester.widget<RollingDigit>(find.byType(RollingDigit));
+          expect(digit.oldChar, '٢');
+          expect(digit.newChar, '٣');
+          await tester.pump(FikraMotion.roll + const Duration(milliseconds: 20));
+          expect(find.text('١٣'), findsOneWidget);
 
-        // Reduce Motion: updates immediately with zero RollingDigit widgets.
-        await tester.pumpWidget(box('١٤', reduced: true));
-        await tester.pump(const Duration(milliseconds: 60));
-        expect(find.byType(RollingDigit), findsNothing);
-        expect(find.text('١٤'), findsOneWidget);
-        semantics.dispose();
+          // Reduce Motion: updates immediately with zero RollingDigit widgets.
+          await tester.pumpWidget(box('١٤', reduced: true));
+          await tester.pump(const Duration(milliseconds: 60));
+          expect(find.byType(RollingDigit), findsNothing);
+          expect(find.text('١٤'), findsOneWidget);
+        } finally {
+          semantics.dispose();
+        }
       },
     );
 
     fikraTest('Suggestions segment count and Links chip counts roll when updated live', (tester, db) async {
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       final projects = LocalProjectsRepository(db);
       final notesRepo = LocalNotesRepository(db);
       final groupsRepo = LocalGroupsRepository(db);
@@ -526,8 +531,8 @@ void main() {
 
       // Switch to Links: accepting a suggestion rolls Suggestions segment count (2 -> 1) and group chip count (2 -> 3).
       await tester.tap(Tabs.finder(Tabs.links));
-      await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
-      await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+      await pumpUntil(tester, find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
+      await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
       await pumpUntil(tester, find.text('اقتراحات 2'));
       await tester.pump(const Duration(milliseconds: 450));
       expect(find.byType(RollingDigit), findsNothing);
@@ -535,7 +540,10 @@ void main() {
       await pumpFuture(tester, () => linksRepo.acceptPair(n1.id, n3.id));
       await pumpUntil(
         tester,
-        find.descendant(of: find.byKey(const ValueKey('links-segment-2')), matching: find.byType(RollingDigit)),
+        find.descendant(
+          of: find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions)),
+          matching: find.byType(RollingDigit),
+        ),
       );
       await tester.pump(const Duration(milliseconds: 40));
       expect(

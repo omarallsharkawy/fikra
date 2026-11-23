@@ -57,7 +57,7 @@ The toolbar keeps its keys and styling; Edit hides its round Save and uses the e
 
 `link_pairs.dart` exposes pure generic `uniqueLinkPairs`: skip self pairs, retain first row for each unordered pair, replace a suggestion only with the first user row. Both `linksOfNote` and the shared Links index use it; existing note-page ordering/filtering stays the same.
 
-`note_link_actions.dart` moved from note_details and exports `showLinkOptions`, `suggestionBusyProvider` and `changeSuggestedPair(context, {a, b, accept})`. `changeSuggestedPair` is the one accept/reject path for the Suggestions list, connections pages, note details and Map: it claims `suggestionBusyProvider` (a `SelectionGuard`: one accept/reject write or pair Undo at a time app-wide; a blocked action does nothing), calls `acceptPairForUndo` / `dismissPairForUndo`, and shows a toast (`linksAdded(1)` for an accept, `linkSuggestionRejected` for a reject) with Undo. A call that changed nothing shows the toast without Undo (`linksAdded(0)` for an accept); a failure shows `linkUpdateFailed`. Undo reads the container, so it works after the page closed; it claims the same guard (taken: `undoFailed`) and runs `undoPairChange`, which quietly skips a pair changed meanwhile. Toasts use the given context, or the root navigator's once it is gone (a closed sheet). It returns whether the pair changed. The existing user options, private reason editor, update/error behavior and keys are retained. Optional source note makes shared link options name both endpoints. Suggestions use the same sheet with the shared Suggested tag and accept/reject pair operations, safe if analysis replaced the row. A one-choice guard prevents repeated sheet actions; operations capture their repository and live toast context before closing. User removal still requires confirmation and the caller's removal callback. No schema, new copy, colours or motion tokens.
+`note_link_actions.dart` moved from note_details and exports `showLinkOptions`, `suggestionBusyProvider` and `changeSuggestedPair(context, {a, b, accept, expectedProjectId})`. `changeSuggestedPair` is the one accept/reject path for the Suggestions list, connections pages, note details and Map: it claims `suggestionBusyProvider` (a `SelectionGuard`: one accept/reject write or pair Undo at a time app-wide; a blocked action does nothing), passes the rendered project to `acceptPairForUndo` / `dismissPairForUndo`, and shows a toast (`linksAdded(1)` for an accept, `linkSuggestionRejected` for a reject) with Undo. A call that changed nothing shows the toast without Undo (`linksAdded(0)` for an accept); a failure shows `linkUpdateFailed`. Undo reads the container, so it works after the page closed; it claims the same guard (taken: `undoFailed`) and runs `undoPairChange`, which quietly skips a pair changed meanwhile. Toasts use the given context, or the root navigator's once it is gone (a closed sheet). PairCommandStale returns false without a success toast or Undo entry. It returns whether the pair changed. The existing user options, private reason editor, update/error behavior and keys are retained. Optional source note makes shared link options name both endpoints. Suggestions use the same sheet with the shared Suggested tag and accept/reject pair operations, safe if analysis replaced the row. A one-choice guard prevents repeated sheet actions; operations capture their repository and live toast context before closing. User removal still requires confirmation and the caller's removal callback. No schema, new copy, colours or motion tokens.
 
 ## Selection, groups and moving several notes (links phase 5a)
 
@@ -78,7 +78,7 @@ None of these assume the notes list: they take ids, notes, a project id or callb
 
 ## Selection reuse
 
-`assignSelectionGroup` remains the picker’s guarded assignment/Undo helper and prunes notes missing from the current project snapshot. The graph-only `freshlyRead` parameter was removed. `noteSelectionActions` remains the shared notes selection runner. Pair deduplication, group colours, title fallback and `changeSuggestedPair` are reused by Map.
+`assignSelectionGroup` remains the picker’s guarded assignment/Undo helper and prunes notes missing from the current project snapshot. The legacy graph is removed. `noteSelectionActions` remains the shared notes selection runner. Pair deduplication, group colours, title fallback and `changeSuggestedPair` are reused by Map.
 
 ## Saved recording intent (phase 2)
 
@@ -123,3 +123,10 @@ GroupFilterRow adds optional `counts` (displayed beside group names) and `clearS
 
 - `note_groups.dart` (`runGroupAction`), `note_link_actions.dart` and `selection_actions.dart`: group writes and undo failure messages use `showMessengerToast` so every toast renders as the floating glass capsule.
 - `group_form.dart` & `group_options.dart`: `GroupColorPicker`'s "no colour" swatch fills with opaque `colors.chip`, and `_Disabled` passes `SheetOption(enabled: false)` so disabled option rows stay opaque over glass sheets.
+
+## Brand redesign (phase 1a)
+
+- `group_form.dart`: selected `ChoiceTag` fills with `brandLime` and `onBrandLime` w700 ink.
+- `group_filter.dart`: `GroupFilterRow` adds optional `leadingChips` (placed after "All" and before user groups) and an `allSelected` override, preserving filter defaults.
+- `note_groups.dart`: `GroupTag` uses 12.5 sp `meta` (removed 11.5 sp override).
+- `save_tick_button.dart` & `attachment_toolbar.dart`: `SaveTickButton` uses solid `brandLime` + `onBrandLime`; `add-stop` uses `dangerBg` foreground on `danger` fill.

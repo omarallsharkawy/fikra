@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show SemanticsAction, Tristate;
 
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/core/theme/tokens.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 import 'package:fikra/features/notes/notes_screen.dart';
@@ -75,9 +76,8 @@ void main() {
                     ? const <String>{}
                     : brightness == Brightness.light
                     ? switch (screenName) {
-                        'notes_list' || 'add_typed' => {l.settings},
-                        'links_browse' || 'links_suggestions' => {l.settings, l.linksSuggestedForYou},
-                        'ask_answer' => {l.settings, l.askDemoBadge},
+                        'links_browse' || 'links_suggestions' => {l.linksSuggestedForYou},
+                        'ask_answer' => {l.askDemoBadge},
                         'voice_text_settings' => {l.vtExperimental},
                         _ => const <String>{},
                       }
@@ -145,12 +145,12 @@ void main() {
           expect(notesTitleNode.flagsCollection.isHeader, isTrue);
 
           final navNotes = tester.getSemantics(Tabs.finder(Tabs.notes));
-          expect(navNotes.label, l.navNotes);
+          expect(navNotes.label, l.navHome);
           expect(navNotes.flagsCollection.isButton, isTrue);
           expect(navNotes.flagsCollection.isSelected, Tristate.isTrue);
 
           final navLinks = tester.getSemantics(Tabs.finder(Tabs.links));
-          expect(navLinks.label, l.navLinks);
+          expect(navLinks.label, l.navMap);
           expect(navLinks.flagsCollection.isButton, isTrue);
           expect(navLinks.flagsCollection.isSelected, Tristate.isFalse);
 
@@ -191,8 +191,8 @@ void main() {
             }
 
             walkTraversal(root);
-            final notesIdx = ordered.indexOf(l.navNotes);
-            final linksIdx = ordered.indexOf(l.navLinks);
+            final notesIdx = ordered.indexOf(l.navHome);
+            final linksIdx = ordered.indexOf(l.navMap);
             final askIdx = ordered.indexOf(l.navAsk);
             final addIdx = ordered.indexOf(l.navAdd);
             expect(notesIdx, greaterThanOrEqualTo(0));
@@ -200,17 +200,15 @@ void main() {
             expect(askIdx, greaterThan(linksIdx));
             expect(addIdx, greaterThan(askIdx));
 
-            // Header controls in RTL follow right-to-left visual order: project pill -> Settings.
-            final pillIdx = ordered.indexOf(l.projectPillA11y(data.project.name));
-            final settingsIdx = ordered.indexOf(l.settings);
-            expect(pillIdx, greaterThanOrEqualTo(0));
-            expect(settingsIdx, greaterThan(pillIdx));
+            expect(ordered.indexOf(l.navMe), greaterThan(askIdx));
+            expect(ordered.indexOf(l.projectPillA11y(data.project.name)), greaterThanOrEqualTo(0));
+            expect(find.byKey(const ValueKey('header-settings')), findsNothing);
           }
 
           // Links Browse: LibraryControls (search/sort/segments) precede list cards in traversal order.
           await tester.tap(Tabs.finder(Tabs.links));
-          await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
-          await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+          await pumpUntil(tester, find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
+          await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
           await tester.pump(const Duration(milliseconds: 500));
           final linksOrdered = <String>[];
           void walkLinks(SemanticsNode node) {

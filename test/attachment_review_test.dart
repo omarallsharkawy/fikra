@@ -73,7 +73,7 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
     final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     final p = await pumpFuture(tester, () => LocalProjectsRepository(db).create('project'));
     await pumpUntil(tester, find.text('project'));
     return p;
@@ -425,11 +425,12 @@ class CountingEdits extends LocalNotesRepository {
     required String title,
     required String text,
     List<AttachmentDraft>? attachments,
+    NoteEditBasis? basis,
   }) async {
     calls++;
     await gate;
     try {
-      await super.edit(id, title: title, text: text, attachments: attachments);
+      await super.edit(id, title: title, text: text, attachments: attachments, basis: basis);
     } finally {
       completed++;
     }

@@ -4,6 +4,7 @@ import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/add/add_screen.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/features/note_details/pdf_viewer_screen.dart';
 import 'package:fikra/features/shared/attachment_editor.dart';
@@ -24,7 +25,7 @@ void phone(WidgetTester tester, {double width = 390}) {
 }
 
 Future<List<Note>> mapNotes(WidgetTester tester, FikraDatabase db) async {
-  await pumpUntil(tester, find.text(lookupAppLocalizations(tester.platformDispatcher.locale).startNewProject));
+  await pumpUntil(tester, find.text(lookupAppLocalizations(tester.platformDispatcher.locale).welcomeStartWriting));
   final notes = await pumpFuture(tester, () async {
     final project = await LocalProjectsRepository(db).create('project');
     final repo = LocalNotesRepository(db);
@@ -38,6 +39,11 @@ Future<List<Note>> mapNotes(WidgetTester tester, FikraDatabase db) async {
   });
   await pumpUntil(tester, find.text('project'));
   await tester.tap(Tabs.finder(Tabs.links));
+  final browse = find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse));
+  await pumpUntil(tester, browse);
+  await tester.tap(browse);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
   await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
   final paint = tester.widget<CustomPaint>(find.byKey(const ValueKey('map-paint'))).painter! as LinksMapPainter;
   final p = paint.layout.positions.values.first;
@@ -61,8 +67,13 @@ void main() {
       final notes = await mapNotes(tester, db);
       final semantics = tester.ensureSemantics();
       try {
-        final context = tester.element(find.byKey(const ValueKey('map-paint')));
+        final surface = find.byKey(const ValueKey('map-paint'));
+        final context = tester.element(surface);
+        final painter = tester.widget<CustomPaint>(surface).painter! as LinksMapPainter;
         for (final note in notes.take(2)) {
+          final index = painter.nodes.indexWhere((node) => node.id == note.id);
+          expect(index, isNonNegative);
+          expect(painter.labels[index], '${noteTitle(context, note)}, ${context.l10n.mapConnections(0)}');
           expect(find.semantics.byLabel(RegExp('^${noteTitle(context, note)},')), findsWidgets);
         }
       } finally {
@@ -89,6 +100,9 @@ void main() {
         final scene = controller.toScene(centre);
         final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
         for (final label in [l10n.zoomIn, l10n.zoomOut]) {
+          // Short screens scroll the Map page above the floating bar's clearance.
+          await tester.ensureVisible(find.bySemanticsLabel(label));
+          await tester.pumpAndSettle();
           await tester.tap(find.bySemanticsLabel(label));
           await tester.pumpAndSettle();
           final projected = MatrixUtils.transformPoint(controller.value, scene);
@@ -105,7 +119,7 @@ void main() {
     ) async {
       phone(tester);
       final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       final note = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('project');
         return LocalNotesRepository(db).create(
@@ -177,7 +191,7 @@ void main() {
     fikraTest('RTL file-size glyph order is number then Latin unit in $screen', (tester, db) async {
       phone(tester);
       final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       final note = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('project');
         final repo = LocalNotesRepository(db);

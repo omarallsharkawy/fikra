@@ -1,9 +1,6 @@
-import 'dart:math' as math;
-
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../core/motion/pressable.dart';
@@ -24,9 +21,10 @@ class _HeaderLabelScope extends InheritedWidget {
   bool updateShouldNotify(_HeaderLabelScope oldWidget) => showLabel != oldWidget.showLabel;
 }
 
-/// Compact header control: round surface icon with a short caption underneath
-/// when [ProjectHeader] has room, or icon-only when space is tight or text is
-/// scaled above 1.6x. Hit target is always at least 48×48 dp.
+/// Header action control: a 48 dp tall [SolidSurface] pill with an icon and
+/// label in one horizontal row when [ProjectHeader] has room, or a 48 dp
+/// circular icon button when space is tight or text is scaled above 1.6x.
+/// Hit target is always at least 48×48 dp.
 class HeaderActionButton extends StatelessWidget {
   const HeaderActionButton({
     super.key,
@@ -45,40 +43,48 @@ class HeaderActionButton extends StatelessWidget {
   final String? tooltip;
   final Color? iconColor;
 
+  static const _pillPaddingX = FikraSpace.s12;
+  static const _pillIconSize = 18.0;
+  static const _pillGap = FikraSpace.s8;
+  static const _circleIconSize = 24.0;
+
   @override
   Widget build(BuildContext context) {
     final showLabel = _HeaderLabelScope.of(context);
     final fg = iconColor ?? context.colors.textPrimary;
     Widget visual = showLabel
-        ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SolidSurface(
-                  radius: FikraRadius.full,
-                  width: 30,
-                  height: 30,
-                  padding: EdgeInsets.zero,
-                  child: Icon(icon, size: 16, color: fg),
+        ? SolidSurface(
+            radius: FikraRadius.full,
+            padding: EdgeInsets.zero,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: Pressable.minTargetSize - 2 * FikraSpace.hairline),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: _pillPaddingX, vertical: FikraSpace.s8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: _pillIconSize, color: fg),
+                    const SizedBox(width: _pillGap),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.text.chip,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text.meta.copyWith(height: 1.15),
-                ),
-              ],
+              ),
             ),
           )
         : SolidSurface(
             radius: FikraRadius.full,
-            width: 40,
-            height: 40,
+            width: Pressable.minTargetSize,
+            height: Pressable.minTargetSize,
             padding: EdgeInsets.zero,
-            child: Icon(icon, size: 19, color: fg),
+            child: Icon(icon, size: _circleIconSize, color: fg),
           );
     if (tooltip != null) {
       visual = Tooltip(message: tooltip!, excludeFromSemantics: true, child: visual);
@@ -87,7 +93,7 @@ class HeaderActionButton extends StatelessWidget {
   }
 }
 
-/// Screen title + current project pill that opens the project switcher.
+/// Screen title + optional actions row above the current project pill.
 class ProjectHeader extends ConsumerWidget {
   const ProjectHeader({super.key, required this.title, this.trailing, this.leading});
   final String title;
@@ -100,34 +106,21 @@ class ProjectHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final project = ref.watch(selectedProjectProvider);
     final titleStyle = context.text.title.copyWith(fontWeight: FontWeight.w700);
-    const titleGap = 12.0;
-    const unlabelledSettingsWidth = Pressable.minTargetSize + 4;
-    // Padding, icons, internal gaps and the glass border, without the name.
-    const chipChromeWidth = 24 + 18 + 6 + 4 + 18 + 2 * FikraSpace.hairline;
-    const compactChipChromeWidth = 8 + 4 + 18 + 2 * FikraSpace.hairline;
-    final unlabelledActionWidth = trailing == null ? 0.0 : Pressable.minTargetSize + 8;
-    const leadingGap = 4.0;
-    final leadingWidth = leading == null ? 0.0 : Pressable.minTargetSize + leadingGap;
-
-    Widget projectChip({required bool compact}) => Pressable(
-      onTap: () => showProjectSwitcher(context, ref),
-      minTarget: true,
-      semanticLabel: context.l10n.projectPillA11y(project?.name ?? context.l10n.noProject),
-      child: SolidSurface(
-        radius: FikraRadius.full,
-        padding: compact
-            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 8)
-            : const EdgeInsetsDirectional.fromSTEB(14, 8, 10, 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!compact) ...[
+    final projectChip = Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Pressable(
+        onTap: () => showProjectSwitcher(context, ref),
+        minTarget: true,
+        semanticLabel: context.l10n.projectPillA11y(project?.name ?? context.l10n.noProject),
+        child: SolidSurface(
+          radius: FikraRadius.full,
+          padding: const EdgeInsetsDirectional.fromSTEB(14, FikraSpace.s8, 10, FikraSpace.s8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Icon(Icons.folder_outlined, size: 18, color: context.colors.textSecondary),
               const SizedBox(width: 6),
-            ],
-            Flexible(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 110),
+              Flexible(
                 child: Text(
                   project?.name ?? '—',
                   style: context.text.chip,
@@ -135,112 +128,44 @@ class ProjectHeader extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: context.colors.textSecondary),
-          ],
+              const SizedBox(width: 4),
+              Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: context.colors.textSecondary),
+            ],
+          ),
         ),
       ),
     );
 
-    // Label room is measured only for a bare HeaderActionButton. Anything else
-    // (a wrapped button, another control) gets icon-only buttons inside it, so
-    // a caption can never overflow the space reserved for it.
-    final action = trailing;
-    final trailingControl = action == null || action is HeaderActionButton
-        ? action
-        : _HeaderLabelScope(showLabel: false, child: action);
-
-    Widget controls({required bool compact, required bool showLabels}) => _HeaderLabelScope(
-      showLabel: showLabels,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ?trailingControl,
-          if (trailing != null) const SizedBox(width: 8),
-          Flexible(child: projectChip(compact: compact)),
-          const SizedBox(width: 4),
-          HeaderActionButton(
-            key: const ValueKey('header-settings'),
-            icon: Icons.settings_outlined,
-            label: context.l10n.settings,
-            onTap: () => context.push('/settings'),
-          ),
-        ],
-      ),
-    );
-
     return Padding(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 12),
+      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, FikraSpace.s8),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final textScaler = MediaQuery.textScalerOf(context);
-          final defaultTextStyle = DefaultTextStyle.of(context).style;
-          double measureWidth(String value, TextStyle style, {bool mergeDefault = true}) {
-            final painter = TextPainter(
-              text: TextSpan(text: value, style: mergeDefault ? defaultTextStyle.merge(style) : style),
-              textDirection: Directionality.of(context),
-              textScaler: textScaler,
-              locale: Localizations.localeOf(context),
-              maxLines: 1,
-            )..layout();
-            final width = painter.width;
-            painter.dispose();
-            return width;
-          }
-
-          final titleWidth = measureWidth(title, titleStyle).ceilToDouble();
-          // Keep an initial character and the renderer's ellipsis visible.
-          final initialEllipsis = '${(project?.name ?? '—').characters.firstOrNull ?? ''}\u2026';
-          final nameSpace = math.max(
-            measureWidth(initialEllipsis, context.text.chip),
-            measureWidth(initialEllipsis, context.text.chip, mergeDefault: false),
-          );
-          final minimumChipWidth = (compactChipChromeWidth + nameSpace).clamp(Pressable.minTargetSize, double.infinity);
-          final labelStyle = context.text.meta.copyWith(height: 1.15);
-          final labelledSettingsWidth =
-              math.max(Pressable.minTargetSize, (measureWidth(context.l10n.settings, labelStyle) + 8).ceilToDouble()) +
-              4;
-          final labelledActionWidth = action == null
-              ? 0.0
-              : action is HeaderActionButton
-              ? math.max(Pressable.minTargetSize, (measureWidth(action.label, labelStyle) + 8).ceilToDouble()) + 8
-              : unlabelledActionWidth;
-          final showLabels =
-              textScaler.scale(1.0) <= 1.6 &&
-              (constraints.maxWidth - labelledSettingsWidth - labelledActionWidth >= minimumChipWidth);
-          final settingsWidth = showLabels ? labelledSettingsWidth : unlabelledSettingsWidth;
-          final actionWidth = showLabels ? labelledActionWidth : unlabelledActionWidth;
-          final chipWidth = constraints.maxWidth - leadingWidth - titleWidth - titleGap - settingsWidth - actionWidth;
-          final text = Semantics(header: true, child: Text(title, style: titleStyle, maxLines: 1, softWrap: false));
-          final heading = leading == null
-              ? text
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    leading!,
-                    const SizedBox(width: leadingGap),
-                    Flexible(child: text),
-                  ],
-                );
-          // Preserve the full title and 48 dp controls when both cannot fit.
-          if (chipWidth < minimumChipWidth) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                heading,
-                const SizedBox(height: 8),
-                controls(compact: false, showLabels: showLabels),
-              ],
-            );
-          }
-          return Row(
+          // A fixed breakpoint keeps header work cheap; Flexible owns text fit.
+          final showLabel = constraints.maxWidth >= 340 && MediaQuery.textScalerOf(context).scale(1) <= 1.6;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              heading,
-              const SizedBox(width: titleGap),
-              Expanded(
-                child: controls(compact: chipWidth < chipChromeWidth + nameSpace, showLabels: showLabels),
+              Row(
+                children: [
+                  if (leading != null) ...[leading!, const SizedBox(width: 4)],
+                  Expanded(
+                    child: Semantics(header: true, child: Text(title, style: titleStyle)),
+                  ),
+                  if (trailing != null) ...[
+                    const SizedBox(width: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: constraints.maxWidth * .45),
+                      child: _HeaderLabelScope(
+                        showLabel: trailing is HeaderActionButton && showLabel,
+                        child: trailing!,
+                      ),
+                    ),
+                  ],
+                ],
               ),
+              const SizedBox(height: FikraSpace.s8),
+              projectChip,
             ],
           );
         },

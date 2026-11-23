@@ -1,6 +1,7 @@
 @Tags(['screenshots'])
 library;
 
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/l10n/localizations.dart';
@@ -32,21 +33,21 @@ void main() {
           await saveScreenshot(tester, '$prefix/71_links_filtered');
           await tester.tap(find.byKey(const ValueKey('group-filter-parent')));
           await tester.pumpAndSettle();
-          await librarySegment(tester, 1);
+          await librarySegment(tester, LinksLibrarySegment.suggestions);
           await saveScreenshot(tester, '$prefix/72_links_suggestions');
-          await librarySegment(tester, 0);
+          await librarySegment(tester, LinksLibrarySegment.browse);
           await openNoteConnections(tester, notes, 5);
           await saveScreenshot(tester, '$prefix/73_note_connections');
           await tester.binding.handlePopRoute();
           await tester.pumpAndSettle();
-          await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+          await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
           await pumpUntil(tester, find.byType(InteractiveViewer));
           await saveScreenshot(tester, '$prefix/74_links_map');
           await pumpFuture(
             tester,
             () => (db.delete(db.noteLinks)..where((l) => l.origin.equalsValue(LinkOrigin.ai))).go(),
           );
-          await librarySegment(tester, 1);
+          await librarySegment(tester, LinksLibrarySegment.suggestions);
           await pumpUntil(tester, find.text(l10n.linksSuggestionsEmpty));
           await saveScreenshot(tester, '$prefix/75_links_suggestions_empty');
         },

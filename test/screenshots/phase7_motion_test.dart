@@ -78,7 +78,7 @@ void main() {
           final isAr = locale.languageCode == 'ar';
           String path(String name) => '${locale.languageCode}/${brightness.name}/phase7_$name';
 
-          await pumpUntil(tester, find.text(l10n.startNewProject));
+          await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
           await pumpFuture(tester, () async {
             final p = await LocalProjectsRepository(db).create(isAr ? 'مشروع التخرج' : 'Capstone');
             final repo = LocalNotesRepository(db);
@@ -136,7 +136,7 @@ void main() {
           await saveScreenshot(tester, path('recording'), settle: Duration.zero);
 
           // 3. Activity capsule above the bar while recording on another tab.
-          await tester.tap(Tabs.finder(Tabs.notes));
+          await tester.tap(find.byKey(const ValueKey('add-close')));
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 450));
           await tester.pump(const Duration(seconds: 1));

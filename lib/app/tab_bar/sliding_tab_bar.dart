@@ -8,10 +8,16 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/motion/motion.dart';
-import '../../core/theme/tokens.dart';
+import '../../core/motion/pressable.dart';
+import 'nav_selection.dart';
+
+import 'owned_horizontal_drag.dart';
+
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/glass_lens.dart';
 import 'tab_label.dart';
+
+part 'nav_bar_visual.dart';
 
 /// Hold duration before a stationary press engages the floating glass lens.
 const kLensHoldDelay = Duration(milliseconds: 200);
@@ -45,13 +51,14 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   /// About one device pixel. Ends the underdamped spring promptly alongside the
   /// release fade rather than ticking at sub-pixel deltas.
   static const _tolerance = Tolerance(distance: .3, velocity: 6);
+  late final _selection = AnimationController.unbounded(vsync: this, value: widget.index.toDouble());
   late final _x = AnimationController.unbounded(vsync: this);
   late final _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 140));
   final _hover = ValueNotifier<int?>(null);
   Timer? _holdTimer;
   int? _pointer;
   double _pointerX = 0;
-  _OwnedHorizontalDragRecognizer? _drag;
+  OwnedHorizontalDragRecognizer? _drag;
 
   /// The drag recognizer holds the arena. It reports only the latest finger,
   /// so it gates switching while positions come from the tracked pointer.
@@ -61,11 +68,11 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   double _width = 0;
   int _generation = 0;
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
-  double get _tabWidth => (_width - 10) / widget.items.length;
-  double _centre(int i) => 5 + (_rtl ? widget.items.length - 1 - i : i) * _tabWidth + _tabWidth / 2;
-  double _clampX(double x) => x.clamp(5 + _tabWidth / 2, _width - 5 - _tabWidth / 2);
+  double get _tabWidth => (_width - 8) / widget.items.length;
+  double _centre(int i) => 4 + (_rtl ? widget.items.length - 1 - i : i) * _tabWidth + _tabWidth / 2;
+  double _clampX(double x) => x.clamp(4 + _tabWidth / 2, _width - 4 - _tabWidth / 2);
   int _hit(double x) {
-    final physical = ((x - 5) / _tabWidth).floor().clamp(0, widget.items.length - 1);
+    final physical = ((x - 4) / _tabWidth).floor().clamp(0, widget.items.length - 1);
     return _rtl ? widget.items.length - 1 - physical : physical;
   }
 
@@ -79,12 +86,34 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (FikraMotion.reduced(context) && widget.index >= 0) _selection.value = widget.index.toDouble();
+  }
+
+  @override
   void didUpdateWidget(FikraNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     // An index this bar did not choose (deep link, Add, TalkBack) supersedes
     // the touch, so its release cannot reselect, and moves a settling lens.
     final external = widget.index != oldWidget.index && widget.index != _selected;
     _selected = widget.index;
+    if (widget.index != oldWidget.index && widget.index >= 0) {
+      if (FikraMotion.reduced(context) || oldWidget.index < 0) {
+        _selection.value = widget.index.toDouble();
+      } else {
+        _selection.animateWith(
+          SpringSimulation(
+            FikraSprings.smooth,
+            _selection.value,
+            widget.index.toDouble(),
+            _selection.velocity,
+            tolerance: const Tolerance(distance: .001, velocity: .02),
+            snapToEnd: true,
+          ),
+        );
+      }
+    }
     if (_pointer != null) {
       if (external || !widget.enabled || widget.index < 0) _finish();
     } else if (external && (_x.isAnimating || _pulse.isAnimating)) {
@@ -116,6 +145,7 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
 
   void _down(PointerDownEvent event) {
     if (_pointer != null || !widget.enabled) return;
+    if (event.kind == PointerDeviceKind.mouse && (event.buttons & kPrimaryMouseButton) == 0) return;
     _generation++;
     _cancelHold();
     _pointer = event.pointer;
@@ -203,95 +233,10 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
     _generation++;
     _drag = null;
     _hover.dispose();
+    _selection.dispose();
     _x.dispose();
     _pulse.dispose();
     super.dispose();
-  }
-
-  Widget _buildBar(BuildContext context, double maxWidth, double w, Widget glassBacking) {
-    final s = _effectiveShrink(context);
-    // Quantize height to whole dp so Glass only relays out across 20 discrete
-    // steps instead of every sub-pixel scroll frame, and reuse glassBacking.
-    final barHeight = ui.lerpDouble(72, FikraMotion.barShrunkHeight, s)!.roundToDouble();
-    final pillHeight = barHeight - 10;
-    final lensHeight = barHeight + 16;
-    return SizedBox(
-      key: const ValueKey('floating-tab-bar'),
-      // Fill the offered width. The Stack's only unpositioned child is
-      // the hidden lens, so it would otherwise shrink to 0 dp and drop taps.
-      width: maxWidth,
-      height: barHeight,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          glassBacking,
-          if (widget.index >= 0)
-            Positioned(
-              left: _centre(widget.index) - w / 2,
-              top: 5,
-              width: w,
-              height: pillHeight,
-              child: FadeTransition(
-                opacity: _pulse.drive(Tween(begin: 1.0, end: .32)),
-                child: DecoratedBox(
-                  key: const ValueKey('nav-selected-pill'),
-                  decoration: BoxDecoration(
-                    color: context.colors.selected,
-                    borderRadius: BorderRadius.circular(pillHeight / 2),
-                  ),
-                ),
-              ),
-            ),
-          AnimatedBuilder(
-            animation: Listenable.merge([_x, _pulse]),
-            child: AnimatedBuilder(
-              animation: _pulse,
-              builder: (context, _) => GlassLens(opacity: _pulse.value, child: const SizedBox.expand()),
-            ),
-            builder: (context, lens) => _pulse.value == 0
-                ? const SizedBox.shrink()
-                : Positioned(
-                    left: 0,
-                    top: -8,
-                    width: w + 20,
-                    height: lensHeight,
-                    child: Transform.translate(
-                      offset: Offset(_clampX(_x.value) - (w + 20) / 2, 0),
-                      child: IgnorePointer(
-                        child: ExcludeSemantics(
-                          child: SizedBox(key: const ValueKey('nav-lens'), child: lens),
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(5),
-              child: RepaintBoundary(
-                child: Row(
-                  children: [
-                    for (var i = 0; i < widget.items.length; i++)
-                      Expanded(
-                        child: TabLabel(
-                          key: ValueKey('nav-$i'),
-                          label: widget.items[i].$1,
-                          icon: widget.items[i].$2,
-                          selected: widget.index == i,
-                          index: i,
-                          hover: _hover,
-                          shrink: s,
-                          onActivate: () => widget.onSelect(i, i == widget.index),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -310,8 +255,8 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
         child: RawGestureDetector(
           behavior: HitTestBehavior.opaque,
           gestures: {
-            _OwnedHorizontalDragRecognizer: GestureRecognizerFactoryWithHandlers<_OwnedHorizontalDragRecognizer>(
-              () => _OwnedHorizontalDragRecognizer(
+            OwnedHorizontalDragRecognizer: GestureRecognizerFactoryWithHandlers<OwnedHorizontalDragRecognizer>(
+              () => OwnedHorizontalDragRecognizer(
                 (pointer) => widget.enabled && (_pointer == null || _pointer == pointer),
               ),
               (recognizer) {
@@ -335,14 +280,4 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
       );
     },
   );
-}
-
-class _OwnedHorizontalDragRecognizer extends HorizontalDragGestureRecognizer {
-  _OwnedHorizontalDragRecognizer(this.ownsPointer);
-  final bool Function(int pointer) ownsPointer;
-
-  @override
-  void addPointer(PointerDownEvent event) {
-    if (ownsPointer(event.pointer)) super.addPointer(event);
-  }
 }

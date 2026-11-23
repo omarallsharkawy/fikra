@@ -87,7 +87,12 @@ Three described keys in both ARBs: `servicesSection` («الخدمات المت�
 
 Four described keys in both ARBs for the floating activity capsule: `capsuleRecording` («بيسجّل…» / "Recording…"), `capsuleRecordingA11y` («بيسجّل. دوس عشان تفتح التسجيل» / "Recording. Tap to open recording", static without elapsed placeholder so TalkBack does not re-announce every second), `capsuleTranscribing` («بيفرّغ الصوت…» / "Transcribing…"), and `capsuleTranscribingA11y` («بيفرّغ التسجيل. دوس عشان تفتح الملاحظة» / "Transcribing recording. Tap to open note"). Regenerated with `flutter gen-l10n`.
 
+## Concept navigation (phase 1B)
 
-## Links Map replacement
+One final ARB block adds navHome/navMap/navMe, newIdea, meIdeas/meLinks/meWeekDays,
+meAppearanceLanguage and meVoiceServices. Existing keys are retained for other
+surfaces. Regenerate with flutter gen-l10n; generated files are never handwritten.
 
-Graph-only ARB messages and the header graph action are removed. New described keys: linksMap (الخريطة / Map), mapOthers (تانيين / Others), mapShowMore (اعرض أكتر / Show more), mapPanHint (اسحب عشان تشوف باقي الخريطة / Pan to explore the map), mapOpen (افتح / Open), mapNotes(count), mapConnections(count), mapCanvasSummary(total, omitted), mapTotals(total, confirmed, suggestions, omitted). Zoom labels, note titles and shared link actions/Undo remain. Arabic is the template; generated files are regenerated using flutter gen-l10n, never edited manually.
+## Links Map
+
+Both ARBs include `linksMap`, `mapOthers`, `mapShowMore`, `mapPanHint`, `mapOpen`, `mapNotes`, `mapConnections`, `mapCanvasSummary` and `mapTotals` with their metadata. The obsolete group navigation label was removed. The generated lookups come from `flutter gen-l10n`.

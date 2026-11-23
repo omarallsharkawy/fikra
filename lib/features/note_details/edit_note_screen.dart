@@ -10,6 +10,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/attachment_draft.dart';
 import '../../data/local/database.dart';
+import '../../data/note_edit_merge.dart';
 import '../shared/attachment_editor.dart';
 import '../shared/note_presentation.dart';
 import '../shared/transcription_notifications.dart';
@@ -27,7 +28,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
   TextEditingController? _text;
   String _initialTitle = '';
   String _initialText = '';
-  String _initialOriginal = '';
+  NoteEditBasis? _basis;
   List<String>? _initialFiles;
   List<AttachmentDraft> _initialAttachments = [];
   bool _titleEdited = false;
@@ -54,19 +55,6 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
     super.dispose();
   }
 
-  /// A transcript that finished while this screen was open was appended to the
-  /// stored typed text after this screen loaded. Keep it instead of saving over it.
-  String _withNewTranscript(String text) {
-    final live = ref.read(noteProvider(widget.noteId)).value;
-    if (live == null) return text;
-    final original = live.originalText;
-    if (original.length <= _initialOriginal.length || !original.startsWith(_initialOriginal)) return text;
-    if (text == _initialText) return live.displayText;
-    final added = original.substring(_initialOriginal.length).trim();
-    if (text.contains(added)) return text;
-    return [text.trimRight(), added].where((s) => s.isNotEmpty).join('\n\n');
-  }
-
   Future<void> _save() async {
     if (attachmentBusy || _initialFiles == null) return;
     if (_text!.text.trim().isEmpty && draftFiles.isEmpty) {
@@ -74,7 +62,7 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
       return;
     }
     var title = _title!.text;
-    final text = _withNewTranscript(_text!.text);
+    final text = _text!.text;
     final draft = List<AttachmentDraft>.of(draftFiles);
     if (text.trim().isEmpty && !_titleEdited && title == _initialTitle && draft.isNotEmpty) {
       final keptIds = draft.map((a) => a.id).toSet();
@@ -91,7 +79,9 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
         transcriptionDraft(draft, automatic: await ref.read(settingsRepoProvider).readAutoTranscribe()),
         (stored) {
           transcriptionPaths = newTranscriptionPaths(stored);
-          return ref.read(notesRepoProvider).edit(widget.noteId, title: title, text: text, attachments: stored);
+          return ref
+              .read(notesRepoProvider)
+              .edit(widget.noteId, title: title, text: text, attachments: stored, basis: _basis);
         },
       );
       unawaited(
@@ -168,10 +158,10 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
       _initialAttachments = List.of(draftFiles);
     }
     final note = noteAsync.value;
-    if (note != null && _title == null) {
+    if (note != null && files.hasValue && _title == null) {
       _initialTitle = note.title;
       _initialText = note.displayText;
-      _initialOriginal = note.originalText;
+      _basis = NoteEditBasis(note, List.of(files.requireValue));
       _title = TextEditingController(text: _initialTitle);
       _text = TextEditingController(text: _initialText);
     }

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Pearl semantic colours and static material parameters. Hexes are AARRGGBB.
+/// FIKRA brand and semantic colours plus static material parameters. Hexes are AARRGGBB.
 @immutable
 class FikraPalette extends ThemeExtension<FikraPalette> {
   const FikraPalette({
@@ -12,6 +12,22 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     required this.textSecondary,
     required this.accent,
     required this.onAccent,
+    required this.brandLime,
+    required this.onBrandLime,
+    required this.brandLimeFg,
+    required this.brandLimeTint,
+    required this.brandBlue,
+    required this.onBrandBlue,
+    required this.brandBlueFg,
+    required this.brandBlueTint,
+    required this.brandPurple,
+    required this.onBrandPurple,
+    required this.brandPurpleFg,
+    required this.brandPurpleTint,
+    required this.brandSlate,
+    required this.onBrandSlate,
+    required this.brandSlateFg,
+    required this.brandSlateTint,
     required this.line,
     required this.chip,
     required this.selected,
@@ -55,6 +71,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     required this.lensHighlightAlpha,
     required this.lensInnerAlpha,
     required this.lensShadowAlpha,
+    required this.glassBackingAlpha,
   });
 
   final Color canvas;
@@ -63,6 +80,25 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
   final Color textSecondary;
   final Color accent;
   final Color onAccent;
+
+  /// Brand fills, ink on fills, surface-safe foregrounds, and translucent badge tints.
+  final Color brandLime;
+  final Color onBrandLime;
+  final Color brandLimeFg;
+  final Color brandLimeTint;
+  final Color brandBlue;
+  final Color onBrandBlue;
+  final Color brandBlueFg;
+  final Color brandBlueTint;
+  final Color brandPurple;
+  final Color onBrandPurple;
+  final Color brandPurpleFg;
+  final Color brandPurpleTint;
+  final Color brandSlate;
+  final Color onBrandSlate;
+  final Color brandSlateFg;
+  final Color brandSlateTint;
+
   final Color line;
   final Color chip;
   final Color selected;
@@ -88,8 +124,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
   final Color scrim;
   final Color selection;
 
-  /// Note-group markers (stored ids 0..3): calm, distinct hues; 3:1 on
-  /// surface and canvas.
+  /// Note-group markers (stored ids 0..3): distinct hues; >= 3:1 on surface and canvas.
   final Color groupBlue;
   final Color groupSage;
   final Color groupSand;
@@ -109,12 +144,12 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
   final double lensHighlightAlpha;
   final double lensInnerAlpha;
   final double lensShadowAlpha;
+  final double glassBackingAlpha;
 
-  static const glassBackingAlpha = 0.90;
   static const lensTintAlpha = 0.20;
   static const lensSpectrumGain = 1.15;
 
-  /// CSS 145deg: down and right, in the one approved accent hue.
+  /// CSS 145deg: down and right, in the brand accent hue.
   LinearGradient get addGradient => LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
@@ -123,15 +158,31 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
   );
 
   static const light = FikraPalette(
-    canvas: Color(0xFFF5F4F0),
-    surface: Color(0xFFFEFEFC),
-    textPrimary: Color(0xFF263039),
-    textSecondary: Color(0xFF59636B),
-    accent: Color(0xFF346789),
+    canvas: Color(0xFFF5F5F2),
+    surface: Color(0xFFFFFFFF),
+    textPrimary: Color(0xFF14181F),
+    textSecondary: Color(0xFF525B68),
+    accent: Color(0xFF446200),
     onAccent: Color(0xFFFFFFFF),
-    line: Color(0xFFE0E1E1),
-    chip: Color(0xFFF5F5F4),
-    selected: Color(0xFFECF0F2),
+    brandLime: Color(0xFFC8F04A),
+    onBrandLime: Color(0xFF111214),
+    brandLimeFg: Color(0xFF446200),
+    brandLimeTint: Color(0x26C8F04A),
+    brandBlue: Color(0xFF2448E6),
+    onBrandBlue: Color(0xFFFFFFFF),
+    brandBlueFg: Color(0xFF1E40D8),
+    brandBlueTint: Color(0x212448E6),
+    brandPurple: Color(0xFF6336D6),
+    onBrandPurple: Color(0xFFFFFFFF),
+    brandPurpleFg: Color(0xFF562AC2),
+    brandPurpleTint: Color(0x216336D6),
+    brandSlate: Color(0xFF3B4252),
+    onBrandSlate: Color(0xFFFFFFFF),
+    brandSlateFg: Color(0xFF3B4252),
+    brandSlateTint: Color(0x213B4252),
+    line: Color(0xFFDCDFE4),
+    chip: Color(0xFFECEEEB),
+    selected: Color(0xFFEEF6D4),
     shadow: Color(0xFF101719),
     rim: Color(0xFFFFFFFF),
     highlight: Color(0xFFFFFFFF),
@@ -142,23 +193,23 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     spectrumCool: Color(0xFFA8BECD),
     spectrumWarm: Color(0xFFD3C9B6),
     spectrumSage: Color(0xFFC4D2CA),
-    addTop: Color(0xFF3B7090),
-    graphEdge: Color(0xFF8E9599),
-    borderGraph: Color(0xFFB2B7B9),
-    danger: Color(0xFF884C40),
-    dangerBg: Color(0xFFF3E8E2),
-    success: Color(0xFF41634F),
-    successBg: Color(0xFFE9EFE8),
-    warning: Color(0xFF746039),
-    warningBg: Color(0xFFF2EDE1),
+    addTop: Color(0xFF4E7000),
+    graphEdge: Color(0xFF7A8390),
+    borderGraph: Color(0xFFB8BFC9),
+    danger: Color(0xFFB3261E),
+    dangerBg: Color(0xFFFCE8E6),
+    success: Color(0xFF1B6E3A),
+    successBg: Color(0xFFE6F4EA),
+    warning: Color(0xFF8A5300),
+    warningBg: Color(0xFFFFF3DC),
     scrim: Color(0x33000000),
-    selection: Color(0x33346789),
-    groupBlue: Color(0xFF5E7F96),
-    groupSage: Color(0xFF6E8B78),
-    groupSand: Color(0xFFA08A5C),
-    groupGray: Color(0xFF878E92),
-    bloomCoolAlpha: 0.1,
-    bloomWarmAlpha: 0.07,
+    selection: Color(0x33446200),
+    groupBlue: Color(0xFF2448E6),
+    groupSage: Color(0xFF2E7D52),
+    groupSand: Color(0xFFA66B12),
+    groupGray: Color(0xFF6B7380),
+    bloomCoolAlpha: 0,
+    bloomWarmAlpha: 0,
     rimAlpha: 0.76,
     highlightAlpha: 0.65,
     shadowAlpha: 0.12,
@@ -172,19 +223,36 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     lensHighlightAlpha: 0.86,
     lensInnerAlpha: 0.32,
     lensShadowAlpha: 0.12,
+    glassBackingAlpha: 0.90,
   );
 
   static const dark = FikraPalette(
-    canvas: Color(0xFF20272C),
-    surface: Color(0xFF2D353A),
-    textPrimary: Color(0xFFF2F4F4),
-    textSecondary: Color(0xFFB6C0C4),
-    accent: Color(0xFFA2C1D4),
-    onAccent: Color(0xFF162832),
-    line: Color(0xFF495054),
-    chip: Color(0xFF353D42),
-    selected: Color(0xFF384248),
-    shadow: Color(0xFF101719),
+    canvas: Color(0xFF0E1013),
+    surface: Color(0xFF171A20),
+    textPrimary: Color(0xFFF3F5F7),
+    textSecondary: Color(0xFFA1AAB8),
+    accent: Color(0xFFC8F04A),
+    onAccent: Color(0xFF111214),
+    brandLime: Color(0xFFC8F04A),
+    onBrandLime: Color(0xFF111214),
+    brandLimeFg: Color(0xFFC8F04A),
+    brandLimeTint: Color(0x24C8F04A),
+    brandBlue: Color(0xFF2448E6),
+    onBrandBlue: Color(0xFFFFFFFF),
+    brandBlueFg: Color(0xFF7A9BFF),
+    brandBlueTint: Color(0x292448E6),
+    brandPurple: Color(0xFF6336D6),
+    onBrandPurple: Color(0xFFFFFFFF),
+    brandPurpleFg: Color(0xFFB294FF),
+    brandPurpleTint: Color(0x296336D6),
+    brandSlate: Color(0xFF3B4252),
+    onBrandSlate: Color(0xFFFFFFFF),
+    brandSlateFg: Color(0xFFB4BFCE),
+    brandSlateTint: Color(0x2994A3B8),
+    line: Color(0xFF2E3440),
+    chip: Color(0xFF22262F),
+    selected: Color(0xFF242B1A),
+    shadow: Color(0xFF000000),
     rim: Color(0xFFF4F7F5),
     highlight: Color(0xFFFFFFFF),
     lensRim: Color(0xFFF4F7F5),
@@ -194,23 +262,23 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     spectrumCool: Color(0xFFA8BECD),
     spectrumWarm: Color(0xFFD3C9B6),
     spectrumSage: Color(0xFFC4D2CA),
-    addTop: Color(0xFFACC8D8),
-    graphEdge: Color(0xFF8A9498),
-    borderGraph: Color(0xFF6C7579),
-    danger: Color(0xFFD4ABA0),
-    dangerBg: Color(0xFF40332F),
-    success: Color(0xFFAAC5B2),
-    successBg: Color(0xFF303E35),
-    warning: Color(0xFFD1BE95),
-    warningBg: Color(0xFF403A2E),
+    addTop: Color(0xFFD8F76A),
+    graphEdge: Color(0xFF8A94A6),
+    borderGraph: Color(0xFF454E5E),
+    danger: Color(0xFFF28B82),
+    dangerBg: Color(0xFF3A1E1E),
+    success: Color(0xFF81E6A5),
+    successBg: Color(0xFF172E22),
+    warning: Color(0xFFF5C969),
+    warningBg: Color(0xFF332915),
     scrim: Color(0x99000000),
-    selection: Color(0x55A2C1D4),
-    groupBlue: Color(0xFF8FAFC3),
-    groupSage: Color(0xFF9DB8A6),
-    groupSand: Color(0xFFC8B48A),
-    groupGray: Color(0xFF8A9498),
-    bloomCoolAlpha: 0.09,
-    bloomWarmAlpha: 0.04,
+    selection: Color(0x44C8F04A),
+    groupBlue: Color(0xFF7A9BFF),
+    groupSage: Color(0xFF6DD59C),
+    groupSand: Color(0xFFF0C265),
+    groupGray: Color(0xFF8E99AB),
+    bloomCoolAlpha: 0,
+    bloomWarmAlpha: 0,
     rimAlpha: 0.3,
     highlightAlpha: 0.24,
     shadowAlpha: 0.32,
@@ -224,6 +292,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     lensHighlightAlpha: 0.64,
     lensInnerAlpha: 0.16,
     lensShadowAlpha: 0.24,
+    glassBackingAlpha: 0.72,
   );
 
   @override
@@ -234,6 +303,22 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     Color? textSecondary,
     Color? accent,
     Color? onAccent,
+    Color? brandLime,
+    Color? onBrandLime,
+    Color? brandLimeFg,
+    Color? brandLimeTint,
+    Color? brandBlue,
+    Color? onBrandBlue,
+    Color? brandBlueFg,
+    Color? brandBlueTint,
+    Color? brandPurple,
+    Color? onBrandPurple,
+    Color? brandPurpleFg,
+    Color? brandPurpleTint,
+    Color? brandSlate,
+    Color? onBrandSlate,
+    Color? brandSlateFg,
+    Color? brandSlateTint,
     Color? line,
     Color? chip,
     Color? selected,
@@ -277,6 +362,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     double? lensHighlightAlpha,
     double? lensInnerAlpha,
     double? lensShadowAlpha,
+    double? glassBackingAlpha,
   }) => FikraPalette(
     canvas: canvas ?? this.canvas,
     surface: surface ?? this.surface,
@@ -284,6 +370,22 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     textSecondary: textSecondary ?? this.textSecondary,
     accent: accent ?? this.accent,
     onAccent: onAccent ?? this.onAccent,
+    brandLime: brandLime ?? this.brandLime,
+    onBrandLime: onBrandLime ?? this.onBrandLime,
+    brandLimeFg: brandLimeFg ?? this.brandLimeFg,
+    brandLimeTint: brandLimeTint ?? this.brandLimeTint,
+    brandBlue: brandBlue ?? this.brandBlue,
+    onBrandBlue: onBrandBlue ?? this.onBrandBlue,
+    brandBlueFg: brandBlueFg ?? this.brandBlueFg,
+    brandBlueTint: brandBlueTint ?? this.brandBlueTint,
+    brandPurple: brandPurple ?? this.brandPurple,
+    onBrandPurple: onBrandPurple ?? this.onBrandPurple,
+    brandPurpleFg: brandPurpleFg ?? this.brandPurpleFg,
+    brandPurpleTint: brandPurpleTint ?? this.brandPurpleTint,
+    brandSlate: brandSlate ?? this.brandSlate,
+    onBrandSlate: onBrandSlate ?? this.onBrandSlate,
+    brandSlateFg: brandSlateFg ?? this.brandSlateFg,
+    brandSlateTint: brandSlateTint ?? this.brandSlateTint,
     line: line ?? this.line,
     chip: chip ?? this.chip,
     selected: selected ?? this.selected,
@@ -327,6 +429,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
     lensHighlightAlpha: lensHighlightAlpha ?? this.lensHighlightAlpha,
     lensInnerAlpha: lensInnerAlpha ?? this.lensInnerAlpha,
     lensShadowAlpha: lensShadowAlpha ?? this.lensShadowAlpha,
+    glassBackingAlpha: glassBackingAlpha ?? this.glassBackingAlpha,
   );
 
   @override
@@ -340,6 +443,22 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       onAccent: Color.lerp(onAccent, other.onAccent, t)!,
+      brandLime: Color.lerp(brandLime, other.brandLime, t)!,
+      onBrandLime: Color.lerp(onBrandLime, other.onBrandLime, t)!,
+      brandLimeFg: Color.lerp(brandLimeFg, other.brandLimeFg, t)!,
+      brandLimeTint: Color.lerp(brandLimeTint, other.brandLimeTint, t)!,
+      brandBlue: Color.lerp(brandBlue, other.brandBlue, t)!,
+      onBrandBlue: Color.lerp(onBrandBlue, other.onBrandBlue, t)!,
+      brandBlueFg: Color.lerp(brandBlueFg, other.brandBlueFg, t)!,
+      brandBlueTint: Color.lerp(brandBlueTint, other.brandBlueTint, t)!,
+      brandPurple: Color.lerp(brandPurple, other.brandPurple, t)!,
+      onBrandPurple: Color.lerp(onBrandPurple, other.onBrandPurple, t)!,
+      brandPurpleFg: Color.lerp(brandPurpleFg, other.brandPurpleFg, t)!,
+      brandPurpleTint: Color.lerp(brandPurpleTint, other.brandPurpleTint, t)!,
+      brandSlate: Color.lerp(brandSlate, other.brandSlate, t)!,
+      onBrandSlate: Color.lerp(onBrandSlate, other.onBrandSlate, t)!,
+      brandSlateFg: Color.lerp(brandSlateFg, other.brandSlateFg, t)!,
+      brandSlateTint: Color.lerp(brandSlateTint, other.brandSlateTint, t)!,
       line: Color.lerp(line, other.line, t)!,
       chip: Color.lerp(chip, other.chip, t)!,
       selected: Color.lerp(selected, other.selected, t)!,
@@ -383,6 +502,7 @@ class FikraPalette extends ThemeExtension<FikraPalette> {
       lensHighlightAlpha: lensHighlightAlpha + (other.lensHighlightAlpha - lensHighlightAlpha) * t,
       lensInnerAlpha: lensInnerAlpha + (other.lensInnerAlpha - lensInnerAlpha) * t,
       lensShadowAlpha: lensShadowAlpha + (other.lensShadowAlpha - lensShadowAlpha) * t,
+      glassBackingAlpha: glassBackingAlpha + (other.glassBackingAlpha - glassBackingAlpha) * t,
     );
   }
 }
@@ -412,11 +532,11 @@ extension FikraThemeContext on BuildContext {
 }
 
 abstract final class FikraRadius {
-  static const sm = 18.0;
-  static const md = 20.0;
-  static const lg = 24.0;
-  static const xl = 28.0;
-  static const xxl = 38.0;
+  static const sm = 16.0;
+  static const md = 18.0;
+  static const lg = 20.0;
+  static const xl = 24.0;
+  static const xxl = 28.0;
   static const full = 999.0;
 }
 
@@ -436,8 +556,7 @@ abstract final class FikraSpace {
   static const hairline = 0.6;
 }
 
-/// Text styles from the Figma text styles. Arabic text gets no letter spacing
-/// (negative tracking breaks letter joining).
+/// Brand typography. Arabic text gets zero letter spacing (tracking breaks letter joining).
 class FikraText {
   const FikraText(this.colors);
   final FikraPalette colors;
@@ -449,19 +568,21 @@ class FikraText {
     fontFamilyFallback: ['Roboto'],
     height: 1.5,
     fontWeight: FontWeight.w400,
+    letterSpacing: 0,
   );
 
-  TextStyle get title => _base.copyWith(color: colors.textPrimary, fontSize: 26);
+  TextStyle get title =>
+      _base.copyWith(color: colors.textPrimary, fontSize: 28, fontWeight: FontWeight.w800, height: 1.25);
   TextStyle get cardTitle => _base.copyWith(color: colors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700);
   TextStyle get cardTitleSmall => _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w700);
-  TextStyle get section => _base.copyWith(color: colors.textPrimary, fontSize: 17);
-  TextStyle get bodyLarge => _base.copyWith(color: colors.textPrimary, fontSize: 18);
-  TextStyle get answer => _base.copyWith(color: colors.textPrimary, fontSize: 17);
-  TextStyle get body => _base.copyWith(color: colors.textPrimary, fontSize: 16);
-  TextStyle get field => _base.copyWith(color: colors.textPrimary, fontSize: 15);
-  TextStyle get caption => _base.copyWith(fontSize: 12.5, color: colors.textSecondary);
-  TextStyle get nav => _base.copyWith(color: colors.textPrimary, fontSize: 13);
-  TextStyle get button => _base.copyWith(color: colors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700);
-  TextStyle get chip => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w500);
-  TextStyle get meta => _base.copyWith(fontSize: 11, color: colors.textSecondary);
+  TextStyle get section => _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w600);
+  TextStyle get bodyLarge => _base.copyWith(color: colors.textPrimary, fontSize: 18, height: 1.55);
+  TextStyle get answer => _base.copyWith(color: colors.textPrimary, fontSize: 17, height: 1.55);
+  TextStyle get body => _base.copyWith(color: colors.textPrimary, fontSize: 16, height: 1.55);
+  TextStyle get field => _base.copyWith(color: colors.textPrimary, fontSize: 15, height: 1.45);
+  TextStyle get caption => _base.copyWith(fontSize: 14, height: 1.5, color: colors.textSecondary);
+  TextStyle get nav => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600);
+  TextStyle get button => _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w700);
+  TextStyle get chip => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600);
+  TextStyle get meta => _base.copyWith(fontSize: 12.5, color: colors.textSecondary);
 }

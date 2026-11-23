@@ -166,20 +166,22 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Builder(
-                                builder: (cardContext) => Pressable(
-                                  key: const ValueKey('connections-note'),
-                                  onTap: note == null
-                                      ? null
-                                      : () => _leave(
-                                          () => context.push(
-                                            '/note/${note.id}',
-                                            extra: (
-                                              note,
-                                              CardOrigin.fromContext(cardContext, borderRadius: FikraRadius.md),
+                                builder: (cardContext) => ContainerTransformSource(
+                                  child: Pressable(
+                                    key: const ValueKey('connections-note'),
+                                    onTap: note == null
+                                        ? null
+                                        : () => _leave(
+                                            () => context.push(
+                                              '/note/${note.id}',
+                                              extra: (
+                                                note,
+                                                CardOrigin.fromContext(cardContext, borderRadius: FikraRadius.md),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                  child: ConnectionsNoteHeader(note: preview),
+                                    child: ConnectionsNoteHeader(note: preview),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 12),

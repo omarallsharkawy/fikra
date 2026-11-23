@@ -20,10 +20,18 @@ class GroupFilterRow extends StatelessWidget {
     required this.onOptions,
     this.counts,
     this.clearSelectedChild = false,
+    this.leadingChips = const [],
+    this.allSelected,
   });
 
   final Map<String, int>? counts;
   final bool clearSelectedChild;
+
+  /// Optional filter chips placed immediately after "All" and before user groups.
+  final List<Widget> leadingChips;
+
+  /// Overrides whether the "All" chip appears selected (defaults to `selectedId == null`).
+  final bool? allSelected;
   final List<NoteGroup> groups;
   final String? selectedId;
   final ValueChanged<String?> onSelect;
@@ -62,9 +70,10 @@ class GroupFilterRow extends StatelessWidget {
                     ChoiceTag(
                       key: const ValueKey('group-filter-all'),
                       label: context.l10n.allGroupsFilter,
-                      selected: selected == null,
+                      selected: allSelected ?? selected == null,
                       onTap: () => onSelect(null),
                     ),
+                    ...leadingChips,
                     for (final g in groups)
                       if (isTop(g))
                         chip(g, on: g.id == parent?.id, onTap: () => onSelect(g.id == selectedId ? null : g.id)),

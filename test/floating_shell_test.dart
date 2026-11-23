@@ -104,35 +104,38 @@ void main() {
 
   fikraTest('Add button retains draft and keyboard hides both floating controls', (tester, db) async {
     final semantics = tester.ensureSemantics();
-    phone(tester);
-    await seedNotes(tester, db, ['A']);
-    await tester.tap(Tabs.addButton);
-    await tester.pumpAndSettle();
-    final fields = find.descendant(of: find.byType(AddScreen), matching: find.byType(TextField));
-    final title = fields.at(0);
-    await tester.enterText(title, 'Draft stays');
-    tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 110));
-    final opacity = find.ancestor(
-      of: find.byKey(const ValueKey('floating-navigation')),
-      matching: find.byType(AnimatedOpacity),
-    );
-    expect(tester.widget<AnimatedOpacity>(opacity).opacity, 0);
-    // The live tree: bySemanticsLabel can still see a node excluded mid-test.
-    expect(find.semantics.byLabel(arL10n.navAdd), findsNothing);
-    expect(find.semantics.byLabel(arL10n.navNotes), findsNothing);
-    expect(Tabs.addButton.hitTestable(), findsNothing);
-    expect(Tabs.finder(Tabs.notes).hitTestable(), findsNothing);
-    tester.view.viewInsets = const FakeViewPadding();
-    tester.testTextInput.hide();
-    FocusManager.instance.primaryFocus?.unfocus();
-    await tester.pumpAndSettle();
-    await tester.tap(Tabs.finder(Tabs.notes));
-    await tester.pumpAndSettle();
-    await tester.tap(Tabs.addButton);
-    await tester.pumpAndSettle();
-    expect(find.text('Draft stays'), findsOneWidget);
-    semantics.dispose();
+    try {
+      phone(tester);
+      await seedNotes(tester, db, ['A']);
+      await tester.tap(Tabs.addButton);
+      await tester.pumpAndSettle();
+      final fields = find.descendant(of: find.byType(AddScreen), matching: find.byType(TextField));
+      final title = fields.at(0);
+      await tester.enterText(title, 'Draft stays');
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 110));
+      final opacity = find.ancestor(
+        of: find.byKey(const ValueKey('floating-navigation')),
+        matching: find.byType(AnimatedOpacity),
+      );
+      expect(tester.widget<AnimatedOpacity>(opacity).opacity, 0);
+      // The live tree: bySemanticsLabel can still see a node excluded mid-test.
+      expect(find.semantics.byLabel(arL10n.navAdd), findsNothing);
+      expect(find.semantics.byLabel(arL10n.navHome), findsNothing);
+      expect(Tabs.addButton.hitTestable(), findsNothing);
+      expect(Tabs.finder(Tabs.notes).hitTestable(), findsNothing);
+      tester.view.viewInsets = const FakeViewPadding();
+      tester.testTextInput.hide();
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-close')));
+      await tester.pumpAndSettle();
+      await tester.tap(Tabs.addButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Draft stays'), findsOneWidget);
+    } finally {
+      semantics.dispose();
+    }
   });
 }

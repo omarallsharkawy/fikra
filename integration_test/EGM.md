@@ -26,7 +26,7 @@ fails rather than silently reporting the wrong tier. Release has no override.
 Timers/listeners/DB/file cleanup use addTearDown. Do not run on-device from the
 restricted sandbox; owner runs the command on the phone later.
 
-The normal stress tab workload now maps branch IDs to three nav keys plus nav-add.
+The normal stress tab workload now maps branch IDs to four nav keys plus nav-add.
 
 ## Links comparison (redesign phase 3)
 

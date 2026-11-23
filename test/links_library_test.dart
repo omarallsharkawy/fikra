@@ -1,15 +1,18 @@
 import "dart:async";
 import "dart:ui" show Tristate;
 
+import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/format.dart';
 import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/data/local/database.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/library_cards.dart';
 import 'package:fikra/features/connections/links_index.dart';
 import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/connections/suggestion_card.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/app_harness.dart';
@@ -32,15 +35,15 @@ void main() {
           Directionality.of(tester.element(find.byType(LinksLibraryScreen))),
           locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
         );
-        final browse = tester.getSemantics(find.byKey(const ValueKey('links-segment-1')));
+        final browse = tester.getSemantics(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
         expect(browse.flagsCollection.isButton, isTrue);
         expect(browse.flagsCollection.isSelected, Tristate.isTrue);
         expect(
-          tester.getSemantics(find.byKey(const ValueKey('links-segment-2'))).label,
+          tester.getSemantics(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions))).label,
           l10n.linksSuggestionsCountA11y(3),
         );
         expect(find.text(l10n.linksSuggestionsCount(3)), findsOneWidget);
-        await tester.tap(find.byKey(const ValueKey('group-filter-parent')));
+        await tester.tap(find.byKey(const ValueKey('group-filter-parent')).hitTestable());
         await tester.pumpAndSettle();
         expect(find.byType(BrowseNoteCard), findsNWidgets(2));
         expect(find.byKey(const ValueKey('group-filter-child')), findsOneWidget);
@@ -62,7 +65,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 200));
         await tester.pumpAndSettle();
         expect(find.byType(BrowseNoteCard), findsOneWidget);
-        await librarySegment(tester, 1);
+        await librarySegment(tester, LinksLibrarySegment.suggestions);
         expect(find.byType(SuggestionCard), findsOneWidget);
         final pair = pairKey(notes[2].id, notes[5].id);
         expect(
@@ -76,7 +79,7 @@ void main() {
         expect(find.text(l10n.noResultsTitle), findsOneWidget);
         expect(find.text(l10n.noResultsBody('missing')), findsOneWidget);
         await tester.enterText(find.byKey(const ValueKey('links-search')), '');
-        await librarySegment(tester, 0);
+        await librarySegment(tester, LinksLibrarySegment.browse);
         FocusManager.instance.primaryFocus?.unfocus();
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const ValueKey('links-sort')));
@@ -106,7 +109,7 @@ void main() {
       (tester, db) async {
         phone(tester);
         final notes = await seedLibrary(tester, db);
-        await librarySegment(tester, 1);
+        await librarySegment(tester, LinksLibrarySegment.suggestions);
         for (final accept in [true, false]) {
           final gate = spy.gate = Completer<void>();
           addTearDown(() {
@@ -152,7 +155,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.getBottomLeft(tail).dy, lessThan(tester.getTopLeft(Tabs.addButton).dy));
       final offset = browse.pixels;
-      await librarySegment(tester, 1);
+      await librarySegment(tester, LinksLibrarySegment.suggestions);
       final suggestions = tester.state<ScrollableState>(libraryScroll).position;
       suggestions.jumpTo(suggestions.maxScrollExtent);
       await tester.pumpAndSettle();
@@ -162,11 +165,14 @@ void main() {
       await tester.tap(Tabs.finder(Tabs.links));
       await tester.pumpAndSettle();
       expect(
-        tester.getSemantics(find.byKey(const ValueKey('links-segment-2'))).flagsCollection.isSelected,
+        tester
+            .getSemantics(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions)))
+            .flagsCollection
+            .isSelected,
         Tristate.isTrue,
       );
       expect(suggestions.pixels, suggestionOffset);
-      await librarySegment(tester, 0);
+      await librarySegment(tester, LinksLibrarySegment.browse);
       expect(browse.pixels, offset);
     } finally {
       semantics.dispose();
@@ -179,7 +185,7 @@ void main() {
     (tester, db) async {
       phone(tester);
       final notes = await seedLibrary(tester, db);
-      await librarySegment(tester, 1);
+      await librarySegment(tester, LinksLibrarySegment.suggestions);
       final pair = pairKey(notes[0].id, notes[3].id);
       final accept = find.byKey(ValueKey('accept-$pair'));
       await tester.scrollUntilVisible(accept, 200, scrollable: libraryScroll);
@@ -213,7 +219,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     try {
       final notes = await seedLibrary(tester, db);
-      final map = tester.getSemantics(find.byKey(const ValueKey('links-segment-0')));
+      final map = tester.getSemantics(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
       expect(map.label, arL10n.linksMap);
       await pumpFuture(
         tester,
@@ -232,13 +238,13 @@ void main() {
       await pumpUntil(tester, find.byKey(const ValueKey('group-filter-empty')));
       await tester.tap(find.byKey(const ValueKey('group-filter-empty')));
       await tester.pumpAndSettle();
-      for (final segment in [0, 1]) {
+      for (final segment in [LinksLibrarySegment.browse, LinksLibrarySegment.suggestions]) {
         await librarySegment(tester, segment);
         expect(find.text(arL10n.noResultsTitle), findsOneWidget);
         expect(find.text(arL10n.linksFilterEmptyBody), findsOneWidget);
         expect(find.text(arL10n.noResultsBody('')), findsNothing);
       }
-      await librarySegment(tester, 0);
+      await librarySegment(tester, LinksLibrarySegment.browse);
       // Deleting the selected group clears the chip from the live groups list.
       await pumpFuture(tester, () => (db.delete(db.noteGroups)..where((g) => g.id.equals('empty'))).go());
       await tester.pumpAndSettle();
@@ -263,7 +269,10 @@ void main() {
       await pumpFuture(tester, () => (db.delete(db.noteLinks)..where((l) => l.origin.equalsValue(LinkOrigin.ai))).go());
       await tester.pumpAndSettle();
       expect(find.text(arL10n.linksSuggestions), findsOneWidget);
-      expect(tester.getSemantics(find.byKey(const ValueKey('links-segment-2'))).label, arL10n.linksSuggestions);
+      expect(
+        tester.getSemantics(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions))).label,
+        arL10n.linksSuggestions,
+      );
     } finally {
       semantics.dispose();
     }
@@ -277,7 +286,7 @@ void main() {
       (tester, db) async {
         phone(tester);
         final notes = await seedLibrary(tester, db);
-        await librarySegment(tester, 1);
+        await librarySegment(tester, LinksLibrarySegment.suggestions);
         final pair = pairKey(notes[0].id, notes[3].id);
         final button = find.byKey(ValueKey('${accept ? 'accept' : 'reject'}-$pair'));
         await tester.scrollUntilVisible(button, 200, scrollable: libraryScroll);
@@ -306,7 +315,7 @@ void main() {
     (tester, db) async {
       phone(tester);
       final notes = await seedLibrary(tester, db);
-      await librarySegment(tester, 1);
+      await librarySegment(tester, LinksLibrarySegment.suggestions);
       final first = find.byKey(ValueKey('accept-${pairKey(notes[0].id, notes[3].id)}'));
       final second = find.byKey(ValueKey('reject-${pairKey(notes[1].id, notes[4].id)}'));
       await tester.scrollUntilVisible(first, 200, scrollable: libraryScroll);
@@ -338,4 +347,33 @@ void main() {
       expect(second, findsNothing);
     },
   );
+
+  fikraTest('deleting a project prunes and disposes its cached library controllers', (tester, db) async {
+    phone(tester);
+    final notesA = await seedLibrary(tester, db);
+    final projectAId = notesA.first.projectId;
+
+    // Capture project A's live search and scroll controllers.
+    final searchFieldA = tester.widget<TextField>(find.byKey(const ValueKey('links-search')));
+    final searchControllerA = searchFieldA.controller!;
+    final scrollControllerA = tester
+        .widget<CustomScrollView>(find.byKey(LinksLibrarySegment.listKey(projectAId, LinksLibrarySegment.browse)))
+        .controller!;
+
+    // Create project B (switches current project to B) and verify B mounts.
+    final container = ProviderScope.containerOf(tester.element(find.byType(LinksLibraryScreen)));
+    final projectsRepo = container.read(projectsRepoProvider);
+    final projectB = await pumpFuture(tester, () => projectsRepo.create('Project B'));
+    await pumpUntil(tester, find.byKey(ValueKey('links-controls-${projectB.id}')));
+
+    // Delete project A and let the post-frame controller disposal run.
+    await pumpFuture(tester, () => projectsRepo.delete(projectAId));
+    await tester.pump();
+    await tester.pump();
+
+    expect(() => searchControllerA.addListener(() {}), throwsFlutterError);
+    expect(() => scrollControllerA.addListener(() {}), throwsFlutterError);
+    // Project B remains alive and usable.
+    expect(find.byKey(ValueKey('links-controls-${projectB.id}')), findsOneWidget);
+  });
 }

@@ -12,9 +12,8 @@ The chat tab, mounted at `/ask` by `lib/app/router.dart`. The user asks a questi
 
 ## Invariants
 
-- `_send` trims the question and returns when it is blank, when no project is selected, or while `_thinking` is true.
-- The project is read once at the start of `_send`, so the answer is stored on the project that was asked even if the selection changes.
-- The user message is stored before the AI call. Typed input is cleared only after that store succeeds; a preset suggestion never clears the input.
+- `_send` trims the question and returns when it is blank, when no project is selected, or while that project is already in `_thinkingProjects` (per-project pending state, so another project stays interactive).
+- The project ID and a controller-listener `_draftRevision` are captured before the first await. Typed input clears only after `chat.add` succeeds while still mounted, on the same selected project, and with an unchanged draft revision; a preset suggestion never clears manual input. Writes stay scoped to the captured project, and error toasts or auto-scrolls are skipped if the user switched away.
 - `AiService.ask` receives the project's notes from `NotesRepository.notesOf` and is limited to a 60-second timeout.
 - If the AI call fails, the stored user message remains with no answer, and the screen shows a toast.
 - A message animates only when its ID arrives after the current project's first load. `_seen` resets when the selected project changes.
@@ -57,3 +56,7 @@ When chat entries exist, `AskScreen` renders `ask-clear-chat` via `HeaderActionB
 ## Finishing (redesign phase 8)
 
 `AskScreen` wraps `notFoundInNotes` in `Flexible` and sizes `_SourceRow`'s index badge with `minWidth/minHeight: 22` so large text wraps and grows cleanly at 2.0× scale.
+
+## Brand redesign (phase 1a)
+
+`_UserBubble` uses solid `brandBlue` fill with `onBrandBlue` ink (`FikraRadius.lg`); the send button uses solid `brandLime` with `onBrandLime` ink; the sources header uses 12.5 sp `meta`.

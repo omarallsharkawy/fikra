@@ -41,7 +41,7 @@ Future<(Project, Project, List<Note>)> seedNotes(
   AppLocalizations? l10n,
   Map<int, List<String>> files = const {},
 }) async {
-  await pumpUntil(tester, find.text((l10n ?? arL10n).startNewProject));
+  await pumpUntil(tester, find.text((l10n ?? arL10n).welcomeStartWriting));
   final result = await pumpFuture(tester, () async {
     final projects = LocalProjectsRepository(db);
     final repo = LocalNotesRepository(db);

@@ -17,10 +17,8 @@ User-facing default strings resolve from `context.l10n`, in
   `photo_thumb.dart` and `voice_player.dart`. Screens import this barrel.
 - `solid_surface.dart`: `SolidSurface(child, radius, padding, borderColor,
   borderWidth, color, width, height)`; an opaque surface plus line hairline.
-- `glass.dart`: `Glass(child, radius, borderRadius, padding, blurEnabled = true)` for
-  floating controls, sheets and toast capsules. Solid (and `MediaQuery.highContrast`) uses opaque surface; frosted/optical backing uses 90% surface and
-  at most one `BackdropFilter.grouped(enabled: blurEnabled)` with sigma 24. Non-overlapping siblings
-  must share a BackdropGroup; overlapping lenses or toasts must not share that key.
+- `glass.dart`: `Glass(child, radius, padding, visible = true)` and `GlassVisibility(visible, child)` for floating tab-bar chrome
+  (`FikraNavBar` and its grouped `ActivityCapsule`, plus the opt-in debug preview and legacy minimap). Solid (and `MediaQuery.highContrast` / `MediaQuery.disableAnimations`) uses opaque surface; frosted/optical backing uses `colors.glassBackingAlpha` (0.90 light, 0.72 dark) and at most one `BackdropFilter.grouped` with sigma 16 (`Glass.blurSigma`). Non-overlapping siblings share a BackdropGroup; overlapping lenses use their own. Watchdog registration requires effective non-solid tier, explicit visibility (`visible` and `GlassVisibility`), route-current, `TickerMode` enabled, and neither high contrast nor Reduce Motion.
 - `glass_lens.dart`: `GlassLens(child, radius, opacity)` is an optical overlay above a
   backed Glass, with the package's LiquidGlassLens/LiquidGlassStyle API. Blur 7,
   surface tint 20%, saturation/refractionIndex 1.02, no dispersion, touch,
@@ -38,7 +36,7 @@ User-facing default strings resolve from `context.l10n`, in
   glassTierOverrideProvider, glassTierProvider(disableAnimations), and
   `effectiveGlassTier(context, ref)` (forces `solid` when `MediaQuery.maybeHighContrastOf(context)` is true).
   The single motion input is MediaQuery.disableAnimations. Effective tier is
-  the minimum of watchdog ceiling, battery (solid), motion (frosted), and
+  the minimum of watchdog ceiling, battery (solid), motion (solid), and
   override. Release ignores overrides; no product override UI exists.
 - `glass_power.dart`: fakeable GlassPowerSource; initial/broadcast state comes
   from fikra/glass_power. Unknown state caps at solid; missing plugin defaults
@@ -47,11 +45,12 @@ User-facing default strings resolve from `context.l10n`, in
   Riverpod 3 pauses the stream while nothing listens, so a bare
   `container.read(glassTierProvider(..))` stays solid; watch or listen to it.
 - `glass_watchdog.dart`: fakeable GlassTimingsSource, session Notifier and fixed
-  120-frame raster ring/scratch buffers. Only mounted, route-current,
-  TickerMode-enabled Glass registers addTimingsCallback. Every 120 samples,
-  p95 above 6.5*120/refreshHz ms drops one tier; no session promotion. Hiding
-  all glass removes the callback and resets samples on reshow, not the ceiling.
-  Raw timestamp subtraction avoids allocating a Duration per frame.
+  120-frame raster ring/scratch buffers. Only mounted, visible, effectively
+  non-solid, route-current, TickerMode-enabled Glass registers addTimingsCallback.
+  Every 120 samples, p95 above 6.5*120/refreshHz ms drops one tier; no session
+  promotion. Visibility/eligibility transitions clear the partial window (unchanged
+  rebuilds keep it); hiding all glass removes the callback without resetting the
+  ceiling. Raw timestamp subtraction avoids allocating a Duration per frame.
 - `pearl_canvas.dart`: PearlCanvas behind screen content, static CustomPaint in
   RepaintBoundary. Exactly warm (0%,90%, stop52%) then cool (100%,97%, stop50%)
   over canvas, using CSS farthest-corner ellipse geometry. The existing tab
@@ -150,8 +149,7 @@ User-facing default strings resolve from `context.l10n`, in
   smaller), pads its footer above that safe area (not while the keyboard covers
   it), and gives `builder` that bounded height with no scroll view, for lazy
   lists with a footer. Non-tall sheets are unchanged. The sheet's outer shell is
-  tiered `Glass` (opaque `surface` at solid/high-contrast, 90% `surface` + sigma-24
-  blur at frosted/optical, with blur disabled while offscreen at `animation.value <= 0`),
+  a solid opaque Pearl `surface` (`BorderRadius.vertical(top: FikraRadius.xxl)`, hairline `line` border, `glassShadows`, no `BackdropFilter`),
   and its content sits in a transparent `Material` above that fill; otherwise
   ListTile and InkWell ink would paint under it, invisible (and ListTile asserts in debug).
 - `confirmDestructive` resolves the default confirm label before pushing its route. `runAction` resolves its default failure message before awaiting.
@@ -242,10 +240,17 @@ semantics) at the directional end inside `TextFieldTapRegion` whenever
 - `glass_preview.dart`: `GlassDebugOverlay` renders `debug-shrink-bar-toggle` (`FikraChip`) in debug/profile builds when `glassPreviewEnabledProvider` is enabled, toggling `navBarShrinkEnabledProvider`. `GlassReviewPanel` is unchanged.
 - `selectors.dart`: `SegmentedPill` renders segment labels with `RollingText` so visible count changes roll changed digits while preserving TalkBack labels and Reduce Motion.
 
-## Finishing: glass sheets/toasts, accessibility & large text (redesign phase 8)
+## Phase 0.2: glass only on the tab bar
 
-- `glass_quality.dart`: adds `effectiveGlassTier(BuildContext, WidgetRef)`, returning `GlassTier.solid` when `MediaQuery.maybeHighContrastOf(context) ?? false`, otherwise watching `glassTierProvider(disableAnimations)`. `Glass`, `GlassLens` and `GlassReviewPanel` use it.
-- `glass.dart` & `glass_edge.dart`: `Glass` adds optional `borderRadius` and `blurEnabled = true` (`BackdropFilter.grouped(enabled: blurEnabled)` and `GlassWatchdog` registration gated on `blurEnabled` and `!highContrast`); `GlassEdge` adds optional `borderRadius` for top-rounded sheet corners.
-- `sheets.dart`: `showFikraSheet` wraps its container in `_SheetKeyboardInset` + `_SheetSurface` (ungrouped `Glass` with top-only `FikraRadius.xxl` corners and `blurEnabled: !_offscreen`, disabling blur when `ModalRoute.animation.value <= 0`, while reading `viewInsetsOf` outside `_SheetSurface` so `Glass` does not rebuild on keyboard frames). Drag handle is wrapped in `ExcludeSemantics`; `title` uses `Semantics(header: true)`; `SheetOption` adds `enabled = true` so disabled rows dim inner content inside an opaque `SolidSurface`. `confirmDestructive` (`dialogs.dart`) remains solid.
-- `toasts.dart`: `showToast`, `showMessengerToast` and `runAction` measure the capsule width once and pass `SnackBar(width: capsuleWidth)` around `_ToastCapsule` (`ValueKey('toast-capsule')`), an ungrouped floating `Glass` capsule inside a transparent zero-elevation `SnackBar` whose `Material` hit area matches the visible capsule. Bottom clearance comes from `AppShell`'s `snackBarTheme.insetPadding` (floating bar + Add + safe area) or root `snackBarTheme.insetPadding` plus `Scaffold`'s built-in safe-area / `viewInsets` positioning, with no `MediaQuery.viewInsetsOf` or `NavigationInset` dependency inside `_ToastCapsule`.
-- `fikra_field.dart`, `selectors.dart`, `buttons.dart`: `FikraField` places `SolidSurface` in `Positioned.fill` behind a `minHeight: 48` `TextField` (`isDense: true`, `contentPadding: vertical: 11`) so it is 48 dp at 1.0x focused and unfocused in light and dark and grows at large text; `FikraChip` (`Center` with `widthFactor: 1, heightFactor: 1`) and `FikraButton` use `minHeight` constraints; `SegmentedPill` wraps up to two centered lines and grows height above 1.0x when `height` is omitted.
+- `glass_quality.dart`: Reduce Motion (`disableAnimations`) caps at `GlassTier.solid` (matching high contrast and power save).
+- `glass.dart` & `glass_edge.dart`: removed dead `borderRadius` and `blurEnabled` params; `Glass` uses `Glass.blurSigma` (16) and `colors.glassBackingAlpha` (0.90 light, 0.72 dark) and skips watchdog registration when animations are disabled.
+- `sheets.dart`: `_SheetSurface` is a stateless solid Pearl surface (`c.surface`, top `FikraRadius.xxl`, hairline `line` border, `glassShadows`, no `BackdropFilter`).
+- `toasts.dart`: `_ToastCapsule` renders a solid opaque high-contrast floating pill (`c.surface`, `borderGraph`/`line` 1 dp border, `glassShadows`, no `BackdropFilter`), keeping the same measured widths, hit pass-through, timings and Undo contrast.
+
+## Brand redesign (phase 1a)
+
+- `pearl_canvas.dart`: removed corner blooms; `PearlCanvasPainter.paintRect` paints flat `colors.canvas` at `opacity`.
+- `buttons.dart`: `FikraButtonStyle.primary` uses solid `brandLime` with `onBrandLime` ink in both themes and `FikraRadius.md`; `secondary` uses a 1 dp `line` border.
+- `selectors.dart`: `FikraChip` and `SegmentedPill` active states use `brandLime` fill with `onBrandLime` ink.
+- `fikra_field.dart`: uses `FikraRadius.md` (18 dp) corners.
+- `status_badges.dart`: adds `BadgeKind.warning` (`warning` on `warningBg`) and uses 12.5 sp `meta` w600.

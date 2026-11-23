@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:drift/drift.dart' show Value;
 import 'package:fikra/data/links_repository.dart';
 import 'package:fikra/data/local/database.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/l10n/localizations.dart';
@@ -23,7 +24,7 @@ class LibrarySpy extends LocalLinksRepository {
   Completer<void>? undoGate;
   Future<void>? pending;
 
-  Future<PairChange?> _gated(Future<PairChange?> Function() write) async {
+  Future<PairCommandResult?> _gated(Future<PairCommandResult?> Function() write) async {
     final done = Completer<void>();
     pending = done.future;
     try {
@@ -36,15 +37,15 @@ class LibrarySpy extends LocalLinksRepository {
   }
 
   @override
-  Future<PairChange?> acceptPairForUndo(String a, String b) {
+  Future<PairCommandResult?> acceptPairForUndo(String a, String b, {required String expectedProjectId}) {
     accepts++;
-    return _gated(() => super.acceptPairForUndo(a, b));
+    return _gated(() => super.acceptPairForUndo(a, b, expectedProjectId: expectedProjectId));
   }
 
   @override
-  Future<PairChange?> dismissPairForUndo(String a, String b) {
+  Future<PairCommandResult?> dismissPairForUndo(String a, String b, {required String expectedProjectId}) {
     rejects++;
-    return _gated(() => super.dismissPairForUndo(a, b));
+    return _gated(() => super.dismissPairForUndo(a, b, expectedProjectId: expectedProjectId));
   }
 
   @override
@@ -146,9 +147,9 @@ Future<List<Note>> seedLibrary(
   await insertLink(tester, db, notes[1], notes[4], origin: LinkOrigin.ai);
   await insertLink(tester, db, notes[2], notes[5], origin: LinkOrigin.ai);
   await tester.tap(Tabs.finder(Tabs.links));
-  await pumpUntil(tester, find.byKey(const ValueKey('links-segment-0')));
+  await pumpUntil(tester, find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
   if (browse) {
-    await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+    await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
     await pumpUntil(tester, find.byKey(ValueKey('browse-${notes.last.id}')));
   }
   return notes;
@@ -158,8 +159,8 @@ Finder get libraryScroll => find.descendant(
   of: find.byType(LinksLibraryScreen),
   matching: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down),
 );
-Future<void> librarySegment(WidgetTester tester, int index) async {
-  await tester.tap(find.byKey(ValueKey('links-segment-${index + 1}')));
+Future<void> librarySegment(WidgetTester tester, int segment) async {
+  await tester.tap(find.byKey(LinksLibrarySegment.key(segment)));
   await tester.pumpAndSettle();
 }
 

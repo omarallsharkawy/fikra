@@ -39,7 +39,13 @@ class _SuggestionCardState extends ConsumerState<SuggestionCard> {
     try {
       // False when nothing changed (or another accept/reject or Undo runs):
       // unlock at once rather than wait for a snapshot that may never come.
-      ok = await changeSuggestedPair(context, a: e.a.id, b: e.b.id, accept: accept);
+      ok = await changeSuggestedPair(
+        context,
+        a: e.a.id,
+        b: e.b.id,
+        accept: accept,
+        expectedProjectId: e.link.projectId,
+      );
     } finally {
       guard.finish(pair, success: ok);
     }
@@ -48,7 +54,10 @@ class _SuggestionCardState extends ConsumerState<SuggestionCard> {
   @override
   Widget build(BuildContext context) {
     final e = widget.entry, l10n = context.l10n;
-    final busy = ref.watch(linkPairBusyProvider.select((pairs) => pairs.containsKey(_pair)));
+    final busy =
+        ref.watch(linkPairBusyProvider.select((pairs) => pairs.containsKey(_pair))) ||
+        e.a.projectId != e.link.projectId ||
+        e.b.projectId != e.link.projectId;
     final pair =
         '${Fmt.isolate(noteTitleText(context, e.a.title))} · ${Fmt.isolate(noteTitleText(context, e.b.title))}';
     return Padding(

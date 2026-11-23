@@ -9,6 +9,7 @@ import 'package:fikra/data/transcription/service_keys.dart';
 import 'package:fikra/data/transcription/services_repository.dart';
 import 'package:fikra/features/add/add_screen.dart';
 import 'package:fikra/features/ask/ask_screen.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/connections/note_connections_screen.dart';
 import 'package:fikra/features/note_details/edit_note_screen.dart';
@@ -37,7 +38,7 @@ Future<SeededA11yData> seedA11yApp(
 }) async {
   final l = lookupAppLocalizations(locale);
   final ar = locale.languageCode == 'ar';
-  await pumpUntil(tester, find.text(l.startNewProject));
+  await pumpUntil(tester, find.text(l.welcomeStartWriting));
   final seeded = await pumpFuture(tester, () async {
     final projects = LocalProjectsRepository(db);
     final notesRepo = LocalNotesRepository(db);
@@ -233,10 +234,13 @@ Future<void> visitAllMainScreensAndSheets(
   await settleFrames();
   await onScreen('add_typed');
 
+  await tester.tap(find.byKey(const ValueKey('add-close')));
+  await settleFrames();
+
   // 8. Links Browse
   await tester.tap(Tabs.finder(Tabs.links));
-  await pumpUntil(tester, find.byKey(const ValueKey('links-segment-1')));
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+  await pumpUntil(tester, find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
   await pumpUntil(tester, find.byType(LinksLibraryScreen));
   await settleFrames();
   await onScreen('links_browse');
@@ -250,12 +254,12 @@ Future<void> visitAllMainScreensAndSheets(
   await settleFrames();
 
   // 10. Links Suggestions
-  await tester.tap(find.byKey(const ValueKey('links-segment-2')));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions)));
   await settleFrames();
   await onScreen('links_suggestions');
 
   // 11. A note's connections page
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
   await settleFrames();
   final browseScrollable = find
       .descendant(
@@ -282,11 +286,7 @@ Future<void> visitAllMainScreensAndSheets(
   await onScreen('ask_answer');
 
   // 13. Settings
-  final askSettings = find.descendant(
-    of: find.byType(AskScreen),
-    matching: find.byKey(const ValueKey('header-settings')),
-  );
-  await tester.tap(askSettings);
+  await tester.tap(Tabs.finder(Tabs.me));
   await pumpUntil(tester, find.byType(SettingsScreen));
   await settleFrames();
   await onScreen('settings');

@@ -1,3 +1,4 @@
+import '../../core/format.dart';
 import '../shared/link_pairs.dart';
 
 /// Sendable projections keep derivation independent of Flutter and storage.
@@ -34,11 +35,20 @@ typedef LibraryNotesInput = ({String projectId, List<LibraryNote> notes});
 
 String pairKey(String a, String b) => a.compareTo(b) <= 0 ? '$a|$b' : '$b|$a';
 
+/// Test hook counting group-scan iterations in [deriveLinksIndex].
+int debugLinksIndexGroupOps = 0;
+
+/// Decides whether pair/group derivation should run on a background isolate,
+/// factoring in notes, edges and groups so dense projects under 1,000 notes are
+/// offloaded while small projects avoid isolate transfer overhead.
+bool shouldIsolateLinksDerivation({required int notes, required int links, required int groups}) =>
+    notes >= 1000 || links >= 1500 || groups >= 1000 || notes + links + groups >= 2000;
+
 /// The per-note half of the derivation: it depends only on the notes list, so
 /// a link write (accept, reject, analysis) reuses it and never re-lowercases
 /// thousands of note bodies. Safe to build on a background isolate.
 class LibraryNotes {
-  LibraryNotes._(this.projectId, this.byId, this.newest, this.oldest, this.rank, this.haystacks);
+  LibraryNotes._(this.projectId, this.byId, this.newest, this.oldest, this.rank, this.haystacks, this.haystackWords);
 
   final String projectId;
   final Map<String, LibraryNote> byId;
@@ -49,8 +59,10 @@ class LibraryNotes {
   /// Position in [newest], for cheap integer ordering of neighbour lists.
   final Map<String, int> rank;
 
-  /// Lowercased title, body and concepts. Keystrokes only run `contains`.
+  /// Normalized title, body and concepts, plus pre-tokenized word lists.
+  /// Keystrokes only run matching.
   final Map<String, String> haystacks;
+  final Map<String, List<String>> haystackWords;
 }
 
 LibraryNotes deriveLibraryNotes(LibraryNotesInput input) {
@@ -68,13 +80,21 @@ LibraryNotes deriveLibraryNotes(LibraryNotesInput input) {
       final time = a.createdAt.compareTo(b.createdAt);
       return time != 0 ? time : a.id.compareTo(b.id);
     });
+  final haystacks = <String, String>{};
+  final haystackWords = <String, List<String>>{};
+  for (final n in newest) {
+    final h = normalizeArabic('${n.title}\n${n.text}\n${n.concepts}');
+    haystacks[n.id] = h;
+    haystackWords[n.id] = tokenizeNormalizedArabic(h);
+  }
   return LibraryNotes._(
     input.projectId,
     {for (final n in newest) n.id: n},
     newest,
     oldest,
     {for (final (i, n) in newest.indexed) n.id: i},
-    {for (final n in newest) n.id: '${n.title}\n${n.text}\n${n.concepts}'.toLowerCase()},
+    haystacks,
+    haystackWords,
   );
 }
 
@@ -121,11 +141,21 @@ class LinksIndex {
   Map<String, LibraryNote> get notes => _notes.byId;
 
   /// Includes isolated notes, unlike Browse. Reuses the per-note search index.
+  /// Same Arabic normalization and distinct-word matching as [filter], so the
+  /// Map and the Library find the same notes for the same query.
   List<LibraryNote> searchNotes(String query) {
-    final q = query.trim().toLowerCase();
+    final q = normalizeArabic(query);
+    if (q.isEmpty) return List.of(_notes.newest);
+    final queryWords = tokenizeNormalizedArabic(q);
     return [
       for (final n in _notes.newest)
-        if (q.isEmpty || _notes.haystacks[n.id]!.contains(q)) n,
+        if (matchesNormalizedArabic(
+          _notes.haystacks[n.id]!,
+          q,
+          haystackWords: _notes.haystackWords[n.id]!,
+          queryWords: queryWords,
+        ))
+          n,
     ];
   }
 
@@ -137,16 +167,24 @@ class LinksIndex {
     String search = '',
     LinksSort sort = LinksSort.newest,
   }) {
-    final query = search.trim().toLowerCase();
+    final query = normalizeArabic(search);
     final key = (chip, query, sort);
     final cached = _views[key];
     if (cached != null) return cached;
     final groups = groupIds[chip.group];
     final haystacks = _notes.haystacks;
+    final haystackWords = _notes.haystackWords;
+    final queryWords = query.isEmpty ? const <String>[] : tokenizeNormalizedArabic(query);
     bool matches(LibraryNote n) =>
         (chip.group == null || (groups?.contains(n.groupId) ?? false)) &&
         (chip.topic == null || (n.groupId == null && n.topic?.trim() == chip.topic)) &&
-        (query.isEmpty || haystacks[n.id]!.contains(query));
+        (query.isEmpty ||
+            matchesNormalizedArabic(
+              haystacks[n.id]!,
+              query,
+              haystackWords: haystackWords[n.id]!,
+              queryWords: queryWords,
+            ));
     final view = (
       browse: _orders[sort]!.where((r) => matches(r.note)).toList(),
       suggestions: suggestions.where((s) => matches(s.a) || matches(s.b)).toList(),
@@ -168,18 +206,28 @@ LinksIndex deriveLinks(String projectId, List<LibraryNote> notes, List<LibraryLi
 /// [LinksIndex.linksSource]); it defaults to [links].
 LinksIndex deriveLinksIndex(LibraryNotes notes, List<LibraryLink> links, List<LibraryGroup> groups, {Object? source}) {
   final projectId = notes.projectId, byId = notes.byId, rank = notes.rank;
-  final projectGroups = [
-    for (final g in groups)
-      if (g.projectId == projectId) g,
-  ];
-  final groupIds = {
-    for (final g in projectGroups)
-      g.id: {
-        g.id,
-        for (final c in projectGroups)
-          if (c.parentId == g.id) c.id,
-      },
-  };
+  final projectGroups = <LibraryGroup>[];
+  final childrenByParent = <String, List<String>>{};
+  for (final g in groups) {
+    debugLinksIndexGroupOps++;
+    if (g.projectId != projectId) continue;
+    projectGroups.add(g);
+    if (g.parentId case final parentId?) {
+      (childrenByParent[parentId] ??= []).add(g.id);
+    }
+  }
+  final groupIds = <String, Set<String>>{};
+  for (final g in projectGroups) {
+    final ids = <String>{g.id};
+    debugLinksIndexGroupOps++;
+    if (childrenByParent[g.id] case final children?) {
+      for (final childId in children) {
+        debugLinksIndexGroupOps++;
+        ids.add(childId);
+      }
+    }
+    groupIds[g.id] = ids;
+  }
   final pairs = uniqueLinkPairs(
     links.where(
       (l) => l.projectId == projectId && !l.dismissed && byId.containsKey(l.sourceId) && byId.containsKey(l.targetId),

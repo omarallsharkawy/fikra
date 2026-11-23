@@ -8,9 +8,11 @@ The legacy `/links/graph` address redirects here and selects Map. Full note deta
 
 `links_index.dart` is pure Dart: sendable note/link/group records, the two
 derivation halves `deriveLibraryNotes` (per note: project filter, newest/oldest
-orders, ranks, lowercase haystacks) and `deriveLinksIndex` (pairs, neighbours,
+orders, ranks, `normalizeArabic` haystacks and cached `haystackWords`) and
+`deriveLinksIndex` (O(G) `childrenByParent` group map, pairs, neighbours,
 counts, suggestions and all three Browse orders), `deriveLinks` (both, for
-tests), `LinksIndex.filter`, `pairKey`, and LinksSort. Project IDs
+tests), `shouldIsolateLinksDerivation` (notes, edges, and groups threshold),
+`LinksIndex.filter`, `pairKey`, and LinksSort. Project IDs
 must match for both notes and links. Dismissed, missing and self rows are ignored.
 `uniqueLinkPairs` chooses one unordered pair, preferring user rows (accepted AI
 is stored as user). Confirmed pairs build bidirectional neighbours; suggestions
@@ -28,30 +30,31 @@ note half. It shares its snapshot with pushed connections pages and records the
 stored links list as `linksSource`. Host diagnostic at 5,000 notes / 9,998 rows:
 notes half ~19 ms, links half ~20 ms cold and ~8 ms median on a link write,
 first search ~4.5 ms. FutureProvider ignores obsolete isolate results. Projections have no Flutter/DB
-objects. A keystroke filters precomputed lowercase title/displayText/concepts,
-matching the Notes search. LinksIndex retains at most 32 filtered views keyed by
+objects. A keystroke filters precomputed `normalizeArabic` title/displayText/concepts
+through `matchesNormalizedArabic`, matching the Notes search. LinksIndex retains at most 32 filtered views keyed by
 (chip, normalized search, sort). A suggestion matches if one endpoint satisfies
 the combined search/chip. Search never derives source data or starts an isolate.
 
 ## UI and lifecycle
 
-- ProjectHeader retains Settings and has no graph action. LibraryControls presents Map/Browse/Suggestions, with Map first. Map search/segments are solid and fixed above the canvas; the existing list dock uses Glass. Reading content is solid.
+- ProjectHeader shows the library title and project switcher. LibraryControls
+  overlays a solid Pearl search/sort dock (`c.surface`, `borderGraph`/`line` border, `glassShadows`, no `BackdropFilter`); solid selected segment pills sit
+  below. Content scrolls behind it. No reading list uses blur.
 - LibraryChips extends the shared GroupFilterRow with counts and clear-on-retap
   for a selected child; defaults keep Notes behaviour unchanged.
   Choosing a group clears the topic, and vice versa. Deleted filters clear.
-- Each project's segment, query, chip, sort and two scroll controllers live in
-  the persistent branch widget, without a database/settings write.
+- Each project's query, chip, sort and two scroll controllers live in the branch widget. Segment choices live in the session provider.
 - Browse cards and suggestions use lazy slivers. Rows grow with text scale;
   titles/previews use bounded ellipsis, so no fixed itemExtent clips large text.
 - SuggestionCard claims a shared project/pair busy flag before awaiting
-  acceptPair/dismissPair. Failures use linkUpdateFailed and unlock. Success marks
+  the shared accept/reject command with the rendered link project. Failures use linkUpdateFailed and unlock. Success marks
   the pair done (lists start collapsing it at once) and holds it until a snapshot
   lacks the pair or comes from a newer links list; if that newer snapshot still
   suggests the pair, it unlocks and shows again. The busy notifier listens at
   container level, so it is not paused while the Links tab is hidden, and closes
   that listener with the project's last job. The write itself is shared
   `changeSuggestedPair` (toast with Undo); a call that changed nothing, or one
-  blocked by a running Undo, unlocks at once. After Undo the pair returns
+  blocked by a running Undo or rejected as PairCommandStale, unlocks at once. After Undo the pair returns
   through the next snapshot, which also ends any lock still held.
 - SuggestionSliver retains removed snapshots for a 220 ms decelerating
   fade/collapse of that item only. A leaving row stays after its nearest
@@ -95,6 +98,8 @@ profile workload is wired through glass_perf_scenario and is not run here.
 
 - `LinksLibraryScreen` owns per-segment `StaggerController`s (`_browseStagger`, `_suggestionsStagger`) so at most 8 visible Browse or Suggestions cards fade/rise on a visible first load or visible project switch (`onProjectChanged`), and keys `LibraryControls` and `LibraryChips` by `project.id` so count rolls (`SegmentedPill` Suggestions count and group/topic `ChoiceTag` counts) occur only within the visible project.
 - `BrowseNoteCard` passes `(LibraryNote, CardOrigin)` (`FikraRadius.md`) to `/links/note/:id`, and `NoteConnectionsScreen`'s `connections-note` passes `(note, origin)` to `/note/:id`.
+- P0.1: `StaggerVisibility` owns branch visibility changes and stops both segment staggers offstage. First-load/project-switch decisions read a non-subscribing TickerMode snapshot; tab switches cause zero library screen builds (`test/branch_build_test.dart`).
+- Browse and connections source cards wrap their existing pressables in `ContainerTransformSource` for a paint-only fade during note open/pop. Existing pressable/test keys and route extras remain.
 
 ## Finishing (redesign phase 8)
 
@@ -104,17 +109,20 @@ profile workload is wired through glass_perf_scenario and is not run here.
 
 ## Push and suggestion performance
 
-- `connectionsIndexProvider(project)` is an auto-disposed family that maps stored notes and confirmed adjacency once per source emission, off the UI isolate for large projects. The library warms it without rebuilding on completion; its listener preserves sharing across consecutive opens in the selected project. The adjacency snapshot is released after the last library/Map/pushed-page listener leaves, rather than retaining every visited project's note bodies. `noteConnectionsProvider(noteId)` selects that adjacency and `LinksIndex.suggestionsByNote`, excluding confirmed pairs while the derived snapshot catches up. Two pushed pages share the project work.
-- Connections paints its own opaque PearlCanvas within the existing shell insets. ID-validated previews populate a reserved title/two-line body area immediately; live notes replace them. Static title and section shapes cover cold entry. Section snapshots stay fixed until the initial route entrance completes; that completion is latched, so provider updates during reverse/pop use live sections and cannot restore placeholders or removed rows. NavigationInset remains the scroll clearance.
+- `connectionsIndexProvider(project)` (`autoDispose.family`) maps stored notes and confirmed adjacency once per source emission, off the UI isolate when `shouldIsolateLinksDerivation` triggers. The library warms the active project without rebuilding on completion, keeping the cached index across consecutive opens while releasing unviewed projects when unlistened; `LinksLibraryScreen` also prunes and post-frame disposes deleted projects' `_ProjectView` controllers/timers via `projectsProvider`. `noteConnectionsProvider(noteId)` selects that adjacency and `LinksIndex.suggestionsByNote`, excluding confirmed pairs while the derived snapshot catches up. Two pushed pages share the project work.
+- Connections paints its own opaque PearlCanvas within the existing shell insets. ID-validated previews populate a reserved title/two-line body area immediately; live notes replace them. Static title and section shapes cover cold entry. Section snapshots stay fixed until the route entrance completes. NavigationInset remains the scroll clearance.
 - Large-project pair derivation uses `compute`; the returned index is reattached to the original links-list identity for stale-lock release. Suggestion pair sets and per-note lookups are cached in the index.
 - SuggestionSliver caches pair keys, child widgets and child indices. Claim-only busy changes reach cards, not the list. Successful locks start one incremental collapse; new source snapshots retain unchanged row widgets, removal order and Undo behavior. Lock release checks cached live-pair membership before restoring a row, so stale parent entries cannot restart its collapse timer.
 
+## Brand redesign (phase 1a)
+
+- `links_library_provider.dart` & `links_library_screen.dart`: adds `linksLibraryRequestedSegmentProvider` so Notes' conditional action strip can open `/links` directly on segment 2 (Suggestions).
+
+SuggestionCard disables actions when either rendered endpoint has a different project from the link. The repository validates both live endpoints against the rendered project in the command transaction.
+
 ## Links Map
 
-- `library_session.dart` owns session-only per-project segment choices (0 Map, 1 Browse, 2 Suggestions). Missing choices default to Map. Search/chips/sorts and list scroll controllers remain per-project screen state. `/links/graph` explicitly selects Map via this provider.
-- `map_provider.dart` watches `linksLibraryProvider`, the shared `connectionsIndexProvider` adjacency and live groups before awaiting. It derives once per revision using `compute` at >=1,000 notes; UI query, selection and transforms never invalidate it. Obsolete results are discarded by FutureProvider.
-- `map_index.dart` is isolate-safe. Top-level groups include child memberships; ungrouped/missing-group notes join Others. Without groups, trimmed topics become clusters. Size/ID ordering is deterministic. At most eight overview clusters include Others (seven named slots when needed). Every note belongs to exactly one cluster. Confirmed pairs aggregate to cross-cluster edge counts. Cluster notes rank by confirmed degree/ID and cap at 20; ego caps at 12 confirmed neighbours and four strongest suggestions, with exact omitted totals and +N. Isolated notes are searchable through `LinksIndex.searchNotes` and the existing lowercase index.
-- `MapLayout` precomputes mirrored two-column packing or radial ego geometry, including a labelled overflow node. There is no physics, per-frame layout or per-node widget tree.
-- `map_canvas.dart` owns a native picture and disposed TextPainters, keyed by revision, level, theme palette/style, locale, TextScaler, direction, width and selection. One CustomPainter draws all edges, capsules and ellipsized titles/counts. InteractiveViewer transforms a RepaintBoundary child, with world-coordinate taps. Each painted node supplies ordered focusable semantics with title/connection count and activation; the canvas has a total/omitted summary. Zoom controls occupy a solid row beneath the canvas and preserve the viewport centre. Ego starts at native 1x centred on the selected note, with a pan hint; it never auto-fits away text scaling. Large text and short screens use a bounded canvas plus a scrollable solid page, clipped above a fixed NavigationInset clearance.
-- `links_map.dart` owns project/cluster/note breadcrumbs, visible Back and active-Map-only Android system Back, direct note search, totals, +N lists and a scrollable SolidSurface selection card below the canvas. Note opens push `/links/note/:id`; suggestion accept/reject share pair locks, `changeSuggestedPair` and Undo. Selection never places actions or text over edges. Level changes use a single 220 ms fade (zero under Reduce Motion); outgoing content cannot receive input or semantics. NavigationInset keeps the moving canvas above the glass bar.
-- Regressions: `map_index_test`, `map_provider_test`, `links_map_test` and updated phone/library/connections/IA fixtures. `screenshots/links_map_test` captures overview/cluster/ego in AR/EN x light/dark. `integration_test/links_perf_scenario` reports `map_pan` overview/ego metrics, six pans and two zooms each, targeting raster p95 <= 6.5 ms on the reviewer's Realme. No phone result is claimed by host tests.
+- `library_session.dart` defines Map (0), Browse (1) and Suggestions (2) and keeps each project's choice for the session. Map opens first and is available from the segment row. The legacy path selects Map.
+- `map_provider.dart` shares the library, confirmed adjacency and live groups. `map_index.dart` assigns each note to its parent or own group, then its trimmed topic, then Others. The overview caps at eight clusters, drill-down at 20 notes, and ego at 12 confirmed and four suggested neighbours with exact overflow totals.
+- Rectangle-aware geometry keeps ego cards apart. `map_canvas.dart` caches one native picture per visual revision and exposes node-kind semantics. Map search shares the Links index. «افتح» pushes `/note/:id`; the selection card and overflow list use solid surfaces.
+- The former Links graph is removed. `map_layout_overlap_test` and `links_map_test` cover geometry, navigation, search and Map actions. The phone `map_pan` workload exercises overview and ego.

@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import '../../core/motion/pressable.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../../core/widgets/glass_edge.dart';
 import '../../l10n/localizations.dart';
+import 'library_session.dart';
 import 'links_index.dart';
 
-/// Map controls are opaque; list controls retain the existing Glass chrome.
+/// Solid Pearl search/sort dock floating above the links lists.
 class LibraryControls extends StatefulWidget {
   const LibraryControls({
     super.key,
@@ -57,17 +59,22 @@ class _LibraryControlsState extends State<LibraryControls> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final c = context.colors;
+    final light = Theme.of(context).brightness == Brightness.light;
     final height = LibraryControls.controlHeight(context);
-    Widget surface({required Widget child, required EdgeInsetsGeometry padding}) =>
-        widget.segment == 0 ? SolidSurface(padding: padding, child: child) : Glass(padding: padding, child: child);
-    return ColoredBox(
-      color: widget.segment == 0 ? context.colors.canvas : Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            surface(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: c.surface,
+              borderRadius: BorderRadius.circular(FikraRadius.full),
+              border: Border.all(color: light ? c.borderGraph : c.line, width: light ? 1 : FikraSpace.hairline),
+              boxShadow: glassShadows(c),
+            ),
+            child: Padding(
               padding: const EdgeInsetsDirectional.only(start: 18, end: 4),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: height),
@@ -83,7 +90,7 @@ class _LibraryControlsState extends State<LibraryControls> {
                         style: context.text.field,
                         decoration: InputDecoration(
                           hintText: l10n.searchLinksHint,
-                          hintStyle: context.text.field.copyWith(color: context.colors.textSecondary),
+                          hintStyle: context.text.field.copyWith(color: c.textSecondary),
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -99,69 +106,68 @@ class _LibraryControlsState extends State<LibraryControls> {
                                 minTarget: true,
                                 semanticLabel: l10n.clearSearch,
                                 onTap: _clearSearch,
-                                child: Icon(Icons.close_rounded, size: 20, color: context.colors.textSecondary),
+                                child: Icon(Icons.close_rounded, size: 20, color: c.textSecondary),
                               ),
                             )
                           : Padding(
                               padding: const EdgeInsetsDirectional.only(end: 8),
-                              child: Icon(Icons.search_rounded, size: 20, color: context.colors.textSecondary),
+                              child: Icon(Icons.search_rounded, size: 20, color: c.textSecondary),
                             ),
                     ),
-                    if (widget.segment != 0) Container(width: 1, height: 24, color: context.colors.line),
-                    if (widget.segment != 0)
-                      FikraIconButton(
-                        key: const ValueKey('links-sort'),
-                        icon: Icons.tune_rounded,
-                        label: l10n.linksSort,
-                        onTap: () => showFikraSheet<void>(
-                          context,
-                          title: l10n.linksSort,
-                          builder: (sheet) => Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              for (final order in LinksSort.values)
-                                SheetOption(
-                                  key: ValueKey('links-sort-${order.name}'),
-                                  label: sortLabel(context, order),
-                                  selected: order == widget.sort,
-                                  icon: order == widget.sort ? Icons.check_rounded : Icons.sort_rounded,
-                                  onTap: () {
-                                    widget.onSort(order);
-                                    Navigator.pop(sheet);
-                                  },
-                                ),
-                            ],
-                          ),
+                    Container(width: 1, height: 24, color: c.line),
+                    FikraIconButton(
+                      key: const ValueKey('links-sort'),
+                      icon: Icons.tune_rounded,
+                      label: l10n.linksSort,
+                      onTap: () => showFikraSheet<void>(
+                        context,
+                        title: l10n.linksSort,
+                        builder: (sheet) => Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (final order in LinksSort.values)
+                              SheetOption(
+                                key: ValueKey('links-sort-${order.name}'),
+                                label: sortLabel(context, order),
+                                selected: order == widget.sort,
+                                icon: order == widget.sort ? Icons.check_rounded : Icons.sort_rounded,
+                                onTap: () {
+                                  widget.onSort(order);
+                                  Navigator.pop(sheet);
+                                },
+                              ),
+                          ],
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 6),
-            SegmentedPill(
-              height: LibraryControls.segmentHeight(context),
-              selected: widget.segment,
-              onChanged: widget.onSegment,
-              segmentKeys: const [
-                ValueKey('links-segment-0'),
-                ValueKey('links-segment-1'),
-                ValueKey('links-segment-2'),
-              ],
-              // No count while nothing waits: just «اقتراحات».
-              options: [
-                l10n.linksMap,
-                l10n.linksBrowse,
-                widget.suggestions > 0 ? l10n.linksSuggestionsCount(widget.suggestions) : l10n.linksSuggestions,
-              ],
-              semanticLabels: [
-                l10n.linksMap,
-                l10n.linksBrowse,
-                widget.suggestions > 0 ? l10n.linksSuggestionsCountA11y(widget.suggestions) : l10n.linksSuggestions,
-              ],
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 6),
+          SegmentedPill(
+            height: LibraryControls.segmentHeight(context),
+            selected: widget.segment,
+            onChanged: widget.onSegment,
+            segmentKeys: [
+              LinksLibrarySegment.key(LinksLibrarySegment.map),
+              LinksLibrarySegment.key(LinksLibrarySegment.browse),
+              LinksLibrarySegment.key(LinksLibrarySegment.suggestions),
+            ],
+            // No count while nothing waits: just «اقتراحات».
+            options: [
+              l10n.linksMap,
+              l10n.linksBrowse,
+              widget.suggestions > 0 ? l10n.linksSuggestionsCount(widget.suggestions) : l10n.linksSuggestions,
+            ],
+            semanticLabels: [
+              l10n.linksMap,
+              l10n.linksBrowse,
+              widget.suggestions > 0 ? l10n.linksSuggestionsCountA11y(widget.suggestions) : l10n.linksSuggestions,
+            ],
+          ),
+        ],
       ),
     );
   }

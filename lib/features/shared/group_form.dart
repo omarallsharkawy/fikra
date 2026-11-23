@@ -231,7 +231,7 @@ class ChoiceTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = selected ? context.colors.accent : context.colors.textPrimary;
+    final fg = selected ? context.colors.onBrandLime : context.colors.textPrimary;
     return Pressable(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -240,9 +240,9 @@ class ChoiceTag extends StatelessWidget {
       minTarget: true,
       child: Container(
         constraints: const BoxConstraints(minHeight: 36),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? context.colors.selected : context.colors.chip,
+          color: selected ? context.colors.brandLime : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
           border: selected ? null : Border.all(color: context.colors.line, width: FikraSpace.hairline),
         ),
@@ -256,7 +256,7 @@ class ChoiceTag extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: context.text.chip.copyWith(color: fg),
+                style: context.text.chip.copyWith(color: fg, fontWeight: selected ? FontWeight.w700 : null),
               ),
             ),
           ],

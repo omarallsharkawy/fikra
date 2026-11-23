@@ -359,15 +359,24 @@ class _MapPairActions extends ConsumerWidget {
   final SuggestionEntry entry;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pair = pairKey(entry.a.id, entry.b.id), project = entry.a.projectId;
+    final pair = pairKey(entry.a.id, entry.b.id), project = entry.link.projectId;
     final key = '$project:$pair';
-    final busy = ref.watch(linkPairBusyProvider.select((pairs) => pairs.containsKey(key)));
+    final busy =
+        ref.watch(linkPairBusyProvider.select((pairs) => pairs.containsKey(key))) ||
+        entry.a.projectId != project ||
+        entry.b.projectId != project;
     Future<void> act(bool accept) async {
       final guard = ref.read(linkPairBusyProvider.notifier);
       if (!guard.claim(key, project: project, pair: pair)) return;
       var success = false;
       try {
-        success = await changeSuggestedPair(context, a: entry.a.id, b: entry.b.id, accept: accept);
+        success = await changeSuggestedPair(
+          context,
+          a: entry.a.id,
+          b: entry.b.id,
+          accept: accept,
+          expectedProjectId: project,
+        );
       } finally {
         guard.finish(key, success: success);
       }

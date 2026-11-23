@@ -71,7 +71,9 @@ void main() {
 
     for (final brightness in Brightness.values) {
       for (final tier in [GlassTier.solid, GlassTier.frosted]) {
-        testWidgets('the Undo button is readable on the ${brightness.name} ${tier.name} toast', (tester) async {
+        testWidgets('the Undo button is readable on the solid ${brightness.name} toast (tier=${tier.name})', (
+          tester,
+        ) async {
           await host(
             tester,
             brightness: brightness,
@@ -87,21 +89,15 @@ void main() {
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 400));
 
+          final capsule = find.byKey(const ValueKey('toast-capsule'));
+          expect(find.descendant(of: capsule, matching: find.byType(BackdropFilter)), findsNothing);
           final label = find.descendant(of: find.byType(SnackBarAction), matching: find.byType(RichText));
           final color = (tester.renderObject(label) as RenderParagraph).text.style!.color!;
-          final backing = tester
-              .widget<ColoredBox>(
-                find
-                    .descendant(of: find.byKey(const ValueKey('toast-capsule')), matching: find.byType(ColoredBox))
-                    .first,
-              )
-              .color;
-          for (final under in [Colors.black, Colors.white]) {
-            final background = Color.alphaBlend(backing, under);
-            final (a, b) = (color.computeLuminance(), background.computeLuminance());
-            final contrast = (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
-            expect(contrast, greaterThanOrEqualTo(4.5));
-          }
+          final backing = (tester.widget<DecoratedBox>(capsule).decoration as BoxDecoration).color!;
+          expect(backing.a, 1.0);
+          final (a, b) = (color.computeLuminance(), backing.computeLuminance());
+          final contrast = (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
+          expect(contrast, greaterThanOrEqualTo(4.5));
         });
       }
     }

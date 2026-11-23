@@ -1,5 +1,6 @@
 // Links library and bounded Map comparison, called once per forced tier by
 // glass_perf_scenario.dart. Uses only the isolated stress seed and real routes.
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/library_cards.dart';
 import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/features/connections/links_library_screen.dart';
@@ -33,8 +34,10 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
   }
 
   await tester.tap(find.byKey(const ValueKey('nav-1')));
-  await waitFor(() => find.byKey(const ValueKey('links-segment-1')).hitTestable().evaluate().isNotEmpty);
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+  await waitFor(
+    () => find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)).hitTestable().evaluate().isNotEmpty,
+  );
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
   await waitFor(() => find.byType(BrowseNoteCard).evaluate().isNotEmpty);
   tester.state<ScrollableState>(scroll()).position.jumpTo(0);
   await Future<void>.delayed(const Duration(milliseconds: 600));
@@ -56,7 +59,7 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
   FocusManager.instance.primaryFocus?.unfocus();
   await Future<void>.delayed(const Duration(milliseconds: 600));
 
-  await tester.tap(find.byKey(const ValueKey('links-segment-2')));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.suggestions)));
   await Future<void>.delayed(const Duration(milliseconds: 500));
   final suggestions = await measure('links_suggestions', flings);
   tester.state<ScrollableState>(scroll()).position.jumpTo(0);
@@ -78,7 +81,7 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
     }
   });
 
-  await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
   final canvas = find.byKey(const ValueKey('map-paint'));
   await waitFor(() => canvas.evaluate().isNotEmpty);
   await tester.tap(find.byKey(const ValueKey('map-project')));
@@ -124,8 +127,8 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
   }
 
   // Reset overview pan/zoom before drilling in.
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
-  await tester.tap(find.byKey(const ValueKey('links-segment-0')));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
   final controller = tester
       .widget<InteractiveViewer>(find.byKey(const ValueKey('map-viewport')))
       .transformationController!;
@@ -133,7 +136,7 @@ Future<Map<String, Object>> runLinksPerformance(WidgetTester tester, MeasureLink
   await tapFirst();
   await tapFirst();
   final ego = await measure('map_pan_ego', panAndZoom);
-  await tester.tap(find.byKey(const ValueKey('links-segment-1')));
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
   await tester.tap(find.byKey(const ValueKey('nav-0')));
   await Future<void>.delayed(const Duration(milliseconds: 400));
   return {

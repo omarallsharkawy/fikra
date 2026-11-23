@@ -126,3 +126,11 @@ transcription/ owns TranscriptionServices/LocalTranscriptionServices, typed non-
 AttachmentDraft.policy is the effective per-recording choice; nullable is only an unresolved new-draft default. transcriptionDraft resolves new defaults from auto while preserving explicit off. transcribe is a save request only for new voice files, never for saved rows or other file kinds. policyChanged distinguishes an explicit saved-row choice from a stale snapshot; withPolicy sets it. Attachment replacement re-reads live rows and carries policy, correction, correctedAt, revision and all earlier transcription metadata. Untouched stale drafts cannot overwrite newer policy/corrections. Explicit off changes cancel queued/running status without deleting a completed transcript. No old attachment is auto-enqueued by Edit.
 
 The approved exception to the originalText baseline is recording transcript append and an explicit transcript correction's safe paragraph update; ordinary note edits still use editedText. TranscriptCorrections lives in processing and drives normal analysis after a safe note change.
+
+## Transactional edit and credential guards
+
+NotesRepository.edit accepts NoteEditBasis (the editor note and attachment snapshot). After file staging, its transaction reads live rows and reconciles only changes proved by attachment IDs, transcript revisions and copied-block markers. Disjoint corrections merge; explicit removals remain removed; competing replacements raise NoteEditConflict and copy rollback retains sources and the draft. Attachment-only edits keep the live body. Implementations are split into notes_repository, note_edit_repository and note_insights_repository parts; note_edit_merge owns reconciliation.
+
+Pair accept/dismiss commands for Undo require expectedProjectId. Both live endpoints must still belong to it before any mutation, in the same transaction. PairCommandStale carries no change or Undo entry. PairChange and LinkChange live in the link_changes part; existing pair deduplication, tombstones and guarded Undo remain.
+
+Transcription credential references and their cleanup journal use existing settings JSON, with fresh secure slots written before atomic config/reference publication. Legacy unbound keys require reentry. Wipe clears the secure prefix even without a manifest. See transcription/EGM.md.

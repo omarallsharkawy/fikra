@@ -32,7 +32,7 @@ voice2_fixture.dart seeds realistic machine/correction/copy-marker/revision stat
 
 ## Floating navigation (redesign phase 2)
 
-Tabs.finder supports three visible indices: notes=0, links=1, ask=2. Add is
+Tabs.finder supports four visible indices: notes=0 (Home), links=1 (Map), ask=2, me=3. Add is
 Tabs.addButton (nav-add), never a tab index. All existing Add callers are updated.
 The harness optionally accepts glassTier for deterministic frosted screenshots;
 production automatic tier selection is unchanged. Existing DB/resource teardown
@@ -52,5 +52,6 @@ measureLargeLibrary is the exact diagnostic body called by links_index_test. It 
 
 `fikraTest` accepts optional `double? textScale` (setting `tester.platformDispatcher.textScaleFactorTestValue` and clearing it in `addTearDown`). `a11y_fixture.dart` provides `seedA11yApp` and `visitAllMainScreensAndSheets`, shared across `phase8_accessibility_test.dart`, `phase8_large_text_test.dart` and `screenshots/phase8_finishing_test.dart`.
 
+LibrarySpy forwards expectedProjectId through gated pair commands and returns PairCommandResult, preserving PairCommandStale as a result without Undo. MemoryServiceKeys treats map keys as secure slots for the credential publication tests.
 
-Map fixtures add `seedLibrary(browse: false)` for first-entry Map tests and `tapMapNode`, which taps a painted node through RenderBox.localToGlobal and completes the finite level fade. `librarySegment` retains logical Browse=0/Suggestions=1 for existing list tests; actual segment keys are Map=0/Browse=1/Suggestions=2. Accessibility list fixtures explicitly choose Browse.
+`seedLibrary(browse: false)` starts in Map. `tapMapNode` converts world coordinates to a painted tap and settles the level transition. `librarySegment` takes a named `LinksLibrarySegment` value and taps its widget key.

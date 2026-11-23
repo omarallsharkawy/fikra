@@ -53,6 +53,16 @@ void main() {
     expect(map.search('Body b').single.id, 'b');
   });
 
+  test('Map search uses the Library Arabic matcher (hamza, word order, prefix)', () {
+    final map = mapOf([libraryNote('rag', title: 'إزاي RAG بيشتغل'), libraryNote('other', title: 'ملاحظة تانية')], []);
+    expect(map.search('إزاي RAG بيشتغل').map((n) => n.id), ['rag']);
+    expect(map.search('ازاي rag').map((n) => n.id), ['rag']);
+    expect(map.search('بيشت').map((n) => n.id), ['rag']);
+    expect(map.search('RAG إزاي').map((n) => n.id), ['rag']);
+    expect(map.search('مفيش'), isEmpty);
+    expect(map.search('  '), hasLength(2));
+  });
+
   test('cluster limit ranks by degree and accounts for every omitted note', () {
     final map = mapOf(
       [for (var i = 0; i < 27; i++) libraryNote('n$i')],

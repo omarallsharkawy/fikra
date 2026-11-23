@@ -18,7 +18,7 @@ import '../features/note_details/note_details_screen.dart';
 import '../features/note_details/pdf_viewer_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/projects/welcome_screen.dart';
-import '../features/settings/settings_screen.dart';
+import '../features/me/me_screen.dart';
 import '../features/voice_text/voice_text_screen.dart';
 import '../features/voice_text/service_form_screen.dart';
 import 'providers.dart';
@@ -60,9 +60,23 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.listen(projectsProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
+  bool selectMap() {
+    final project = ref.read(selectedProjectProvider);
+    if (project == null) return false;
+    ref.read(linksSegmentProvider.notifier).select(project.id, LinksLibrarySegment.map);
+    return true;
+  }
+
   final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: refresh,
+    onEnter: (_, current, next, router) {
+      // Handle legacy calls from the library without pushing a second library page.
+      if (current.uri.path == '/links' && next.uri.path == '/links/graph' && !router.canPop() && selectMap()) {
+        return const Block.stop();
+      }
+      return const Allow();
+    },
     redirect: (context, state) {
       final projects = ref.read(projectsProvider);
       final loc = state.matchedLocation;
@@ -100,8 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'graph',
                     redirect: (_, _) {
-                      final project = ref.read(selectedProjectProvider);
-                      if (project != null) ref.read(linksSegmentProvider.notifier).select(project.id, 0);
+                      selectMap();
                       return '/links';
                     },
                   ),
@@ -128,9 +141,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [GoRoute(path: '/ask', builder: (_, _) => const AskScreen())],
           ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/me', builder: (_, _) => const MeScreen())],
+          ),
         ],
       ),
-      GoRoute(path: '/settings', pageBuilder: (_, s) => _pushed(s, const SettingsScreen())),
+      GoRoute(path: '/settings', redirect: (_, _) => '/me'),
       GoRoute(path: '/settings/voice-text', pageBuilder: (_, s) => _pushed(s, const VoiceTextScreen())),
       GoRoute(path: '/settings/voice-text/service/new', pageBuilder: (_, s) => _pushed(s, const ServiceFormScreen())),
       GoRoute(

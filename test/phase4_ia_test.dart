@@ -12,6 +12,8 @@ import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/data/transcription/service_config.dart';
 import 'package:fikra/data/transcription/services_repository.dart';
+import 'package:fikra/features/connections/library_session.dart';
+import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/note_details/edit_note_screen.dart';
 import 'package:fikra/features/note_details/note_details_screen.dart';
 import 'package:fikra/features/projects/project_header.dart';
@@ -71,7 +73,7 @@ void main() {
       serviceKeys: settingsKeys,
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         final project = await pumpFuture(tester, () => LocalProjectsRepository(db).create('Alpha'));
         await pumpFuture(
           tester,
@@ -92,14 +94,14 @@ void main() {
         );
         await pumpUntil(tester, find.text('Alpha'));
 
-        await tester.tap(find.byKey(const ValueKey('header-settings')));
+        await tester.tap(Tabs.finder(Tabs.me));
         await pumpUntil(tester, find.byType(SettingsScreen));
         await tester.pump(const Duration(milliseconds: 500));
 
         final sections = [
-          l.appearance,
+          l.meAppearanceLanguage,
           l.languageSection,
-          l.vtVoiceSection,
+          l.meVoiceServices,
           l.servicesSection,
           l.privacySection,
           l.aboutSection,
@@ -165,7 +167,7 @@ void main() {
         await tester.tap(eraseFinder);
         await tester.pump(const Duration(milliseconds: 400));
         await tester.tap(find.descendant(of: find.byType(Dialog), matching: find.text(l.eraseAllConfirm)));
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
       }),
     );
   }
@@ -183,7 +185,7 @@ void main() {
         addTearDown(() => unawaited(voiceBackend.dispose()));
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () => LocalProjectsRepository(db).create('Voice project'));
         await pumpUntil(tester, find.text('Voice project'));
 
@@ -261,7 +263,7 @@ void main() {
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         final (n1, n2, n3, group) = await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('Notes order');
           final notesRepo = LocalNotesRepository(db);
@@ -394,7 +396,7 @@ void main() {
   ) async {
     phone(tester);
     final ar = lookupAppLocalizations(const Locale('ar'));
-    await pumpUntil(tester, find.text(ar.startNewProject));
+    await pumpUntil(tester, find.text(ar.welcomeStartWriting));
 
     final (oldest, middle, newerA, newerB) = await pumpFuture(tester, () async {
       final repo = LocalProjectsRepository(db);
@@ -484,7 +486,7 @@ void main() {
       phone(tester);
       final ar = lookupAppLocalizations(const Locale('ar'));
 
-      await pumpUntil(tester, find.text(ar.startNewProject));
+      await pumpUntil(tester, find.text(ar.welcomeStartWriting));
       final (a, b) = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('Search project');
         final notesRepo = LocalNotesRepository(db);
@@ -514,6 +516,7 @@ void main() {
         required Finder fieldRoot,
         required String clearKey,
         required String query,
+        Finder? searchResult,
       }) async {
         final clearFinder = find.byKey(ValueKey(clearKey));
         expect(clearFinder, findsNothing);
@@ -525,6 +528,7 @@ void main() {
         await tester.pump();
         await tester.enterText(textField, query);
         await tester.pump(const Duration(milliseconds: 250));
+        if (searchResult != null) expect(searchResult, findsOneWidget);
 
         expect(clearFinder, findsOneWidget);
         final size = tester.getSize(clearFinder);
@@ -536,6 +540,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
 
         expect(clearFinder, findsNothing);
+        if (searchResult != null) expect(searchResult, findsNothing);
         final editable = tester.widget<EditableText>(
           find.descendant(of: fieldRoot, matching: find.byType(EditableText)),
         );
@@ -551,14 +556,28 @@ void main() {
       );
       expect(find.text('Beta thought'), findsOneWidget);
 
-      // 2. Links library search.
+      // 2. Browse search.
       await tester.tap(Tabs.finder(Tabs.links));
-      await pumpUntil(tester, find.byKey(const ValueKey('links-search')));
+      final browse = find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse));
+      await pumpUntil(tester, browse);
+      await tester.tap(browse);
       await tester.pump(const Duration(milliseconds: 400));
       await verifyClearField(
         fieldRoot: find.byKey(const ValueKey('links-search')),
         clearKey: 'links-search-clear',
         query: 'Alpha',
+      );
+
+      // 3. Map search uses the same clear action and removes the Map results.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
+      await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
+      await verifyClearField(
+        fieldRoot: find.byKey(const ValueKey('links-search')),
+        clearKey: 'links-search-clear',
+        query: 'Alpha',
+        searchResult: find.byKey(ValueKey('map-search-${a.id}')),
       );
 
       // 4. Link picker sheet search on Note details.
@@ -605,7 +624,7 @@ void main() {
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('Edit project');
           await LocalNotesRepository(db)
@@ -653,12 +672,12 @@ void main() {
     final l = lookupAppLocalizations(locale);
 
     fikraTest(
-      'Main screen header icon controls show short labels when room allows ($code)',
+      'Main screen controls show short labels when room allows ($code)',
       locale: locale,
       (tester, db) => withSemantics(tester, () async {
         phone(tester);
 
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () async {
           final p = await LocalProjectsRepository(db).create('Headers');
           await LocalNotesRepository(db).create(projectId: p.id, title: 'Seed', text: 'Body', source: NoteSource.text);
@@ -667,55 +686,70 @@ void main() {
         await pumpUntil(tester, find.text('Seed'));
         await tester.pump(const Duration(milliseconds: 400));
 
-        void checkHeaderControl(Finder finder, {required String visibleCaption, required String a11y}) {
+        void checkHeaderControl(Finder finder, {required String visibleLabel, required String a11y}) {
           expect(finder, findsOneWidget);
-          expect(find.descendant(of: finder, matching: find.text(visibleCaption)), findsOneWidget);
+          final labelFinder = find.descendant(of: finder, matching: find.text(visibleLabel));
+          final iconFinder = find.descendant(of: finder, matching: find.byType(Icon));
+          final surfaceFinder = find.descendant(of: finder, matching: find.byType(SolidSurface));
+          expect(labelFinder, findsOneWidget);
+          expect(iconFinder, findsOneWidget);
+          expect(surfaceFinder, findsOneWidget);
+          expect(
+            (tester.getCenter(iconFinder).dy - tester.getCenter(labelFinder).dy).abs(),
+            lessThan(2),
+            reason: '$visibleLabel must sit horizontally beside its icon',
+          );
+          expect(tester.getSize(surfaceFinder).height, greaterThanOrEqualTo(Pressable.minTargetSize));
           final size = tester.getSize(finder);
           expect(size.width, greaterThanOrEqualTo(Pressable.minTargetSize));
           expect(size.height, greaterThanOrEqualTo(Pressable.minTargetSize));
           expect(tester.getSemantics(finder).label, a11y);
         }
 
-        // Notes header: Settings labelled.
-        checkHeaderControl(
-          find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
-          a11y: l.settings,
-        );
-
-        // Add header: Settings labelled.
+        expect(find.byKey(const ValueKey('header-settings')), findsNothing);
         await tester.tap(Tabs.addButton);
         await tester.pump(const Duration(milliseconds: 400));
-        checkHeaderControl(
-          find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
-          a11y: l.settings,
-        );
-
-        // Links header keeps Settings; Map is a segment.
-        await tester.tap(Tabs.finder(Tabs.links));
+        expect(find.byKey(const ValueKey('add-close')), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('add-close')));
         await tester.pump(const Duration(milliseconds: 400));
-        await pumpUntil(tester, find.byKey(const ValueKey('links-segment-0')));
-        checkHeaderControl(
-          find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
-          a11y: l.settings,
-        );
 
-        // Ask header: Clear + Settings labelled.
+        // The library uses the segment row for Map navigation.
+        await tester.tap(Tabs.finder(Tabs.links));
+        final browse = find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse));
+        await pumpUntil(tester, browse);
+        await tester.tap(browse);
+        await tester.pump(const Duration(milliseconds: 400));
+        final library = find.byType(LinksLibraryScreen);
+        final header = find.descendant(of: library, matching: find.byType(ProjectHeader));
+        expect(tester.widget<ProjectHeader>(header).trailing, isNull);
+        expect(find.byKey(const ValueKey('header-settings')), findsNothing);
+
+        expect(tester.getSemantics(browse).flagsCollection.isSelected, Tristate.isTrue);
+        final map = find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)).hitTestable();
+        expect(find.descendant(of: map, matching: find.text(l.linksMap)), findsOneWidget);
+        expect(tester.getSize(map).width, greaterThanOrEqualTo(Pressable.minTargetSize));
+        expect(tester.getSize(map).height, greaterThanOrEqualTo(Pressable.minTargetSize));
+        await tester.tap(map);
+        await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
+        final mapSemantics = tester.getSemantics(map);
+        expect(mapSemantics.label, l.linksMap);
+        expect(mapSemantics.flagsCollection.isSelected, Tristate.isTrue);
+        expect(find.byType(LinksLibraryScreen, skipOffstage: false), findsOneWidget);
+        final search = find.byKey(const ValueKey('links-search')).hitTestable();
+        expect(search, findsOneWidget);
+        expect(tester.widget<TextField>(search).decoration?.hintText, l.searchLinksHint);
+        expect(find.byKey(const ValueKey('header-settings')), findsNothing);
+
+        // Ask header: Clear action.
         await tester.tap(Tabs.finder(Tabs.ask));
         await pumpUntil(tester, find.text('Hello'));
         await tester.pump(const Duration(milliseconds: 400));
         checkHeaderControl(
           find.byKey(const ValueKey('ask-clear-chat')).hitTestable(),
-          visibleCaption: l.clear,
+          visibleLabel: l.clear,
           a11y: l.clearChatA11y,
         );
-        checkHeaderControl(
-          find.byKey(const ValueKey('header-settings')).hitTestable(),
-          visibleCaption: l.settings,
-          a11y: l.settings,
-        );
+        expect(find.byKey(const ValueKey('header-settings')), findsNothing);
       }),
     );
 
@@ -741,12 +775,12 @@ void main() {
                   data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(2.5)),
                   child: Scaffold(
                     body: ProjectHeader(
-                      title: l.linksTitle,
+                      title: l.askTitle,
                       trailing: HeaderActionButton(
-                        key: const ValueKey('header-test-action'),
-                        icon: Icons.hub_outlined,
-                        label: l.searchNotesHint,
-                        semanticLabel: l.searchLinksHint,
+                        key: const ValueKey('ask-clear-chat'),
+                        icon: Icons.delete_sweep_outlined,
+                        label: l.clear,
+                        semanticLabel: l.clearChatA11y,
                         onTap: () {},
                       ),
                     ),
@@ -759,14 +793,15 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
-        final graphBtn = find.byKey(const ValueKey('header-test-action'));
-        final settingsBtn = find.byKey(const ValueKey('header-settings'));
-        expect(find.descendant(of: graphBtn, matching: find.text(l.searchNotesHint)), findsNothing);
-        expect(find.descendant(of: settingsBtn, matching: find.text(l.settings)), findsNothing);
-        expect(tester.getSize(graphBtn).width, greaterThanOrEqualTo(Pressable.minTargetSize));
-        expect(tester.getSize(settingsBtn).width, greaterThanOrEqualTo(Pressable.minTargetSize));
-        expect(tester.getSemantics(graphBtn).label, l.searchLinksHint);
-        expect(tester.getSemantics(settingsBtn).label, l.settings);
+        final clearButton = find.byKey(const ValueKey('ask-clear-chat'));
+        expect(find.byKey(const ValueKey('header-settings')), findsNothing);
+        expect(find.descendant(of: clearButton, matching: find.text(l.clear)), findsNothing);
+        expect(tester.getSize(clearButton).width, greaterThanOrEqualTo(Pressable.minTargetSize));
+        expect(
+          tester.getSize(find.descendant(of: clearButton, matching: find.byType(SolidSurface))),
+          const Size(48, 48),
+        );
+        expect(tester.getSemantics(clearButton).label, l.clearChatA11y);
       }),
     );
   }
@@ -774,7 +809,7 @@ void main() {
   fikraTest('clearing an unfocused search field leaves focus and the keyboard off', (tester, db) async {
     phone(tester);
     final ar = lookupAppLocalizations(const Locale('ar'));
-    await pumpUntil(tester, find.text(ar.startNewProject));
+    await pumpUntil(tester, find.text(ar.welcomeStartWriting));
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('Search project');
       final notesRepo = LocalNotesRepository(db);

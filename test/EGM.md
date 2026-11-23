@@ -113,7 +113,7 @@ Suggestion Undo: links_groups_moves_test (`pair accept/reject Undo` group) resto
 
 ## Ordering & IA (redesign phase 4)
 
-`phase4_ia_test.dart` covers: Settings' six ordered `Semantics(header: true)` sections, connected service navigation and separated red `settings-erase-all` behind `confirmDestructive` in AR/EN; `VoiceTextScreen`'s top-to-bottom section order and collapsed `vt-testing-toggle` under normal and reduced motion; `NotesScreen` Newest-first and Oldest-first (`linksNewest` / `linksOldest`) sorting, filter composition and session persistence; `orderProjects` in `showProjectSwitcher` and `showProjectPicker` (current first, then `createdAt` descending with equal-second insertion tie-breaking); clear (`X`) buttons on the three shared search fields (`notes-search`, `links-search`, `link-search`) preserving focus; visible `note-edit` header button on `NoteDetailsScreen` in RTL/LTR; and `HeaderActionButton` captions across all main headers plus clean collapse at 2.5× text / 320 dp. `project_header_test.dart` uses `HeaderActionButton` for Ask's trailing fixture; `project_moves_test.dart` scopes its open-sheet `edit` assertion to `BottomSheet` and verifies `note-edit` is disabled while `_moving`.
+`phase4_ia_test.dart` covers: Settings' six ordered `Semantics(header: true)` sections, connected service navigation and separated red `settings-erase-all` behind `confirmDestructive` in AR/EN; `VoiceTextScreen`'s top-to-bottom section order and collapsed `vt-testing-toggle` under normal and reduced motion; `NotesScreen` Newest-first and Oldest-first (`linksNewest` / `linksOldest`) sorting, filter composition and session persistence; `orderProjects` in `showProjectSwitcher` and `showProjectPicker` (current first, then `createdAt` descending with equal-second insertion tie-breaking); clear (`X`) buttons on Notes, Browse, Map and the link picker preserving focus; visible `note-edit` header button on `NoteDetailsScreen` in RTL/LTR; and `HeaderActionButton` horizontal pills across all main headers plus clean collapse to 48 dp icon-only circles at 2.5× text / 320 dp. `project_header_test.dart` uses `HeaderActionButton` for Ask's trailing fixture and covers the second-row project chip below the title with ellipsis, 2.0× / 360 dp icon-only collapse, RTL edge alignment, and `boldText`/letter-word spacing overrides around the collapse threshold; `project_moves_test.dart` scopes its open-sheet `edit` assertion to `BottomSheet` and verifies `note-edit` is disabled while `_moving`.
 
 ## Motion & delight (redesign phase 7)
 
@@ -124,7 +124,7 @@ Suggestion Undo: links_groups_moves_test (`pair accept/reject Undo` group) resto
 
 - `pearl_contrast_test.dart`: adds WCAG AA checks for glass sheet and toast text (`>= 4.5:1`) and icons (`>= 3.0:1`) across light/dark and solid/frosted backdrops (including scrimmed sheets and opaque `SolidSurface` danger options). `toast_test.dart` checks Undo action contrast against the capsule's drawn `ColoredBox` backing at both solid and frosted tiers.
 - `phase8_glass_surfaces_test.dart`: verifies sheet and toast glass tiers (`frosted`, `optical`, `solid`, `MediaQuery.highContrast`), single sigma-24 `BackdropFilter` per surface, disabled sheet blur while fully offscreen (`animation.value == 0`), opaque `SolidSurface` reading rows inside sheets, solid `confirmDestructive`, ungrouped toast blur, hit/scroll pass-through just beside and just below a visible toast capsule, floating bar/Add and open-keyboard clearance, and `FikraField`'s exact 48 dp height at 1.0x focused/unfocused in light and dark.
-- `phase8_accessibility_test.dart`: pumps all 14 main screens and sheets in Arabic and English, light and dark, checking `androidTapTargetGuideline`, `labeledTapTargetGuideline`, and `textContrastGuideline` (documenting, asserting non-empty matches, and verifying true `>= 4.5:1` WCAG contrast for the 11 sp `NotoSansArabic` sub-pixel anti-aliasing false positives in Arabic), plus TalkBack spot-checks (`isHeader`, `isButton`, `isSelected`, localized labels, excluded decorative icons, and RTL reading order).
+- `phase8_accessibility_test.dart`: pumps all 14 main screens and sheets in Arabic and English, light and dark, checking `androidTapTargetGuideline`, `labeledTapTargetGuideline`, and `textContrastGuideline` (documenting, asserting non-empty matches, and verifying true `>= 4.5:1` WCAG contrast for the 11 sp `NotoSansArabic` sub-pixel anti-aliasing false positives in Arabic; `l.settings` is no longer excluded since it uses 13 sp `chip` text), plus TalkBack spot-checks (`isHeader`, `isButton`, `isSelected`, localized labels, excluded decorative icons, and RTL reading order with Row 1 Settings preceding Row 2 project pill).
 - `phase8_large_text_test.dart`: pumps all 14 main screens and sheets plus the floating toast with action at text scales `1.3` and `2.0` on a `360 dp`-wide viewport with real fonts in Arabic/English and light/dark, checking zero `RenderFlex` overflows, zero clipped interactive controls, non-truncated `SettingsScreen` `SegmentedPill` labels, and tap-target/label guidelines.
 
 ## Connections push and suggestion performance
@@ -137,7 +137,49 @@ Suggestion Undo: links_groups_moves_test (`pair accept/reject Undo` group) resto
 
 The 5,000-note fixture measured nine unrelated row builds before the change and zero after accept/reject; Undo also retains unrelated rows. Validation completed 759 unit/widget tests and 69 screenshot cases in separate Flutter engine processes. Standard launcher gates are blocked here by localhost socket permissions.
 
+## Note-open and branch performance (P0.1)
 
-## Links Map replacement
+- `container_transform_test.dart`: several forward/reverse samples require identity linear transforms and no FittedBox above Arabic page text, final-size content, the existing clip/radius and opacity curves, live-card reverse targeting, and full-rect fade-only Reduce Motion with short pop. Source render opacity fades oppositely, restores on pop/interrupted-push disposal, and stays unchanged under Reduce Motion.
+- `branch_build_test.dart`: Flutter's element build callback counts zero NotesScreen/LinksLibraryScreen builds across repeated real-shell branch switches; Notes, Browse and Suggestions staggers stop offstage and a running stagger stops when Reduce Motion is enabled. Existing selection, first-load/project-switch stagger and route-state preservation tests remain unchanged.
 
-`map_index_test` covers eight-cluster aggregation/Others/ungrouped and isolated notes, deduplicated aggregate confirmed edges, 20/12/4 caps and exact +N totals, degree ranking and deterministic RTL/LTR grid/radial layouts. `map_provider_test` keeps a Riverpod 3 listener and checks reuse/invalidation after note and link changes, including a 5,000-note compute transfer. `map_canvas_test` checks native-picture reuse/disposal for data/theme/locale/scaler changes and semantic activation, native-size dense ego targets and retained 2x enlargement. `links_map_test` exercises actual world-coordinate taps, all three levels/breadcrumbs/cards, isolated-note search, the +N solid list, semantics, shared accept/reject with Undo, per-project session selection, legacy redirect, Android Back through all levels, picture reuse during transforms, and 360 dp/2x AR/EN light/dark. Existing library, connections, phone, IA, stagger, shell, a11y and screenshot fixtures explicitly choose Browse when needed. Graph-only tests/fixtures were deleted with their implementation. Semantics handles are disposed in try/finally; resources use addTearDown. Socket-restricted test launchers use the existing separate-engine per-file fallback.
+## Phase 0.2 & 0.3 coverage
+
+- `glass_quality_test.dart`, `glass_widget_test.dart`, `floating_navigation_test.dart`, `toast_test.dart`, `pearl_contrast_test.dart`, and `phase8_glass_surfaces_test.dart`: verify Reduce Motion forces `GlassTier.solid`, `+` button / bottom sheets / toasts / `LibraryControls` contain no `BackdropFilter`, and the floating tab bar (and grouped `ActivityCapsule`) retains sigma-16 `BackdropFilter` with 0.90 light / 0.72 dark backing alpha (solid under power save / high contrast / reduce motion).
+- `arabic_normalization_test.dart`: covers `normalizeArabic` (Alef/ة/ى/ؤ/ئ, tashkeel/tatweel, Arabic-Indic digits, Latin case, whitespace, preserved `ال`), `matchesNormalizedArabic` (`ال` tolerance without false matches), Notes search widget flow, `LinksIndex`, and `DemoAiService.ask` (including cache invalidation).
+
+## Concept navigation (phase 1B)
+
+concept_navigation_test covers 360 dp AR/EN labels at 1/1.3, icon-only at 1.4/2,
+FAB spacing, spring frames/retarget/haptics, routes/settings alias, full-screen Add
+inset and previous-tab X/back. me_test covers unique confirmed pairs, calendar-day
+bounds and project switches, all sections, project sheet and cancel-before-wipe.
+motion_test replaces veil tests with incoming/outgoing opacity/scale and instant
+Reduce Motion. Existing recording, accessibility, header and screenshot callers
+use Me and composer close where expectations changed.
+## Brand redesign (phase 1a)
+
+- `pearl_contrast_test.dart`: checks WCAG AA contrast (`>= 4.5:1` text, `>= 3:1` icons/large) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes, plus typography bounds (`NotoSansArabic`, zero `letterSpacing`, all sizes `>= 12.5` sp).
+- `welcome_redesign_test.dart`: verifies primary CTA direct creation of default project («أفكاري» / "My ideas") without a name dialog, secondary CTA demo seed, absence of auth buttons, LTR↔RTL pixel mirroring of `WelcomeHeroPainter`, 2.0× large-text scrolling without overflow, and Reduce Motion skipping entrance animation.
+- `home_redesign_test.dart`: verifies `activeDaysThisWeek` rolling 7-day counting, voice/files/group chip filtering and lime active fill, tinted type badges, warning pending-rewrite badge, link-count pill (`connectionsIndexProvider`), conditional action strip hidden at 0 and prioritized (failed → suggestions → rewrites) with Links suggestions navigation and session dismissal, and active-days chip hidden at 0.
+
+## Data race and destination guards
+
+credential_publication_test uses an in-memory database and fake secure slots for partial key writes, failed publication, retryable reclamation, missing/mismatched references, legacy reentry and staged/orphan wipe. transcription_services_test now checks the referenced slot and post-publication retryable cleanup instead of service-id storage or deletion-before-config behavior. external_transcription_widgets_test checks the fresh referenced slot after form save. Wipe fixtures inject fake services because wipe always clears secure slots.
+
+note_edit_race_test pauses a real staged copy with Completer, finishes fake transcription before commit, and checks typed/prior edits, equal text on different attachment IDs, corrections/redo, removals, attachment-only saves and typed conflicts with clean copy rollback. No inference or network runs. note_edit_conflict_widget_test verifies the real editor keeps the submitted text and stays open on conflict. attachment_review_test forwards the editor basis through its gated repository.
+
+pair_project_guard_test covers stale accept/dismiss after either or both endpoints move, no tombstone/Undo on stale commands, and valid action/Undo restoration. Existing pair and widget spies forward expectedProjectId and handle the typed result.
+
+The format, analyze, full-test and screenshot gates could not start in this run: Flutter bootstrap cannot write engine.stamp or engine.realm in the read-only SDK cache. No passing gate result is claimed.
+## Review fixes (S3, R1–R5, R8)
+
+- `ask_screen_test.dart`: verifies unchanged input clearing, mid-flight retyped draft preservation, failing write draft retention, preset submission preserving manual text, and per-project pending isolation without cross-project error toasts.
+- `floating_navigation_test.dart` & `concept_navigation_test.dart`: verify `ExcludeFocus` keyboard hiding/restoration with visible focus indicators on unselected controls, secondary/middle mouse clicks ignored while primary works, and real-font 2.0× narrow (320 dp) and wider (412 dp) Arabic tab layouts without clipping.
+- `arabic_normalization_test.dart`: verifies extended Latin case (`Łódź`/`łódź`), bounded distinct-word backtracking (`كتاب الكتاب`), `ال`-only prefix guards, and 5,000-note cached tokenization counts.
+- `note_connections_provider_test.dart` & `links_library_test.dart`: verify `connectionsIndexProvider` `autoDispose` release on project switch, reuse across consecutive pushes while listened, and controller disposal when a project is deleted.
+- `links_index_test.dart`: verifies O(G) group-scan operation growth across empty/nested groups and `shouldIsolateLinksDerivation` parity for dense `<1000`-note and small projects.
+- `glass_quality_test.dart` & `glass_widget_test.dart`: verify watchdog stops sampling and clears partial windows while keyboard-hidden or forced solid (battery saver, Reduce Motion, high contrast), while active visible frames still downgrade.
+
+## Links Map
+
+`map_layout_overlap_test.dart` covers rectangular ego packing at phone widths and large text. `map_index_test.dart`, `map_provider_test.dart`, `map_canvas_test.dart` and `links_map_test.dart` cover cluster keys and caps, source invalidation, cached pictures, node semantics, gestures, deep links and Back. Phone regressions use painted Map nodes for title fallback and zoom anchoring. Legacy graph fixtures were removed with their engine.

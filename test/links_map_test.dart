@@ -29,28 +29,39 @@ void main() {
         final context = tester.element(find.byKey(const ValueKey('map-paint')));
         final container = ProviderScope.containerOf(context);
         final router = GoRouter.of(context);
-        expect(container.read(linksSegmentProvider)[notes.first.projectId] ?? 0, 0);
-        await librarySegment(tester, 1);
+        expect(
+          container.read(linksSegmentProvider)[notes.first.projectId] ?? LinksLibrarySegment.map,
+          LinksLibrarySegment.map,
+        );
+        await librarySegment(tester, LinksLibrarySegment.suggestions);
         await tester.tap(Tabs.finder(Tabs.notes));
         await tester.pump(const Duration(milliseconds: 300));
         await tester.tap(Tabs.finder(Tabs.links));
         await tester.pump(const Duration(milliseconds: 300));
-        expect(container.read(linksSegmentProvider)[notes.first.projectId], 2);
+        expect(container.read(linksSegmentProvider)[notes.first.projectId], LinksLibrarySegment.suggestions);
         final other = (await pumpFuture(
           tester,
           () => db.select(db.projects).get(),
         )).singleWhere((p) => p.id != notes.first.projectId);
         await pumpFuture(tester, () => LocalProjectsRepository(db).setCurrent(other.id));
         await pumpUntil(tester, find.text(other.name));
-        expect(container.read(linksSegmentProvider)[other.id] ?? 0, 0);
+        expect(container.read(linksSegmentProvider)[other.id] ?? LinksLibrarySegment.map, LinksLibrarySegment.map);
         await pumpFuture(tester, () => LocalProjectsRepository(db).setCurrent(notes.first.projectId));
         await tester.pump(const Duration(milliseconds: 400));
-        expect(container.read(linksSegmentProvider)[notes.first.projectId], 2);
+        expect(container.read(linksSegmentProvider)[notes.first.projectId], LinksLibrarySegment.suggestions);
         router.go('/links/graph');
         await tester.pump(const Duration(milliseconds: 400));
         await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
         expect(router.routeInformationProvider.value.uri.path, '/links');
-        expect(container.read(linksSegmentProvider)[notes.first.projectId], 0);
+        expect(container.read(linksSegmentProvider)[notes.first.projectId], LinksLibrarySegment.map);
+
+        await librarySegment(tester, LinksLibrarySegment.browse);
+        await tester.tap(Tabs.finder(Tabs.notes));
+        await tester.pump(const Duration(milliseconds: 300));
+        router.go('/links/graph');
+        await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
+        expect(router.routeInformationProvider.value.uri.path, '/links');
+        expect(container.read(linksSegmentProvider)[notes.first.projectId], LinksLibrarySegment.map);
       },
     );
 
