@@ -2,7 +2,6 @@ import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
@@ -15,7 +14,6 @@ class ProductNotesScreen extends StatelessWidget {
   Widget build(BuildContext context) => ProductView(
     builder: (context, r) {
       final w = r.workspace;
-      final locale = Localizations.localeOf(context).languageCode;
       return ProductScaffold(
         title: context.l10n.productNotes,
         trailing: IconButton(
@@ -90,10 +88,7 @@ class ProductNotesScreen extends StatelessWidget {
                           Text(n.content, maxLines: 3, overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 8),
                           Text(processingText(context, n.processing), style: context.text.meta),
-                          Text(
-                            DateFormat('EEEE, yMMMd · HH:mm', locale).format(n.createdAt.toLocal()),
-                            style: context.text.meta,
-                          ),
+                          Text(productTimestamp(context, n.createdAt), style: context.text.meta),
                         ],
                       ),
                       onTap: () => context.push('/note/${n.id}'),

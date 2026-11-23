@@ -1,3 +1,4 @@
+import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/app/product_runtime.dart';
@@ -74,6 +75,24 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  testWidgets('creation timestamps use the stored instant with local weekday, date and time', (tester) async {
+    await initializeDateFormatting();
+    final stored = DateTime(2001, 1, 1, 14, 5).toUtc();
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) => Text(productTimestamp(context, stored))),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Monday'), findsOneWidget);
+    expect(find.textContaining('Jan 1, 2001'), findsOneWidget);
+    expect(find.textContaining('2:05'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('default app gates private routes and explicitly opens a fixture workspace', (tester) async {
     final r = await boot(tester);
     expect(r.session.stage, SessionStage.unauthenticated);

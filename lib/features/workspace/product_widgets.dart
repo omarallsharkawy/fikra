@@ -1,3 +1,7 @@
+import 'package:intl/intl.dart';
+
+import '../../core/format.dart';
+
 import 'dart:async';
 
 import '../../l10n/localizations.dart';
@@ -11,6 +15,11 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/widgets/pearl_canvas.dart';
 import '../../data/product/models.dart';
+
+String productTimestamp(BuildContext context, DateTime storedTimestamp) {
+  final local = storedTimestamp.toLocal(), l10n = context.l10n;
+  return '${DateFormat.EEEE(l10n.localeName).format(local)} · ${Fmt.date(l10n, local)} · ${Fmt.time(l10n, local)}';
+}
 
 String productTitle(BuildContext context, String? title) => title ?? context.l10n.productUntitledProcessing;
 String processingText(BuildContext c, ProcessingState state) => switch (state) {

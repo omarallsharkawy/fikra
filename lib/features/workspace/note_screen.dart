@@ -3,7 +3,6 @@ import '../../l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../app/product_runtime.dart';
 import '../../core/theme/tokens.dart';
@@ -44,13 +43,7 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
             Text(context.l10n.productThisNoteIsUnavailableInTheSelectedProject),
           if (n != null && n.id == widget.id) ...[
             Text(productTitle(context, n.title), style: context.text.title),
-            Text(
-              DateFormat(
-                'EEEE, yMMMd · HH:mm',
-                Localizations.localeOf(context).languageCode,
-              ).format(n.createdAt.toLocal()),
-              style: context.text.meta,
-            ),
+            Text(productTimestamp(context, n.createdAt), style: context.text.meta),
             const SizedBox(height: 8),
             Text(processingText(context, n.processing), key: const ValueKey('note-processing-state')),
             const SizedBox(height: 20),
