@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Fikra';
+  String get appTitle => 'FIKRAH';
 
   @override
   String get navAdd => 'Add';
@@ -122,7 +122,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeCapture => 'Type, record your voice, or add a PDF or photos';
 
   @override
-  String get welcomeLinks => 'Fikra links related notes for you';
+  String get welcomeLinks => 'FIKRAH links related notes for you';
 
   @override
   String get welcomeAsk => 'Ask, and get answers from your notes with sources';
@@ -202,7 +202,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteSaved => 'Note saved';
 
   @override
-  String get noteSavedAnalyzing => 'Note saved. Fikra is analyzing it now.';
+  String get noteSavedAnalyzing => 'Note saved. FIKRAH is analyzing it now.';
 
   @override
   String get noteSaveFailed => 'Couldn\'t save the note. Try again.';
@@ -217,14 +217,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get titleOptionalHint => 'Title (optional)';
 
   @override
-  String get bodyHintWithFileLinks => 'Add a few lines about the file so Fikra can link it (optional)';
+  String get bodyHintWithFileLinks => 'Add a few lines about the file so FIKRAH can link it (optional)';
 
   @override
   String get bodyHint => 'Write your idea…';
 
   @override
   String get addFooter =>
-      'Your note is saved right away, then Fikra analyzes the text and links it to related notes. Files stay on your phone.';
+      'Your note is saved right away, then FIKRAH analyzes the text and links it to related notes. Files stay on your phone.';
 
   @override
   String get discardRecording => 'Discard recording';
@@ -259,7 +259,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get micBlockedBody => 'Microphone access is off. Open app settings and allow the microphone.';
 
   @override
-  String get micAskBody => 'To record your voice, let Fikra use the microphone.';
+  String get micAskBody => 'To record your voice, let FIKRAH use the microphone.';
 
   @override
   String get openSettings => 'Open settings';
@@ -281,7 +281,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notesEmptyBody =>
-      'Type an idea, record your voice, or add a PDF or photos. Fikra sorts and links them for you.';
+      'Type an idea, record your voice, or add a PDF or photos. FIKRAH sorts and links them for you.';
 
   @override
   String get addFirstNote => 'Add your first note';
@@ -370,7 +370,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get analyzingBody =>
-      'Fikra is analyzing this note to find its topics and related notes. The note itself is saved.';
+      'FIKRAH is analyzing this note to find its topics and related notes. The note itself is saved.';
 
   @override
   String get suggestedRewrite => 'Suggested rewrite';
@@ -435,7 +435,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linksEmptyTitle => 'Links show up here';
 
   @override
-  String get linksEmptyBody => 'Add two or more notes on related topics, and Fikra will link them.';
+  String get linksEmptyBody => 'Add two or more notes on related topics, and FIKRAH will link them.';
 
   @override
   String get addNote => 'Add a note';
@@ -667,7 +667,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteSavedNoText => 'Note saved. Add a few lines so it can be linked.';
 
   @override
-  String get noTextNoLinks => 'This note has no text, so Fikra can\'t link it.';
+  String get noTextNoLinks => 'This note has no text, so FIKRAH can\'t link it.';
 
   @override
   String get pdfOpenElsewhere => 'Open in another app';
@@ -794,7 +794,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeLinkTitle => 'Remove this link?';
 
   @override
-  String get removeLinkBody => 'Both notes stay as they are, but Fikra won\'t suggest linking them again.';
+  String get removeLinkBody => 'Both notes stay as they are, but FIKRAH won\'t suggest linking them again.';
 
   @override
   String get removeLinkConfirm => 'Remove';
@@ -1938,10 +1938,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get meVoiceServices => 'Voice & services';
 
   @override
-  String get welcomeEyebrow => 'فِكرة';
+  String get welcomeEyebrow => 'FIKRAH';
 
   @override
-  String get welcomeBrandTitle => 'Fikrah';
+  String get welcomeBrandTitle => 'FIKRAH';
 
   @override
   String get welcomeTagline => 'Write it. Link it. Ask it.';

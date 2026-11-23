@@ -78,20 +78,20 @@ class _DeviceLocale extends Notifier<Locale> with WidgetsBindingObserver {
 
   @override
   void didChangeLocales(List<Locale>? locales) {
-    state = locales?.firstOrNull ?? const Locale('ar');
+    state = locales?.firstOrNull ?? const Locale('en');
   }
 }
 
 final deviceLocaleProvider = NotifierProvider<_DeviceLocale, Locale>(_DeviceLocale.new);
 
-/// Every device language except English resolves to Arabic.
+/// English by default; explicit System follows Arabic or falls back to English.
 final appLocaleProvider = Provider<Locale>((ref) {
-  final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
+  final language = ref.watch(appLanguageProvider).value ?? AppLanguage.en;
   final device = ref.watch(deviceLocaleProvider);
   return Locale(switch (language) {
     AppLanguage.ar => 'ar',
     AppLanguage.en => 'en',
-    AppLanguage.system => device.languageCode == 'en' ? 'en' : 'ar',
+    AppLanguage.system => device.languageCode == 'ar' ? 'ar' : 'en',
   });
 });
 

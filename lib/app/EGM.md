@@ -216,7 +216,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 ## Locale and clock providers
 
 - `appLanguageProvider` streams `SettingsRepository.watchLanguage`, exactly like appearance.
-- `deviceLocaleProvider` observes platform locale changes; `appLocaleProvider` resolves `AppLanguage.system/ar/en` to Arabic or English. Device languages other than English resolve to Arabic.
+- `deviceLocaleProvider` observes platform locale changes; `appLocaleProvider` defaults to English until a saved language choice resolves. A missing/unknown preference also defaults to English. Explicit `ar`/`en` choices are retained; explicit `system` follows Arabic devices and otherwise falls back to English. System is now persisted as a value rather than deleting the setting, so it remains distinct from an unconfigured first launch.
 - `aiServiceProvider` passes a callback reading the current resolved locale to `DemoAiService`. It does not recreate the AI or processing queue on language changes.
 - Startup maintenance waits for the saved language before resuming interrupted analysis.
 - `appClockProvider` defaults to `DateTime.now`; the welcome seed and date grouping use it. Tests override it for stable screenshots.

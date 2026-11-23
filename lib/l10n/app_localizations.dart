@@ -95,7 +95,7 @@ abstract class AppLocalizations {
   /// Proper app name; retain the approved brand spelling.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة'**
+  /// **'FIKRAH'**
   String get appTitle;
 
   /// No description provided for @navAdd.
@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeLinks.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة بتربط الملاحظات القريبة من بعض لوحدها'**
+  /// **'FIKRAH بتربط الملاحظات القريبة من بعض لوحدها'**
   String get welcomeLinks;
 
   /// No description provided for @welcomeAsk.
@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @noteSavedAnalyzing.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي'**
+  /// **'الملاحظة اتحفظت، وFIKRAH بتحللها دلوقتي'**
   String get noteSavedAnalyzing;
 
   /// No description provided for @noteSaveFailed.
@@ -479,7 +479,7 @@ abstract class AppLocalizations {
   /// No description provided for @bodyHintWithFileLinks.
   ///
   /// In ar, this message translates to:
-  /// **'اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)'**
+  /// **'اكتب كام سطر عن الملف عشان FIKRAH تربطه (اختياري)'**
   String get bodyHintWithFileLinks;
 
   /// No description provided for @bodyHint.
@@ -491,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @addFooter.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.'**
+  /// **'الملاحظة بتتحفظ على طول، وبعدين FIKRAH بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.'**
   String get addFooter;
 
   /// No description provided for @discardRecording.
@@ -551,13 +551,13 @@ abstract class AppLocalizations {
   /// No description provided for @micBlockedBody.
   ///
   /// In ar, this message translates to:
-  /// **'المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.'**
+  /// **'المايك مقفول لـ FIKRAH. افتح إعدادات التطبيق واسمح بالمايك.'**
   String get micBlockedBody;
 
   /// No description provided for @micAskBody.
   ///
   /// In ar, this message translates to:
-  /// **'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.'**
+  /// **'عشان تسجّل فكرة بصوتك، اسمح لـ FIKRAH تستخدم المايك.'**
   String get micAskBody;
 
   /// No description provided for @openSettings.
@@ -599,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @notesEmptyBody.
   ///
   /// In ar, this message translates to:
-  /// **'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.'**
+  /// **'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وFIKRAH هترتّبها وتربطها لوحدها.'**
   String get notesEmptyBody;
 
   /// No description provided for @addFirstNote.
@@ -767,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @analyzingBody.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.'**
+  /// **'FIKRAH بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.'**
   String get analyzingBody;
 
   /// No description provided for @suggestedRewrite.
@@ -893,7 +893,7 @@ abstract class AppLocalizations {
   /// No description provided for @linksEmptyBody.
   ///
   /// In ar, this message translates to:
-  /// **'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.'**
+  /// **'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وFIKRAH هتربطهم ببعض.'**
   String get linksEmptyBody;
 
   /// No description provided for @addNote.
@@ -1313,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @noTextNoLinks.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.'**
+  /// **'الملاحظة دي مفيهاش نص، عشان كده FIKRAH مش هتعرف تربطها بحاجة.'**
   String get noTextNoLinks;
 
   /// No description provided for @pdfOpenElsewhere.
@@ -1481,7 +1481,7 @@ abstract class AppLocalizations {
   /// No description provided for @removeLinkBody.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.'**
+  /// **'الملاحظتين هيفضلوا زي ما هم، بس FIKRAH مش هتقترح تربطهم ببعض تاني.'**
   String get removeLinkBody;
 
   /// No description provided for @removeLinkConfirm.
@@ -3353,13 +3353,13 @@ abstract class AppLocalizations {
   /// Small brand eyebrow label above the hero title on the welcome screen.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة'**
+  /// **'FIKRAH'**
   String get welcomeEyebrow;
 
   /// Large brand title on the welcome screen.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة'**
+  /// **'FIKRAH'**
   String get welcomeBrandTitle;
 
   /// Short three-word tagline on the welcome screen.

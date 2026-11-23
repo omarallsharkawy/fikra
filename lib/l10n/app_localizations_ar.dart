@@ -10,7 +10,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'فِكرة';
+  String get appTitle => 'FIKRAH';
 
   @override
   String get navAdd => 'إضافة';
@@ -121,7 +121,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcomeCapture => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور';
 
   @override
-  String get welcomeLinks => 'فِكرة بتربط الملاحظات القريبة من بعض لوحدها';
+  String get welcomeLinks => 'FIKRAH بتربط الملاحظات القريبة من بعض لوحدها';
 
   @override
   String get welcomeAsk => 'اسأل، والإجابة بتيجي من ملاحظاتك ومعاها المصدر';
@@ -201,7 +201,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noteSaved => 'الملاحظة اتحفظت';
 
   @override
-  String get noteSavedAnalyzing => 'الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي';
+  String get noteSavedAnalyzing => 'الملاحظة اتحفظت، وFIKRAH بتحللها دلوقتي';
 
   @override
   String get noteSaveFailed => 'مقدرناش نحفظ الملاحظة. جرّب تاني.';
@@ -216,13 +216,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get titleOptionalHint => 'عنوان (اختياري)';
 
   @override
-  String get bodyHintWithFileLinks => 'اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)';
+  String get bodyHintWithFileLinks => 'اكتب كام سطر عن الملف عشان FIKRAH تربطه (اختياري)';
 
   @override
   String get bodyHint => 'اكتب فكرتك هنا…';
 
   @override
-  String get addFooter => 'الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.';
+  String get addFooter =>
+      'الملاحظة بتتحفظ على طول، وبعدين FIKRAH بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.';
 
   @override
   String get discardRecording => 'الغي التسجيل';
@@ -254,10 +255,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get close => 'اقفل';
 
   @override
-  String get micBlockedBody => 'المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.';
+  String get micBlockedBody => 'المايك مقفول لـ FIKRAH. افتح إعدادات التطبيق واسمح بالمايك.';
 
   @override
-  String get micAskBody => 'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.';
+  String get micAskBody => 'عشان تسجّل فكرة بصوتك، اسمح لـ FIKRAH تستخدم المايك.';
 
   @override
   String get openSettings => 'افتح الإعدادات';
@@ -278,7 +279,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notesEmptyTitle => 'لسه مفيش ملاحظات';
 
   @override
-  String get notesEmptyBody => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.';
+  String get notesEmptyBody => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وFIKRAH هترتّبها وتربطها لوحدها.';
 
   @override
   String get addFirstNote => 'ضيف أول ملاحظة';
@@ -367,7 +368,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get analyzingBody =>
-      'فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.';
+      'FIKRAH بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.';
 
   @override
   String get suggestedRewrite => 'صياغة مقترحة';
@@ -432,7 +433,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linksEmptyTitle => 'الروابط بتظهر هنا';
 
   @override
-  String get linksEmptyBody => 'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.';
+  String get linksEmptyBody => 'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وFIKRAH هتربطهم ببعض.';
 
   @override
   String get addNote => 'ضيف ملاحظة';
@@ -662,7 +663,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noteSavedNoText => 'الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي';
 
   @override
-  String get noTextNoLinks => 'الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.';
+  String get noTextNoLinks => 'الملاحظة دي مفيهاش نص، عشان كده FIKRAH مش هتعرف تربطها بحاجة.';
 
   @override
   String get pdfOpenElsewhere => 'افتح في تطبيق تاني';
@@ -806,7 +807,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get removeLinkTitle => 'تشيل الرابط ده؟';
 
   @override
-  String get removeLinkBody => 'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.';
+  String get removeLinkBody => 'الملاحظتين هيفضلوا زي ما هم، بس FIKRAH مش هتقترح تربطهم ببعض تاني.';
 
   @override
   String get removeLinkConfirm => 'شيل';
@@ -1983,10 +1984,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get meVoiceServices => 'الصوت والخدمات';
 
   @override
-  String get welcomeEyebrow => 'فِكرة';
+  String get welcomeEyebrow => 'FIKRAH';
 
   @override
-  String get welcomeBrandTitle => 'فِكرة';
+  String get welcomeBrandTitle => 'FIKRAH';
 
   @override
   String get welcomeTagline => 'اكتب. اربط. اسأل.';

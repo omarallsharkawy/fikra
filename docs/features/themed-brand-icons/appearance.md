@@ -2,6 +2,8 @@
 
 The two user-supplied PNGs under `assets/icons/` are the source artwork. They are bundled without recoloring, cropping or redrawing. `FikraBrandMark` selects the file named `dark-mode` for the resolved dark Flutter theme and `light-mode` for the resolved light theme. It updates when appearance changes, keeps a square aspect ratio, and never mirrors the lettering in RTL. It is decorative beside an existing accessible title.
 
+The user-approved display name is **FIKRAH**, with that spelling and capitalization in both Arabic and English. Android's application label, Flutter application title, welcome branding, About title and localized references to the app use this name. Existing package identifiers and stored data namespaces retain their technical names.
+
 Product screen headers share the mark. The preserved local app also displays it on the welcome screen and the settings About card. Existing navigation symbols retain their action meanings.
 
 ## Android launcher
