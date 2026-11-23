@@ -99,6 +99,20 @@ class ReviewedGeneration extends DevelopmentKnowledgeRepository {
 }
 
 void main() {
+  test('clearing the account while persisting an attempt prevents a later create request', () async {
+    final repo = RejectedAttempt();
+    final w = WorkspaceController(repo, MemoryAttemptStore());
+    addTearDown(w.dispose);
+    await w.openAccount('development-other');
+    w.updateDraft(content: 'Do not send after sign-out');
+    final save = w.save();
+    w.clear();
+    await save;
+    expect(repo.keys, isEmpty);
+    expect(w.notes, isEmpty);
+    expect(w.accountId, isNull);
+  });
+
   test('a late full-list response cannot erase a newer successful save', () async {
     final repo = DelayedList();
     final w = WorkspaceController(repo, MemoryAttemptStore());

@@ -112,6 +112,7 @@ class WorkspaceController extends ChangeNotifier {
     _emit();
     try {
       final restored = await attempts.read(id);
+      if (!_valid(ticket)) return;
       final list = await repository.projects(id);
       if (!_valid(ticket)) return;
       pendingAttempt = restored;
@@ -235,6 +236,7 @@ class WorkspaceController extends ChangeNotifier {
     try {
       pendingAttempt = attempt;
       await attempts.write(attempt);
+      if (!_valid(ticket)) return null;
       final saved = await repository.createNote(attempt);
       if (!_valid(ticket)) return null;
       _upsert(saved);
