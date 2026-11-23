@@ -16,7 +16,7 @@ The note list tab, mounted at `/notes` by `lib/app/router.dart`. It shows the se
 
 ## Invariants
 
-- Search matches `normalizeArabic` queries against cached normalized note title, display text, and concepts via `matchesNormalizedArabic` (including Arabic character unification, tashkeel/tatweel stripping, digit conversion, and leading-`ال` tolerance).
+- Search matches `normalizeArabic` queries (tokenized once per rebuild) against cached normalized note title, display text, concepts, and pre-tokenized word lists via `matchesNormalizedArabic` (including Arabic character unification, extended Unicode case, tashkeel/tatweel stripping, digit conversion, and leading-`ال` tolerance).
 - Typing is debounced by 180 ms; clearing the query applies immediately.
 - `_haystacks` is keyed by note ID and validated against the searchable field values, not `updatedAt`, so it never serves stale text. Entries are pruned when the cache exceeds twice the note count.
 - `_rebuildRows` recomputes only when the list identity, the query, the locale, or the calendar day changes. The calendar-day check keeps relative day headers correct.

@@ -212,3 +212,12 @@ use Me and composer close where expectations changed.
 - `pearl_contrast_test.dart`: checks WCAG AA contrast (`>= 4.5:1` text, `>= 3:1` icons/large) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes, plus typography bounds (`NotoSansArabic`, zero `letterSpacing`, all sizes `>= 12.5` sp).
 - `welcome_redesign_test.dart`: verifies primary CTA direct creation of default project («أفكاري» / "My ideas") without a name dialog, secondary CTA demo seed, absence of auth buttons, LTR↔RTL pixel mirroring of `WelcomeHeroPainter`, 2.0× large-text scrolling without overflow, and Reduce Motion skipping entrance animation.
 - `home_redesign_test.dart`: verifies `activeDaysThisWeek` rolling 7-day counting, voice/files/group chip filtering and lime active fill, tinted type badges, warning pending-rewrite badge, link-count pill (`connectionsIndexProvider`), conditional action strip hidden at 0 and prioritized (failed → suggestions → rewrites) with Links suggestions navigation and session dismissal, and active-days chip hidden at 0.
+
+## Review fixes (S3, R1–R5, R8)
+
+- `ask_screen_test.dart`: verifies unchanged input clearing, mid-flight retyped draft preservation, failing write draft retention, preset submission preserving manual text, and per-project pending isolation without cross-project error toasts.
+- `floating_navigation_test.dart` & `concept_navigation_test.dart`: verify `ExcludeFocus` keyboard hiding/restoration with visible focus indicators on unselected controls, secondary/middle mouse clicks ignored while primary works, and real-font 2.0× narrow (320 dp) and wider (412 dp) Arabic tab layouts without clipping.
+- `arabic_normalization_test.dart`: verifies extended Latin case (`Łódź`/`łódź`), bounded distinct-word backtracking (`كتاب الكتاب`), `ال`-only prefix guards, and 5,000-note cached tokenization counts.
+- `note_connections_provider_test.dart` & `links_library_test.dart`: verify `connectionsIndexProvider` `autoDispose` release on project switch, reuse across consecutive pushes while listened, and controller disposal when a project is deleted.
+- `links_index_test.dart`: verifies O(G) group-scan operation growth across empty/nested groups and `shouldIsolateLinksDerivation` parity for dense `<1000`-note and small projects.
+- `glass_quality_test.dart` & `glass_widget_test.dart`: verify watchdog stops sampling and clears partial windows while keyboard-hidden or forced solid (battery saver, Reduce Motion, high contrast), while active visible frames still downgrade.

@@ -62,9 +62,9 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
   /// Kind filter (voice or files), mutually exclusive with [_filter].
   NotesKindFilter? _kindFilter;
 
-  // Normalized search text per note, rebuilt only when the note changes, so
-  // a keystroke doesn't re-normalize thousands of notes.
-  final _haystacks = <String, (String, String, String, String)>{};
+  // Normalized search text and tokenized words per note, rebuilt only when the
+  // note changes, so a keystroke doesn't re-normalize or re-tokenize thousands of notes.
+  final _haystacks = <String, (String, String, String, String, List<String>)>{};
 
   // The filtered + grouped list, recomputed only when inputs change.
   List<Note>? _lastAll;
@@ -125,14 +125,20 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
     );
   }
 
-  String _haystack(Note n) {
+  (String, List<String>) _haystack(Note n) {
     final cached = _haystacks[n.id];
     if (cached != null && cached.$1 == n.title && cached.$2 == n.displayText && cached.$3 == n.concepts) {
-      return cached.$4;
+      return (cached.$4, cached.$5);
     }
     final h = normalizeArabic('${n.title}\n${n.displayText}\n${n.concepts}');
-    _haystacks[n.id] = (n.title, n.displayText, n.concepts, h);
-    return h;
+    final words = tokenizeNormalizedArabic(h);
+    _haystacks[n.id] = (n.title, n.displayText, n.concepts, h, words);
+    return (h, words);
+  }
+
+  bool _matchesQuery(Note n, String q, List<String> qWords) {
+    final (haystack, words) = _haystack(n);
+    return matchesNormalizedArabic(haystack, q, haystackWords: words, queryWords: qWords);
   }
 
   static bool _matchesKind(Note n, List<NoteAttachment> attachments, NotesKindFilter kind) => switch (kind) {
@@ -174,6 +180,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
     _lastLocale = context.l10n.localeName;
     _groupsById = {for (final g in groups) g.id: g};
     final q = normalizeArabic(_query);
+    final qWords = q.isEmpty ? const <String>[] : tokenizeNormalizedArabic(q);
     final filter = _filter;
     final kindFilter = _kindFilter;
     final inGroup = filter == null ? null : groupWithChildren(groups, filter);
@@ -183,7 +190,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
             for (final n in all)
               if ((inGroup == null || inGroup.contains(n.groupId)) &&
                   (kindFilter == null || _matchesKind(n, attachmentsByNote[n.id] ?? const [], kindFilter)) &&
-                  (q.isEmpty || matchesNormalizedArabic(_haystack(n), q)))
+                  (q.isEmpty || _matchesQuery(n, q, qWords)))
                 n,
           ];
     final notes = sort == NotesSort.newest ? filtered : filtered.reversed.toList();

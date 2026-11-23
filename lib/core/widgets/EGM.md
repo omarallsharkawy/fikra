@@ -17,8 +17,8 @@ User-facing default strings resolve from `context.l10n`, in
   `photo_thumb.dart` and `voice_player.dart`. Screens import this barrel.
 - `solid_surface.dart`: `SolidSurface(child, radius, padding, borderColor,
   borderWidth, color, width, height)`; an opaque surface plus line hairline.
-- `glass.dart`: `Glass(child, radius, padding)` for floating tab-bar chrome
-  (`FikraNavBar` and its grouped `ActivityCapsule`, plus the opt-in debug preview and legacy minimap). Solid (and `MediaQuery.highContrast` / `MediaQuery.disableAnimations`) uses opaque surface; frosted/optical backing uses `colors.glassBackingAlpha` (0.90 light, 0.72 dark) and at most one `BackdropFilter.grouped` with sigma 16 (`Glass.blurSigma`). Non-overlapping siblings share a BackdropGroup; overlapping lenses use their own.
+- `glass.dart`: `Glass(child, radius, padding, visible = true)` and `GlassVisibility(visible, child)` for floating tab-bar chrome
+  (`FikraNavBar` and its grouped `ActivityCapsule`, plus the opt-in debug preview and legacy minimap). Solid (and `MediaQuery.highContrast` / `MediaQuery.disableAnimations`) uses opaque surface; frosted/optical backing uses `colors.glassBackingAlpha` (0.90 light, 0.72 dark) and at most one `BackdropFilter.grouped` with sigma 16 (`Glass.blurSigma`). Non-overlapping siblings share a BackdropGroup; overlapping lenses use their own. Watchdog registration requires effective non-solid tier, explicit visibility (`visible` and `GlassVisibility`), route-current, `TickerMode` enabled, and neither high contrast nor Reduce Motion.
 - `glass_lens.dart`: `GlassLens(child, radius, opacity)` is an optical overlay above a
   backed Glass, with the package's LiquidGlassLens/LiquidGlassStyle API. Blur 7,
   surface tint 20%, saturation/refractionIndex 1.02, no dispersion, touch,
@@ -45,11 +45,12 @@ User-facing default strings resolve from `context.l10n`, in
   Riverpod 3 pauses the stream while nothing listens, so a bare
   `container.read(glassTierProvider(..))` stays solid; watch or listen to it.
 - `glass_watchdog.dart`: fakeable GlassTimingsSource, session Notifier and fixed
-  120-frame raster ring/scratch buffers. Only mounted, route-current,
-  TickerMode-enabled Glass registers addTimingsCallback. Every 120 samples,
-  p95 above 6.5*120/refreshHz ms drops one tier; no session promotion. Hiding
-  all glass removes the callback and resets samples on reshow, not the ceiling.
-  Raw timestamp subtraction avoids allocating a Duration per frame.
+  120-frame raster ring/scratch buffers. Only mounted, visible, effectively
+  non-solid, route-current, TickerMode-enabled Glass registers addTimingsCallback.
+  Every 120 samples, p95 above 6.5*120/refreshHz ms drops one tier; no session
+  promotion. Visibility/eligibility transitions clear the partial window (unchanged
+  rebuilds keep it); hiding all glass removes the callback without resetting the
+  ceiling. Raw timestamp subtraction avoids allocating a Duration per frame.
 - `pearl_canvas.dart`: PearlCanvas behind screen content, static CustomPaint in
   RepaintBoundary. Exactly warm (0%,90%, stop52%) then cool (100%,97%, stop50%)
   over canvas, using CSS farthest-corner ellipse geometry. The existing tab

@@ -58,10 +58,12 @@ extension _NavBarVisual on _FikraNavBarState {
                           selected: widget.index == i,
                           position: _selection,
                           iconOnly: MediaQuery.textScalerOf(context).scale(1) >= 1.4 && w < 72,
+                          enabled: widget.enabled,
                           index: i,
                           hover: _hover,
                           shrink: s,
                           onActivate: () {
+                            if (!widget.enabled) return;
                             if (widget.index == i) {
                               widget.onSelect(i, true);
                             } else {

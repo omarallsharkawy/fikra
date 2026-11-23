@@ -70,6 +70,53 @@ void main() {
     }
   }
 
+  testWidgets('narrow 320 dp and wider 412 dp Arabic tabs never clip at 2.0x text', (tester) async {
+    final l = lookupAppLocalizations(const Locale('ar'));
+    final labels = [l.navHome, l.navMap, l.navAsk, l.navMe];
+    for (final (viewportWidth, barContainerWidth, expectIconOnly) in [(320.0, 296.0, true), (412.0, 388.0, false)]) {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = Size(viewportWidth, 800);
+      addTearDown(tester.view.reset);
+      final semantics = tester.ensureSemantics();
+      try {
+        await hostNavigation(
+          tester,
+          locale: const Locale('ar'),
+          width: barContainerWidth,
+          textScale: 2.0,
+          direction: TextDirection.rtl,
+        );
+        for (var i = 0; i < 4; i++) {
+          final tab = Tabs.finder(i);
+          expect(tester.getSize(tab).width, greaterThanOrEqualTo(48));
+          expect(tester.getSemantics(tab).label, labels[i]);
+          final text = find.descendant(of: tab, matching: find.text(labels[i]));
+          if (expectIconOnly) {
+            expect(text, findsNothing);
+          } else {
+            expect(text, findsOneWidget);
+            final paragraph = tester.renderObject<RenderParagraph>(text);
+            expect(paragraph.didExceedMaxLines, isFalse, reason: '${labels[i]} at $viewportWidth');
+            final natural = TextPainter(
+              text: paragraph.text,
+              textDirection: paragraph.textDirection,
+              textScaler: paragraph.textScaler,
+              locale: paragraph.locale,
+            )..layout();
+            try {
+              expect(natural.width, lessThanOrEqualTo(paragraph.size.width + .01));
+            } finally {
+              natural.dispose();
+            }
+          }
+        }
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
+    }
+  });
+
   for (final reduced in [false, true]) {
     testWidgets('plain tap spring moves over frames, retargets, and respects Reduce Motion $reduced', (tester) async {
       final calls = <String>[];

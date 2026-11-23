@@ -51,19 +51,45 @@ class _ProjectView {
 
 class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with TickerProviderStateMixin {
   final _projects = <String, _ProjectView>{};
+  final _retired = <_ProjectView>[];
   late final StaggerController _browseStagger = StaggerController(this);
   late final StaggerController _suggestionsStagger = StaggerController(this);
   // Snapshot only: StaggerVisibility owns the inherited visibility dependency.
   bool get _tickerEnabled => TickerMode.getValuesNotifier(context).value.enabled;
   bool _openingGraph = false;
 
+  void _pruneDeletedProjects(List<Object> liveIds) {
+    if (_projects.isEmpty) return;
+    final live = Set<Object>.of(liveIds);
+    final removed = <_ProjectView>[];
+    _projects.removeWhere((id, view) {
+      if (live.contains(id)) return false;
+      view.debounce?.cancel();
+      view.debounce = null;
+      removed.add(view);
+      return true;
+    });
+    if (removed.isEmpty) return;
+    _retired.addAll(removed);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _disposeRetired());
+  }
+
+  void _disposeRetired() {
+    for (final view in _retired) {
+      view.dispose();
+    }
+    _retired.clear();
+  }
+
   @override
   void dispose() {
     _browseStagger.dispose();
     _suggestionsStagger.dispose();
+    _disposeRetired();
     for (final p in _projects.values) {
       p.dispose();
     }
+    _projects.clear();
     super.dispose();
   }
 
@@ -86,6 +112,10 @@ class _LinksLibraryScreenState extends ConsumerState<LinksLibraryScreen> with Ti
   Widget build(BuildContext context) {
     LinksLibraryScreen.builds++;
     final project = ref.watch(selectedProjectProvider);
+    ref.listen(projectsProvider, (_, next) {
+      final list = next.value;
+      if (list != null) _pruneDeletedProjects([for (final p in list) p.project.id]);
+    });
     ref.listen(selectedProjectProvider, (previous, next) {
       if (previous?.id == next?.id) return;
       _browseStagger.onProjectChanged(next?.id, tickerEnabled: _tickerEnabled);

@@ -60,6 +60,15 @@ void main() {
       expect(normalizeArabic('   \t\n\r  '), '');
     });
 
+    test('lowercases extended Latin (e.g. Polish Łódź) and handles Turkish dotted İ safely', () {
+      expect(normalizeArabic('Łódź'), 'łódź');
+      expect(normalizeArabic('łódź'), 'łódź');
+      expect(matchesNormalizedArabic(normalizeArabic('Łódź'), normalizeArabic('łódź')), isTrue);
+      expect(matchesNormalizedArabic(normalizeArabic('łódź'), normalizeArabic('Łódź')), isTrue);
+      expect(matchesNormalizedArabic(normalizeArabic('ملاحظة عن Łódź اليوم'), normalizeArabic('ملاحظه łódź')), isTrue);
+      expect(normalizeArabic('İstanbul'), 'istanbul');
+    });
+
     test('preserves the article ال to prevent false matches', () {
       expect(normalizeArabic('المدرسة'), 'المدرسه');
       expect(normalizeArabic('ألوان'), 'الوان');
@@ -81,6 +90,19 @@ void main() {
       expect(matchesNormalizedArabic(normalizeArabic('ديوان الشعر'), normalizeArabic('ألوان')), isFalse);
       expect(matchesNormalizedArabic(normalizeArabic('عنوان الكتاب'), normalizeArabic('ألوان كتاب')), isFalse);
       expect(matchesNormalizedArabic(normalizeArabic('ألوان جميلة'), normalizeArabic('ألوان')), isTrue);
+      expect(matchesNormalizedArabic(normalizeArabic('الكتاب'), normalizeArabic('كتاب ال')), isFalse);
+      expect(matchesNormalizedArabic(normalizeArabic('كتاب الال'), normalizeArabic('ال كتاب')), isFalse);
+      expect(matchesNormalizedArabic(normalizeArabic('كتاب مدرسة'), normalizeArabic('كتاب ال')), isFalse);
+    });
+
+    test('uses bounded distinct-word backtracking so exact and article matches coexist', () {
+      expect(matchesNormalizedArabic(normalizeArabic('الكتاب كتاب جديد'), normalizeArabic('كتاب الكتاب')), isTrue);
+      expect(matchesNormalizedArabic(normalizeArabic('الكتاب الكتابة'), normalizeArabic('كتاب الكتاب')), isTrue);
+      expect(matchesNormalizedArabic(normalizeArabic('الكتاب'), normalizeArabic('كتاب الكتاب')), isFalse);
+      // Pathological unsatisfiable overlapping tokens stay bounded and return false.
+      final hay = normalizeArabic(List.generate(12, (i) => 'الكتاب').join(' '));
+      final q = normalizeArabic(List.generate(13, (i) => 'كتاب').join(' '));
+      expect(matchesNormalizedArabic(hay, q), isFalse);
     });
 
     test('handles empty query or haystack cleanly', () {
@@ -146,6 +168,22 @@ void main() {
       expect(index.filter(search: 'ألوان').browse, isEmpty);
       expect(index.filter(search: 'احمد').suggestions.map((e) => e.link.id), ['ac']);
       expect(identical(index.filter(search: 'أحمد'), index.filter(search: 'احمد')), isTrue);
+    });
+
+    test('5,000-note non-matching multi-token filter reuses cached word lists without re-tokenizing haystacks', () {
+      final data = largeLibraryData();
+      final index = deriveLinks('p', data.notes, data.links, data.groups);
+      debugArabicTokenizeCount = 0;
+
+      final first = index.filter(search: 'كلمة غير موجودة تماما');
+      expect(first.browse, isEmpty);
+      expect(first.suggestions, isEmpty);
+      // Only the query itself is tokenized once; none of the 5,000 haystacks are re-tokenized.
+      expect(debugArabicTokenizeCount, 1);
+
+      final second = index.filter(search: 'استعلام اخر مفقود');
+      expect(second.browse, isEmpty);
+      expect(debugArabicTokenizeCount, 2);
     });
   });
 

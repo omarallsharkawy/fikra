@@ -9,9 +9,11 @@ The retained graph is a sibling pushed route at `/links/graph`, implemented in
 
 `links_index.dart` is pure Dart: sendable note/link/group records, the two
 derivation halves `deriveLibraryNotes` (per note: project filter, newest/oldest
-orders, ranks, `normalizeArabic` haystacks) and `deriveLinksIndex` (pairs, neighbours,
+orders, ranks, `normalizeArabic` haystacks and cached `haystackWords`) and
+`deriveLinksIndex` (O(G) `childrenByParent` group map, pairs, neighbours,
 counts, suggestions and all three Browse orders), `deriveLinks` (both, for
-tests), `LinksIndex.filter`, `pairKey`, and LinksSort. Project IDs
+tests), `shouldIsolateLinksDerivation` (notes, edges, and groups threshold),
+`LinksIndex.filter`, `pairKey`, and LinksSort. Project IDs
 must match for both notes and links. Dismissed, missing and self rows are ignored.
 `uniqueLinkPairs` chooses one unordered pair, preferring user rows (accepted AI
 is stored as user). Confirmed pairs build bidirectional neighbours; suggestions
@@ -111,7 +113,7 @@ profile workload is wired through glass_perf_scenario and is not run here.
 
 ## Push and suggestion performance
 
-- `connectionsIndexProvider(project)` maps stored notes and confirmed adjacency once per source emission, off the UI isolate for large projects. The library warms it without rebuilding on completion; the cached index survives consecutive opens. `noteConnectionsProvider(noteId)` selects that adjacency and `LinksIndex.suggestionsByNote`, excluding confirmed pairs while the derived snapshot catches up. Two pushed pages share the project work.
+- `connectionsIndexProvider(project)` (`autoDispose.family`) maps stored notes and confirmed adjacency once per source emission, off the UI isolate when `shouldIsolateLinksDerivation` triggers. The library warms the active project without rebuilding on completion, keeping the cached index across consecutive opens while releasing unviewed projects when unlistened; `LinksLibraryScreen` also prunes and post-frame disposes deleted projects' `_ProjectView` controllers/timers via `projectsProvider`. `noteConnectionsProvider(noteId)` selects that adjacency and `LinksIndex.suggestionsByNote`, excluding confirmed pairs while the derived snapshot catches up. Two pushed pages share the project work.
 - Connections paints its own opaque PearlCanvas within the existing shell insets. ID-validated previews populate a reserved title/two-line body area immediately; live notes replace them. Static title and section shapes cover cold entry. Section snapshots stay fixed until the route entrance completes. NavigationInset remains the scroll clearance.
 - Large-project pair derivation uses `compute`; the returned index is reattached to the original links-list identity for stale-lock release. Suggestion pair sets and per-note lookups are cached in the index.
 - SuggestionSliver caches pair keys, child widgets and child indices. Claim-only busy changes reach cards, not the list. Successful locks start one incremental collapse; new source snapshots retain unchanged row widgets, removal order and Undo behavior. Lock release checks cached live-pair membership before restoring a row, so stale parent entries cannot restart its collapse timer.

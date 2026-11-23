@@ -91,4 +91,28 @@ void main() {
     timings.frames(14);
     expect(container.read(glassWatchdogProvider), GlassTier.frosted);
   });
+
+  test('watchdog clears partial window on visibility change and preserves window across unchanged show calls', () {
+    final timings = FakeGlassTimings();
+    final container = ProviderContainer(overrides: [glassTimingsSourceProvider.overrideWithValue(timings)]);
+    addTearDown(container.dispose);
+    final watchdog = container.read(glassWatchdogProvider.notifier);
+    final owner = Object();
+
+    watchdog.show(owner, 60);
+    timings.frames(20, count: 80);
+    expect(container.read(glassWatchdogProvider), GlassTier.optical);
+
+    // Hiding clears the 80-frame partial window.
+    watchdog.hide(owner);
+    expect(timings.callbacks, isEmpty);
+    watchdog.show(owner, 60);
+    timings.frames(20, count: 80);
+    expect(container.read(glassWatchdogProvider), GlassTier.optical);
+
+    // Re-calling show with the same owner & refresh rate (e.g. normal rebuild) does not clear the window.
+    watchdog.show(owner, 60);
+    timings.frames(20, count: 40);
+    expect(container.read(glassWatchdogProvider), GlassTier.frosted);
+  });
 }
