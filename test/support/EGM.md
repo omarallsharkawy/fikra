@@ -51,3 +51,5 @@ measureLargeLibrary is the exact diagnostic body called by links_index_test. It 
 ## Finishing (redesign phase 8)
 
 `fikraTest` accepts optional `double? textScale` (setting `tester.platformDispatcher.textScaleFactorTestValue` and clearing it in `addTearDown`). `a11y_fixture.dart` provides `seedA11yApp` and `visitAllMainScreensAndSheets`, shared across `phase8_accessibility_test.dart`, `phase8_large_text_test.dart` and `screenshots/phase8_finishing_test.dart`.
+
+LibrarySpy forwards expectedProjectId through gated pair commands and returns PairCommandResult, preserving PairCommandStale as a result without Undo. MemoryServiceKeys treats map keys as secure slots for the credential publication tests.

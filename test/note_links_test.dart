@@ -797,15 +797,15 @@ class _SpyLinks implements LinksRepository {
   }
 
   @override
-  Future<PairChange?> acceptPairForUndo(String a, String b) {
+  Future<PairCommandResult?> acceptPairForUndo(String a, String b, {required String expectedProjectId}) {
     calls.add('acceptPair');
-    return _inner.acceptPairForUndo(a, b);
+    return _inner.acceptPairForUndo(a, b, expectedProjectId: expectedProjectId);
   }
 
   @override
-  Future<PairChange?> dismissPairForUndo(String a, String b) {
+  Future<PairCommandResult?> dismissPairForUndo(String a, String b, {required String expectedProjectId}) {
     calls.add('dismissPair');
-    return _inner.dismissPairForUndo(a, b);
+    return _inner.dismissPairForUndo(a, b, expectedProjectId: expectedProjectId);
   }
 
   @override

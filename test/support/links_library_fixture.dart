@@ -22,7 +22,7 @@ class LibrarySpy extends LocalLinksRepository {
   Completer<void>? undoGate;
   Future<void>? pending;
 
-  Future<PairChange?> _gated(Future<PairChange?> Function() write) async {
+  Future<PairCommandResult?> _gated(Future<PairCommandResult?> Function() write) async {
     final done = Completer<void>();
     pending = done.future;
     try {
@@ -35,15 +35,15 @@ class LibrarySpy extends LocalLinksRepository {
   }
 
   @override
-  Future<PairChange?> acceptPairForUndo(String a, String b) {
+  Future<PairCommandResult?> acceptPairForUndo(String a, String b, {required String expectedProjectId}) {
     accepts++;
-    return _gated(() => super.acceptPairForUndo(a, b));
+    return _gated(() => super.acceptPairForUndo(a, b, expectedProjectId: expectedProjectId));
   }
 
   @override
-  Future<PairChange?> dismissPairForUndo(String a, String b) {
+  Future<PairCommandResult?> dismissPairForUndo(String a, String b, {required String expectedProjectId}) {
     rejects++;
-    return _gated(() => super.dismissPairForUndo(a, b));
+    return _gated(() => super.dismissPairForUndo(a, b, expectedProjectId: expectedProjectId));
   }
 
   @override

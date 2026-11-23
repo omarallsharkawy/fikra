@@ -7,6 +7,7 @@ import '../local/database.dart';
 import '../local/transcription_order.dart';
 import '../settings_repository.dart';
 import 'transcription_engine.dart';
+import 'transcript_paragraph.dart';
 import 'transcription_keep_alive.dart';
 
 /// Durable state in SQLite, FIFO scheduling in this process. Enqueue completes
@@ -183,8 +184,8 @@ class TranscriptionQueue {
         if (note == null) return null;
         final current = note.displayText;
         final previous = live.transcriptNoteText ?? live.transcript;
-        final previousPresent = previous != null && previous.isNotEmpty && current.contains(previous);
-        final append = live.transcriptCorrection == null && !current.contains(text) && !previousPresent;
+        final previousPresent = previous != null && hasTranscriptParagraph(current, previous);
+        final append = live.transcriptCorrection == null && !previousPresent;
         await (db.update(db.noteAttachments)..where((a) => a.id.equals(id))).write(
           NoteAttachmentsCompanion(
             transcript: Value(text),
@@ -210,7 +211,7 @@ class TranscriptionQueue {
         // so "restore original" keeps it, and into an edited or accepted text
         // the note shows, so the visible text has it exactly once.
         String joined(String body) => body.trim().isEmpty ? text : '${body.trimRight()}\n\n$text';
-        final original = append && !note.originalText.contains(text) ? joined(note.originalText) : null;
+        final original = append ? joined(note.originalText) : null;
         await (db.update(db.notes)..where((n) => n.id.equals(note.id))).write(
           NotesCompanion(
             // Persist the next AI pass before waking it, for launch recovery.

@@ -27,13 +27,13 @@ class _PairRepository implements LinksRepository {
   }
 
   @override
-  Future<PairChange?> acceptPairForUndo(String a, String b) {
+  Future<PairCommandResult?> acceptPairForUndo(String a, String b, {required String expectedProjectId}) {
     accepts++;
     return _write(a, b);
   }
 
   @override
-  Future<PairChange?> dismissPairForUndo(String a, String b) {
+  Future<PairCommandResult?> dismissPairForUndo(String a, String b, {required String expectedProjectId}) {
     rejects++;
     return _write(a, b);
   }

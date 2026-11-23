@@ -30,6 +30,7 @@ Future<bool> changeSuggestedPair(
   BuildContext context, {
   required String a,
   required String b,
+  required String expectedProjectId,
   required bool accept,
 }) async {
   // The container outlives the page, so Undo works after it closed.
@@ -42,7 +43,11 @@ Future<bool> changeSuggestedPair(
   final l10n = context.l10n;
   PairChange? change;
   try {
-    change = accept ? await repo.acceptPairForUndo(a, b) : await repo.dismissPairForUndo(a, b);
+    final result = accept
+        ? await repo.acceptPairForUndo(a, b, expectedProjectId: expectedProjectId)
+        : await repo.dismissPairForUndo(a, b, expectedProjectId: expectedProjectId);
+    if (result is PairCommandStale) return false;
+    change = result as PairChange?;
   } catch (_) {
     if (host().mounted) showToast(host(), l10n.linkUpdateFailed);
     return false;
@@ -120,6 +125,7 @@ Future<void> showLinkOptions(
                   context.mounted ? context : sheet,
                   a: entry.link.sourceId,
                   b: entry.link.targetId,
+                  expectedProjectId: entry.link.projectId,
                   accept: accept,
                 );
                 Navigator.pop(sheet);

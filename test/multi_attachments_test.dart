@@ -14,6 +14,8 @@ import 'package:fikra/data/repositories.dart';
 import 'package:fikra/data/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/fake_external_transcription.dart';
+
 import 'generated_migrations/schema.dart';
 
 void main() {
@@ -314,7 +316,7 @@ void main() {
       final n = await create(await sources());
       final paths = await notes.attachmentPaths();
       if (wipe) {
-        await LocalSettingsRepository(db, store).wipeAllData();
+        await LocalSettingsRepository(db, store, transcriptionServices: MemoryTranscriptionServices()).wipeAllData();
       } else {
         await notes.delete(n.id);
       }

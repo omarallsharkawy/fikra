@@ -47,14 +47,14 @@ the combined search/chip. Search never derives source data or starts an isolate.
 - Browse cards and suggestions use lazy slivers. Rows grow with text scale;
   titles/previews use bounded ellipsis, so no fixed itemExtent clips large text.
 - SuggestionCard claims a shared project/pair busy flag before awaiting
-  acceptPair/dismissPair. Failures use linkUpdateFailed and unlock. Success marks
+  the shared accept/reject command with the rendered link project. Failures use linkUpdateFailed and unlock. Success marks
   the pair done (lists start collapsing it at once) and holds it until a snapshot
   lacks the pair or comes from a newer links list; if that newer snapshot still
   suggests the pair, it unlocks and shows again. The busy notifier listens at
   container level, so it is not paused while the Links tab is hidden, and closes
   that listener with the project's last job. The write itself is shared
   `changeSuggestedPair` (toast with Undo); a call that changed nothing, or one
-  blocked by a running Undo, unlocks at once. After Undo the pair returns
+  blocked by a running Undo or rejected as PairCommandStale, unlocks at once. After Undo the pair returns
   through the next snapshot, which also ends any lock still held.
 - SuggestionSliver retains removed snapshots for a 220 ms decelerating
   fade/collapse of that item only. A leaving row stays after its nearest
@@ -119,3 +119,5 @@ profile workload is wired through glass_perf_scenario and is not run here.
 ## Brand redesign (phase 1a)
 
 - `links_library_provider.dart` & `links_library_screen.dart`: adds `linksLibraryRequestedSegmentProvider` so Notes' conditional action strip can open `/links` directly on segment 1 (Suggestions) without changing router paths.
+
+SuggestionCard disables actions when either rendered endpoint has a different project from the link. The repository validates both live endpoints against the rendered project in the command transaction.
