@@ -92,15 +92,16 @@ MapIndex deriveMap(MapInput input) {
     for (final g in groups) 'group:${g.id}': (name: g.name, color: g.color),
   };
   for (final n in library.notes.values) {
-    String key;
-    if (groups.isEmpty) {
+    // One source of truth: user group (top-level parent) ?? AI topic ?? others.
+    final group = byGroup[n.groupId];
+    final String key;
+    if (group != null) {
+      final parent = byGroup[group.parentId];
+      key = 'group:${parent?.id ?? group.id}';
+    } else {
       final topic = n.topic?.trim() ?? '';
       key = topic.isEmpty ? 'others' : 'topic:$topic';
       metadata[key] = (name: topic.isEmpty ? null : topic, color: null);
-    } else {
-      final group = byGroup[n.groupId];
-      final parent = byGroup[group?.parentId];
-      key = group == null ? 'others' : 'group:${parent?.id ?? group.id}';
     }
     (buckets[key] ??= []).add(n.id);
   }
@@ -184,7 +185,12 @@ class MapLayout {
     final positions = <String, MapPosition>{};
     double height, worldWidth;
     if (ego && level.nodes.isNotEmpty) {
-      final radius = math.max(nodeHeight + 24, (level.nodes.length - 1) * nodeWidth / (2 * math.pi) + 40);
+      final outerCount = level.nodes.length - 1;
+      // Rectangle-aware: neighbours sit at least one node diagonal apart (boxes cannot overlap),
+      // and the ring clears the centre box on every side.
+      final diagonal = math.sqrt(nodeWidth * nodeWidth + nodeHeight * nodeHeight) + 8;
+      final chord = outerCount >= 2 ? diagonal / (2 * math.sin(math.pi / outerCount)) : 0.0;
+      final radius = math.max(math.max(nodeWidth + 16, nodeHeight + 24), chord);
       worldWidth = radius * 2 + nodeWidth + 48;
       height = radius * 2 + nodeHeight + 48;
       positions[level.nodes.first.id] = (x: worldWidth / 2, y: height / 2);

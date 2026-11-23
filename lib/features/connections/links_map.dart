@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../core/motion/motion.dart';
@@ -315,7 +316,7 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                                   children: [
                                     TextButton(
                                       key: const ValueKey('map-open-note'),
-                                      onPressed: () => openConnections(context, note.id, initial: note),
+                                      onPressed: () => context.push('/note/${note.id}'),
                                       child: Text(context.l10n.mapOpen),
                                     ),
                                     if (suggestion != null) _MapPairActions(entry: suggestion),

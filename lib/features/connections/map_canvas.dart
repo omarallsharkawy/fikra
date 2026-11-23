@@ -262,7 +262,9 @@ class _MapCanvasState extends State<MapCanvas> {
                             nodes: widget.level.nodes,
                             labels: [
                               for (final n in widget.level.nodes)
-                                '${_title(n)}, ${context.l10n.mapConnections(n.kind == MapNodeKind.cluster ? widget.index.edges.where((e) => e.a == n.id || e.b == n.id).fold(0, (v, e) => v + e.count) : n.count)}',
+                                n.kind == MapNodeKind.cluster
+                                    ? '${_title(n)}, ${context.l10n.mapNotes(n.count)}'
+                                    : '${_title(n)}, ${context.l10n.mapConnections(n.count)}',
                             ],
                             rtl: rtl,
                             onNode: widget.onNode,

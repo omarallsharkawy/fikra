@@ -5,6 +5,7 @@ import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/features/connections/map_provider.dart';
 import 'package:fikra/features/connections/note_connections_screen.dart';
+import 'package:fikra/features/note_details/note_details_screen.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,10 +94,11 @@ void main() {
           await tester.ensureVisible(find.byKey(const ValueKey('map-open-note')));
           await tester.pump();
           await tester.tap(find.byKey(const ValueKey('map-open-note')));
-          await pumpUntil(tester, find.byType(NoteConnectionsScreen));
+          // «افتح» opens the note itself (its details screen), not the connections list.
+          await pumpUntil(tester, find.byType(NoteDetailsScreen));
           await tester.pump(const Duration(milliseconds: 400));
-          expect(find.byType(NoteConnectionsScreen), findsOneWidget);
-          expect(tester.widget<NoteConnectionsScreen>(find.byType(NoteConnectionsScreen)).noteId, notes[0].id);
+          expect(find.byType(NoteDetailsScreen), findsOneWidget);
+          expect(find.byType(NoteConnectionsScreen), findsNothing);
           await tester.binding.handlePopRoute();
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 400));
@@ -182,8 +184,9 @@ void main() {
     await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
     final scope = ProviderScope.containerOf(tester.element(find.byKey(const ValueKey('map-paint'))));
     final index = await pumpFuture(tester, () => scope.read(linksMapProvider(notes.first.projectId).future));
-    final hidden = index.clusters.singleWhere((c) => c.id == 'others').notes.last;
-    await tapMapNode(tester, 'others');
+    // Ungrouped notes fall back to their AI topic (cluster 'Ideas'), not to 'others'.
+    final hidden = index.clusters.singleWhere((c) => c.id == 'topic:Ideas').notes.last;
+    await tapMapNode(tester, 'topic:Ideas');
     final painter = tester.widget<CustomPaint>(find.byKey(const ValueKey('map-paint'))).painter! as LinksMapPainter;
     expect(painter.nodes.last.count, 5);
     await tester.tap(find.byKey(const ValueKey('map-show-more')));
