@@ -12,7 +12,18 @@ Widget checks boot the default product composition and exercise private-route ga
 
 Pure SSE framing tests split Arabic UTF-8 into individual bytes, use CRLF and multiline data, handle multiple frames per chunk and reject malformed/unterminated completion frames.
 
-Focused results before final regression: 51 passed. Native-boundary tests use the real recorder serialization with an injected platform implementation, including account changes during native start and stop. Final analysis, full regression and Android build results will be recorded after they finish.
+Focused product suite: 56 passed. Native-boundary tests use the real recorder serialization with an injected platform implementation, including account changes during native start and stop. Additional regression checks fence a note creation after its pending-attempt write outlives sign-out, format stored timestamps correctly, honor account/transcription Retry-After cooldowns and expire the shared session after unauthorized transcription.
+
+## Executed verification
+
+- `flutter analyze --no-pub`: no issues.
+- `flutter test --no-pub test/product --concurrency=1 --reporter expanded`: 56 passed.
+- `flutter test --no-pub --concurrency=1 --reporter expanded`: 816 passed, 15 skipped, no failures (5m 13s). The full suite includes the 56 focused product tests and preserves the baseline skips.
+- `flutter build apk --profile --no-pub --target-platform android-arm64`: succeeded on the final application source (`fe537b3`). The APK uses the existing profile package `com.fikra.app.stress`, version `1.0.0+1`; this is not a newly chosen production identifier.
+- APK SHA-256: `ad68f6e0053d11255a7b04a7eaedcc78ed483f0be4d2c2d1b9b4af1a2e6c1671`.
+- A temporary widget screenshot harness exercised account, notes, graph and conversation screens. Screenshots were reviewed for the established dark/lime/blue identity, development labels, project controls, note graph and floating navigation. The harness was removed after review.
+
+The APK was built but this revision was not installed or accepted on physical hardware. Existing Kotlin/SDK XML/NDK compatibility warnings did not prevent the build; dependency/toolchain modernization is outside this behavior refactor.
 
 ## What these checks do not establish
 
