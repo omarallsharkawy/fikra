@@ -243,6 +243,48 @@ void main() {
     );
   }
 
+  for (final textScale in [1.0, 1.3]) {
+    fikraTest(
+      'Map ego opens with every neighbour and suggestion on screen (Realme, ${textScale}x)',
+      textScale: textScale,
+      (tester, db) async {
+        phone(tester);
+        tester.view.physicalSize = const Size(1264, 2780);
+        tester.view.devicePixelRatio = 3.5;
+        final notes = await seedLibrary(tester, db, browse: false);
+        await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
+        await tapMapNode(tester, 'group:parent');
+        await tapMapNode(tester, notes[0].id);
+        await tester.pumpAndSettle();
+        final canvas = find.byKey(const ValueKey('map-paint'));
+        final painter = tester.widget<CustomPaint>(canvas).painter! as LinksMapPainter;
+        expect(painter.nodes.length, greaterThan(1), reason: 'the centre note needs a neighbour');
+        final box = tester.renderObject<RenderBox>(canvas);
+        final visible = tester.getRect(find.byKey(const ValueKey('map-viewport')));
+        final controller = tester
+            .widget<InteractiveViewer>(find.byKey(const ValueKey('map-viewport')))
+            .transformationController!;
+        final zoom = controller.value.getMaxScaleOnAxis();
+        expect(zoom, greaterThanOrEqualTo(egoMinFitScale(nodeHeight: painter.layout.nodeHeight, textScale: textScale)));
+        expect(painter.layout.nodeHeight * zoom, greaterThanOrEqualTo(48));
+        final inside = visible.inflate(0.5);
+        for (final node in painter.nodes) {
+          final p = painter.layout.positions[node.id]!;
+          final card = Rect.fromCenter(
+            center: box.localToGlobal(Offset(p.x, p.y)),
+            width: painter.layout.nodeWidth * zoom,
+            height: painter.layout.nodeHeight * zoom,
+          );
+          expect(
+            inside.contains(card.topLeft) && inside.contains(card.bottomRight),
+            isTrue,
+            reason: '${node.id} (${node.kind.name}) card $card is not fully inside the visible Map $visible',
+          );
+        }
+      },
+    );
+  }
+
   for (final locale in [const Locale('ar'), const Locale('en')]) {
     for (final brightness in [Brightness.light, Brightness.dark]) {
       fikraTest(

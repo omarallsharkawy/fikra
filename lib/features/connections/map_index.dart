@@ -184,7 +184,19 @@ class MapLayout {
     final nodeHeight = 76.0 * textScale;
     final positions = <String, MapPosition>{};
     double height, worldWidth;
-    if (ego && level.nodes.isNotEmpty) {
+    if (ego && level.nodes.length > 1 && level.nodes.length <= 3) {
+      // One or two neighbours sit in a row beside the centre: the Map canvas
+      // is wide and short on a phone, so a ring would push them off screen.
+      final step = nodeWidth + 16;
+      worldWidth = step * 2 + nodeWidth + 32;
+      height = nodeHeight + 32;
+      positions[level.nodes.first.id] = (x: worldWidth / 2, y: height / 2);
+      for (final (i, n) in level.nodes.skip(1).indexed) {
+        // The first neighbour follows reading order (end side), the second faces it.
+        final side = (i == 0 ? 1 : -1) * (rtl ? -1 : 1);
+        positions[n.id] = (x: worldWidth / 2 + side * step, y: height / 2);
+      }
+    } else if (ego && level.nodes.isNotEmpty) {
       final outerCount = level.nodes.length - 1;
       // Rectangle-aware: neighbours sit at least one node diagonal apart (boxes cannot overlap),
       // and the ring clears the centre box on every side.

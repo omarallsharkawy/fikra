@@ -131,9 +131,15 @@ class _MapCanvasState extends State<MapCanvas> {
       final fit = (widget.ego, widget.level, constraints.biggest, rtl);
       if (_fit != fit) {
         _fit = fit;
-        // Preserve native text and touch sizes. The neighborhood is a world
-        // to pan through, rather than shrinking large text to fit the screen.
-        const scale = 1.0;
+        // A small neighbourhood opens fitted, so its links and suggestions are
+        // on screen. Fitting stops at egoMinFitScale (labels stay readable and
+        // nodes stay 48dp targets); a neighbourhood that would need more opens
+        // at native size, as a world to pan.
+        final fitScale = widget.ego && layout.width > 0 && layout.height > 0 && _viewport.height > 0
+            ? math.min(_viewport.width / layout.width, _viewport.height / layout.height)
+            : 1.0;
+        final minScale = egoMinFitScale(nodeHeight: layout.nodeHeight, textScale: scaler.scale(1));
+        final scale = fitScale >= 1 || fitScale < minScale ? 1.0 : fitScale;
         _transform.value = Matrix4.identity()
           ..translateByDouble(
             (constraints.maxWidth - layout.width * scale) / 2,
@@ -309,6 +315,11 @@ class _MapCanvasState extends State<MapCanvas> {
     },
   );
 }
+
+/// Smallest scale the ego view opens at when fitting its neighbours: labels
+/// render at least 0.65 of their 1x size, and a node stays a 48dp touch target.
+double egoMinFitScale({required double nodeHeight, required double textScale}) =>
+    math.max(48 / nodeHeight, 0.65 / textScale);
 
 /// ONE painter records nodes, labels and edges; semantics adds no node widgets.
 class LinksMapPainter extends CustomPainter {
