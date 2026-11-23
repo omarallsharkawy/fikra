@@ -61,6 +61,8 @@ PDF selection/opening is local and labeled accordingly. PDFs are not uploaded, e
 - Transcription returns fixed review text and explicitly says no audio was uploaded or transcribed. Native recording can still be exercised locally.
 - Fixture projects, notes, drafts, conversations and attempt records exist in memory only and reset with the process or sign-out. They do not promise durable saving, offline synchronization or backend processing. Actual durable, account-scoped attempt restoration must be wired with the real repository.
 
+See [operation coverage](operation-coverage.md) for the disposition of all 37 handbook operations.
+
 ## Remaining decisions
 
 The backend handbook's unresolved requirements remain unresolved: password policy and short-password login compatibility; email-action routing and cold-start purpose ambiguity; Google registrations/audience/signing IDs; proposal editing; supported/mixed languages; large-note provider limits and coverage; unpaginated collection/history/graph scale. No production URL, release app link, provider credential, universal language support, undo or sync guarantee is supplied by this refactor.
