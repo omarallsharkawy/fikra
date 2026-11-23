@@ -71,11 +71,11 @@ class CaptureController extends ChangeNotifier {
     try {
       await _cleanup;
       if (!_valid(ticket)) return;
+      await device.cancel();
+      if (!_valid(ticket)) return;
       await device.start();
-      if (!_valid(ticket)) {
-        await device.cancel();
-        return;
-      }
+      // Account reset/disposal owns cleanup and gates the next start.
+      if (!_valid(ticket)) return;
       _started = clock();
       elapsed = Duration.zero;
       state = CaptureState.recording;
@@ -90,6 +90,12 @@ class CaptureController extends ChangeNotifier {
       });
     } catch (error) {
       if (_valid(ticket)) {
+        try {
+          await device.cancel();
+        } catch (_) {
+          /* Preserve the original failure. */
+        }
+        if (!_valid(ticket)) return;
         failure = ProductFailure.from(error);
         state = CaptureState.idle;
       }
@@ -184,7 +190,11 @@ class CaptureController extends ChangeNotifier {
   }
 
   void background() {
-    if (state == CaptureState.recording) unawaited(stop());
+    if (state == CaptureState.starting) {
+      unawaited(cancel());
+    } else if (state == CaptureState.recording) {
+      unawaited(stop());
+    }
   }
 
   void _timersOff() {

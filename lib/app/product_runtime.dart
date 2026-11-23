@@ -65,6 +65,7 @@ class ProductRuntime {
   late final ConversationController chat;
   late final CaptureController capture;
   String? _account, _project;
+  int _knowledgeRevision = 0;
   void _sessionChanged() {
     final id = session.stage == SessionStage.authenticated ? session.account?.id : null;
     if (id == _account) return;
@@ -82,6 +83,10 @@ class ProductRuntime {
   }
 
   void _projectChanged() {
+    if (_knowledgeRevision != workspace.knowledgeRevision) {
+      _knowledgeRevision = workspace.knowledgeRevision;
+      chat.invalidateNoteReferences(workspace.notes.map((n) => n.id).toSet());
+    }
     final project = workspace.selectedProjectId;
     if (project == _project) return;
     _project = project;
@@ -140,6 +145,9 @@ class _ProductBoundaryState extends State<ProductBoundary> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.runtime.session,
-    builder: (_, _) => KeyedSubtree(key: ValueKey(widget.runtime.session.epoch), child: widget.child),
+    builder: (_, _) => KeyedSubtree(
+      key: ValueKey((widget.runtime.session.epoch, widget.runtime.session.account?.id)),
+      child: widget.child,
+    ),
   );
 }

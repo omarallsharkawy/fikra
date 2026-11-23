@@ -15,6 +15,8 @@ class NativeCaptureDevice implements CaptureDevice {
   final AttachmentStore files;
   String? _path;
   Future<void>? _starting;
+  Future<RecordedClip?>? _stopping;
+  bool _closed = false;
   @override
   Future<void> start() async {
     _starting = _start();
@@ -26,6 +28,7 @@ class NativeCaptureDevice implements CaptureDevice {
   }
 
   Future<void> _start() async {
+    if (_closed) throw const ProductFailure(FailureKind.unavailable);
     if (!(await permission()).isGranted) throw const ProductFailure(FailureKind.validation, field: 'microphone');
     _path = await files.newRecordingPath();
     await recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc, numChannels: 1, bitRate: 64000), path: _path!);
@@ -33,6 +36,15 @@ class NativeCaptureDevice implements CaptureDevice {
 
   @override
   Future<RecordedClip?> stop(Duration duration) async {
+    _stopping = _stop(duration);
+    try {
+      return await _stopping;
+    } finally {
+      _stopping = null;
+    }
+  }
+
+  Future<RecordedClip?> _stop(Duration duration) async {
     final path = await recorder.stop();
     return path == null ? null : RecordedClip(path, 'audio/m4a', duration);
   }
@@ -45,9 +57,20 @@ class NativeCaptureDevice implements CaptureDevice {
       /* A failed start still needs cleanup. */
     }
     try {
+      await _stopping;
+    } catch (_) {
+      /* A failed stop still needs cancellation. */
+    }
+    if (_closed) return;
+    try {
       await recorder.cancel();
     } catch (_) {
-      /* No active recording is normal. */
+      try {
+        await recorder.stop();
+      } catch (_) {
+        _closed = true;
+        await recorder.dispose();
+      }
     }
     final path = _path;
     _path = null;
@@ -63,6 +86,9 @@ class NativeCaptureDevice implements CaptureDevice {
   @override
   Future<void> dispose() async {
     await cancel();
-    await recorder.dispose();
+    if (!_closed) {
+      _closed = true;
+      await recorder.dispose();
+    }
   }
 }

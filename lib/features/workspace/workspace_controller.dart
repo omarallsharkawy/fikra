@@ -37,6 +37,10 @@ class WorkspaceController extends ChangeNotifier {
   ProductFailure? failure, searchFailure, graphFailure, detailFailure;
   DateTime? retryAt;
   CreateAttempt? pendingAttempt;
+  int knowledgeRevision = 0, _notesVersion = 0;
+  String projectDraft = '';
+  String? projectDraftId;
+  Timer? _retryWake;
   final _drafts = <String, NoteDraft>{};
   int _epoch = 0, _searchSequence = 0, _detailSequence = 0, _graphSequence = 0, _pollCount = 0;
   bool _foreground = true, _disposed = false, _polling = false;
@@ -52,7 +56,11 @@ class WorkspaceController extends ChangeNotifier {
   bool _valid(int ticket) => !_disposed && ticket == _epoch && accountId != null;
   ProductFailure _error(Object error) {
     final value = ProductFailure.from(error);
-    if (value.kind == FailureKind.quota && value.retryAfter != null) retryAt = DateTime.now().add(value.retryAfter!);
+    if (value.kind == FailureKind.quota && value.retryAfter != null) {
+      retryAt = DateTime.now().add(value.retryAfter!);
+      _retryWake?.cancel();
+      _retryWake = Timer(value.retryAfter!, _emit);
+    }
     if (value.kind == FailureKind.unauthorized) onUnauthorized?.call();
     return value;
   }
@@ -75,6 +83,9 @@ class WorkspaceController extends ChangeNotifier {
     results = null;
     query = '';
     _drafts.clear();
+    projectDraft = '';
+    projectDraftId = null;
+    _notesVersion = 0;
     pendingAttempt = null;
     failure = null;
     detailFailure = null;
@@ -85,6 +96,8 @@ class WorkspaceController extends ChangeNotifier {
     searching = false;
     graphLoading = false;
     detailLoading = false;
+    _retryWake?.cancel();
+    knowledgeRevision = 0;
     retryAt = null;
     stillProcessing = false;
     proposalConflict = false;
@@ -144,15 +157,28 @@ class WorkspaceController extends ChangeNotifier {
     await reload();
   }
 
+  Future<void> retryWorkspace() async {
+    final account = accountId;
+    if (account == null) return;
+    if (selectedProjectId == null) {
+      await openAccount(account);
+    } else {
+      await reload();
+    }
+  }
+
   Future<void> reload() async {
     final account = accountId, project = selectedProjectId, ticket = _epoch;
     if (account == null || project == null) return;
+    final version = _notesVersion;
     loading = true;
+    stillProcessing = false;
     failure = null;
     _emit();
     try {
       final list = await repository.notes(account, project);
       if (!_valid(ticket)) return;
+      if (version != _notesVersion) return;
       notes = List.unmodifiable(list);
       _pollCount = 0;
       _schedulePoll();
@@ -230,13 +256,32 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
+  bool get canReviewFailedAttempt =>
+      pendingAttempt != null &&
+      (failure?.kind == FailureKind.validation ||
+          failure?.kind == FailureKind.tooLarge ||
+          failure?.kind == FailureKind.gone);
+  Future<void> reviewFailedAttempt() async {
+    if (!canReviewFailedAttempt || busy || accountId == null) return;
+    final account = accountId!, ticket = _epoch;
+    await attempts.clear(account);
+    if (!_valid(ticket)) return;
+    pendingAttempt = null;
+    failure = null;
+    _emit();
+  }
+
+  bool _keepCurrent(KnowledgeNote current, KnowledgeNote incoming) =>
+      current.generation > incoming.generation ||
+      (current.generation == incoming.generation &&
+          (current.updatedAt.isAfter(incoming.updatedAt) ||
+              (!current.processing.pending &&
+                  current.processing != ProcessingState.unknown &&
+                  incoming.processing.pending)));
   void _upsert(KnowledgeNote note) {
     final current = notes.where((n) => n.id == note.id).firstOrNull;
-    if (current != null &&
-        (current.generation > note.generation ||
-            (current.generation == note.generation && current.updatedAt.isAfter(note.updatedAt)))) {
-      return;
-    }
+    if (current != null && _keepCurrent(current, note)) return;
+    _notesVersion++;
     if (note.projectId != selectedProjectId) return;
     notes = List.unmodifiable(
       [note, ...notes.where((n) => n.id != note.id)]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt)),
@@ -257,8 +302,9 @@ class WorkspaceController extends ChangeNotifier {
       final note = await repository.readNote(account, id);
       if (!_valid(ticket) || seq != _detailSequence) return;
       if (note.projectId != selectedProjectId) throw const ProductFailure(FailureKind.notFound);
-      detail = note;
-      _upsert(note);
+      final known = notes.where((n) => n.id == note.id).firstOrNull;
+      detail = known != null && _keepCurrent(known, note) ? known : note;
+      _upsert(detail!);
       _schedulePoll();
       final links = await repository.related(account, id);
       if (_valid(ticket) && seq == _detailSequence) related = List.unmodifiable(links);
@@ -283,8 +329,9 @@ class WorkspaceController extends ChangeNotifier {
       final next = await action(account, note);
       if (!_valid(ticket)) return false;
       _upsert(next);
-      if (detail?.id == next.id) detail = next;
+
       _invalidateKnowledge();
+      unawaited(_refreshRelated());
       _pollCount = 0;
       _schedulePoll();
       return true;
@@ -296,7 +343,7 @@ class WorkspaceController extends ChangeNotifier {
             final fresh = await repository.readNote(account, note.id);
             if (_valid(ticket)) {
               _upsert(fresh);
-              if (detail?.id == note.id) detail = fresh;
+
               proposalConflict = true;
             }
           } catch (_) {
@@ -325,10 +372,14 @@ class WorkspaceController extends ChangeNotifier {
     return _noteMutation((account, note) => repository.updateNote(account, note.id, patch));
   }
 
-  Future<bool> refine(RefinementAction action) =>
-      _noteMutation((account, note) => repository.refine(account, note.id, note.generation, action));
+  Future<bool> refine(RefinementAction action, {String? reviewedNoteId, int? expectedGeneration}) =>
+      _noteMutation((account, note) {
+        if (reviewedNoteId != null && reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
+        return repository.refine(account, note.id, expectedGeneration ?? note.generation, action);
+      });
   Future<bool> retryProcessing() => _noteMutation((account, note) => repository.retryProcessing(account, note.id));
   void _invalidateKnowledge() {
+    knowledgeRevision++;
     results = null;
     searchFailure = null;
     graph = const KnowledgeGraph();
@@ -346,6 +397,7 @@ class WorkspaceController extends ChangeNotifier {
     try {
       await repository.deleteNote(account, note.id);
       if (!_valid(ticket)) return false;
+      _notesVersion++;
       notes = notes.where((n) => n.id != note.id).toList();
       detail = null;
       _invalidateKnowledge();
@@ -420,6 +472,8 @@ class WorkspaceController extends ChangeNotifier {
       _emit();
       return false;
     }
+    projectDraft = name;
+    projectDraftId = id;
     busy = true;
     failure = null;
     _emit();
@@ -428,6 +482,8 @@ class WorkspaceController extends ChangeNotifier {
           ? await repository.createProject(account, name.trim())
           : await repository.renameProject(account, id, name.trim());
       if (!_valid(ticket)) return false;
+      projectDraft = '';
+      projectDraftId = null;
       projects = List.unmodifiable([
         for (final p in projects)
           if (p.id != saved.id) p,
@@ -436,7 +492,17 @@ class WorkspaceController extends ChangeNotifier {
       if (id == null) await selectProject(saved.id);
       return true;
     } catch (error) {
-      if (_valid(ticket)) failure = _error(error);
+      if (_valid(ticket)) {
+        failure = _error(error);
+        if (id == null && failure?.kind == FailureKind.uncertain) {
+          try {
+            final refreshed = await repository.projects(account);
+            if (_valid(ticket)) projects = List.unmodifiable(refreshed);
+          } catch (_) {
+            /* Keep the original uncertainty; no automatic create retry. */
+          }
+        }
+      }
       return false;
     } finally {
       if (_valid(ticket)) {
@@ -469,6 +535,23 @@ class WorkspaceController extends ChangeNotifier {
     } finally {
       if (_valid(ticket)) {
         busy = false;
+        _emit();
+      }
+    }
+  }
+
+  Future<void> _refreshRelated() async {
+    final account = accountId, note = detail, ticket = _epoch;
+    if (account == null || note == null || note.processing != ProcessingState.completed) return;
+    try {
+      final links = await repository.related(account, note.id);
+      if (_valid(ticket) && detail?.id == note.id && detail?.generation == note.generation) {
+        related = List.unmodifiable(links);
+        _emit();
+      }
+    } catch (error) {
+      if (_valid(ticket)) {
+        detailFailure = _error(error);
         _emit();
       }
     }
@@ -510,11 +593,15 @@ class WorkspaceController extends ChangeNotifier {
           final next = await repository.readNote(account, note.id);
           if (!_valid(ticket) || !_foreground) return;
           _upsert(next);
-          if (!next.processing.pending) _invalidateKnowledge();
+          if (!next.processing.pending) {
+            _invalidateKnowledge();
+            unawaited(_refreshRelated());
+          }
         } catch (error) {
           if (!_valid(ticket)) return;
           final problem = _error(error);
           if (problem.kind == FailureKind.notFound) {
+            _notesVersion++;
             notes = notes.where((n) => n.id != note.id).toList();
             if (detail?.id == note.id) detail = null;
             _invalidateKnowledge();
@@ -537,6 +624,7 @@ class WorkspaceController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _retryWake?.cancel();
     _epoch++;
     _pollTimer?.cancel();
     super.dispose();

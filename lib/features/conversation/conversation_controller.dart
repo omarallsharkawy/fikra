@@ -23,7 +23,7 @@ class ConversationController extends ChangeNotifier {
   int _epoch = 0;
   bool _disposed = false;
   StreamSubscription<ChatEvent>? _subscription;
-  Timer? _deadline;
+  Timer? _deadline, _retryWake;
   Completer<void>? _sendDone;
   final _uncertain = <String>{};
   void _emit() {
@@ -34,7 +34,11 @@ class ConversationController extends ChangeNotifier {
   ProductFailure _error(Object error) {
     final value = ProductFailure.from(error);
     if (value.kind == FailureKind.unauthorized) onUnauthorized?.call();
-    if (value.kind == FailureKind.quota && value.retryAfter != null) retryAt = DateTime.now().add(value.retryAfter!);
+    if (value.kind == FailureKind.quota && value.retryAfter != null) {
+      retryAt = DateTime.now().add(value.retryAfter!);
+      _retryWake?.cancel();
+      _retryWake = Timer(value.retryAfter!, _emit);
+    }
     return value;
   }
 
@@ -51,6 +55,7 @@ class ConversationController extends ChangeNotifier {
     loading = false;
     sendState = SendState.idle;
     _uncertain.clear();
+    _retryWake?.cancel();
     retryAt = null;
     _emit();
   }
@@ -248,6 +253,23 @@ class ConversationController extends ChangeNotifier {
     }
   }
 
+  void invalidateNoteReferences(Set<String> accessibleIds) {
+    final history = current;
+    if (history == null) return;
+    current = ConversationHistory(history.conversation, [
+      for (final message in history.messages)
+        KnowledgeMessage(
+          id: message.id,
+          role: message.role,
+          content: message.content,
+          supported: message.supported,
+          createdAt: message.createdAt,
+          sources: message.sources.where((s) => accessibleIds.contains(s.noteId)).toList(),
+        ),
+    ]);
+    _emit();
+  }
+
   void interrupt() {
     if (sendState != SendState.sending || current == null) return;
     _uncertain.add(current!.conversation.id);
@@ -297,6 +319,7 @@ class ConversationController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _retryWake?.cancel();
     _epoch++;
     _stop();
     super.dispose();
