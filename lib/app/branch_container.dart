@@ -87,6 +87,7 @@ class _BranchTransitionState extends State<_BranchTransition> with SingleTickerP
         child: FadeTransition(
           key: ValueKey('branch-opacity-${widget.index}'),
           opacity: _opacity,
+          alwaysIncludeSemantics: widget.active,
           child: ScaleTransition(
             key: ValueKey('branch-scale-${widget.index}'),
             scale: reduced || !widget.active ? const AlwaysStoppedAnimation(1.0) : _scale,

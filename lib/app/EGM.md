@@ -174,7 +174,9 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 - `branch_container.dart` fades incoming content over 220 ms with a 0.98→1
   decelerating scale and outgoing content over 110 ms. TickerMode, input, focus
   and semantics are disabled immediately on outgoing branches; they go Offstage
-  after fading. Controllers retarget without remounting navigators. Reduce Motion
+  after fading. Incoming branches set `alwaysIncludeSemantics: widget.active` on
+  `FadeTransition` so their semantics stay live from frame 0 while opacity starts
+  at 0. Controllers retarget without remounting navigators. Reduce Motion
   switches in one frame. Only opacity/transform leaves tick.
 - The selected translucent pill slides on FikraSprings.smooth; labels cross-fade
   their colors without changing text metrics. Plain taps never engage the lens.
