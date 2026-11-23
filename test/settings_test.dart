@@ -10,6 +10,8 @@ import 'package:fikra/data/repositories.dart';
 import 'package:fikra/data/settings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/fake_external_transcription.dart';
+
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   late FikraDatabase db;
@@ -21,7 +23,11 @@ void main() {
     db = FikraDatabase(NativeDatabase.memory());
     docs = await Directory.systemTemp.createTemp('fikra_docs');
     temp = await Directory.systemTemp.createTemp('fikra_tmp');
-    settings = LocalSettingsRepository(db, AttachmentStore(documentsDir: () async => docs, tempDir: () async => temp));
+    settings = LocalSettingsRepository(
+      db,
+      AttachmentStore(documentsDir: () async => docs, tempDir: () async => temp),
+      transcriptionServices: MemoryTranscriptionServices(),
+    );
   });
   tearDown(() async {
     await db.close();

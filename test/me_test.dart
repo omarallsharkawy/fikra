@@ -15,7 +15,9 @@ import 'support/app_harness.dart';
 import 'support/selection_fixture.dart';
 
 void main() {
-  final now = DateTime(2026, 11, 20, 12);
+  // Relative to the real day: the seeded project note uses DateTime.now(), so a fixed clock would put it in the future.
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
   fikraTest('Me aggregates current-project notes, confirmed pairs and seven calendar days', clock: () => now, (
     tester,
     db,
@@ -25,12 +27,12 @@ void main() {
     await pumpFuture(tester, () async {
       // Today counted once, six days ago included, seven days ago excluded.
       final dates = [
-        DateTime(2026, 11, 20),
-        DateTime(2026, 11, 20, 10),
-        DateTime(2026, 11, 14),
-        DateTime(2026, 11, 13, 23, 59),
-        DateTime(2026, 11, 21),
-        DateTime(2026, 11, 18),
+        today,
+        today.add(const Duration(hours: 10)),
+        DateTime(today.year, today.month, today.day - 6),
+        DateTime(today.year, today.month, today.day - 7, 23, 59),
+        DateTime(today.year, today.month, today.day + 1),
+        DateTime(today.year, today.month, today.day - 2),
       ];
       for (var i = 0; i < notes.length; i++) {
         await (db.update(

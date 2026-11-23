@@ -49,7 +49,13 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
     final pair = _pair(entry.other);
     if (!_busy.add(pair)) return;
     setState(() {});
-    await changeSuggestedPair(context, a: entry.link.sourceId, b: entry.link.targetId, accept: accept);
+    await changeSuggestedPair(
+      context,
+      a: entry.link.sourceId,
+      b: entry.link.targetId,
+      accept: accept,
+      expectedProjectId: entry.link.projectId,
+    );
     _busy.remove(pair);
     if (mounted) setState(() {});
   }

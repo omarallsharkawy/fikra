@@ -69,7 +69,8 @@ void main() {
       final repo = LocalTranscriptionServices(db, keys);
       final saved = (await pumpFuture(tester, repo.read)).services.single;
       expect(saved.consented, isTrue);
-      expect(keys.values[saved.id], 'synthetic-key');
+      final state = await pumpFuture(tester, repo.read);
+      expect(keys.values[state.credentials[saved.id]!.slot], 'synthetic-key');
       await tapEngine(tester, saved.id);
       expect(find.byType(Dialog), findsNothing);
       expect((await pumpFuture(tester, repo.read)).selected, saved.engineId);

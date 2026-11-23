@@ -44,7 +44,8 @@ void main() {
     final json = rows.singleWhere((r) => r.key == LocalTranscriptionServices.configKey).value;
     expect(json, isNot(contains('secret-one')));
     expect(jsonDecode(json)['services'], hasLength(1));
-    expect(keys.values[s.id], 'secret-one');
+    expect(keys.values[(await services.read()).credentials[s.id]!.slot], 'secret-one');
+    expect(keys.values.containsKey(s.id), isFalse);
     final reopened = LocalTranscriptionServices(db, keys);
     expect((await reopened.read()).services.single.model, s.model);
     await expectLater(reopened.select(s.engineId), throwsA(isA<ServiceConfigException>()));
@@ -117,11 +118,13 @@ void main() {
     expect((await services.read()).services.map((s) => s.id), ['one', 'two']);
     final failing = _FailDelete();
     final other = LocalTranscriptionServices(db, failing);
-    await expectLater(other.delete('one'), throwsStateError);
-    expect((await other.read()).services, hasLength(2));
+    await other.delete('one');
+    expect((await other.read()).services, hasLength(1));
+    expect((await other.read()).garbage, isNotEmpty);
     failing.fail = false;
     await other.delete('one');
     expect((await other.read()).services.single.id, 'two');
+    expect((await other.read()).garbage, isEmpty);
   });
 
   test('wipe removes configs, aliases, selection and all service keys; theme remains', () async {

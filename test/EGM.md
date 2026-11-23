@@ -212,3 +212,13 @@ use Me and composer close where expectations changed.
 - `pearl_contrast_test.dart`: checks WCAG AA contrast (`>= 4.5:1` text, `>= 3:1` icons/large) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes, plus typography bounds (`NotoSansArabic`, zero `letterSpacing`, all sizes `>= 12.5` sp).
 - `welcome_redesign_test.dart`: verifies primary CTA direct creation of default project («أفكاري» / "My ideas") without a name dialog, secondary CTA demo seed, absence of auth buttons, LTR↔RTL pixel mirroring of `WelcomeHeroPainter`, 2.0× large-text scrolling without overflow, and Reduce Motion skipping entrance animation.
 - `home_redesign_test.dart`: verifies `activeDaysThisWeek` rolling 7-day counting, voice/files/group chip filtering and lime active fill, tinted type badges, warning pending-rewrite badge, link-count pill (`connectionsIndexProvider`), conditional action strip hidden at 0 and prioritized (failed → suggestions → rewrites) with Links suggestions navigation and session dismissal, and active-days chip hidden at 0.
+
+## Data race and destination guards
+
+credential_publication_test uses an in-memory database and fake secure slots for partial key writes, failed publication, retryable reclamation, missing/mismatched references, legacy reentry and staged/orphan wipe. transcription_services_test now checks the referenced slot and post-publication retryable cleanup instead of service-id storage or deletion-before-config behavior. external_transcription_widgets_test checks the fresh referenced slot after form save. Wipe fixtures inject fake services because wipe always clears secure slots.
+
+note_edit_race_test pauses a real staged copy with Completer, finishes fake transcription before commit, and checks typed/prior edits, equal text on different attachment IDs, corrections/redo, removals, attachment-only saves and typed conflicts with clean copy rollback. No inference or network runs. note_edit_conflict_widget_test verifies the real editor keeps the submitted text and stays open on conflict. attachment_review_test forwards the editor basis through its gated repository.
+
+pair_project_guard_test covers stale accept/dismiss after either or both endpoints move, no tombstone/Undo on stale commands, and valid action/Undo restoration. Existing pair and widget spies forward expectedProjectId and handle the typed result.
+
+The format, analyze, full-test and screenshot gates could not start in this run: Flutter bootstrap cannot write engine.stamp or engine.realm in the read-only SDK cache. No passing gate result is claimed.

@@ -425,11 +425,12 @@ class CountingEdits extends LocalNotesRepository {
     required String title,
     required String text,
     List<AttachmentDraft>? attachments,
+    NoteEditBasis? basis,
   }) async {
     calls++;
     await gate;
     try {
-      await super.edit(id, title: title, text: text, attachments: attachments);
+      await super.edit(id, title: title, text: text, attachments: attachments, basis: basis);
     } finally {
       completed++;
     }
