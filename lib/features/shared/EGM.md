@@ -1,0 +1,132 @@
+# Shared
+
+## Overview
+
+Note display helpers, attachment editing shared by Add and Edit, the link picker and link actions, the project picker, note groups (sheet, form, filter, options), the move confirmation and the selection bar and actions used by the notes list.
+
+## Interface
+
+- `note_presentation.dart`
+  - `IconData sourceIcon(NoteSource s)`: icon for one note source. Currently called only inside this file.
+  - `List<IconData> sourceIcons(Note n, [List<NoteAttachment> attachments])`: every source of a note.
+  - `String noteTitleText(BuildContext context, String title)`: shared fallback for full notes and Map projections.
+  - `String noteTitle(BuildContext context, Note n)`: the note's title, or a fallback label when the title is blank.
+- `open_attachment.dart`
+  - `Future<void> openAttachment(BuildContext context, WidgetRef ref, String path)`: opens a file in another app, and shows a toast if it returns false or throws. Used for photos and the PDF viewer’s explicit open-elsewhere action.
+
+## Invariants
+
+- `sourceIcons`/`attachmentIcons` use new-table rows, in PDF/voice/image order, with the original source icon as fallback. `attachmentIcons` also returns counts for cards; no legacy attachment columns are consulted.
+- `noteTitle` checks the trimmed title for blankness but returns the untrimmed title.
+- `noteTitle` and Map both delegate to `noteTitleText`. All Map display surfaces, including node text, use this shared fallback.
+
+## Side Effects
+
+- `openAttachment` starts another app through `fileOpenerProvider`. Display helpers are pure; the shared editor owns local picking/recording side effects documented below.
+
+## Localization
+
+`noteTitle(BuildContext context, Note n)` resolves only the blank-title fallback using `context.l10n`. `openAttachment` uses the localized open-file failure; stored file names and titles are returned unchanged.
+
+## Verification
+
+- Run: `flutter analyze && flutter test`
+
+## Shared attachment editing
+
+`attachment_editor.dart` and its parts (`attachment_files`, `attachment_voice`, `attachment_toolbar`, `attachment_chips`, `mic_permission_card`) extract the existing Add controls for Add and Edit. `AttachmentEditing<T>` owns ordered `AttachmentDraft` files, picking/saving state, recorder transitions, permission status, waveform, and cleanup. It exposes previews, toolbar, recording and permission widgets; screens own text and save/leave behavior. `inline_recorder.dart` preserves `InlineRecorder`, `levelFromDb` and the existing constants/motion.
+
+PDF picking uses multi-file `FilePicker.pickFiles` every time; images retain multi-picking. No action starts while saving, picking or recording. Record transitions synchronously claim local state and the app-wide microphone lease before awaits, await playback stop before native start, stop at five minutes, and clean temporary paths even if disposed during start/stop. Temporary voices are deleted on discard/dispose; picked source files are not deleted by a failed save. Edit overrides `confirmAttachmentRemoval` for saved attachments (`id != null`) only; saved-file removal only changes the draft. Consecutive images share a strip and all preview order follows the draft. PDF size Text is explicitly LTR; filenames retain ambient alignment.
+
+The toolbar keeps its keys and styling; Edit hides its round Save and uses the existing Save changes button. All players share the core playback coordinator. `RecordingActivity` releases ownership only for the owning editor after native stop/cancel/dispose; failed permission/start and pending disposal are covered. Cancellation failure falls back to disposing the recorder. Another editor cannot start while a native start or cancellation is outstanding. This folder now depends on app providers and the local data/file boundaries for editing, as well as the existing presentation/opener helpers.
+
+`attachmentTitle(l10n, draft)` centralizes legacy auto-titles for Add and Edit: localized voiceRecording, PDF basename without extension, or photosTitle. It never appends counts.
+
+## Links (links phase 2)
+
+- `note_links.dart`: `linkReasonMaxLength` (80), `typedef NoteLinkEntry = ({Note other, NoteLink link})`, `linksOfNote(noteId, links, notesById)` (one entry per other note in either direction; dismissed rows and missing notes skipped; the user row wins over legacy reverse/duplicate rows, otherwise the first suggestion; your links first newest-first, then suggestions in stored order), `LinkSuggestedTag`, and `LinkReasonField` (FikraField with `maxLength` 80 and an LTR `used/80` counter at the end, key `link-reason`).
+- `link_picker.dart` (+ parts `link_picker_row.dart` and `link_picker_layout.dart`): `showLinkPicker(context, {required Note source})` opens a tall `showFikraSheet`; `LinkPickerSheet` watches `notesOfProjectProvider`/`linksOfProjectProvider` of the source's project, lists the other notes newest first in a lazy `ListView.builder`, derives candidates, the id map and link states only when either stream emits (`LinkPickerSheet.derivations` counts that for tests) and memoises the filtered list per query, so a keystroke only filters the cached lower-cased title and text, and multi-selects with check icons and `checked` semantics. Notes you linked are dimmed, say "Already linked" and can't be picked; suggestions show the tag and can be picked. Confirm (`link-confirm`, count in its label, disabled with nothing picked, `_busy` guard) calls `linkNotes` once with every pick and the reason, pops with the number linked and the caller shows `notesLinked`. It pops only if its route is still current: a sheet dismissed while saving keeps the page under it, and the links are saved anyway. A failure keeps the sheet, picks and reason, and shows an inline `StatusBanner` with `linkFailed` (a toast would sit behind the sheet). Empty project, no results and load failure have their own messages. `_PickerLayout` (render object in `link_picker_layout.dart`) gives search and the footer their natural height and the list the rest, but at least 120 dp; inside a `SingleChildScrollView` (key `link-picker-form`) the whole form scrolls only when the controls can't fit (short screen, keyboard, large text, failure banner).
+- `linkReasonMaxLength` is `linkLabelMaxLength` from `lib/data/link_label.dart`; field, counter and storage all count grapheme clusters, so what the field shows is what is saved.
+
+## Project picker (links phase 3)
+
+- `project_picker.dart`: `showProjectPicker(context, {required title, required excludeProjectId, required empty})` opens a `showFikraSheet` that watches `projectsProvider`, lists every other project as a `ProjectRow` (key `project-pick-<id>`) with its note count, and pops with the picked `Project` (null when dismissed). With no other project it shows `empty` (key `project-picker-empty`). Built for one note now; a later phase reuses it for moving several notes.
+- `ProjectRow({project, count, onTap, selected = false, onMore})`: the project row that used to be private in `project_header.dart` (`_ProjectRow`), now shared. The options control appears only with `onMore`; without it the start padding is 16 instead of 8.
+
+## Shared link choices (links phase 4)
+
+`link_pairs.dart` exposes pure generic `uniqueLinkPairs`: skip self pairs, retain first row for each unordered pair, replace a suggestion only with the first user row. Both `linksOfNote` and the shared Links index use it; existing note-page ordering/filtering stays the same.
+
+`note_link_actions.dart` moved from note_details and exports `showLinkOptions`, `suggestionBusyProvider` and `changeSuggestedPair(context, {a, b, accept, expectedProjectId})`. `changeSuggestedPair` is the one accept/reject path for the Suggestions list, connections pages, note details and Map: it claims `suggestionBusyProvider` (a `SelectionGuard`: one accept/reject write or pair Undo at a time app-wide; a blocked action does nothing), passes the rendered project to `acceptPairForUndo` / `dismissPairForUndo`, and shows a toast (`linksAdded(1)` for an accept, `linkSuggestionRejected` for a reject) with Undo. A call that changed nothing shows the toast without Undo (`linksAdded(0)` for an accept); a failure shows `linkUpdateFailed`. Undo reads the container, so it works after the page closed; it claims the same guard (taken: `undoFailed`) and runs `undoPairChange`, which quietly skips a pair changed meanwhile. Toasts use the given context, or the root navigator's once it is gone (a closed sheet). PairCommandStale returns false without a success toast or Undo entry. It returns whether the pair changed. The existing user options, private reason editor, update/error behavior and keys are retained. Optional source note makes shared link options name both endpoints. Suggestions use the same sheet with the shared Suggested tag and accept/reject pair operations, safe if analysis replaced the row. A one-choice guard prevents repeated sheet actions; operations capture their repository and live toast context before closing. User removal still requires confirmation and the caller's removal callback. No schema, new copy, colours or motion tokens.
+
+## Selection, groups and moving several notes (links phase 5a)
+
+None of these assume the notes list: they take ids, notes, a project id or callbacks.
+
+- `selection_bar.dart`: `SelectionHeader({count, onClose})` (keys `selection-close`, `selection-count`; live-region count) and `SelectionActionBar({actions, note})` with `SelectionAction({key, icon, label, onTap, danger, disabledHint})`. Every action is at least 48 dp wide and 56 dp tall with its label as semantics label; a disabled one is at 0.4 opacity with `disabledHint`. Labels are measured (`TextPainter` with the ambient style, scaler and locale): when all fit on one line each keeps its width plus an equal share of the rest; otherwise the bar scrolls sideways (`selection-bar-scroll`) at natural widths, so no label is clipped at any text size.
+- `selection_actions.dart`: `maxLinkTogether` (6), `selectionBusyProvider` (`SelectionGuard`: `claim()`/`release()`, one selection action or Undo at a time app-wide; Undo reads it through the `ProviderContainer`, so it works after the page closed, and shows `undoFailed` when the guard is taken) and the flows, each returning whether to end the selection:
+  - `linkTogether`: one `linkNotesForUndo` call per note with the later ones (n−1 calls); a failure puts the pairs linked so far back (`undoLinks`) and shows `linkFailed`. Success shows `linksAdded(created)` (zero form, no Undo, when all pairs were already yours) with Undo calling `undoLinks`: each pair gets back exactly the rows it had (none, its suggestion, its rejection); pairs removed by hand, moved or deleted since are left alone.
+  - `groupNotes`: `showGroupSheet`, then the new-group form if chosen (`create`), then `assignNotes`; if the assignment fails a group created in this flow is deleted. Undo reads the project's notes again and puts back only those still in the project and still in the group this action gave them, each in its previous group, or no group when that group is gone; then a group created by this action is deleted if it still exists and has no notes and no sub-groups. Rule errors show their own message (`runGroupAction`).
+  - `moveNotesTo`: `showProjectPicker`, then `confirmMove` with the totals (`moveNotesTitle`/`moveNotesBody`, or the single-note strings for one note), `moveNotes` (atomic), `NoteProcessor.relink` not awaited, `notesMoved` toast. No Undo.
+  - `deleteNotes`: one `confirmDestructive` (`deleteNotesTitle`/`deleteNotesBody`), then `delete` per note inside `runAction`, stopping at the first failure (`deleteNotesFailed`); files go with each note. No Undo.
+- `move_confirm.dart`: `MoveImpact`, `moveMessage(l10n, impact, {notes})` and `confirmMove(...)`, extracted from the note page: after confirm it reads the impact again and shows the dialog again while the numbers changed. The note page uses it with its existing strings and behaviour.
+- `note_groups.dart`: `groupsOfProjectProvider` (StreamProvider family over `GroupsRepository.watchGroups`), `groupColors`/`groupColor`/`groupColorName` (0 groupBlue, 1 groupSage, 2 groupSand, 3 groupGray; null = none), `groupRuleMessage` (one message per `GroupRuleReason`), `groupTree` (top-level then children), `groupWithChildren`, `groupNoteCounts`, `runGroupAction`, `GroupDot`, `GroupTag` (bordered, icon + name, `noteGroupA11y`).
+- `group_sheet.dart`: `showGroupSheet(context, {projectId, canRemove})` → sealed `GroupPick` (`GroupPickExisting`, `GroupPickNew`, `GroupPickNone`); rows `group-pick-<id>` with counts, sub-groups indented with a direction-following arrow, `group-pick-new`, `group-pick-none` (only when a note has a group), `group-sheet-empty`. `GroupRow` is public.
+- `group_form.dart`: `showNewGroupForm` (name up to `groupNameMaxLength` 40, colour, optional top-level parent; keys `group-color-<n|none>`, `group-parent-none`, `group-parent-<id>`, `group-create`), `askGroupName` (`group-rename-save`); both buttons use `growForText`, so large text grows them instead of clipping, `GroupColorPicker`, `ChoiceTag` (wraps up to two lines; optional `semanticLabel` replaces the name for screen readers while keeping its selected state and long-press action; a null `onTap` disables it). A picked parent is kept even if it stops being top-level meanwhile, so the repository's `invalidParent` message shows.
+- `group_options.dart`: `showGroupOptions(context, ref, group)` (one-choice guard; the sheet closes before the next step): rename, colour, put inside a group (top-level candidates only; for a group with sub-groups the option is shown disabled, not tappable, with `groupRuleHasChildren` under it (`group-nest-reason`) and as its semantics hint; a sub-group added while the parent list is open gets the repository's `hasChildren` message), take out of its parent, delete (`confirmDestructive` with `danger: false`: notes stay, sub-groups move out).
+- `group_filter.dart`: `GroupFilterRow({groups, selectedId, onSelect, onOptions})`: `group-filter-all`, `group-filter-<id>` (dot + name, capped width), a second row of sub-groups (`group-filter-children`) when a parent with children is selected, tapping the selected chip goes up a level, long press or `group-filter-options` on the selected chip opens the options. Graph-only navigation/enabled parameters were removed; group filtering remains shared by Notes and Browse.
+
+## Selection reuse
+
+`assignSelectionGroup` remains the picker’s guarded assignment/Undo helper and prunes notes missing from the current project snapshot. The legacy graph is removed. `noteSelectionActions` remains the shared notes selection runner. Pair deduplication, group colours, title fallback and `changeSuggestedPair` are reused by Map.
+
+## Saved recording intent (phase 2)
+
+Voice previews show the existing off/after-save ChoiceTags in both auto modes. Policy changes never touch the audio file; only new recordings with afterSave produce save requests. Capture/AAC settings, microphone ownership, five-minute limit and cleanup behavior are unchanged. Save paths consume the current persisted setting, so a loading chip cannot accidentally disable auto mode. All inference is deferred until copies and the note commit succeed.
+
+Voice preview keys retain path/position identity when a new immutable draft is made by the transcription toggle, preserving player state/playback across that toggle.
+
+## Transcription notifications
+
+`transcription_notifications.dart`: `askTranscriptionNotificationsOnce(context, ref)` runs the first time a recording is queued for transcription (Add save, Edit save, the details transcribe/retry/redo button). If the settings flag is unset and the permission can still be asked (`TranscriptionNotificationPermission.canAsk`, i.e. Android 13+ and not yet decided), it sets the flag, shows the one-line `trNotificationWhy` toast on the root navigator's context (Edit closes after saving) and requests the permission. Any failure only skips the question; callers never await it before saving or navigating. Refusing keeps transcription working while the app is open.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+Stored group IDs remain 0–3, now calm muted hues (blue, sage, sand, gray) with their colour names; no data migration. Attachment/player fills are opaque chip. Suggested-link accept/reject controls are neutral chip.
+Selected group-marker check icons choose the higher-contrast body/canvas ink
+for their marker hue, rather than assuming every stored colour is dark.
+
+## Voice 2a explicit recording policy
+
+Every voice chip in Add/Edit shows off and after-save ChoiceTags, including when global auto is on. Stop snapshots the persisted auto preference into the new draft's policy; changing a chip is explicit and overrides that default. Saved rows show their stored policy and only an actual chip choice marks policyChanged; merely saving a stale editor preserves newer live policy/correction metadata. Chips keep path/position identity, existing playback and microphone/capture settings. No live option, new capture path or draft transcription is introduced.
+
+## Links library reuse (redesign phase 3)
+
+GroupFilterRow adds optional `counts` (displayed beside group names) and `clearSelectedChild` (selected child retap clears instead of selecting its parent). Defaults preserve Notes sub-group behaviour. The library reuses uniqueLinkPairs, linksOfNote, showLinkOptions, changeSuggestedPair, showLinkPicker, group options and title helpers. Details' private rows remain unchanged because connections require body previews and explicit empty reasons.
+
+## Ordering & IA (redesign phase 4)
+
+- `project_picker.dart` exports pure `orderProjects(List<ProjectSummary> projects, {String? currentId})`: places the project matching `currentId` first when present, then sorts remaining projects by `Project.createdAt` descending (breaking equal-second ties by reverse input index so newer insertions appear first). Both `showProjectPicker` (passing `selectedProjectProvider`'s ID) and `showProjectSwitcher` use it, while `LocalProjectsRepository.watchProjects()` keeps ascending storage order.
+- `link_picker.dart` passes `clearable: true` (`link-search-clear`) on `link-search`.
+
+## Motion & delight (redesign phase 7)
+
+- `inline_recorder.dart`: wraps the recording dot in `RecordingPulse` and drives `recording-waveform` (`RepaintBoundary` + `CustomPaint`) via an optional `levelUpdates` `Listenable` and a 90 ms (`FikraMotion.waveformStep`) smoothing `AnimationController`, so amplitude samples repaint only the waveform without rebuilding the parent screen. Updates `_from`/`_to` without `setState` when `TickerMode` is disabled or Reduce Motion is on.
+- `attachment_editor.dart`, `attachment_voice.dart`, `attachment_toolbar.dart`, `save_tick_button.dart`: `AttachmentEditing` exposes `levelUpdates` (`90 ms` amplitude listener) and `isAddComposer`, updates `RecordingActivity` live/elapsed state once per second, wraps `add-stop` in `RecordingPulse` (`add-stop-pulse`), and renders `add-save` via `SaveTickButton` (`Icons.check_rounded` at rest) + `@visibleForTesting` `SaveTickMark` in `save_tick_button.dart`.
+- `group_form.dart` & `project_picker.dart`: `ChoiceTag` and `ProjectRow` render labels/counts with `RollingText`.
+
+## Finishing (redesign phase 8)
+
+- `note_groups.dart` (`runGroupAction`), `note_link_actions.dart` and `selection_actions.dart`: group writes and undo failure messages use `showMessengerToast` so every toast renders as the floating glass capsule.
+- `group_form.dart` & `group_options.dart`: `GroupColorPicker`'s "no colour" swatch fills with opaque `colors.chip`, and `_Disabled` passes `SheetOption(enabled: false)` so disabled option rows stay opaque over glass sheets.
+
+## Brand redesign (phase 1a)
+
+- `group_form.dart`: selected `ChoiceTag` fills with `brandLime` and `onBrandLime` w700 ink.
+- `group_filter.dart`: `GroupFilterRow` adds optional `leadingChips` (placed after "All" and before user groups) and an `allSelected` override, preserving filter defaults.
+- `note_groups.dart`: `GroupTag` uses 12.5 sp `meta` (removed 11.5 sp override).
+- `save_tick_button.dart` & `attachment_toolbar.dart`: `SaveTickButton` uses solid `brandLime` + `onBrandLime`; `add-stop` uses `dangerBg` foreground on `danger` fill.

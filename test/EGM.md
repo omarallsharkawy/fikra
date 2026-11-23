@@ -1,0 +1,185 @@
+# Tests
+
+## Overview
+
+Unit and widget tests for FIKRA. Run `flutter test`; screenshot-tagged tests are skipped by default. [support](support/EGM.md) owns the real-app harness; [screenshots](screenshots/EGM.md) owns design-review captures. Generated migration fixtures are not hand-edited.
+
+## PDF coverage
+
+- `app_flow_test.dart`: PDF-row route push through the real router, removal of the card overlay, PDF-icon taps opening the note, missing-file error and external opener path, ignored query-path input, notes without PDFs, deleted notes and unchanged external photo opening.
+- `pdf_viewer_test.dart`: injected corrupt/password failures, throwing external opener, default missing-file preflight, native-document disposal after normal and late load completion. Test documents are lifecycle fakes; no PDFium rendering is required.
+- Native rendering, zoom gestures, page-indicator tracking, and large-file responsiveness/memory require a device check.
+
+## Verification
+
+`dart format -l 120 lib test integration_test`, `flutter analyze`, `flutter test`, and `rm -rf build/screenshots && flutter test test/screenshots --run-skipped -t screenshots`.
+
+## Multi-attachment coverage
+
+`multi_attachments_test.dart` tests populated v4→v5 migration, empty paths, partial and complete backfill re-runs, orphan sweeping, six-file order, mid-copy and database failures, atomic edits and deferred deletion, empty drafts, analysis preservation, whole-note/wipe cleanup and serialized voice playback. `attachment_flows_test.dart` exercises two PDF routes, unsaved/discard cleanup, the empty block, repeated PDF picking, attachment-only edits with an AI call counter, PDF titles without extensions and retained drafts after failures. Fixtures use real small temporary files; generated snapshots are produced by drift tooling.
+
+## Phone follow-up regressions
+
+Password tests also verify no retry, preserved external opening, and disposal/classification of an encrypted document accepting an empty password. Large-text proposal tests use a details-only fixture to avoid the unrelated existing fixed-height tab-bar overflow under large system text.
+
+## Attachment review regressions
+
+`attachment_review_test.dart` saves actual Add-created drafts in both languages, verifies legacy auto-titles and safe retitling, title-independent empty validation, cached offstage Add preservation, double-tap Save exclusion, widget-level playback arbitration/lazy allocation/disposal, playback-stop-before-recording, cross-screen microphone ownership, disabled busy Cancel, and immediate temporary recording deletion without confirmation. `recording_lifecycle_test.dart` exercises permission, start, stop/cancel failures and disposal during pending permission/start/cancel using the actual AudioRecorder wrapper. `multi_attachments_test.dart` asserts postcommit non-I/O cleanup errors preserve committed copies, source recomputation preserves insights, and sweep grace protects an uncommitted file. The two-PDF flow records the path observed by the PDF loader fake.
+
+## v6 local operations
+
+`links_groups_moves_test.dart` covers multi-target links, reverse duplicates, suggestion/tombstone conversion, label normalization/empty-string persistence and grapheme-cluster caps (emoji and ZWJ sequences at the boundary), accept/dismiss/stale IDs, hidden dismissals, analysis protection and pre-cap filtering, linksOnly preservation, move impact/deletes/internal links/group clearing and actual file/sweep preservation, unknown destinations, serial relinking with failures/timeouts, every group rule, assignment, group/project deletion and wipe. `migration_test.dart` validates populated v4/v5→v6, preserved legacy reverse links/metadata, partial v6 state and full reruns against generated schema v6. Existing attachment migration tests also validate the current schema v6.
+
+Review regressions cover distinct unordered move-impact pairs with user precedence, mid-analysis project moves in normal and linksOnly jobs, stale accepts of dismissed/tombstone/user rows, untouched updatedAt in linksOnly, grapheme boundaries for user/AI labels, `updateLabel` on a removed link as a no-op, `acceptPair` after a re-analysis replaced the id and never reviving a rejected/removed pair, `dismissPair` for replaced, reverse and vanished suggestions but never a user link, ready-state relink failures/timeouts and reverse AI dismissal when removing user links. Migration tests also assert physical/declared Notes column order and the retained NOT NULL label constraint.
+
+## Links phase 2 coverage
+
+`note_links_test.dart` drives the real note page and picker: linking three notes with a reason (rows, toast count, newest-first order), search by title and text with picks kept, already-linked notes not pickable, a picked suggestion becoming the single user row, checked semantics, edit and clear reason, remove with cancel and confirm, accept/reject with no re-suggestion from either side, a user link surviving an edit plus re-analysis through `NoteProcessor`, legacy duplicate rows, both pages, same-frame double taps on open/accept/reject/confirm (counted through a spying `LinksRepository`), a failed link keeping the sheet, editing a link removed meanwhile, empty states, 48 dp targets (including a suggestion without a reason) and RTL/LTR placement. Review fixes add: dismissing the picker or the reason sheet while its write is pending keeps the page (a `Completer` gate on the spy), confirming a removal after the note was deleted under the sheet, accept racing a re-analysis that replaced the row, a 390x560 screen with a 300 dp keyboard and the failure banner scrolling instead of overflowing, an emoji-ending reason stored exactly as the field shows it, the tall picker's button above a 34 dp bottom safe area, and keystrokes not re-deriving the picker's lists (`LinkPickerSheet.derivations`). Mutating each guard, fix or the dedupe rule makes its test fail.
+
+## Links phase 3 coverage
+
+`project_moves_test.dart` drives the real note page, picker, dialog, projects sheet and Ask: exact move and delete wording for every Arabic plural form and English; a move with crossing links and suggestions in both languages (numbers in the dialog, note in the target project, attachment rows intact, crossing links gone and an unrelated link kept, page closed to the notes list, toast, selected project unchanged, relink for the moved id through a spying `LocalNotesRepository` and a quiet `AiService`); the plain message with a primary confirm; the hidden option with one project; cancel at the picker and at the confirmation; same-frame double taps; a second move blocked while the first saves (a `Completer` gate); leaving to the notes list when opened from Ask; a target project deleted meanwhile; a note deleted meanwhile; moved and deleted Ask sources (rendered, not openable); delete numbers, the empty project with and without a chat, a double tap counting once and cancel resetting the guard (a spying `LocalProjectsRepository`), a count returning after the sheet was dismissed opening nothing, changed move and delete numbers re-shown before acting, the options (and Edit) shut while a move saves, a page opened on top during a slow save staying, Back after moving a note opened from a link row, a mixed-name bidi layout check (`TextPainter`) for the three name messages, the disabled semantics of the missing Ask source; UX-16 one sheet and cancel; UX-17 wording only in the first-project flow. `repositories_test.dart` covers `deleteImpact` (chat flag, pairs once, rejected not counted, read-only, other projects ignored, empty and unknown) and project deletion removing only that project's files from disk. Breaking each guard or rule (`_moving`, relink, empty result, danger flag, hidden option, picker exclusion, `go('/notes')`, toast, Ask text and tap, UX-16, UX-17, delete message, the `dismissed`/`DISTINCT` filters, project-scoped file paths) makes its test fail.
+
+## Selection and groups (links phase 5a)
+
+`selection_mode_test.dart`: long press starts, taps toggle, check semantics; Back and close end it; deleted or moved notes drop out; leaving the tab and switching project end it (also before the other list arrives); the link limit with its note and hint, 48 dp targets and labels. `selection_actions_test.dart`: link together (three links and an exact Undo, an existing link kept, the zero form without Undo, a failure rolling back), moving several notes in Arabic and English (totals, re-ask on changed numbers, inner links kept, files, relink), a double tap opening one picker, deleting with real temp files and a failure midway. `note_groups_list_test.dart`: rule messages, assign + tags + mixed Undo, a new group with colour and parent and removing from a group, a parent changed while the form is open, the filter row with sub-groups and reset on delete, rename/colour/nest/un-nest/delete; `group_rules_test.dart`: each rule broken once. `toast_test.dart`: the toast timings, screen-reader persistence and transitions, replacement and Undo contrast in both themes. `selection_layout_test.dart`: the action bar, group sheet and form at 1×–3× text in both languages with real fonts and no clipped or mid-word-broken label. Every guard listed in the brief was broken once and its test failed.
+
+Review fixes: `selection_undo_test.dart` covers a slow Undo holding every action (`SpyLinks.undoGate`), a late action ending only its own selection (`linkGate`, Back + long press), link Undo restoring suggestions and rejections and leaving moved/deleted notes alone, grouping Undo leaving moved and regrouped notes alone with the deleted-old-group fallback, a new group deleted by Undo only while empty, and a new group rolled back when assigning fails (`SpyGroups.failAssign`). `selection_mode_test.dart` adds selection under search and group filter, and Back with a sheet open. `selection_layout_test.dart` now scales text above the navigator (asserted in each sheet), checks button labels are not squeezed (`RenderParagraph.textSize`) in the form, rename and options sheets; `toast_test.dart` (the toast tests moved out of it) adds the screen reader turned on and off mid-toast. `group_rules_test.dart` (moved out of `note_groups_list_test.dart`) expects "put inside" disabled with its reason for a group with sub-groups, and the repository's message when a sub-group appears mid-flow.
+
+## Voice to text experiment
+
+`voice_text/` contains the fake backend, themed fixture, pure/file/controller tests and screen state/error/accessibility tests. `screenshots/voice_text_test.dart` covers the real Settings route and experiment in AR/EN and dark/light. The retained spike tests now import used logic in lib/features/voice_text; lib/spike and its standalone main are removed.
+
+
+Voice layout phase 1 adds voice_text_preferences_test for persisted model/speech language, installed-model fallback and deletion repair. settings_test now verifies the new keys across reopen and wipe. Screen tests cover visible radio rows/per-row actions, testing collapse semantics, everyday versus technical results and errors scrolled into view. Screenshot fixtures include default and Egyptian-present cases in both themes/languages. Phase 2 adds saved voice-note transcription tests; external engines remain unimplemented.
+
+## Saved voice transcription (phase 2)
+
+transcription_queue_test covers FIFO/one engine at a time, duplicate requests, transactional append and provenance, current edits winning, multi-redo deduplication, deletion/type changes, stable failures, empty output, persisted FIFO recovery, completed-job idempotence and save wake-up isolation. whisper_lock_test covers expiration, handoff and trial file/live exclusion without native inference. transcription_save_test covers Add/Edit auto on/off and explicit draft selection, only new recordings, plus metadata retention on attachment-only edits. settings_test checks off-by-default/persistence/wipe retention; repositories_test checks that a transcript is analyzed once, as typed text (also with nothing typed), that edits are still not analyzed, and that an edited note shows the transcript once. transcription_queue_test checks that the transcript goes into originalText (and editedText when edited), leaves no "improved version" on an unedited note, survives restoreOriginal and drops a pending proposal; its keep-alive group checks start with the count, a count update when a job joins, stop after success/failure, a refused service not stopping work, and nothing started for completed or crash-guarded rows. transcription_save_test checks that the first queued transcription shows trNotificationWhy and asks once (flag persisted, never again), skips asking when the system cannot ask, and saves either way. transcription_widgets_test also checks that a transcript appended while Edit is open survives saving. voice_text_logic_test checks that private note runs log no text and keep no history. transcription_queue_test simulates kills with a fresh queue over the same database: two kills leave the row failed (`interruptedTwice`) on the next launch without an engine call, a wait in the queue does not count, manual retry/redo reset the count, and recovery/save wake-ups keep it. transcription_widgets_test shows the new failure with settings and checks a retry runs as attempt one; migration_test covers the column, including a partial v7 run that already added it. migration_test validates real populated v6 and partial/repeated v7 plus every earlier upgrade against generated v7 snapshots.
+
+transcription_widgets_test covers card/attachment queued/running, done collapsed/expanded, engine label/redo, all failure messages, retry/settings actions, background manual work and the auto switch. screenshots/transcription_test renders transcript/failure, Add draft toggle and auto switch in AR/EN and dark/light. The harness always supplies a fake engine, including startup recovery; no real Whisper runs in tests. Shared keyed scrolling excludes SelectableText/nested scroll views, with explicit scrollable and no first/last/at target. Controllers/streams use addTearDown and unawaited close where ownership ends after unmount. Native execution, screenshot inspection and Android lifecycle/performance require the orchestrator/phone.
+
+## External transcription (phase 3)
+
+remote_transcription_test checks all four builders against cited official docs, multipart file parts, inline MIME/base64, parsing, limits, timeout/offline/status mapping, no credential echoes/logging, consent before file/key access and one rejected-format conversion/cleanup. transcription_services_test uses a real in-memory database and fake key store for add/edit/reopen/delete, origin-bound key reads, stale consent, serialized updates and wipe. transcription_engine_selection_test holds WhisperLock while remote queue/trial jobs finish, changes selection between queued jobs, checks provenance and finishes pending processors before database teardown.
+
+external_transcription_widgets_test covers consent/cancel before any send, one-time agreement after a probe, obscured/show/hide key, service save/delete, partial/invalid/LAN URLs and regions, truthful Settings privacy text, attribution after delete and every remote failure action. screenshots/external_transcription_test covers engine choice, each service form, consent and the remote Settings line in both locales/themes. All HTTP/keys/local inference are faked. New scroll calls use the existing keyed outer-page helper and no first/last/at finder. Flutter tests/rendering are blocked by sandbox localhost restrictions; native/provider account checks remain with the orchestrator.
+
+## Pearl foundation
+
+Flutter tests and screenshot rendering must run outside the socket-restricted
+sandbox. The profile harness is explicitly reserved for the owner's phone run.
+
+## Voice 2a
+
+model_catalog_discovery_test covers the explicit builder allowlist/defaults, old/new config shapes, GET auth/pagination/parsing, bounded known-ID availability, redaction, consent and cache retention. transcript_corrections_test covers exact paragraph boundaries, both bodies, missing/changed/duplicate copies, explicit append, conflict, restore, redo, off recovery/manual requests and attachment-field retention including stale policy snapshots. Migration tests now validate every earlier path against v8, plus populated/partial/repeated v7 upgrades.
+
+voice2_widgets_test covers model groups/warnings/custom persistence, discovery consent and cached availability without audio, editor save/append/cancel and adopting a newer machine result. Existing save tests prove visible choices with auto on/off on Add/Edit and off overriding auto, plus saved metadata/policy retention. Recovery fixtures explicitly seed none/done/failed/off rows so status and policy filters are independently tested. Repository analysis fixtures make a manual transcription request; both transcript-only and typed+edited notes retain their unchanged analyze-once assertions. No real network/key store/Whisper is used.
+
+The real runner previously reported 589 passing and five failures in the partial work. Fixes mark explicit policy changes, separate new save requests from durable saved policy, and correct outdated recovery/manual-request fixtures; assertions for analysis and retention are preserved/strengthened. Flutter tests remain unavailable in this sandbox; the orchestrator must rerun them.
+
+## Floating navigation (redesign phase 2)
+
+floating_navigation_test covers zero-lens quick taps and reselection, 200 ms (`kLensHoldDelay`)
+hold visibility, immediate slide-before-200ms lens engagement, ordered live changes
+and exact selectionClick calls, shared/independent backdrop keys, end clamping,
+no extra branch-child builds, immediate release fade alongside spring settle (stopping hidden
+animations within 150 ms), hold-timer cancellation (release, cancel, vertical escape,
+external index change, keyboard open, dispose), fresh drag threshold on a second press
+after drag cancellation while the original finger stays down, vertical leave/reentry, reduced motion,
+TalkBack activation/selection, keyboard hiding, RTL/LTR placement and 3× text.
+floating_shell_test covers a complete last Notes card above controls/safe area,
+a real details widget pushed on Notes’ branch navigator plus scroll preservation,
+Add draft retention with a keyboard visibility change, and toast clearance
+without blocking tab taps. Hidden controls are checked by hit testing and the
+live semantics tree (`find.semantics`): `find.bySemanticsLabel` can still match a
+node that ExcludeSemantics dropped mid-test. The bar/Add backdrop key is static and
+is checked to stay the same across a tab switch. Production details
+routes remain above the shell as before; the branch-stack fixture is explicit.
+
+glass_widget_test now expects the frosted fallback’s own backdrop pass and adds
+solid/frosted visible-capsule and native shader-opacity checks. app_flow_test and
+transcription_save_test replace old Add-tab taps with Tabs.addButton, preserving
+their existing assertions. selection_mode_test references the visible Notes tab
+for its footer-clearance assertion. No test is removed. Screenshots are described
+in screenshots/EGM.md. The native-opacity check looks only inside GlassLens,
+because every route already wraps its page in an Opacity at 1.0.
+
+## Links library (redesign phase 3)
+
+links_library_layout_test adds real-font 1x/3x growth in AR/EN and removed-row-only fade/collapse versus instant reduced motion. link_pair_busy_test explicitly listens under Riverpod 3 and covers failure unlock, a successful write with a stale snapshot, pending derived refresh, and final pair disappearance; a second case with no listeners (hidden tab) checks that a newer snapshot still suggesting the pair unlocks it. links_library_layout_test also removes two rows within 220 ms (by new list and by accept lock) and checks the first stays in place. links_library_test adds chip-only empty state, live group chip reset, sort-option and Map segment semantics and the zero-count segment; note_connections_test checks the page's own note in a suggestion does not push itself. Shared busy state remains held across lazy eviction and a second presentation, verified by a gated widget fixture.
+
+Suggestion Undo: links_groups_moves_test (`pair accept/reject Undo` group) restores the exact prior rows after accept and reject (tombstone included), skips Undo for a removed, relabelled, relinked, deleted-note or moved pair, and returns null for no-op calls. links_library_test checks accept and reject → toast → Undo brings the suggestion back enabled, and that an accept/reject during a gated Undo does nothing and leaves the row usable. note_links_test checks the same Undo from note details inline actions. LibrarySpy and the note_links spy override the `…ForUndo` calls and can gate `undoPairChange`.
+
+## Ordering & IA (redesign phase 4)
+
+`phase4_ia_test.dart` covers: Settings' six ordered `Semantics(header: true)` sections, connected service navigation and separated red `settings-erase-all` behind `confirmDestructive` in AR/EN; `VoiceTextScreen`'s top-to-bottom section order and collapsed `vt-testing-toggle` under normal and reduced motion; `NotesScreen` Newest-first and Oldest-first (`linksNewest` / `linksOldest`) sorting, filter composition and session persistence; `orderProjects` in `showProjectSwitcher` and `showProjectPicker` (current first, then `createdAt` descending with equal-second insertion tie-breaking); clear (`X`) buttons on Notes, Browse, Map and the link picker preserving focus; visible `note-edit` header button on `NoteDetailsScreen` in RTL/LTR; and `HeaderActionButton` horizontal pills across all main headers plus clean collapse to 48 dp icon-only circles at 2.5× text / 320 dp. `project_header_test.dart` uses `HeaderActionButton` for Ask's trailing fixture and covers the second-row project chip below the title with ellipsis, 2.0× / 360 dp icon-only collapse, RTL edge alignment, and `boldText`/letter-word spacing overrides around the collapse threshold; `project_moves_test.dart` scopes its open-sheet `edit` assertion to `BottomSheet` and verifies `note-edit` is disabled while `_moving`.
+
+## Motion & delight (redesign phase 7)
+
+- `phase7_motion_test.dart`: covers Add save tick (immediate DB commit before animation, `HapticFeedback.lightImpact`, spring `SaveTickMark` morph and return to `Icons.check_rounded`, default navigation to `/notes` after tick when untouched, Reduce Motion path), recording pulse (`TickerMode` and Reduce Motion stop) and `RepaintBoundary`-isolated live waveform amplitude updates without outer screen repaints or offstage `setState`, card stagger on Notes/Browse/Suggestions (<= 8 cards only on visible first load or visible project switch, empty-project stream arrival guard, hidden project switch guard, Reduce Motion path), and `RollingText` (no roll on first build, changed-digit-only vertical roll in Western and Arabic-Indic numerals, preserved `maxLines` height during roll, TalkBack final-value semantics, live Suggestions segment and Links chip counts, Reduce Motion path). `attachment_review_test.dart`'s `saveAdd` helper pumps `FikraMotion.saveTick` so post-save navigation finishes as before.
+- `phase7_shell_motion_test.dart`: covers container-transform flying note open on `NoteCard`, `BrowseNoteCard` and `connections-note` (stable `State` without remount/rebuild across open/rest/reverse, reverse shrink toward card rect, offscreen normal-pop fallback, Android predictive back scrub/cancel/commit, Reduce Motion path), shrinking tab bar experiment (off by default, `debug-shrink-bar-toggle` in `GlassDebugOverlay`, scroll shrink/restore, press-and-slide lens selecting Ask + branch-change reset, reversed-scrollable ignore, Reduce Motion path), and `ActivityCapsule` (static dot/icon without continuous tickers, 1 Hz timer, constant `NavigationInset`, tap-through to Add and `/note/:id`, keyboard hide, `nav-add` clearance, static TalkBack button labels, Reduce Motion path).
+
+## Finishing: glass sheets/toasts, accessibility & large text (redesign phase 8)
+
+- `pearl_contrast_test.dart`: adds WCAG AA checks for glass sheet and toast text (`>= 4.5:1`) and icons (`>= 3.0:1`) across light/dark and solid/frosted backdrops (including scrimmed sheets and opaque `SolidSurface` danger options). `toast_test.dart` checks Undo action contrast against the capsule's drawn `ColoredBox` backing at both solid and frosted tiers.
+- `phase8_glass_surfaces_test.dart`: verifies sheet and toast glass tiers (`frosted`, `optical`, `solid`, `MediaQuery.highContrast`), single sigma-24 `BackdropFilter` per surface, disabled sheet blur while fully offscreen (`animation.value == 0`), opaque `SolidSurface` reading rows inside sheets, solid `confirmDestructive`, ungrouped toast blur, hit/scroll pass-through just beside and just below a visible toast capsule, floating bar/Add and open-keyboard clearance, and `FikraField`'s exact 48 dp height at 1.0x focused/unfocused in light and dark.
+- `phase8_accessibility_test.dart`: pumps all 14 main screens and sheets in Arabic and English, light and dark, checking `androidTapTargetGuideline`, `labeledTapTargetGuideline`, and `textContrastGuideline` (documenting, asserting non-empty matches, and verifying true `>= 4.5:1` WCAG contrast for the 11 sp `NotoSansArabic` sub-pixel anti-aliasing false positives in Arabic; `l.settings` is no longer excluded since it uses 13 sp `chip` text), plus TalkBack spot-checks (`isHeader`, `isButton`, `isSelected`, localized labels, excluded decorative icons, and RTL reading order with Row 1 Settings preceding Row 2 project pill).
+- `phase8_large_text_test.dart`: pumps all 14 main screens and sheets plus the floating toast with action at text scales `1.3` and `2.0` on a `360 dp`-wide viewport with real fonts in Arabic/English and light/dark, checking zero `RenderFlex` overflows, zero clipped interactive controls, non-truncated `SettingsScreen` `SegmentedPill` labels, and tap-target/label guidelines.
+
+## Connections push and suggestion performance
+
+- `note_connections_test` checks opaque first-frame Pearl painting, immediate validated preview titles, stable header geometry through loading, live-title authority and cold `/note/:id` and `/links/note/:id` placeholders with mismatched extras ignored.
+- `note_connections_provider_test` opens two notes over 5,000 records with a library-style warming listener and asserts a single shared adjacency derivation. A two-project regression checks eviction after the last listener, continued sharing for the selected project, and fresh derivation on revisit.
+- `note_connections_test` removes a confirmed link midway through a real route pop after both cold and warm entry; the departing page must retain its live list, without placeholders or resurrected entry rows. It asserts the animation is still reversing when checking the updated provider and visible page.
+- `suggestion_rebuild_test` measures accept/reject plus Undo with 5,000 notes and thousands of suggestions; a Flutter element build counter requires zero unrelated row builds. Repository timing is gated; real writes remain covered by the existing library and repository tests.
+- `links_library_layout_test` checks unchanged row widget identity, State preservation and the original collapse deadline when a fresh snapshot unlocks a pair before parent entries update. `link_pair_busy_test` also checks claim-only changes do not notify completed-pair selectors.
+
+The 5,000-note fixture measured nine unrelated row builds before the change and zero after accept/reject; Undo also retains unrelated rows. Validation completed 759 unit/widget tests and 69 screenshot cases in separate Flutter engine processes. Standard launcher gates are blocked here by localhost socket permissions.
+
+## Note-open and branch performance (P0.1)
+
+- `container_transform_test.dart`: several forward/reverse samples require identity linear transforms and no FittedBox above Arabic page text, final-size content, the existing clip/radius and opacity curves, live-card reverse targeting, and full-rect fade-only Reduce Motion with short pop. Source render opacity fades oppositely, restores on pop/interrupted-push disposal, and stays unchanged under Reduce Motion.
+- `branch_build_test.dart`: Flutter's element build callback counts zero NotesScreen/LinksLibraryScreen builds across repeated real-shell branch switches; Notes, Browse and Suggestions staggers stop offstage and a running stagger stops when Reduce Motion is enabled. Existing selection, first-load/project-switch stagger and route-state preservation tests remain unchanged.
+
+## Phase 0.2 & 0.3 coverage
+
+- `glass_quality_test.dart`, `glass_widget_test.dart`, `floating_navigation_test.dart`, `toast_test.dart`, `pearl_contrast_test.dart`, and `phase8_glass_surfaces_test.dart`: verify Reduce Motion forces `GlassTier.solid`, `+` button / bottom sheets / toasts / `LibraryControls` contain no `BackdropFilter`, and the floating tab bar (and grouped `ActivityCapsule`) retains sigma-16 `BackdropFilter` with 0.90 light / 0.72 dark backing alpha (solid under power save / high contrast / reduce motion).
+- `arabic_normalization_test.dart`: covers `normalizeArabic` (Alef/ة/ى/ؤ/ئ, tashkeel/tatweel, Arabic-Indic digits, Latin case, whitespace, preserved `ال`), `matchesNormalizedArabic` (`ال` tolerance without false matches), Notes search widget flow, `LinksIndex`, and `DemoAiService.ask` (including cache invalidation).
+
+## Concept navigation (phase 1B)
+
+concept_navigation_test covers 360 dp AR/EN labels at 1/1.3, icon-only at 1.4/2,
+FAB spacing, spring frames/retarget/haptics, routes/settings alias, full-screen Add
+inset and previous-tab X/back. me_test covers unique confirmed pairs, calendar-day
+bounds and project switches, all sections, project sheet and cancel-before-wipe.
+motion_test replaces veil tests with incoming/outgoing opacity/scale and instant
+Reduce Motion. Existing recording, accessibility, header and screenshot callers
+use Me and composer close where expectations changed.
+## Brand redesign (phase 1a)
+
+- `pearl_contrast_test.dart`: checks WCAG AA contrast (`>= 4.5:1` text, `>= 3:1` icons/large) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes, plus typography bounds (`NotoSansArabic`, zero `letterSpacing`, all sizes `>= 12.5` sp).
+- `welcome_redesign_test.dart`: verifies primary CTA direct creation of default project («أفكاري» / "My ideas") without a name dialog, secondary CTA demo seed, absence of auth buttons, LTR↔RTL pixel mirroring of `WelcomeHeroPainter`, 2.0× large-text scrolling without overflow, and Reduce Motion skipping entrance animation.
+- `home_redesign_test.dart`: verifies `activeDaysThisWeek` rolling 7-day counting, voice/files/group chip filtering and lime active fill, tinted type badges, warning pending-rewrite badge, link-count pill (`connectionsIndexProvider`), conditional action strip hidden at 0 and prioritized (failed → suggestions → rewrites) with Links suggestions navigation and session dismissal, and active-days chip hidden at 0.
+
+## Data race and destination guards
+
+credential_publication_test uses an in-memory database and fake secure slots for partial key writes, failed publication, retryable reclamation, missing/mismatched references, legacy reentry and staged/orphan wipe. transcription_services_test now checks the referenced slot and post-publication retryable cleanup instead of service-id storage or deletion-before-config behavior. external_transcription_widgets_test checks the fresh referenced slot after form save. Wipe fixtures inject fake services because wipe always clears secure slots.
+
+note_edit_race_test pauses a real staged copy with Completer, finishes fake transcription before commit, and checks typed/prior edits, equal text on different attachment IDs, corrections/redo, removals, attachment-only saves and typed conflicts with clean copy rollback. No inference or network runs. note_edit_conflict_widget_test verifies the real editor keeps the submitted text and stays open on conflict. attachment_review_test forwards the editor basis through its gated repository.
+
+pair_project_guard_test covers stale accept/dismiss after either or both endpoints move, no tombstone/Undo on stale commands, and valid action/Undo restoration. Existing pair and widget spies forward expectedProjectId and handle the typed result.
+
+The format, analyze, full-test and screenshot gates could not start in this run: Flutter bootstrap cannot write engine.stamp or engine.realm in the read-only SDK cache. No passing gate result is claimed.
+## Review fixes (S3, R1–R5, R8)
+
+- `ask_screen_test.dart`: verifies unchanged input clearing, mid-flight retyped draft preservation, failing write draft retention, preset submission preserving manual text, and per-project pending isolation without cross-project error toasts.
+- `floating_navigation_test.dart` & `concept_navigation_test.dart`: verify `ExcludeFocus` keyboard hiding/restoration with visible focus indicators on unselected controls, secondary/middle mouse clicks ignored while primary works, and real-font 2.0× narrow (320 dp) and wider (412 dp) Arabic tab layouts without clipping.
+- `arabic_normalization_test.dart`: verifies extended Latin case (`Łódź`/`łódź`), bounded distinct-word backtracking (`كتاب الكتاب`), `ال`-only prefix guards, and 5,000-note cached tokenization counts.
+- `note_connections_provider_test.dart` & `links_library_test.dart`: verify `connectionsIndexProvider` `autoDispose` release on project switch, reuse across consecutive pushes while listened, and controller disposal when a project is deleted.
+- `links_index_test.dart`: verifies O(G) group-scan operation growth across empty/nested groups and `shouldIsolateLinksDerivation` parity for dense `<1000`-note and small projects.
+- `glass_quality_test.dart` & `glass_widget_test.dart`: verify watchdog stops sampling and clears partial windows while keyboard-hidden or forced solid (battery saver, Reduce Motion, high contrast), while active visible frames still downgrade.
+
+## Links Map
+
+`map_layout_overlap_test.dart` covers rectangular ego packing at phone widths and large text. `map_index_test.dart`, `map_provider_test.dart`, `map_canvas_test.dart` and `links_map_test.dart` cover cluster keys and caps, source invalidation, cached pictures, node semantics, gestures, deep links and Back. Phone regressions use painted Map nodes for title fallback and zoom anchoring. Legacy graph fixtures were removed with their engine.

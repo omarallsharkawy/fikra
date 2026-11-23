@@ -1,0 +1,146 @@
+import 'package:flutter/widgets.dart';
+
+/// Motion tokens (Plasma One, measured on device where noted). Interactive
+/// motion uses the springs in pressable.dart; these are for transitions.
+abstract final class FikraMotion {
+  /// Mount / content enter: opacity 0 → 1 and scale 0.96 → 1.
+  static const enter = Duration(milliseconds: 250);
+  static const enterScale = 0.96;
+  static const enterCurve = Curves.easeOutCubic;
+
+  /// Small upward entrance for newly appended chat messages, in dp.
+  static const messageOffset = 8.0;
+
+  /// Exit is faster than enter. A content swap waits for the exit first.
+  static const exit = Duration(milliseconds: 120);
+  static const exitCurve = Curves.easeInCubic;
+
+  /// Expansions (height / size changes).
+  static const expand = Duration(milliseconds: 280);
+  static const expandCurve = Curves.easeOutCubic;
+
+  /// Screen push (measured): ~100 ms cross-fade plus a ~30 dp slide from the
+  /// end side that decelerates over ~400 ms.
+  static const push = Duration(milliseconds: 400);
+  static const pushFade = Duration(milliseconds: 100);
+  static const pushOffset = 30.0;
+  static const pushCurve = Cubic(0.23, 1, 0.32, 1);
+
+  /// Button / programmatic screen pop: a plain fade-out, with no slide.
+  static const pop = Duration(milliseconds: 120);
+
+  /// Bottom sheet (measured): ease-in-out ~310 ms, ~30 % scrim.
+  static const sheet = Duration(milliseconds: 310);
+  static const sheetCurve = Cubic(0.42, 0, 0.58, 1);
+
+  /// Add composer save confirmation tick before returning to normal.
+  static const saveTick = Duration(milliseconds: 360);
+
+  /// Recording breathing ring and live waveform smoothing.
+  static const pulse = Duration(milliseconds: 1600);
+  static const pulseCurve = Curves.easeInOut;
+  static const pulseExpand = 6.0;
+  static const waveformStep = Duration(milliseconds: 90);
+
+  /// First-appearance card stagger: at most 8 cards, 32 ms apart, 384 ms total (< 400 ms).
+  static const staggerStep = Duration(milliseconds: 32);
+  static const staggerItem = Duration(milliseconds: 160);
+  static const staggerTotal = Duration(milliseconds: 384);
+  static const staggerMaxItems = 8;
+  static const staggerOffset = 10.0;
+
+  /// Vertical digit roll when a visible count changes.
+  static const roll = Duration(milliseconds: 220);
+  static const rollCurve = Curves.easeOutCubic;
+
+  /// Container-transform note open/close (forward uses [push] and [pushCurve]).
+  static const containerPop = Duration(milliseconds: 280);
+  static const containerFadeStart = 0.12;
+  static const containerFadeEnd = 0.55;
+
+  /// Experimental scroll-driven tab-bar shrink.
+  static const barShrinkDistance = 120.0;
+  static const barShrunkHeight = 52.0;
+
+  /// Reduce Motion: plain fades only.
+  static const reducedFade = Duration(milliseconds: 180);
+
+  static bool reduced(BuildContext context) => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+}
+
+/// Content swap: the old child fades out (120 ms), then the new one fades and
+/// scales in (0.96 → 1, 250 ms). Give each state a distinct [Key].
+/// With [animateSize] the height change between states is eased too.
+class FikraSwitcher extends StatefulWidget {
+  const FikraSwitcher({super.key, required this.child, this.animateSize = false, this.alignment = Alignment.topCenter});
+
+  final Widget child;
+  final bool animateSize;
+  final AlignmentGeometry alignment;
+
+  @override
+  State<FikraSwitcher> createState() => _FikraSwitcherState();
+}
+
+class _FikraSwitcherState extends State<FikraSwitcher> {
+  // Moves the switcher in and out of the AnimatedSize wrapper without
+  // remounting it when Reduce Motion is toggled.
+  final _switcherKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final alignment = widget.alignment;
+    final reduced = FikraMotion.reduced(context);
+    final exitMs = FikraMotion.exit.inMilliseconds;
+    final total = exitMs + FikraMotion.enter.inMilliseconds;
+    final switcher = AnimatedSwitcher(
+      key: _switcherKey,
+      duration: reduced ? FikraMotion.reducedFade : Duration(milliseconds: total),
+      reverseDuration: reduced ? FikraMotion.reducedFade : FikraMotion.exit,
+      switchInCurve: reduced ? Curves.linear : Interval(exitMs / total, 1, curve: FikraMotion.enterCurve),
+      switchOutCurve: reduced ? Curves.linear : FikraMotion.exitCurve,
+      layoutBuilder: (current, previous) => Stack(alignment: alignment, children: [...previous, ?current]),
+      // One hierarchy for both modes, so toggling Reduce Motion never remounts
+      // the content (a focused field would lose its IME state).
+      transitionBuilder: (child, animation) => _ExitGuard(
+        animation: animation,
+        child: ScaleTransition(
+          scale: reduced
+              ? const AlwaysStoppedAnimation(1.0)
+              : Tween(begin: FikraMotion.enterScale, end: 1.0).animate(animation),
+          child: FadeTransition(opacity: animation, child: child),
+        ),
+      ),
+      child: widget.child,
+    );
+    // A zero-duration AnimatedSize re-dirties itself inside its own layout (a
+    // debug assertion), so Reduce Motion drops the wrapper and resizes at once.
+    if (!widget.animateSize || reduced) return switcher;
+    return AnimatedSize(
+      duration: FikraMotion.expand,
+      curve: FikraMotion.expandCurve,
+      alignment: alignment,
+      child: switcher,
+    );
+  }
+}
+
+/// The outgoing child of a switch stays visible during its exit but takes no
+/// taps, focus or semantics, so a control can't fire after it was replaced.
+class _ExitGuard extends AnimatedWidget {
+  const _ExitGuard({required Animation<double> animation, required this.child}) : super(listenable: animation);
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = (listenable as Animation<double>).status;
+    final exiting = status == AnimationStatus.reverse || status == AnimationStatus.dismissed;
+    return IgnorePointer(
+      ignoring: exiting,
+      child: ExcludeFocus(
+        excluding: exiting,
+        child: ExcludeSemantics(excluding: exiting, child: child),
+      ),
+    );
+  }
+}

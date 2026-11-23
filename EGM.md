@@ -1,0 +1,83 @@
+# FIKRA Blueprint
+
+## System Overview
+
+FIKRA is a Flutter Android app for Arabic and English notes. Notes, projects, links, and chat history are stored on the device in a Drift SQLite database, and attachment files are stored in the app's private documents directory.
+
+The current build is the demo. `AiService` is the boundary to the backend, and the demo implementation sits behind it. PDFs and photos stay on the device. Voice recordings also stay local unless the user explicitly selects and consents to an external transcription service; typed note text, which includes locally made recording transcripts, is analyzed (never edits or PDF text). PDFs are parsed locally by PDFium for display. `FIKRA_MODE=connected` is rejected at startup because no backend implementation exists yet.
+
+```text
+features -> app/providers -> data repositories -> Drift SQLite
+                          -> NoteProcessor -> AiService (DemoAiService today)
+                          -> AttachmentStore -> private files
+```
+
+A saved note is written to the database first. `NoteProcessor` then runs analysis one note at a time and moves the note to `ready` or `failed`. Screens update from Drift streams through Riverpod providers.
+
+Not covered by these contracts: `android/` (a default Flutter host), `integration_test/`, `test_driver/`, and generated `*.g.dart` files. Tests have their own `test/EGM.md` contract.
+
+## Subdirectories & System Boundaries
+
+- lib: [./lib/EGM.md](./lib/EGM.md) - All application source and the `main()` entry point.
+- lib/app: [./lib/app/EGM.md](./lib/app/EGM.md) - Build mode, providers, routes, and the four-tab shell with a separate Add button.
+- lib/core: [./lib/core/EGM.md](./lib/core/EGM.md) - Formatting, theme, motion, and shared widgets. Imports nothing from `app`, `data`, or `features`.
+- lib/data: [./lib/data/EGM.md](./lib/data/EGM.md) - Repositories, schema, files, analysis queue, and the AI boundary.
+- lib/l10n: [./lib/l10n/EGM.md](./lib/l10n/EGM.md) - Approved Arabic/English copy, generated lookups, and demo vocabulary.
+- lib/features: [./lib/features/EGM.md](./lib/features/EGM.md) - Screens, grouped by folder.
+
+## Global Invariants
+
+- A note is stored before analysis runs, so an analysis failure never loses it (`lib/features/add`, `lib/data/processing`).
+- A note with no typed text (recording transcripts count as typed text) goes straight to `ready` without calling `AiService` (`lib/data/processing`).
+- `Notes.originalText` preserves typed text except explicit safe transcript corrections and recording appends (`lib/data/local`).
+- `applyInsights` treats AI output as untrusted and validates link targets (`lib/data`).
+- Every migration step must be atomic and safe to re-run (`lib/data/local`).
+- Pushed routes must use `_pushed` in `lib/app/router.dart`, or go_router falls back to no transition.
+- Connected mode must not run on the demo services (`lib/main.dart`, `lib/app/providers.dart`).
+
+## Global Side Effects
+
+- Reads and writes the on-device SQLite database named `fikra`.
+- Creates and deletes files under `attachments/` in private storage, and `rec_*` recordings in the temp directory.
+- Requests microphone permission and opens the system file picker (`lib/features/add`).
+- Displays local PDFs in the app with pdfrx; photos and the explicit PDF open-elsewhere action use `openWithSystem` (`lib/data/files`).
+- The demo build makes no network calls from `lib/data/ai`.
+
+## System Verification
+
+- Run: `flutter analyze && flutter test`
+
+## Languages
+
+- Arabic is RTL; English is LTR. A persisted language preference resolves through `appLocaleProvider`; device mode uses English only for an English device and Arabic otherwise.
+- UI copy lives in `lib/l10n`, based on `docs/plans/copy-glossary.md`. Stored content, topics, groups and answers retain their creation language.
+
+## Multi-attachment storage (v5)
+
+A note owns ordered rows in `note_attachments`, with cascading deletion. Add and saved-note Edit share capture/preview code. Draft removals never delete disk files before commit; failed saves clean new copies and retain the draft. Startup sweeping queries all new rows only after the database migration succeeds; failed opening prevents maintenance. A one-hour grace protects files copied by an in-flight save. Cards share a batched project stream, and PDFs route by note plus attachment ID.
+
+Phone follow-up fixes classify locked PDFs with a specific non-retry error, share note-title fallback text, centre zoom on the Map viewport and adapt rewrite actions to localized label widths and large text. File-size LTR and transition tap behavior are covered by regressions without further gesture or formatting changes.
+
+## Local links and groups (v6)
+
+The data layer now supports user links, rejected-pair tombstones, two-level note groups and atomic moves between projects. These operations have no UI in this phase and never send user links or groups to a server. Labels remain NOT NULL strings; no reason is stored as `''`.
+
+## Saved voice transcription (v7)
+
+Voice recording files remain local. Optional on-device transcription is off by default; Add/Edit persist requests only for new recordings after save, or details queues one manually. A durable attachment FIFO shares a process-wide Whisper lease with the voice experiment. Transcript/engine/status/time live on each attachment. A transcript counts as text the user wrote: a transactional append adds it once to originalText and, when the note has an edit, to editedText, so restoring the original keeps it and a pending proposal is dropped as for a user edit. Search and card previews use the current body; analysis uses originalText only, so each transcript is analyzed once. Killed jobs resume at launch, at most twice per request: after a second kill during the same recording's transcription it is marked failed instead of restarting, so a native crash or out-of-memory kill cannot repeat on every launch; while jobs run, an Android foreground service (`TranscriptionService`, mediaProcessing on Android 15+, dataSync on 10–14) with a low-importance notification keeps the process alive after the user leaves the app. Notification permission is asked once, the first time a transcription is queued; refusing it never blocks saving. No external transcription provider is introduced.
+
+## External transcription (phase 3)
+
+Users can add OpenAI-compatible, Gemini, ElevenLabs or Qwen services and opt in to sending recordings to one named destination. Keys use flutter_secure_storage; config/consent/engine choice use settings JSON. The selected adapter is resolved when each saved-recording job starts; the FIFO, keep-alive and crash guard are unchanged. Remote trials use the same choice without WhisperLock, and remote text/audio/keys never enter logs. Settings names the selected recipient, every remote transcript is attributed, and wipe removes service configs/keys. Main Android INTERNET permission now covers release model downloads and user-added services. No other backend or AI mode behavior changes.
+
+Connections pushes paint Pearl and reserve loading content from their first frame. Project adjacency and per-note suggestions are shared across opens; successful suggestion removals update only that row.
+
+ProjectHeader keeps the title/actions above the project switcher chip. Settings lives in the Me tab; no Settings header pill or text-width measurement remains.
+
+Note-open transforms keep page text at final size and scale 1 inside the morphing clip; source cards fade through a paint-only opacity wrapper. Notes and Links library branch visibility is observed by a small motion leaf, so tab switches do not rebuild either screen.
+
+Review-fix invariants: Ask tracks pending state per project and only clears the composer when the selected project and draft revision match the submitted request; hidden floating navigation excludes keyboard focus (`ExcludeFocus`) and stops glass watchdog frame sampling (`GlassVisibility` and non-solid tier gating), while primary-only mouse button gating prevents secondary/middle clicks from switching tabs; Arabic/Latin search normalizes extended Unicode case, uses bounded exact-first distinct-word backtracking, and caches tokenized haystacks in Notes and Links; `connectionsIndexProvider` is `autoDispose`, `LinksLibraryScreen` prunes deleted projects' controllers post-frame, and `deriveLinksIndex` builds group children in O(G) while offloading dense graphs by note, edge, and group counts.
+
+## Links Map
+
+Connections owns the single Map engine. Each project opens Map first and remembers Map, Browse or Suggestions for the session. The legacy Links graph was removed and `/links/graph` opens Map. Cluster membership comes from the parent or own group, then the note topic, then Others. Connections keeps live data during Back after the entrance snapshot has settled.

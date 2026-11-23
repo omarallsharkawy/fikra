@@ -1,0 +1,2024 @@
+{
+  "@@locale": "ar",
+  "appTitle": "فِكرة",
+  "navAdd": "إضافة",
+  "navNotes": "الملاحظات",
+  "navLinks": "الروابط",
+  "navAsk": "اسأل",
+  "storageErrorTitle": "فيه مشكلة في التخزين",
+  "storageErrorBody": "مقدرناش نقرا بياناتك دلوقتي. اتأكد إن فيه مساحة فاضية على الموبايل، وجرّب تاني.",
+  "retry": "جرّب تاني",
+  "today": "النهارده",
+  "yesterday": "امبارح",
+  "justNow": "دلوقتي",
+  "sizeBytes": "{size} بايت",
+  "sizeKb": "{size} KB",
+  "sizeMb": "{size} MB",
+  "badgeSampleData": "بيانات تجريبية",
+  "badgeSaved": "اتحفظت",
+  "badgeAnalyzing": "بنحللها…",
+  "badgeFailed": "فيه مشكلة",
+  "delete": "احذف",
+  "cancel": "إلغاء",
+  "loadErrorTitle": "مقدرناش نحمّل البيانات",
+  "loadErrorBody": "مقدرناش نقرا بياناتك دلوقتي. جرّب تاني.",
+  "genericError": "حصلت مشكلة. جرّب تاني.",
+  "voicePlayA11y": "شغّل",
+  "voicePauseA11y": "وقّف",
+  "voiceUnavailableA11y": "التسجيل مش متاح",
+  "voiceRecording": "تسجيل صوتي",
+  "fileUnavailable": "الملف مش متاح",
+  "deleteRecording": "احذف التسجيل",
+  "firstProjectTitle": "سمّي أول مشروع",
+  "create": "إنشاء",
+  "createProjectFailed": "مقدرناش نعمل المشروع. جرّب تاني.",
+  "sampleProjectFailed": "مقدرناش نفتح المشروع الجاهز. جرّب تاني.",
+  "tagline": "اكتب. اربط. اسأل.",
+  "welcomeCapture": "اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور",
+  "welcomeLinks": "فِكرة بتربط الملاحظات القريبة من بعض لوحدها",
+  "welcomeAsk": "اسأل، والإجابة بتيجي من ملاحظاتك ومعاها المصدر",
+  "welcomeDemoBadge": "نسخة تجريبية: كل حاجة بتفضل على موبايلك",
+  "startNewProject": "ابدأ مشروع جديد",
+  "trySampleProject": "جرّب مشروع جاهز",
+  "projectPillA11y": "المشروع: {name}. دوس عشان تغيّره",
+  "noProject": "مفيش مشروع",
+  "settings": "الإعدادات",
+  "projectsTitle": "المشاريع",
+  "newProject": "مشروع جديد",
+  "projectOptionsA11y": "خيارات «{name}»",
+  "renameProject": "غيّر الاسم",
+  "save": "احفظ",
+  "deleteProject": "احذف المشروع",
+  "deleteProjectTitle": "تحذف «{name}»؟",
+  "deleteProjectBody": "هيتحذف {items}، والمحادثة كمان. مش هتعرف ترجّعهم.",
+  "projectDeleted": "المشروع اتحذف",
+  "projectNameHint": "اسم المشروع",
+  "recordStartFailed": "مقدرناش نبدأ التسجيل. جرّب تاني.",
+  "recordInterrupted": "التسجيل اتقطع. سجّل تاني.",
+  "pdfOnly": "الملف ده مش PDF. اختار ملف PDF.",
+  "fileOpenFailed": "مقدرناش نفتح الملف. جرّب ملف تاني.",
+  "photosOpenFailed": "مقدرناش نفتح الصور. جرّب تاني.",
+  "noteSaved": "الملاحظة اتحفظت",
+  "noteSavedAnalyzing": "الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي",
+  "noteSaveFailed": "مقدرناش نحفظ الملاحظة. جرّب تاني.",
+  "photosTitle": "صور",
+  "addTitle": "ملاحظة جديدة",
+  "titleOptionalHint": "عنوان (اختياري)",
+  "bodyHintWithFileLinks": "اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)",
+  "bodyHint": "اكتب فكرتك هنا…",
+  "addFooter": "الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.",
+  "discardRecording": "الغي التسجيل",
+  "stopRecording": "وقّف التسجيل",
+  "recordVoice": "سجّل صوت",
+  "addPdf": "ضيف PDF",
+  "addPhotos": "ضيف صور",
+  "removeFile": "شيل الملف",
+  "removePhoto": "شيل الصورة {n}",
+  "micNeededTitle": "محتاجين إذن المايك",
+  "close": "اقفل",
+  "micBlockedBody": "المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.",
+  "micAskBody": "عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.",
+  "openSettings": "افتح الإعدادات",
+  "allowMic": "اسمح بالمايك",
+  "recordingNow": "بيسجّل",
+  "notesTitle": "الملاحظات",
+  "searchNotesHint": "دوّر في الملاحظات",
+  "notesEmptyTitle": "لسه مفيش ملاحظات",
+  "notesEmptyBody": "اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.",
+  "addFirstNote": "ضيف أول ملاحظة",
+  "noResultsTitle": "مفيش نتايج",
+  "noResultsBody": "مفيش ملاحظة فيها «{query}». جرّب كلمة تانية.",
+  "noteAnalysisFailed": "مقدرناش نحللها",
+  "noteRewriteSuggested": "فيه صياغة مقترحة",
+  "noteSavedBadge": "محفوظة",
+  "openFileA11y": "افتح {name}",
+  "untitledNote": "ملاحظة جديدة",
+  "openFileFailed": "مقدرناش نفتح الملف. اتأكد إن عندك تطبيق يفتح النوع ده.",
+  "noteOptions": "خيارات الملاحظة",
+  "edit": "عدّل",
+  "restoreOriginal": "رجّع النص الأصلي",
+  "originalRestored": "رجّعنا النص الأصلي",
+  "deleteNote": "احذف الملاحظة",
+  "deleteNoteTitle": "تحذف الملاحظة دي؟",
+  "deleteNoteBody": "الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.",
+  "noteDeleted": "الملاحظة اتحذفت",
+  "back": "رجوع",
+  "options": "خيارات",
+  "noteNotFoundTitle": "الملاحظة دي مش موجودة",
+  "noteNotFoundBody": "يمكن تكون اتحذفت.",
+  "analysisFailedBanner": "مقدرناش نحلل الملاحظة، بس هي محفوظة زي ما هي.",
+  "analyzeAgain": "حلّلها تاني",
+  "viewEdited": "المعدّلة",
+  "viewOriginal": "الأصلية",
+  "originalTextLabel": "النص الأصلي",
+  "topicsHeader": "المواضيع",
+  "analyzingBody": "فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.",
+  "suggestedRewrite": "صياغة مقترحة",
+  "demoBadge": "تجريبي",
+  "useRewrite": "استخدمها",
+  "keepOriginal": "خلّي النص الأصلي",
+  "pdfFile": "ملف PDF",
+  "openPhotoA11y": "افتح الصورة {n}",
+  "changesSaved": "التعديل اتحفظ",
+  "changesSaveFailed": "مقدرناش نحفظ التعديل. جرّب تاني.",
+  "unsavedTitle": "عندك تعديلات مش محفوظة",
+  "saveChanges": "احفظ التعديل",
+  "discardChanges": "اخرج من غير حفظ",
+  "keepEditing": "كمّل تعديل",
+  "editNoteTitle": "تعديل الملاحظة",
+  "titleHint": "العنوان",
+  "noteTextA11y": "نص الملاحظة",
+  "originalKeptHint": "النص الأصلي بيفضل محفوظ، وتقدر ترجّعه من خيارات الملاحظة.",
+  "clusterGeneral": "أفكار عامة",
+  "moreGroups": "باقي المجموعات",
+  "linksTitle": "الروابط",
+  "linksEmptyTitle": "الروابط بتظهر هنا",
+  "linksEmptyBody": "ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.",
+  "addNote": "ضيف ملاحظة",
+  "linksSummary": "{notesCount} · {linksCount}",
+  "zoomIn": "كبّر",
+  "zoomOut": "صغّر",
+  "resetView": "رجّع العرض",
+  "showGroupA11y": "اعرض {notesCount} في «{cluster}»",
+  "moreGroupsCount": "باقي المجموعات ({count})",
+  "noLinksYet": "لسه مفيش روابط. الملاحظات اللي بتتكلم في نفس المواضيع هتتربط ببعض لوحدها.",
+  "nodeMeta": "{cluster} · {linksCount}",
+  "openNote": "افتح الملاحظة",
+  "askFailed": "مقدرناش نجاوب دلوقتي. جرّب تاني.",
+  "clearChatTitle": "تمسح المحادثة؟",
+  "clearChatBody": "الأسئلة والإجابات هتتمسح، والملاحظات نفسها مش هيحصلها حاجة.",
+  "clear": "امسح",
+  "askSuggestion": "إيه اللي كتبته عن {title}؟",
+  "askTitle": "اسأل",
+  "clearChatA11y": "امسح المحادثة",
+  "askDemoBadge": "إجابات تجريبية من ملاحظاتك",
+  "askEmptyTitle": "اسأل عن ملاحظاتك",
+  "askEmptyNoNotes": "ضيف ملاحظات الأول، وبعدين اسأل عنها هنا. الإجابة بتيجي من ملاحظاتك بس، ومعاها المصدر.",
+  "askEmptyBody": "الإجابة بتيجي من ملاحظات المشروع ده بس، ومعاها المصدر.",
+  "askHint": "اسأل عن أي حاجة في ملاحظاتك",
+  "send": "ابعت",
+  "notFoundInNotes": "ملقيناش إجابة في ملاحظاتك",
+  "sources": "المصادر",
+  "sourceA11y": "مصدر {index}: {title}",
+  "eraseAllTitle": "تمسح كل البيانات؟",
+  "eraseAllBody": "كل المشاريع والملاحظات والتسجيلات والملفات والمحادثات وخدمات التفريغ ومفاتيحها هتتمسح من الموبايل، ومش هتعرف ترجّعها.",
+  "eraseAllConfirm": "امسح كل حاجة",
+  "eraseAllDone": "كل حاجة اتمسحت",
+  "eraseAllPartial": "البيانات اتمسحت، بس فيه ملفات لسه. هتتمسح لوحدها أول ما تفتح التطبيق تاني.",
+  "eraseAllFailed": "مقدرناش نمسح البيانات. جرّب تاني.",
+  "settingsTitle": "الإعدادات",
+  "appearance": "المظهر",
+  "themeSystem": "زي الموبايل",
+  "themeLight": "فاتح",
+  "themeDark": "غامق",
+  "themeHint": "«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.",
+  "dataStaysLocal": "ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.",
+  "eraseAll": "امسح كل البيانات",
+  "aboutSection": "عن التطبيق",
+  "demoVersion": "نسخة تجريبية",
+  "languageSection": "اللغة",
+  "languageSystem": "زي الموبايل",
+  "languageArabic": "العربية",
+  "languageEnglish": "English",
+  "demoLinkReason": "مرتبطة بـ{concept}",
+  "demoAnswerNotFound": "مفيش ملاحظة في المشروع ده بتتكلم عن الموضوع ده. جرّب تسأل بطريقة تانية، أو ضيف ملاحظة عنه.",
+  "demoAnswerIntro": "من ملاحظاتك في المشروع ده:",
+  "untitledNoteFallback": "ملاحظة من غير عنوان",
+  "expandLlm": "LLM (نموذج لغوي كبير)",
+  "expandRag": "RAG (Retrieval-Augmented Generation)",
+  "sampleProjectName": "مشروع التخرج",
+  "sample1Title": "فكرة المشروع",
+  "sample1Body": "تطبيق ملاحظات بيستخدم الذكاء الاصطناعي عشان يربط الأفكار ببعض ويجاوب على أسئلتي من ملاحظاتي بس.",
+  "sample2Title": "إزاي RAG بيشتغل",
+  "sample2Body": "الـrag بيجيب أقرب أجزاء من الملاحظات بالـembedding وبعدين الـllm بيكتب الإجابة منها مع ذكر المصدر",
+  "sample3Title": "شكل الواجهة",
+  "sample3Body": "تصميم الواجهة غامق وبسيط، بالعربي من اليمين للشمال، وفيه أربع تابات: إضافة، الملاحظات، الروابط، اسأل.",
+  "sample4Title": "إدارة الحالة في Flutter",
+  "sample4Body": "هستخدم riverpod لإدارة الحالة في flutter، وقاعدة بيانات محلية للنسخة التجريبية.",
+  "sample5Title": "الباك إند",
+  "sample5Body": "علاء هيعمل الباك إند بـfastapi و postgres مع pgvector، والتطبيق هيكلمه عن طريق api.",
+  "sample6Title": "البحث الدلالي",
+  "sample6Body": "البحث الدلالي بيدوّر بالمعنى مش بالكلمة، وده معتمد على الـembedding اللي بيتخزن في قاعدة بيانات.",
+  "sample7Title": "محاضرة الشبكات",
+  "sample7Body": "محاضرة الشبكات النهارده كانت عن TCP و UDP، لازم أراجعها قبل الامتحان.",
+  "clearSearch": "امسح البحث",
+  "noteSavedNoText": "الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي",
+  "noTextNoLinks": "الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.",
+  "pdfOpenElsewhere": "افتح في تطبيق تاني",
+  "pdfPageOf": "{page} من {total}",
+  "pdfLoadFailed": "مقدرناش نفتح الملف ده. ممكن يكون بايظ أو اتحذف.",
+  "notesCount": "{count, plural, zero{مفيش ملاحظات} one{ملاحظة واحدة} two{ملاحظتين} few{{count} ملاحظات} many{{count} ملاحظة} other{{count} ملاحظة}}",
+  "linksCount": "{count, plural, zero{مفيش روابط} one{رابط واحد} two{رابطين} few{{count} روابط} many{{count} رابط} other{{count} رابط}}",
+  "minutesAgo": "{count, plural, zero{دلوقتي} one{من دقيقة} two{من دقيقتين} few{من {count} دقايق} many{من {count} دقيقة} other{من {count} دقيقة}}",
+  "hoursAgo": "{count, plural, zero{من {count} ساعة} one{من ساعة} two{من ساعتين} few{من {count} ساعات} many{من {count} ساعة} other{من {count} ساعة}}",
+  "@sizeBytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeKb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeMb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectPillA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectOptionsA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@removePhoto": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@noResultsBody": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@openFileA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@openPhotoA11y": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@linksSummary": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@showGroupA11y": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "cluster": {
+        "type": "String"
+      }
+    }
+  },
+  "@moreGroupsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nodeMeta": {
+    "placeholders": {
+      "cluster": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@askSuggestion": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@demoLinkReason": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    },
+    "description": "The concept is a stored topic label from a note; do not translate the placeholder value."
+  },
+  "@pdfPageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@notesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@linksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@appTitle": {
+    "description": "Proper app name; retain the approved brand spelling."
+  },
+  "@languageArabic": {
+    "description": "Language name shown in Arabic in both UI languages so users can recognize it."
+  },
+  "@languageEnglish": {
+    "description": "Language name shown in English in both UI languages so users can recognize it."
+  },
+  "@sample3Body": {
+    "description": "Historical student note describing the original UI; preserve the dark/RTL description in both languages."
+  },
+  "@originalKeptHint": {
+    "description": "Applies to every note source. Saved recordings can be transcribed locally after saving."
+  },
+  "@photosTitle": {
+    "description": "Default title for a photo-only note. The parenthetical location note in the glossary is not UI copy."
+  },
+  "pdfFormat": "PDF",
+  "@pdfFormat": {
+    "description": "File-format fallback when an attachment has no stored filename; this technical abbreviation is identical in both languages."
+  },
+  "removeAttachmentBody": "الملف هيتحذف من الملاحظة لما تحفظ التغييرات، ومش هتعرف ترجّعه.",
+  "emptyNoteBlocked": "الملاحظة مينفعش تبقى فاضية. اكتب نص أو ضيف ملف.",
+  "pdfPasswordProtected": "الملف ده محمي بكلمة سر. تقدر تفتحه في تطبيق تاني.",
+  "noteLinksHeader": "الروابط",
+  "linkToNote": "اربط بملاحظة",
+  "noteLinksEmpty": "لسه مفيش روابط للملاحظة دي. دوس «اربط بملاحظة» عشان تربطها بملاحظات تانية.",
+  "noteLinksLoadFailed": "مقدرناش نجيب الروابط دلوقتي.",
+  "linkSuggestedTag": "اقتراح",
+  "linkRowA11y": "{title}، {detail}",
+  "@linkRowA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestedLinkA11y": "اقتراح: {title}",
+  "@suggestedLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "acceptLink": "اقبل",
+  "acceptLinkA11y": "اقبل الربط بـ«{title}»",
+  "@acceptLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectLink": "ارفض",
+  "rejectLinkA11y": "ارفض الربط بـ«{title}»",
+  "@rejectLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsA11y": "خيارات الرابط مع «{title}»",
+  "@linkOptionsA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsTitle": "خيارات الرابط",
+  "editLinkReason": "عدّل السبب",
+  "removeLink": "شيل الرابط",
+  "removeLinkTitle": "تشيل الرابط ده؟",
+  "removeLinkBody": "الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.",
+  "removeLinkConfirm": "شيل",
+  "linkRemoved": "الرابط اتشال",
+  "linkUpdateFailed": "مقدرناش نعدّل الرابط. جرّب تاني.",
+  "linkReasonHint": "السبب (اختياري)",
+  "alreadyLinked": "مربوطة أصلاً",
+  "linkPickerEmpty": "مفيش ملاحظات تانية في المشروع ده تربطها بالملاحظة دي.",
+  "linkFailed": "مقدرناش نربط الملاحظات. جرّب تاني.",
+  "linkSelected": "{count, plural, zero{اربط} one{اربط ملاحظة واحدة} two{اربط ملاحظتين} few{اربط {count} ملاحظات} many{اربط {count} ملاحظة} other{اربط {count} ملاحظة}}",
+  "@linkSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesLinked": "{count, plural, zero{مفيش ملاحظات اتربطت} one{الملاحظة اتربطت بملاحظة واحدة} two{الملاحظة اتربطت بملاحظتين} few{الملاحظة اتربطت بـ{count} ملاحظات} many{الملاحظة اتربطت بـ{count} ملاحظة} other{الملاحظة اتربطت بـ{count} ملاحظة}}",
+  "@notesLinked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moveToProject": "انقل لمشروع تاني",
+  "moveNoOtherProject": "مفيش مشروع تاني تنقل له الملاحظة.",
+  "moveNoteTitle": "تنقل الملاحظة لـ«{project}»؟",
+  "moveNoteBody": "الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.",
+  "moveNoteBodyNoLinks": "الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.",
+  "moveConfirm": "انقل",
+  "noteMoved": "الملاحظة اتنقلت لـ«{project}»",
+  "moveNoteFailed": "مقدرناش ننقل الملاحظة. جرّب تاني.",
+  "suggestionsCount": "{count, plural, zero{مفيش اقتراحات} one{اقتراح واحد} two{اقتراحين} few{{count} اقتراحات} many{{count} اقتراح} other{{count} اقتراح}}",
+  "filesCount": "{count, plural, zero{مفيش ملفات} one{ملف واحد} two{ملفين} few{{count} ملفات} many{{count} ملف} other{{count} ملف}}",
+  "listTwo": "{first} و{second}",
+  "listThree": "{first} و{second} و{third}",
+  "deleteProjectEmptyBody": "المشروع ده فاضي، مفيهوش ملاحظات.",
+  "firstProjectNameHint": "اسم المشروع، مثلاً: مذاكرة",
+  "sourceMissing": "ملاحظة مابقتش في المشروع ده",
+  "sourceMissingA11y": "مصدر {index}: ملاحظة مابقتش في المشروع ده",
+  "@moveNoteTitle": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@moveNoteBody": {
+    "placeholders": {
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "@noteMoved": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@suggestionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@filesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@listTwo": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "@listThree": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      },
+      "third": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectBody": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceMissingA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteProjectEmptyChatBody": "المشروع ده مفيهوش ملاحظات، بس المحادثة اللي فيه هتتحذف. مش هتعرف ترجّعها.",
+  "selectedCount": "{count, plural, zero{مفيش حاجة متختارة} one{ملاحظة واحدة متختارة} two{ملاحظتين متختارين} few{{count} ملاحظات متختارة} many{{count} ملاحظة متختارة} other{{count} ملاحظة متختارة}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSelection": "اقفل الاختيار",
+  "linkTogether": "اربطهم ببعض",
+  "groupAction": "مجموعة",
+  "linkTogetherLimit": "تقدر تربط لحد {max} ملاحظات ببعض. لو أكتر، حطهم في مجموعة.",
+  "@linkTogetherLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "linkTogetherNeedsTwo": "اختار ملاحظتين على الأقل عشان تربطهم.",
+  "linksAdded": "{count, plural, zero{الملاحظات دي مربوطة ببعض أصلاً} one{اتعمل رابط جديد} two{اتعمل رابطين جداد} few{اتعمل {count} روابط جديدة} many{اتعمل {count} رابط جديد} other{اتعمل {count} رابط جديد}}",
+  "@linksAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "undo": "تراجع",
+  "undoFailed": "مقدرناش نتراجع عن اللي اتعمل.",
+  "chooseGroup": "اختار مجموعة",
+  "newGroup": "مجموعة جديدة",
+  "removeFromGroup": "شيل من المجموعة",
+  "noGroupsYet": "لسه مفيش مجموعات في المشروع ده.",
+  "subGroupA11y": "{group}، جوه «{parent}»، {notes}",
+  "@subGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "parent": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "notesGrouped": "اتحط {notes} في «{group}»",
+  "@notesGrouped": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupRemovedFrom": "اتشالت المجموعة من {notes}",
+  "@groupRemovedFrom": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "groupFailed": "مقدرناش نعدّل المجموعة. جرّب تاني.",
+  "groupNameHint": "اسم المجموعة",
+  "groupColorLabel": "اللون: {color}",
+  "@groupColorLabel": {
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "colorNone": "من غير لون",
+  "colorBlue": "أزرق",
+  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
+  "colorGreen": "أخضر",
+  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
+  "colorYellow": "أصفر",
+  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
+  "colorGray": "رمادي",
+  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
+  "groupParentLabel": "جوه مجموعة (اختياري)",
+  "groupParentNone": "ولا واحدة",
+  "moveNotesTitle": "تنقل {notes} لـ«{project}»؟",
+  "@moveNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBody": "{count, plural, zero{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} one{الملاحظة هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} two{الملاحظتين هيتنقلوا بملفاتهم، وهيتشال {lost} بينهم وبين الملاحظات اللي هتفضل هنا.} few{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} many{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.} other{الملاحظات هتتنقل بملفاتها، وهيتشال {lost} بينها وبين الملاحظات اللي هتفضل هنا.}}",
+  "@moveNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBodyNoLinks": "{count, plural, zero{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} one{الملاحظة هتتنقل بملفاتها، ومفيش روابط هتتشال.} two{الملاحظتين هيتنقلوا بملفاتهم، ومفيش روابط هتتشال.} few{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} many{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.} other{الملاحظات هتتنقل بملفاتها، ومفيش روابط هتتشال.}}",
+  "@moveNotesBodyNoLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesMoved": "اتنقل {notes} لـ«{project}»",
+  "@notesMoved": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesFailed": "مقدرناش ننقل الملاحظات. جرّب تاني.",
+  "moveNotesNoOtherProject": "مفيش مشروع تاني تنقل له الملاحظات.",
+  "deleteNotesTitle": "تحذف {notes}؟",
+  "@deleteNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesBody": "{count, plural, zero{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} one{الملاحظة وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} two{الملاحظتين وملفاتهم وروابطهم هيتحذفوا، ومش هتعرف ترجّعهم.} few{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} many{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.} other{الملاحظات دي وملفاتها وروابطها هتتحذف، ومش هتعرف ترجّعها.}}",
+  "@deleteNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesDeleted": "اتحذف {notes}",
+  "@notesDeleted": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesFailed": "مقدرناش نحذف كل الملاحظات. جرّب تاني.",
+  "allGroupsFilter": "الكل",
+  "groupOptionsA11y": "خيارات المجموعة «{group}»",
+  "@groupOptionsA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupEmptyTitle": "المجموعة دي فاضية",
+  "groupEmptyBody": "دوس ضغطة طويلة على ملاحظة عشان تختارها، وبعدين «مجموعة».",
+  "noteGroupA11y": "في مجموعة «{group}»",
+  "@noteGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "renameGroup": "غيّر الاسم",
+  "changeGroupColor": "غيّر اللون",
+  "putInGroup": "حطها جوه مجموعة تانية",
+  "takeOutOfGroup": "طلّعها برة «{parent}»",
+  "@takeOutOfGroup": {
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroup": "احذف المجموعة",
+  "deleteGroupTitle": "تحذف المجموعة «{group}»؟",
+  "@deleteGroupTitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroupBody": "الملاحظات اللي فيها هتفضل زي ما هي، بس من غير مجموعة. والمجموعات اللي جواها هتطلع برة.",
+  "groupDeleted": "المجموعة اتحذفت",
+  "noParentGroups": "مفيش مجموعة تانية تحطها جواها.",
+  "groupRuleEmptyName": "اكتب اسم للمجموعة.",
+  "groupRuleInvalidColor": "اللون ده مش متاح.",
+  "groupRuleMissingProject": "المشروع ده مابقاش موجود.",
+  "groupRuleMissingGroup": "المجموعة دي مابقتش موجودة.",
+  "groupRuleInvalidParent": "تقدر تحط المجموعة جوه مجموعة رئيسية بس، مش جوه مجموعة فرعية.",
+  "groupRuleSelfParent": "مينفعش تحط المجموعة جوه نفسها.",
+  "groupRuleHasChildren": "المجموعة دي جواها مجموعات، فمينفعش تتحط جوه مجموعة تانية.",
+  "suggestedTopics": "مواضيع مقترحة",
+  "makeTopicGroup": "حوّل «{topic}» لمجموعة",
+  "@makeTopicGroup": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "graphGroupA11y": "مجموعة «{group}»، {notes}",
+  "@graphGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTopics": "باقي المواضيع",
+  "moreTopicsCount": "{count, plural, zero{مفيش مواضيع تانية} one{موضوع تاني} two{موضوعين تانيين} few{{count} مواضيع تانية} many{{count} موضوع تاني} other{{count} موضوع تاني}}",
+  "@moreTopicsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "graphNoteInGroup": "{title}، في مجموعة «{group}»",
+  "@graphNoteInGroup": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphSearchHint": "دوّر في الرسم",
+  "graphSearchEmpty": "مفيش نتايج",
+  "graphSearchNote": "ملاحظة",
+  "graphSearchLink": "رابط",
+  "graphSearchGroup": "مجموعة",
+  "graphSearchLimited": "مش ظاهرة في الرسم، هنفتح الملاحظة",
+  "graphCollapseGroup": "اقفل مجموعة «{group}»",
+  "@graphCollapseGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphExpandGroup": "افتح مجموعة «{group}»",
+  "@graphExpandGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapsedGroup": "مجموعة «{group}»، {notes}، مقفولة",
+  "@graphCollapsedGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "graphMinimap": "خريطة الرسم، دوس أو اسحب عشان تتحرك",
+  "vtTitle": "تحويل الصوت لنص",
+  "vtExperimental": "تجريبي",
+  "vtIntro": "الموديل بيشتغل على الموبايل، ومفيش حاجة بتترفع. محتاج تحميل مرة واحدة.",
+  "vtModel": "الموديل",
+  "vtTiny": "صغير جدًا",
+  "vtBase": "متوسط",
+  "vtSmall": "أدق",
+  "vtFullName": "{name} · من غير ضغط",
+  "@vtFullName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTinyHint": "أصغر وأسرع، بس ممكن يغلط أكتر.",
+  "vtBaseHint": "توازن بين الحجم والدقة.",
+  "vtSmallHint": "ممكن يكون أدق، بس أبطأ وحجمه أكبر.",
+  "vtFullHint": "نسخة أكبر من غير ضغط. قارن دقتها بالنسخة الصغيرة.",
+  "vtOnPhone": "موجود على الموبايل",
+  "vtNotDownloaded": "لسه متحمّلش",
+  "vtUsed": "المساحة المستخدمة للموديلات: {size}",
+  "@vtUsed": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownload": "حمّل · {size}",
+  "@vtDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadTitle": "تحمّل الموديل؟",
+  "vtDownloadBody": "حجمه {size}. الأفضل تحمّله على واي فاي. التحميل مرة واحدة.",
+  "@vtDownloadBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadConfirm": "حمّل",
+  "vtDeleteModel": "احذف الموديل",
+  "vtDeleteModelTitle": "تحذف الموديل؟",
+  "vtDeleteModelBody": "هتحتاج تحمّله تاني عشان تستخدمه.",
+  "vtProgress": "{received} من {total}",
+  "@vtProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "vtLanguage": "لغة الكلام",
+  "vtAutomatic": "تلقائي",
+  "vtAdvanced": "خيارات متقدمة",
+  "vtThreads": "مسارات المعالجة: {count}",
+  "@vtThreads": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFormat": "صيغة التسجيل",
+  "vtWav": "صيغة الاختبار (WAV)",
+  "vtAac": "صيغة التطبيق العادية (AAC)",
+  "vtClips": "آخر تسجيلاتك",
+  "vtNoRecordings": "سجّل كام كلمة عشان تجرّب التفريغ. آخر 10 تسجيلات بيفضلوا هنا.",
+  "vtClip": "تسجيل {number} · {format}",
+  "@vtClip": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDeleteRecordingBody": "التسجيل ده هيتحذف من التجربة.",
+  "vtTranscribe": "فرّغ الصوت",
+  "vtWorking": "بيفرّغ الصوت…",
+  "vtCannotCancel": "بعد ما التفريغ يبدأ، استنى لحد ما يخلص.",
+  "vtWait": "استنى لحد ما العملية تخلص، أو وقّف التسجيل الأول.",
+  "vtResult": "النص",
+  "vtNoSpeech": "مفيش كلام واضح في التسجيل. جرّب تاني.",
+  "vtNumbers": "الأرقام",
+  "vtAudioLength": "مدة التسجيل: {seconds} ثانية",
+  "@vtAudioLength": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtWall": "الوقت: {seconds} ثانية",
+  "@vtWall": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFaster": "أسرع من الكلام {times} مرة",
+  "@vtFaster": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtSlower": "أبطأ من الكلام {times} مرة",
+  "@vtSlower": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFactor": "عامل الوقت: {factor}",
+  "@vtFactor": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "vtMs": "{ms} ms",
+  "@vtMs": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    },
+    "description": "Milliseconds, with a non-breaking space between the number and Latin unit."
+  },
+  "vtMemory": "الذاكرة قبل: {before}، بعد: {after}",
+  "@vtMemory": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "vtPeak": "أعلى ذاكرة: {size}",
+  "@vtPeak": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtConversion": "تجهيز الصوت: {ms}",
+  "@vtConversion": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtEstimate": "التفريغ وتشغيل الموديل، تقريبًا: {ms}",
+  "@vtEstimate": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtModelLoad": "بداية الموديل: {ms}",
+  "@vtModelLoad": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTimingHint": "الوقت بيشمل تجهيز الصوت وتشغيل الموديل. الذاكرة للتطبيق كله.",
+  "vtHistory": "تجارب قبل كده",
+  "vtLive": "نص وإنت بتتكلم",
+  "vtLiveHint": "النص بيتعدّل وإنت بتتكلم. لما توقّف، ممكن ياخد شوية وقت.",
+  "vtLiveStart": "ابدأ التفريغ المباشر",
+  "vtLiveTiming": "وقت التجربة المباشرة بيشمل وقت كلامك، فمش مقياس لسرعة التفريغ.",
+  "vtNetworkError": "مقدرناش نحمّل الموديل. اتأكد من الإنترنت وجرّب تاني.",
+  "vtInterruptedError": "التحميل أو التسجيل اتقطع. جرّب تاني.",
+  "vtCorruptError": "مقدرناش نقرا الموديل. احذفه وحمّله تاني.",
+  "vtEmptyError": "التسجيل فاضي أو مش سليم. سجّل كام كلمة وجرّب تاني.",
+  "vtTranscriptionError": "مقدرناش نفرّغ الصوت. جرّب تسجيل أقصر أو موديل أصغر.",
+  "vtStorageError": "المساحة مش كفاية. فضّي مساحة أو اختار موديل أصغر وجرّب تاني.",
+  "vtStorageCheckError": "مقدرناش نعرف المساحة الفاضية. اقفل الشاشة وافتحها وجرّب تاني.",
+  "vtCancelled": "التحميل اتلغى. تقدر تبدأه تاني.",
+  "vtEgyptian": "مصري · تجريبي",
+  "vtEgyptianHint": "متدرّب على العامية المصرية والإنجليزي مع بعض.",
+  "vtVoiceSection": "الصوت",
+  "@vtVoiceSection": {
+    "description": "Settings section for voice features."
+  },
+  "vtTry": "جرّب",
+  "@vtTry": {
+    "description": "Everyday voice-to-text trial section."
+  },
+  "vtTesting": "للقياس",
+  "@vtTesting": {
+    "description": "Collapsed section containing measurement controls and technical run history."
+  },
+  "vtFullModels": "موديلات من غير ضغط",
+  "@vtFullModels": {
+    "description": "Measurement-only full-size model variants."
+  },
+  "vtRefreshModels": "حدّث ليستة الموديلات",
+  "@vtRefreshModels": {
+    "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
+  },
+  "trAutomatic": "فرّغ التسجيلات تلقائي",
+  "@trAutomatic": {
+    "description": "Voice setting: transcribe only new recordings after a note save."
+  },
+  "trAutomaticHint": "بيشتغل على الموبايل بعد الحفظ، وممكن ياخد شوية وقت.",
+  "@trAutomaticHint": {
+    "description": "Hint below automatic recording transcription setting."
+  },
+  "trDownloadFirst": "حمّل موديل الأول عشان تفرّغ التسجيلات على الموبايل.",
+  "@trDownloadFirst": {
+    "description": "Explains why automatic transcription cannot be enabled without an installed model."
+  },
+  "trAfterSave": "فرّغه بعد الحفظ",
+  "@trAfterSave": {
+    "description": "Toggle on a new recording draft; no inference runs before saving."
+  },
+  "trQueueFailed": "التسجيل اتحفظ، بس مقدرناش نضيفه للتفريغ. جرّب من الملاحظة.",
+  "@trQueueFailed": {
+    "description": "Failure persisting or waking a saved recording transcription request."
+  },
+  "trWorking": "بيفرّغ الصوت…",
+  "@trWorking": {
+    "description": "Live status on a note card and its running voice attachment."
+  },
+  "trQueued": "مستني دوره للتفريغ…",
+  "@trQueued": {
+    "description": "A saved recording is queued behind another job."
+  },
+  "trExpand": "اعرض النص كله",
+  "@trExpand": {
+    "description": "Expand the collapsed transcript of a saved recording."
+  },
+  "trCollapse": "اعرض أقل",
+  "@trCollapse": {
+    "description": "Collapse a saved recording transcript to three lines."
+  },
+  "trLocalEngine": "على الموبايل · {model}",
+  "@trLocalEngine": {
+    "description": "Engine label for the model that produced a saved transcript.",
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "trModelMissing": "الموديل مش موجود أو ملفه بايظ. حمّله من إعدادات الصوت وجرّب تاني.",
+  "@trModelMissing": {
+    "description": "Transcription failure with an action opening voice settings."
+  },
+  "trBusy": "تفريغ تاني أخد وقت طويل. جرّب تاني لما يخلص.",
+  "@trBusy": {
+    "description": "Timed out waiting for the process-wide local engine lease."
+  },
+  "trAudioUnreadable": "مقدرناش نقرا التسجيل أو نطلع منه كلام. جرّب تشغّله الأول.",
+  "@trAudioUnreadable": {
+    "description": "Unreadable or empty audio transcription failure."
+  },
+  "trFailed": "مقدرناش نفرّغ التسجيل. جرّب تاني.",
+  "@trFailed": {
+    "description": "Other saved recording transcription failure."
+  },
+  "trInterruptedTwice": "التفريغ وقف مرتين لما التطبيق اتقفل. جرّب تاني أو اختار موديل أصغر.",
+  "@trInterruptedTwice": {
+    "description": "Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically."
+  },
+  "trNotificationChannel": "تفريغ الصوت",
+  "@trNotificationChannel": {
+    "description": "Android notification channel name, shown in the system's notification settings, for the low-importance notification while recordings are transcribed in the background."
+  },
+  "trNotificationLeft": "{count, plural, =1{فاضل تسجيل واحد} =2{فاضل تسجيلين} few{فاضل {count} تسجيلات} other{فاضل {count} تسجيل}}",
+  "@trNotificationLeft": {
+    "description": "Second line of the transcription notification: recordings still to transcribe, including the one in progress.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trNotificationWhy": "اسمح بالإشعارات عشان تتابع التفريغ وإنت برّه التطبيق.",
+  "@trNotificationWhy": {
+    "description": "One-line explanation shown just before Android asks for notification permission, the first time a recording is queued for transcription."
+  },
+  "trOpenSettings": "افتح إعدادات الصوت",
+  "@trOpenSettings": {
+    "description": "Open the model and speech settings after a missing-model failure."
+  },
+  "trTranscribe": "فرّغ الصوت",
+  "@trTranscribe": {
+    "description": "Queue a saved voice attachment for transcription."
+  },
+  "trRedo": "فرّغ تاني",
+  "@trRedo": {
+    "description": "Redo a saved recording with the currently selected engine and model."
+  },
+  "vtEngineBusy": "فيه تسجيل بيتفرّغ دلوقتي. استنى لما يخلص وجرّب تاني.",
+  "@vtEngineBusy": {
+    "description": "The test screen cannot start another model while the app-wide Whisper lease is held."
+  },
+  "vsEngine": "طريقة التفريغ",
+  "@vsEngine": {
+    "description": "External transcription: Engine. User-added services only; no upload before consent."
+  },
+  "vsLocal": "على الموبايل",
+  "@vsLocal": {
+    "description": "External transcription: Local. User-added services only; no upload before consent."
+  },
+  "vsAdd": "ضيف خدمة",
+  "@vsAdd": {
+    "description": "External transcription: Add. User-added services only; no upload before consent."
+  },
+  "vsEdit": "عدّل الخدمة",
+  "@vsEdit": {
+    "description": "External transcription: Edit. User-added services only; no upload before consent."
+  },
+  "vsType": "نوع الخدمة",
+  "@vsType": {
+    "description": "External transcription: Type. User-added services only; no upload before consent."
+  },
+  "vsOpenAi": "خدمة متوافقة مع OpenAI",
+  "@vsOpenAi": {
+    "description": "External transcription: OpenAi. User-added services only; no upload before consent."
+  },
+  "vsName": "اسم الخدمة",
+  "@vsName": {
+    "description": "External transcription: Name. User-added services only; no upload before consent."
+  },
+  "vsBaseUrl": "عنوان الخدمة",
+  "@vsBaseUrl": {
+    "description": "External transcription: BaseUrl. User-added services only; no upload before consent."
+  },
+  "vsModel": "اسم الموديل",
+  "@vsModel": {
+    "description": "External transcription: Model. User-added services only; no upload before consent."
+  },
+  "vsKey": "مفتاح API",
+  "@vsKey": {
+    "description": "External transcription: Key. User-added services only; no upload before consent."
+  },
+  "vsKeyKeep": "سيبه فاضي لو هتستخدم نفس المفتاح.",
+  "@vsKeyKeep": {
+    "description": "External transcription: KeyKeep. User-added services only; no upload before consent."
+  },
+  "vsLanguageHint": "لغة متوقعة (اختياري)",
+  "@vsLanguageHint": {
+    "description": "External transcription: LanguageHint. User-added services only; no upload before consent."
+  },
+  "vsLanguageHelp": "كود زي ar أو en. سيبه فاضي عشان تستخدم لغة الكلام المختارة.",
+  "@vsLanguageHelp": {
+    "description": "External transcription: LanguageHelp. User-added services only; no upload before consent."
+  },
+  "vsShowKey": "اعرض المفتاح",
+  "@vsShowKey": {
+    "description": "External transcription: ShowKey. User-added services only; no upload before consent."
+  },
+  "vsHideKey": "اخفي المفتاح",
+  "@vsHideKey": {
+    "description": "External transcription: HideKey. User-added services only; no upload before consent."
+  },
+  "vsTest": "جرّب الاتصال",
+  "@vsTest": {
+    "description": "External transcription: Test. User-added services only; no upload before consent."
+  },
+  "vsTesting": "بيجرّب الاتصال…",
+  "@vsTesting": {
+    "description": "External transcription: Testing. User-added services only; no upload before consent."
+  },
+  "vsConnected": "الاتصال شغّال.",
+  "@vsConnected": {
+    "description": "External transcription: Connected. User-added services only; no upload before consent."
+  },
+  "vsDeleteTitle": "تحذف الخدمة دي؟",
+  "@vsDeleteTitle": {
+    "description": "External transcription: DeleteTitle. User-added services only; no upload before consent."
+  },
+  "vsDeleteBody": "المفتاح هيتمسح، والتفريغ هيرجع للموبايل لو الخدمة دي متختارة.",
+  "@vsDeleteBody": {
+    "description": "External transcription: DeleteBody. User-added services only; no upload before consent."
+  },
+  "vsConsentTitle": "تبعت التسجيلات لـ«{service}»؟",
+  "@vsConsentTitle": {
+    "description": "External transcription: ConsentTitle. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentBody": "التسجيلات هتتبعت برّه الموبايل لـ«{service}» على {host} عشان تتفرّغ. الخدمة ممكن تحتفظ بيها وتحاسبك على الاستخدام. مفيش حاجة هتتبعت غير لما توافق.",
+  "@vsConsentBody": {
+    "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentConfirm": "موافق",
+  "@vsConsentConfirm": {
+    "description": "External transcription: ConsentConfirm. User-added services only; no upload before consent."
+  },
+  "vsHttpWarning": "الاتصال ده من غير تشفير. استخدمه على شبكة محلية موثوقة بس.",
+  "@vsHttpWarning": {
+    "description": "External transcription: HttpWarning. User-added services only; no upload before consent."
+  },
+  "vsInvalidUrl": "اكتب عنوان HTTPS، أو HTTP لموبايلك أو عنوان شبكة محلية.",
+  "@vsInvalidUrl": {
+    "description": "External transcription: InvalidUrl. User-added services only; no upload before consent."
+  },
+  "vsInvalidFields": "راجع الاسم والموديل وكود اللغة.",
+  "@vsInvalidFields": {
+    "description": "External transcription: InvalidFields. User-added services only; no upload before consent."
+  },
+  "vsKeyRequired": "اكتب مفتاح للخدمة دي الأول.",
+  "@vsKeyRequired": {
+    "description": "External transcription: KeyRequired. User-added services only; no upload before consent."
+  },
+  "vsSaveError": "مقدرناش نحفظ الخدمة. جرّب تاني.",
+  "@vsSaveError": {
+    "description": "External transcription: SaveError. User-added services only; no upload before consent."
+  },
+  "vsLoadError": "مقدرناش نقرا إعدادات الخدمات. جرّب تاني.",
+  "@vsLoadError": {
+    "description": "External transcription: LoadError. User-added services only; no upload before consent."
+  },
+  "vsRemoteIntro": "التسجيلات هتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ. استخدام الخدمة ممكن يكون بفلوس.",
+  "@vsRemoteIntro": {
+    "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemoteData": "ملاحظاتك وملفاتك محفوظة على الموبايل. التسجيلات بتتبعت برّه الموبايل لـ«{service}» عشان تتفرّغ.",
+  "@vsRemoteData": {
+    "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsVia": "عن طريق {service}",
+  "@vsVia": {
+    "description": "External transcription: Via. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemovedService": "خدمة اتحذفت",
+  "@vsRemovedService": {
+    "description": "External transcription: RemovedService. User-added services only; no upload before consent."
+  },
+  "vsLiveLocal": "النص وقت الكلام متاح على الموبايل بس. غيّر طريقة التفريغ عشان تجرّبه.",
+  "@vsLiveLocal": {
+    "description": "External transcription: LiveLocal. User-added services only; no upload before consent."
+  },
+  "vsRemoteAutoHint": "التسجيلات الجديدة هتتبعت برّه الموبايل لـ«{service}» بعد الحفظ، وممكن تاخد شوية وقت.",
+  "@vsRemoteAutoHint": {
+    "description": "External transcription: RemoteAutoHint. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsOffline": "مقدرناش نوصل للخدمة. اتأكد من الاتصال وجرّب تاني.",
+  "@vsOffline": {
+    "description": "External transcription: Offline. User-added services only; no upload before consent."
+  },
+  "vsKeyRejected": "الخدمة رفضت المفتاح. راجعه في إعدادات الصوت.",
+  "@vsKeyRejected": {
+    "description": "External transcription: KeyRejected. User-added services only; no upload before consent."
+  },
+  "vsRateLimited": "وصلت لحد الاستخدام أو الرصيد خلص. راجع حسابك أو جرّب بعد شوية.",
+  "@vsRateLimited": {
+    "description": "External transcription: RateLimited. User-added services only; no upload before consent."
+  },
+  "vsTooLarge": "التسجيل كبير أو طويل على الخدمة دي. جرّب تسجيل أقصر أو خدمة تانية.",
+  "@vsTooLarge": {
+    "description": "External transcription: TooLarge. User-added services only; no upload before consent."
+  },
+  "vsServiceError": "الخدمة عندها مشكلة دلوقتي. جرّب بعد شوية.",
+  "@vsServiceError": {
+    "description": "External transcription: ServiceError. User-added services only; no upload before consent."
+  },
+  "vsUnexpected": "الخدمة رجّعت رد مش مفهوم. راجع عنوانها والموديل في إعدادات الصوت.",
+  "@vsUnexpected": {
+    "description": "External transcription: Unexpected. User-added services only; no upload before consent."
+  },
+  "vsTimeout": "الخدمة اتأخرت في الرد. اتأكد من الاتصال وجرّب تاني.",
+  "@vsTimeout": {
+    "description": "External transcription: Timeout. User-added services only; no upload before consent."
+  },
+  "vsNeedsConsent": "وافق إن التسجيلات تتبعت برّه الموبايل من إعدادات الصوت الأول.",
+  "@vsNeedsConsent": {
+    "description": "External transcription: NeedsConsent. User-added services only; no upload before consent."
+  },
+  "vsRegion": "المنطقة",
+  "@vsRegion": {
+    "description": "External transcription: Region. User-added services only; no upload before consent."
+  },
+  "vsSingapore": "دولي (سنغافورة)",
+  "@vsSingapore": {
+    "description": "External transcription: Singapore. User-added services only; no upload before consent."
+  },
+  "vsBeijing": "الصين (بكين)",
+  "@vsBeijing": {
+    "description": "External transcription: Beijing. User-added services only; no upload before consent."
+  },
+  "vsOpenAiKeyHint": "هات المفتاح والعنوان والموديل من الخدمة اللي بتستخدمها، زي OpenAI أو Groq أو SiliconFlow.",
+  "@vsOpenAiKeyHint": {
+    "description": "External transcription: OpenAiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGeminiKeyHint": "هات المفتاح من Google AI Studio.",
+  "@vsGeminiKeyHint": {
+    "description": "External transcription: GeminiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsElevenKeyHint": "هات المفتاح من إعدادات حسابك في ElevenLabs.",
+  "@vsElevenKeyHint": {
+    "description": "External transcription: ElevenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsQwenKeyHint": "هات مفتاح لنفس المنطقة من Alibaba Cloud Model Studio. تقدر تستخدم عنوان مساحة العمل كمان.",
+  "@vsQwenKeyHint": {
+    "description": "External transcription: QwenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGemini": "Google Gemini",
+  "@vsGemini": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsElevenLabs": "ElevenLabs",
+  "@vsElevenLabs": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsQwen": "Qwen ASR",
+  "@vsQwen": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "@eraseAllBody": {
+    "description": "Local wipe confirmation. Includes user-added transcription configuration and secure API keys; does not delete copies held by providers."
+  },
+  "vsRemoteTiming": "الوقت بيشمل رفع التسجيل وانتظار الخدمة. الذاكرة للتطبيق كله.",
+  "@vsRemoteTiming": {
+    "description": "Technical trial measurements for a remote engine: network/service wall time and whole-process RSS."
+  },
+  "v2Off": "من غير تفريغ",
+  "@v2Off": {
+    "description": "Per-recording off policy."
+  },
+  "v2Recommended": "مقترح",
+  "@v2Recommended": {
+    "description": "Recommended catalog group."
+  },
+  "v2Other": "موديلات تانية",
+  "@v2Other": {
+    "description": "Other supported models group."
+  },
+  "v2Legacy": "قديم",
+  "@v2Legacy": {
+    "description": "Legacy models group."
+  },
+  "v2Shutdown": "موديل قديم، وهيقف يوم {date}. اختار موديل مقترح لو تقدر.",
+  "@v2Shutdown": {
+    "description": "Known provider shutdown warning.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v2LegacyUnknown": "موديل قديم. لسه مفيش ميعاد هيقف فيه.",
+  "@v2LegacyUnknown": {
+    "description": "Legacy without a published shutdown date."
+  },
+  "v2Arabic": "بيدعم العربي. جرّبه على المصري والإنجليزي مع بعض.",
+  "@v2Arabic": {
+    "description": "Arabic suitability; no unmeasured quality claim."
+  },
+  "v2Generative": "بيفهم العربي، بس ممكن يعيد صياغة الكلام. راجع التفريغ.",
+  "@v2Generative": {
+    "description": "Generative model suitability caveat."
+  },
+  "v2Unsupported": "لسه مش مدعوم هنا",
+  "@v2Unsupported": {
+    "description": "Catalog entry requires a different API."
+  },
+  "v2Custom": "اكتب اسم موديل",
+  "@v2Custom": {
+    "description": "Collapsed custom model ID field."
+  },
+  "v2Refresh": "حدّث الليستة",
+  "@v2Refresh": {
+    "description": "Explicit model discovery action."
+  },
+  "v2Refreshing": "بيحدّث الليستة…",
+  "@v2Refreshing": {
+    "description": "Discovery working state."
+  },
+  "v2Available": "متاح في حسابك",
+  "@v2Available": {
+    "description": "Discovered catalog ID."
+  },
+  "v2Checked": "آخر مراجعة: {time}",
+  "@v2Checked": {
+    "description": "Discovery cache timestamp.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v2DiscoveryHint": "بيراجع الموديلات عند الخدمة برّه الموبايل، من غير ما يبعت صوت.",
+  "@v2DiscoveryHint": {
+    "description": "Discovery privacy explanation."
+  },
+  "v2DiscoveryQwen": "مراجعة الموديلات مش متاحة لـQwen هنا. استخدم الموديل المقترح أو اكتب اسم الموديل.",
+  "@v2DiscoveryQwen": {
+    "description": "Qwen discovery skipped without workspace context."
+  },
+  "v2EditTranscript": "عدّل التفريغ",
+  "@v2EditTranscript": {
+    "description": "Transcript correction action and editor title."
+  },
+  "v2RestoreTranscript": "رجّع التفريغ الأصلي",
+  "@v2RestoreTranscript": {
+    "description": "Clear correction without changing machine output."
+  },
+  "v2NewTranscript": "فيه تفريغ جديد",
+  "@v2NewTranscript": {
+    "description": "Redo completed while a correction exists."
+  },
+  "v2UseTranscript": "استخدمه",
+  "@v2UseTranscript": {
+    "description": "Adopt new machine output, clearing correction."
+  },
+  "v2CopyUnchanged": "التفريغ اتحفظ، بس نص الملاحظة متغيّرش عشان اتعدّل قبل كده.",
+  "@v2CopyUnchanged": {
+    "description": "Unsafe paragraph replacement outcome."
+  },
+  "v2AppendTranscript": "ضيفه للملاحظة",
+  "@v2AppendTranscript": {
+    "description": "Explicit append after an unsafe replacement."
+  },
+  "v2TranscriptConflict": "التفريغ اتغيّر وإنت بتعدّل. ارجع وافتحه تاني.",
+  "@v2TranscriptConflict": {
+    "description": "Optimistic revision conflict; draft retained."
+  },
+  "v2TranscriptFailed": "مقدرناش نحفظ التفريغ. جرّب تاني.",
+  "@v2TranscriptFailed": {
+    "description": "Correction save failure."
+  },
+  "v2TranscriptEmpty": "اكتب التفريغ الأول.",
+  "@v2TranscriptEmpty": {
+    "description": "Empty correction validation."
+  },
+  "v2TranscriptSaved": "التفريغ اتحفظ",
+  "@v2TranscriptSaved": {
+    "description": "Correction success feedback."
+  },
+  "linksBrowse": "تصفّح",
+  "@linksBrowse": {
+    "description": "Links library browse segment."
+  },
+  "linksSuggestions": "اقتراحات",
+  "@linksSuggestions": {
+    "description": "Links library suggestions segment and section heading."
+  },
+  "linksConfirmed": "روابط مؤكدة",
+  "@linksConfirmed": {
+    "description": "Confirmed connections section heading."
+  },
+  "linksGroups": "المجموعات",
+  "@linksGroups": {
+    "description": "Links library group chips heading."
+  },
+  "linksSuggestedForYou": "مقترحة ليك",
+  "@linksSuggestedForYou": {
+    "description": "Explains that topic chips are AI suggestions."
+  },
+  "searchLinksHint": "دوّر في الروابط",
+  "@searchLinksHint": {
+    "description": "Search the links library by note text and title."
+  },
+  "linksSort": "ترتيب الروابط",
+  "@linksSort": {
+    "description": "Filter dock tooltip and sort sheet title."
+  },
+  "linksNewest": "الأحدث الأول",
+  "@linksNewest": {
+    "description": "Links library sort order."
+  },
+  "linksMostLinked": "اللي فيها روابط أكتر",
+  "@linksMostLinked": {
+    "description": "Links library sort by confirmed degree."
+  },
+  "linksOldest": "الأقدم الأول",
+  "@linksOldest": {
+    "description": "Links library sort order."
+  },
+  "linksOpenGraph": "افتح خريطة الروابط",
+  "@linksOpenGraph": {
+    "description": "Header action to open the optional graph."
+  },
+  "linkNoReason": "من غير سبب مكتوب",
+  "@linkNoReason": {
+    "description": "Muted fallback for an empty link reason."
+  },
+  "linksSuggestionsEmpty": "مفيش اقتراحات دلوقتي",
+  "@linksSuggestionsEmpty": {
+    "description": "Empty suggestions list title."
+  },
+  "linksSuggestionsEmptyBody": "لما يبقى فيه اقتراحات جديدة، هتلاقيها هنا.",
+  "@linksSuggestionsEmptyBody": {
+    "description": "Empty suggestions list explanation."
+  },
+  "linksBrowseSuggestionsBody": "فيه اقتراحات مستنية رأيك. اقبل أي رابط عشان يظهر هنا.",
+  "@linksBrowseSuggestionsBody": {
+    "description": "Empty confirmed library directs the user to suggestions."
+  },
+  "linksSuggestionsCount": "اقتراحات {count}",
+  "@linksSuggestionsCount": {
+    "description": "Suggestions segment label with the number of waiting suggestions (shown only when above zero).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksSuggestionsCountA11y": "اقتراحات، {count}",
+  "@linksSuggestionsCountA11y": {
+    "description": "TalkBack label of the suggestions segment with the number of waiting suggestions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksFilterEmptyBody": "مفيش حاجة هنا لسه. جرّب مجموعة أو موضوع تاني.",
+  "@linksFilterEmptyBody": {
+    "description": "Links library empty state when a group or topic chip is selected and the search is empty."
+  },
+  "linkSuggestionRejected": "الاقتراح اترفض",
+  "@linkSuggestionRejected": {
+    "description": "Toast after rejecting a suggested link; carries Undo."
+  },
+  "servicesSection": "الخدمات المتصلة",
+  "@servicesSection": {
+    "description": "Settings section heading for the speech-to-text services the user added and the button to add one."
+  },
+  "privacySection": "الخصوصية والبيانات",
+  "@privacySection": {
+    "description": "Settings section explaining where notes and recordings are stored."
+  },
+  "notesSort": "ترتيب الملاحظات",
+  "@notesSort": {
+    "description": "Notes list sort button label and sort sheet title."
+  },
+  "headerGraph": "الخريطة",
+  "@headerGraph": {
+    "description": "Short caption under the open-graph icon in the Links header."
+  },
+  "headerSearch": "دوّر",
+  "@headerSearch": {
+    "description": "Short caption under the search icon in the graph header."
+  },
+  "capsuleRecording": "بيسجّل…",
+  "@capsuleRecording": {
+    "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
+  },
+  "capsuleRecordingA11y": "بيسجّل. دوس عشان تفتح التسجيل",
+  "@capsuleRecordingA11y": {
+    "description": "Screen reader label for the floating recording activity capsule."
+  },
+  "capsuleTranscribing": "بيفرّغ الصوت…",
+  "@capsuleTranscribing": {
+    "description": "Status label in the floating activity capsule above the tab bar while a background transcription job runs."
+  },
+  "capsuleTranscribingA11y": "بيفرّغ التسجيل. دوس عشان تفتح الملاحظة",
+  "@capsuleTranscribingA11y": {
+    "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "Concept navigation and Me screen: navHome."
+  },
+  "navMap": "الخريطة",
+  "@navMap": {
+    "description": "Concept navigation and Me screen: navMap."
+  },
+  "navMe": "أنا",
+  "@navMe": {
+    "description": "Concept navigation and Me screen: navMe."
+  },
+  "newIdea": "فكرة جديدة",
+  "@newIdea": {
+    "description": "Concept navigation and Me screen: newIdea."
+  },
+  "meIdeas": "الأفكار",
+  "@meIdeas": {
+    "description": "Concept navigation and Me screen: meIdeas."
+  },
+  "meLinks": "الروابط",
+  "@meLinks": {
+    "description": "Concept navigation and Me screen: meLinks."
+  },
+  "meWeekDays": "أيام الأسبوع ده",
+  "@meWeekDays": {
+    "description": "Concept navigation and Me screen: meWeekDays."
+  },
+  "meAppearanceLanguage": "المظهر واللغة",
+  "@meAppearanceLanguage": {
+    "description": "Concept navigation and Me screen: meAppearanceLanguage."
+  },
+  "meVoiceServices": "الصوت والخدمات",
+  "@meVoiceServices": {
+    "description": "Concept navigation and Me screen: meVoiceServices."
+  },
+  "welcomeEyebrow": "فِكرة",
+  "@welcomeEyebrow": {
+    "description": "Small brand eyebrow label above the hero title on the welcome screen."
+  },
+  "welcomeBrandTitle": "فِكرة",
+  "@welcomeBrandTitle": {
+    "description": "Large brand title on the welcome screen."
+  },
+  "welcomeTagline": "اكتب. اربط. اسأل.",
+  "@welcomeTagline": {
+    "description": "Short three-word tagline on the welcome screen."
+  },
+  "welcomeSubtitle": "أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.",
+  "@welcomeSubtitle": {
+    "description": "Supporting line on the welcome screen."
+  },
+  "welcomeStartWriting": "ابدأ الكتابة",
+  "@welcomeStartWriting": {
+    "description": "Primary CTA on the welcome screen that creates the default project and opens Notes."
+  },
+  "welcomeTrySample": "جرّب بمشروع تجريبي",
+  "@welcomeTrySample": {
+    "description": "Secondary CTA on the welcome screen that seeds the sample project."
+  },
+  "welcomeFooter": "ملاحظاتك محفوظة على جهازك · بدون حساب",
+  "@welcomeFooter": {
+    "description": "Privacy footer on the welcome screen."
+  },
+  "defaultProjectName": "أفكاري",
+  "@defaultProjectName": {
+    "description": "Default project name created directly from the welcome screen."
+  },
+  "filterVoice": "صوت",
+  "@filterVoice": {
+    "description": "Filter chip and note-card badge label for voice notes."
+  },
+  "filterFiles": "ملفات",
+  "@filterFiles": {
+    "description": "Filter chip label for notes with PDF or image attachments."
+  },
+  "badgePdf": "PDF",
+  "@badgePdf": {
+    "description": "Short PDF badge label on note cards."
+  },
+  "filterEmptyTitle": "مفيش ملاحظات هنا",
+  "@filterEmptyTitle": {
+    "description": "Empty state title when a type filter (voice/files) matches no notes."
+  },
+  "filterEmptyBody": "مفيش ملاحظات بالفلتر ده لسه.",
+  "@filterEmptyBody": {
+    "description": "Empty state body when a type filter matches no notes."
+  },
+  "actionStripFailed": "{count, plural, one{ملاحظة فشل تحليلها} two{ملاحظتين فشل تحليلهم} few{{count} ملاحظات فشل تحليلها} other{{count} ملاحظة فشل تحليلها}}",
+  "@actionStripFailed": {
+    "description": "Action strip message when one or more notes failed analysis.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRetry": "أعد المحاولة",
+  "@actionStripRetry": {
+    "description": "Short retry label on the failed-analysis action strip."
+  },
+  "actionStripSuggestions": "{count, plural, one{رابط مقترح جديد} two{رابطين مقترحين جداد} few{{count} روابط مقترحة جديدة} other{{count} رابط مقترح جديد}}",
+  "@actionStripSuggestions": {
+    "description": "Action strip message when new link suggestions are waiting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRewrites": "{count, plural, one{صياغة مستنية رأيك} two{صياغتين مستنيين رأيك} few{{count} صياغات مستنية رأيك} other{{count} صياغة مستنية رأيك}}",
+  "@actionStripRewrites": {
+    "description": "Action strip message when note rewrites are waiting for review.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripDismiss": "اخفي التنبيه",
+  "@actionStripDismiss": {
+    "description": "Screen reader label for dismissing the notes action strip for the current session."
+  },
+  "activeDaysThisWeek": "{count, plural, one{يوم واحد الأسبوع ده} two{يومين الأسبوع ده} few{{count} أيام الأسبوع ده} other{{count} يوم الأسبوع ده}}",
+  "@activeDaysThisWeek": {
+    "description": "Chip showing how many distinct days in the rolling 7-day window have at least one note.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksMap": "الخريطة",
+  "@linksMap": {
+    "description": "Links Map: linksMap"
+  },
+  "mapOthers": "تانيين",
+  "@mapOthers": {
+    "description": "Links Map: mapOthers"
+  },
+  "mapShowMore": "اعرض أكتر",
+  "@mapShowMore": {
+    "description": "Links Map: mapShowMore"
+  },
+  "mapOpen": "افتح",
+  "@mapOpen": {
+    "description": "Links Map: mapOpen"
+  },
+  "mapNotes": "{count, plural, =0{مفيش ملاحظات} =1{ملاحظة واحدة} =2{ملاحظتين} few{{count} ملاحظات} many{{count} ملاحظة} other{{count} ملاحظة}}",
+  "@mapNotes": {
+    "description": "Links Map: mapNotes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapConnections": "{count, plural, =0{مفيش روابط} =1{رابط واحد} =2{رابطين} few{{count} روابط} many{{count} رابط} other{{count} رابط}}",
+  "@mapConnections": {
+    "description": "Links Map: mapConnections",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapCanvasSummary": "خريطة الملاحظات، الإجمالي: {total}، مش ظاهر: {omitted}",
+  "@mapCanvasSummary": {
+    "description": "Links Map: mapCanvasSummary",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTotals": "ملاحظات: {total} · روابط: {confirmed} · اقتراحات: {suggestions} · مش ظاهر: {omitted}",
+  "@mapTotals": {
+    "description": "Links Map: mapTotals",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "confirmed": {
+        "type": "int"
+      },
+      "suggestions": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapPanHint": "اسحب عشان تشوف باقي الخريطة",
+  "@mapPanHint": {
+    "description": "Hint for the unshrunk Map world; panning preserves readable text and touch targets."
+  },
+  "productMyAccount": "حسابي",
+  "productThisIsAVolatileDevelopmentWorkspaceExistingLocal": "دي مساحة تطوير مؤقتة. ملاحظاتك المحلية القديمة موجودة بشكل منفصل في وضع الديمو القديم.",
+  "productSignOutLocally": "تسجيل خروج محلي",
+  "productProductionSetupPending": "إعدادات الإنتاج لسه معلّقة",
+  "productPasswordPolicyEmailActionRoutingAndGooglePlatform": "سياسة كلمة المرور وروابط البريد وإعدادات Google محتاجة اتفاق. مفيش استخدام لبيانات دخول حقيقية أو إرسال بريد هنا.",
+  "productYourSessionExpiredSignInAgain": "الجلسة انتهت. سجّل دخول تاني.",
+  "productPreviewAccountJourneys": "تجربة رحلات الحساب",
+  "productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery": "استخدم عناوين التطوير فقط. التسجيل والتفعيل والاسترجاع بيعرضوا حالات تجريبية، بدون إرسال بريد أو إنشاء حساب حقيقي.",
+  "productEmail": "البريد الإلكتروني",
+  "productNewPasswordPreview": "كلمة مرور جديدة (تجربة)",
+  "productPassword": "كلمة المرور",
+  "productFixtureActionToken": "رمز إجراء تجريبي",
+  "productAwaitingVerificationUseFixtureVerifyToPreviewSuccess": "في انتظار التفعيل. استخدم fixture-verify لتجربة النجاح. لم يتم إرسال بريد.",
+  "productPreviewVerification": "تجربة التفعيل",
+  "productPreviewResendRequest": "تجربة طلب إعادة الإرسال",
+  "productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed": "تأكيد عام لطلب الاسترجاع (تجربة). بدون ادعاء وصول رسالة.",
+  "productPreviewResetForm": "تجربة نموذج إعادة التعيين",
+  "productUseFixtureResetTheRealPasswordPolicyIs": "استخدم fixture-reset. سياسة كلمة المرور الحقيقية لم تُحسم بعد.",
+  "productPreviewPasswordReset": "تجربة إعادة التعيين",
+  "productPreviewRecoveryRequest": "تجربة طلب الاسترجاع",
+  "productPreviewRegistration": "تجربة التسجيل",
+  "productOpenFixtureSession": "فتح جلسة تجريبية",
+  "productBackToSignIn": "رجوع للدخول",
+  "productPreviewNewAccount": "تجربة حساب جديد",
+  "productForgotPassword": "نسيت كلمة المرور",
+  "productGoogleSignInWaitingForApprovedPlatformConfiguration": "دخول Google: في انتظار إعدادات المنصة المعتمدة. مفيش طلب بيتم إرساله لـ Google.",
+  "productPreviewSampleWorkspace": "تجربة مساحة بملاحظات جاهزة",
+  "productPreviewSeparateEmptyAccount": "تجربة حساب منفصل وفارغ",
+  "productVerificationPreviewCompleteSignInSeparately": "اكتملت تجربة التفعيل. سجّل الدخول بشكل منفصل.",
+  "productResetPreviewCompleteSignInAgain": "اكتملت تجربة إعادة التعيين. سجّل دخول تاني.",
+  "productLocalPrivateStateClearedServerRevocationIsNot": "تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.",
+  "productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount": "تأكيد تجريبي فقط؛ لم يتم إرسال بريد أو تنفيذ إجراء على حساب حقيقي.",
+  "productCaptureAThought": "سجّل فكرة",
+  "productCloseComposer": "إغلاق الكتابة",
+  "productASaveAttemptIsUnresolvedRetryItsOriginal": "فيه محاولة حفظ لم تتأكد. أعدها بنفس المشروع والمحتوى قبل تغيير المسودة.",
+  "productReturnToThePendingAttemptSProject": "ارجع لمشروع محاولة الحفظ",
+  "productTitleOptional": "العنوان (اختياري)",
+  "productYourThought": "فكرتك",
+  "productReconcileTheSameSaveAttempt": "مراجعة نفس محاولة الحفظ",
+  "productSaveTextNote": "حفظ ملاحظة نصية",
+  "productSavingAndProcessingAreSeparateAMissingTitle": "الحفظ منفصل عن المعالجة. العنوان الناقص بيفضل مؤقت لحد ما نتيجة الباك إند ترجع بعنوان.",
+  "productVoiceReviewedText": "الصوت ← نص تراجعه",
+  "productAutomaticStopAt60SecondsTranscriptionDoesNot": "التسجيل بيقف تلقائيًا بعد 60 ثانية. التفريغ مش بيحفظ ملاحظة.",
+  "productStopRecording": "إيقاف التسجيل",
+  "productRecordVoice": "تسجيل صوت",
+  "productPreviewTranscription": "تجربة التفريغ النصي",
+  "productReviewAndEditTranscript": "راجع وعدّل النص المفرّغ",
+  "productUseThisTextInTheDraft": "استخدم النص في المسودة",
+  "productThenPressSaveTextNoteWhenReady": "بعد المراجعة اضغط حفظ ملاحظة نصية.",
+  "productDiscardRecording": "إلغاء التسجيل",
+  "productLocalPDFs": "ملفات PDF محلية",
+  "productPDFsStayOnThisDeviceTheyAreNot": "ملفات PDF بتفضل على الجهاز. مش بيتم رفعها أو استخراج نصها أو ربطها بملاحظة على الخادم. احفظ النص بشكل منفصل.",
+  "productChooseLocalPDF": "اختيار PDF محلي",
+  "productUntitledProcessing": "بدون عنوان / قيد المعالجة",
+  "productSavedQueued": "محفوظة · في الانتظار",
+  "productSavedProcessing": "محفوظة · قيد المعالجة",
+  "productProcessingCompleted": "اكتملت المعالجة",
+  "productSavedProcessingFailed": "محفوظة · فشلت المعالجة",
+  "productSavedStatusUnavailable": "محفوظة · الحالة غير معروفة",
+  "productDevelopmentFixturesMemoryOnlyNoLiveBackend": "بيانات تطوير · في الذاكرة فقط · بدون اتصال بالباك إند",
+  "productMicrophonePermissionIsRequiredEnableItInDevice": "اسمح باستخدام الميكروفون من إعدادات الجهاز ثم حاول تاني.",
+  "productCheckTheInputYourDraftHasBeenKept": "راجع البيانات. المسودة محفوظة كما هي.",
+  "productSignInAgainOrCheckYourCredentials": "سجّل دخول تاني أو راجع بيانات الدخول.",
+  "productVerifyYourEmailBeforeSigningIn": "فعّل بريدك الإلكتروني قبل الدخول.",
+  "productThisItemIsNoLongerAvailableReloadThe": "العنصر ده مش متاح. حدّث المشروع الحالي.",
+  "productTheStateChangedReloadAndReviewBeforeActing": "الحالة اتغيرت. حدّث وراجعها قبل تنفيذ الإجراء تاني.",
+  "productThisCreationAttemptRefersToADeletedNote": "محاولة الحفظ دي تخص ملاحظة اتحذفت، ومش هتتعمل تلقائيًا من جديد.",
+  "productTheInputIsTooLargeReduceItBefore": "حجم المدخل كبير. قلّله قبل المحاولة.",
+  "productThisRecordingFormatIsNotSupported": "صيغة التسجيل دي غير مدعومة.",
+  "productRequestLimitReachedWaitBeforeTryingAgain": "وصلت لحد الطلبات. استنى قبل المحاولة.",
+  "productThisServiceIsUnavailableYourInputHasBeen": "الخدمة مش متاحة حاليًا. البيانات اللي كتبتها موجودة.",
+  "productTheResultIsUncertainReconcileBeforeTryingAgain": "نتيجة العملية غير مؤكدة. راجع الحالة قبل المحاولة تاني.",
+  "productRetryAfterSeconds": "حاول بعد {seconds} ثانية.",
+  "@productRetryAfterSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "productReloadRetry": "تحديث / إعادة المحاولة",
+  "productBack": "رجوع",
+  "productRenameProject": "تعديل اسم المشروع",
+  "productNewProject": "مشروع جديد",
+  "productName": "الاسم",
+  "productCancel": "إلغاء",
+  "productSave": "حفظ",
+  "productProject": "المشروع",
+  "productRename": "تغيير الاسم",
+  "productDeleteProject": "حذف المشروع؟",
+  "productThisPermanentlyDeletesItsNotesConversationsAndKnowledge": "ده هيحذف ملاحظاته ومحادثاته وعلاقاته المعرفية نهائيًا.",
+  "productDelete": "حذف",
+  "productDeleteProject2": "حذف المشروع",
+  "productNotes": "الملاحظات",
+  "productReload": "تحديث",
+  "productSearchThisProject": "ابحث في المشروع ده",
+  "productSearch": "بحث",
+  "productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic": "بحث التطوير بيطابق النصوص التجريبية حرفيًا، مش بحث دلالي.",
+  "productStillProcessingReloadLaterTheSavedNoteIs": "لسه قيد المعالجة. حدّث لاحقًا؛ الملاحظة محفوظة.",
+  "productSearchResults": "نتائج البحث",
+  "productNoResultsInThisProject": "مفيش نتائج في المشروع ده.",
+  "productShowAllSavedNotes": "عرض كل الملاحظات المحفوظة",
+  "productNoNotesYet": "مفيش ملاحظات لسه",
+  "productNote": "الملاحظة",
+  "productTheCurrentProposalWasReloadedReviewItBefore": "تم تحميل الاقتراح الحالي. راجعه قبل اختيار إجراء جديد.",
+  "productThisNoteIsUnavailableInTheSelectedProject": "الملاحظة مش متاحة في المشروع الحالي.",
+  "productSavedContent": "المحتوى المحفوظ",
+  "productSaveEdit": "حفظ التعديل",
+  "productCancelEditing": "إلغاء التعديل",
+  "productEditNote": "تعديل الملاحظة",
+  "productRefinementProposal": "اقتراح تحسين",
+  "productAcceptAndReplaceSavedContent": "قبول واستبدال المحتوى المحفوظ",
+  "productReplaceSavedContent": "استبدال المحتوى المحفوظ؟",
+  "productAcceptancePermanentlyReplacesTheContentAndStartsProcessing": "القبول بيستبدل المحتوى نهائيًا وبيبدأ المعالجة من جديد. مفيش تراجع أو سجل نسخ.",
+  "productAccept": "قبول",
+  "productRejectProposal": "رفض الاقتراح",
+  "productRequestAnotherProposal": "طلب اقتراح جديد",
+  "productRetryReprocess": "إعادة المعالجة",
+  "productReloadStatus": "تحديث الحالة",
+  "productRelatedNotes": "ملاحظات مرتبطة",
+  "productNoCurrentRelationships": "مفيش علاقات حالية.",
+  "productDeleteNote": "حذف الملاحظة",
+  "productDeleteNote2": "حذف الملاحظة؟",
+  "productItsRelationshipsAndSourceCitationsWillAlsoBe": "العلاقات والإشارات للملاحظة كمصدر هتتحذف كمان.",
+  "productKnowledgeMap": "خريطة المعرفة",
+  "productReloadMap": "تحديث الخريطة",
+  "productEveryNodeIsANoteLinesShowSupplied": "كل نقطة ملاحظة. الخطوط بتعرض العلاقات الواردة فقط. اسحب الملاحظات أو استخدم إصبعين للتكبير.",
+  "productNoCompletedNotesInThisProjectYet": "مفيش ملاحظات مكتملة المعالجة في المشروع لسه.",
+  "productZoomIn": "تكبير",
+  "productResetView": "إعادة ضبط العرض",
+  "productGraphCounts": "{notes, plural, =0{مفيش ملاحظات} =1{ملاحظة واحدة} =2{ملاحظتان} few{{notes} ملاحظات} many{{notes} ملاحظة} other{{notes} ملاحظة}} · {relationships, plural, =0{مفيش علاقات} =1{علاقة واحدة} =2{علاقتان} few{{relationships} علاقات} many{{relationships} علاقة} other{{relationships} علاقة}}",
+  "@productGraphCounts": {
+    "placeholders": {
+      "notes": {
+        "type": "int"
+      },
+      "relationships": {
+        "type": "int"
+      }
+    }
+  },
+  "productAsk": "اسأل",
+  "productNewConversation": "محادثة جديدة",
+  "productReloadHistoryList": "تحديث قائمة المحادثات",
+  "productConversationHistory": "سجل المحادثات",
+  "productStartAConversationOrOpenItsHistoryConversations": "ابدأ محادثة أو افتح سجلها. كل محادثة بتفضل داخل المشروع المختار.",
+  "productYou": "أنت",
+  "productNotSupportedByThisProjectSKnowledge": "غير مدعوم بمعرفة المشروع ده",
+  "productProvisionalNotConfirmedSaved": "عرض مؤقت · لم يتأكد حفظه",
+  "productStopWaiting": "إيقاف الانتظار",
+  "productReloadHistoryBeforeSendingAgain": "حمّل السجل قبل الإرسال تاني",
+  "productHistoryReloadedReviewItBeforeDeliberatelySendingYour": "السجل اتحدّث. راجعه قبل ما تختار إرسال المسودة الموجودة تاني.",
+  "productAskThisProject": "اسأل المشروع ده",
+  "productSend": "إرسال",
+  "productDeleteConversation": "حذف المحادثة؟",
+  "productThisDeletesTheConversationAndMessagesWhileKeeping": "ده بيحذف المحادثة ورسائلها وبيحتفظ بالملاحظات.",
+  "productDeleteConversation2": "حذف المحادثة",
+  "productReviewFailedSave": "مراجعة المسودة لمحاولة حفظ جديدة",
+  "productNewIntentionalSaveExplanation": "المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني."
+}

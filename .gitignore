@@ -9,3 +9,5 @@ build/
 *.jks
 *.keystore
 key.properties
+.flutter-plugins-dependencies
+*.iml

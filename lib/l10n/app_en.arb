@@ -1,0 +1,1988 @@
+{
+  "@@locale": "en",
+  "appTitle": "Fikra",
+  "navAdd": "Add",
+  "navNotes": "Notes",
+  "navLinks": "Links",
+  "navAsk": "Ask",
+  "storageErrorTitle": "There's a storage problem",
+  "storageErrorBody": "Couldn't read your data right now. Make sure your phone has free space, then try again.",
+  "retry": "Try again",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "justNow": "Just now",
+  "sizeBytes": "{size} B",
+  "sizeKb": "{size} KB",
+  "sizeMb": "{size} MB",
+  "badgeSampleData": "Sample data",
+  "badgeSaved": "Saved",
+  "badgeAnalyzing": "Analyzing…",
+  "badgeFailed": "Failed",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "loadErrorTitle": "Couldn't load your data",
+  "loadErrorBody": "Couldn't read your data right now. Try again.",
+  "genericError": "Something went wrong. Try again.",
+  "voicePlayA11y": "Play",
+  "voicePauseA11y": "Pause",
+  "voiceUnavailableA11y": "Recording unavailable",
+  "voiceRecording": "Voice recording",
+  "fileUnavailable": "File unavailable",
+  "deleteRecording": "Delete recording",
+  "firstProjectTitle": "Name your first project",
+  "create": "Create",
+  "createProjectFailed": "Couldn't create the project. Try again.",
+  "sampleProjectFailed": "Couldn't open the sample project. Try again.",
+  "tagline": "Write. Connect. Ask.",
+  "welcomeCapture": "Type, record your voice, or add a PDF or photos",
+  "welcomeLinks": "Fikra links related notes for you",
+  "welcomeAsk": "Ask, and get answers from your notes with sources",
+  "welcomeDemoBadge": "Demo version: everything stays on your phone",
+  "startNewProject": "Start a new project",
+  "trySampleProject": "Try a sample project",
+  "projectPillA11y": "Project: {name}. Tap to change",
+  "noProject": "None",
+  "settings": "Settings",
+  "projectsTitle": "Projects",
+  "newProject": "New project",
+  "projectOptionsA11y": "Options for {name}",
+  "renameProject": "Rename",
+  "save": "Save",
+  "deleteProject": "Delete project",
+  "deleteProjectTitle": "Delete \"{name}\"?",
+  "deleteProjectBody": "This deletes {items}, plus the chat. You can't undo this.",
+  "projectDeleted": "Project deleted",
+  "projectNameHint": "Project name",
+  "recordStartFailed": "Couldn't start recording. Try again.",
+  "recordInterrupted": "The recording stopped. Record again.",
+  "pdfOnly": "That file isn't a PDF. Choose a PDF.",
+  "fileOpenFailed": "Couldn't open that file. Try another one.",
+  "photosOpenFailed": "Couldn't open the photos. Try again.",
+  "noteSaved": "Note saved",
+  "noteSavedAnalyzing": "Note saved. Fikra is analyzing it now.",
+  "noteSaveFailed": "Couldn't save the note. Try again.",
+  "photosTitle": "Photos",
+  "addTitle": "New note",
+  "titleOptionalHint": "Title (optional)",
+  "bodyHintWithFileLinks": "Add a few lines about the file so Fikra can link it (optional)",
+  "bodyHint": "Write your idea…",
+  "addFooter": "Your note is saved right away, then Fikra analyzes the text and links it to related notes. Files stay on your phone.",
+  "discardRecording": "Discard recording",
+  "stopRecording": "Stop recording",
+  "recordVoice": "Record voice",
+  "addPdf": "Add PDF",
+  "addPhotos": "Add photos",
+  "removeFile": "Remove file",
+  "removePhoto": "Remove photo {n}",
+  "micNeededTitle": "Microphone access needed",
+  "close": "Close",
+  "micBlockedBody": "Microphone access is off. Open app settings and allow the microphone.",
+  "micAskBody": "To record your voice, let Fikra use the microphone.",
+  "openSettings": "Open settings",
+  "allowMic": "Allow microphone",
+  "recordingNow": "Recording",
+  "notesTitle": "Notes",
+  "searchNotesHint": "Search notes",
+  "notesEmptyTitle": "No notes yet",
+  "notesEmptyBody": "Type an idea, record your voice, or add a PDF or photos. Fikra sorts and links them for you.",
+  "addFirstNote": "Add your first note",
+  "noResultsTitle": "No results",
+  "noResultsBody": "No notes contain \"{query}\". Try another word.",
+  "noteAnalysisFailed": "Couldn't analyze",
+  "noteRewriteSuggested": "Rewrite suggested",
+  "noteSavedBadge": "Saved",
+  "openFileA11y": "Open {name}",
+  "untitledNote": "New note",
+  "openFileFailed": "Couldn't open the file. Make sure you have an app that can open it.",
+  "noteOptions": "Note options",
+  "edit": "Edit",
+  "restoreOriginal": "Restore original text",
+  "originalRestored": "Original text restored",
+  "deleteNote": "Delete note",
+  "deleteNoteTitle": "Delete this note?",
+  "deleteNoteBody": "The note, its files and its links will be deleted. You can't undo this.",
+  "noteDeleted": "Note deleted",
+  "back": "Back",
+  "options": "Options",
+  "noteNotFoundTitle": "Note not found",
+  "noteNotFoundBody": "It may have been deleted.",
+  "analysisFailedBanner": "Couldn't analyze this note, but it's saved as is.",
+  "analyzeAgain": "Analyze again",
+  "viewEdited": "Edited",
+  "viewOriginal": "Original",
+  "originalTextLabel": "Original text",
+  "topicsHeader": "Topics",
+  "analyzingBody": "Fikra is analyzing this note to find its topics and related notes. The note itself is saved.",
+  "suggestedRewrite": "Suggested rewrite",
+  "demoBadge": "Demo",
+  "useRewrite": "Use it",
+  "keepOriginal": "Keep original text",
+  "pdfFile": "PDF file",
+  "openPhotoA11y": "Open photo {n}",
+  "changesSaved": "Changes saved",
+  "changesSaveFailed": "Couldn't save your changes. Try again.",
+  "unsavedTitle": "You have unsaved changes",
+  "saveChanges": "Save changes",
+  "discardChanges": "Discard changes",
+  "keepEditing": "Keep editing",
+  "editNoteTitle": "Edit note",
+  "titleHint": "Title",
+  "noteTextA11y": "Note text",
+  "originalKeptHint": "Your original text is kept. You can restore it from the note's options.",
+  "clusterGeneral": "General",
+  "moreGroups": "More groups",
+  "linksTitle": "Links",
+  "linksEmptyTitle": "Links show up here",
+  "linksEmptyBody": "Add two or more notes on related topics, and Fikra will link them.",
+  "addNote": "Add a note",
+  "linksSummary": "{notesCount} · {linksCount}",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "resetView": "Reset view",
+  "showGroupA11y": "Show {notesCount} in {cluster}",
+  "moreGroupsCount": "More groups ({count})",
+  "noLinksYet": "No links yet. Notes on the same topics get linked automatically.",
+  "nodeMeta": "{cluster} · {linksCount}",
+  "openNote": "Open note",
+  "askFailed": "Couldn't answer right now. Try again.",
+  "clearChatTitle": "Clear this chat?",
+  "clearChatBody": "Questions and answers will be cleared. Your notes stay as they are.",
+  "clear": "Clear",
+  "askSuggestion": "What did I write about {title}?",
+  "askTitle": "Ask",
+  "clearChatA11y": "Clear chat",
+  "askDemoBadge": "Demo answers from your notes",
+  "askEmptyTitle": "Ask about your notes",
+  "askEmptyNoNotes": "Add some notes first, then ask about them here. Answers come only from your notes, with sources.",
+  "askEmptyBody": "Answers come only from this project's notes, with sources.",
+  "askHint": "Ask anything about your notes",
+  "send": "Send",
+  "notFoundInNotes": "No answer found in your notes",
+  "sources": "Sources",
+  "sourceA11y": "Source {index}: {title}",
+  "eraseAllTitle": "Erase all data?",
+  "eraseAllBody": "All projects, notes, recordings, files, chats, transcription services and their keys will be erased from this phone. You can't undo this.",
+  "eraseAllConfirm": "Erase everything",
+  "eraseAllDone": "All data erased",
+  "eraseAllPartial": "Your data was erased, but a few files are left. They'll be removed next time you open the app.",
+  "eraseAllFailed": "Couldn't erase your data. Try again.",
+  "settingsTitle": "Settings",
+  "appearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeHint": "\"System\" follows your phone's light or dark mode.",
+  "dataStaysLocal": "Your notes and files are stored only on this phone and are never sent anywhere.",
+  "eraseAll": "Erase all data",
+  "aboutSection": "About",
+  "demoVersion": "Demo version",
+  "languageSection": "Language",
+  "languageSystem": "System",
+  "languageArabic": "العربية",
+  "languageEnglish": "English",
+  "demoLinkReason": "Both mention {concept}",
+  "demoAnswerNotFound": "None of the notes in this project cover that. Try asking another way, or add a note about it.",
+  "demoAnswerIntro": "From your notes in this project:",
+  "untitledNoteFallback": "Untitled note",
+  "expandLlm": "LLM (large language model)",
+  "expandRag": "RAG (Retrieval-Augmented Generation)",
+  "sampleProjectName": "Graduation project",
+  "sample1Title": "Project idea",
+  "sample1Body": "A notes app that uses AI to connect ideas and answer my questions from my own notes only.",
+  "sample2Title": "How RAG works",
+  "sample2Body": "rag finds the closest chunks of my notes using embeddings, then the llm writes the answer from them and cites the source",
+  "sample3Title": "The UI",
+  "sample3Body": "The UI is dark and simple, right-to-left in Arabic, with four tabs: Add, Notes, Links, Ask.",
+  "sample4Title": "State management in Flutter",
+  "sample4Body": "I'll use riverpod for state management in flutter, with a local database for the demo.",
+  "sample5Title": "Backend",
+  "sample5Body": "Alaa is building the backend with fastapi and postgres with pgvector. The app talks to it through an api.",
+  "sample6Title": "Semantic search",
+  "sample6Body": "Semantic search looks for meaning, not exact words. It relies on embeddings stored in a database.",
+  "sample7Title": "Networks lecture",
+  "sample7Body": "Today's networks lecture was about TCP and UDP. I need to review it before the exam.",
+  "clearSearch": "Clear search",
+  "noteSavedNoText": "Note saved. Add a few lines so it can be linked.",
+  "noTextNoLinks": "This note has no text, so Fikra can't link it.",
+  "pdfOpenElsewhere": "Open in another app",
+  "pdfPageOf": "{page} of {total}",
+  "pdfLoadFailed": "Couldn't open this file. It may be damaged or missing.",
+  "notesCount": "{count, plural, =0{No notes} one{1 note} other{{count} notes}}",
+  "linksCount": "{count, plural, =0{No links} one{1 link} other{{count} links}}",
+  "minutesAgo": "{count, plural, =0{Just now} one{1 minute ago} other{{count} minutes ago}}",
+  "hoursAgo": "{count, plural, one{1 hour ago} other{{count} hours ago}}",
+  "@sizeBytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeKb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeMb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectPillA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@projectOptionsA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@removePhoto": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@noResultsBody": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@openFileA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@openPhotoA11y": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@linksSummary": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@showGroupA11y": {
+    "placeholders": {
+      "notesCount": {
+        "type": "String"
+      },
+      "cluster": {
+        "type": "String"
+      }
+    }
+  },
+  "@moreGroupsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nodeMeta": {
+    "placeholders": {
+      "cluster": {
+        "type": "String"
+      },
+      "linksCount": {
+        "type": "String"
+      }
+    }
+  },
+  "@askSuggestion": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@demoLinkReason": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    }
+  },
+  "@pdfPageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@notesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@linksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pdfFormat": "PDF",
+  "removeAttachmentBody": "The file will be deleted from this note when you save changes. You can't undo this.",
+  "emptyNoteBlocked": "A note can't be empty. Add text or a file.",
+  "pdfPasswordProtected": "This PDF is password-protected. Open it in another app.",
+  "noteLinksHeader": "Links",
+  "linkToNote": "Link to a note",
+  "noteLinksEmpty": "No links yet. Tap \"Link to a note\" to connect this note to others.",
+  "noteLinksLoadFailed": "Couldn't load links right now.",
+  "linkSuggestedTag": "Suggested",
+  "linkRowA11y": "{title}, {detail}",
+  "@linkRowA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestedLinkA11y": "Suggested: {title}",
+  "@suggestedLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "acceptLink": "Accept",
+  "acceptLinkA11y": "Accept link to {title}",
+  "@acceptLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectLink": "Reject",
+  "rejectLinkA11y": "Reject link to {title}",
+  "@rejectLinkA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsA11y": "Link options for {title}",
+  "@linkOptionsA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "linkOptionsTitle": "Link options",
+  "editLinkReason": "Edit reason",
+  "removeLink": "Remove link",
+  "removeLinkTitle": "Remove this link?",
+  "removeLinkBody": "Both notes stay as they are, but Fikra won't suggest linking them again.",
+  "removeLinkConfirm": "Remove",
+  "linkRemoved": "Link removed",
+  "linkUpdateFailed": "Couldn't update the link. Try again.",
+  "linkReasonHint": "Reason (optional)",
+  "alreadyLinked": "Already linked",
+  "linkPickerEmpty": "There are no other notes in this project to link.",
+  "linkFailed": "Couldn't link the notes. Try again.",
+  "linkSelected": "{count, plural, =0{Link} one{Link 1 note} other{Link {count} notes}}",
+  "@linkSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesLinked": "{count, plural, =0{No notes were linked} one{Linked to 1 note} other{Linked to {count} notes}}",
+  "@notesLinked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moveToProject": "Move to another project",
+  "moveNoOtherProject": "There's no other project to move this note to.",
+  "moveNoteTitle": "Move this note to \"{project}\"?",
+  "moveNoteBody": "The note moves with its files. Its {lost} to notes that stay here will be removed.",
+  "moveNoteBodyNoLinks": "The note moves with its files. No links will be removed.",
+  "moveConfirm": "Move",
+  "noteMoved": "Note moved to \"{project}\"",
+  "moveNoteFailed": "Couldn't move the note. Try again.",
+  "suggestionsCount": "{count, plural, =0{No suggestions} one{1 suggestion} other{{count} suggestions}}",
+  "filesCount": "{count, plural, =0{No files} one{1 file} other{{count} files}}",
+  "listTwo": "{first} and {second}",
+  "listThree": "{first}, {second} and {third}",
+  "deleteProjectEmptyBody": "This project is empty. It has no notes.",
+  "firstProjectNameHint": "Project name, e.g. Study",
+  "sourceMissing": "Note no longer in this project",
+  "sourceMissingA11y": "Source {index}: note no longer in this project",
+  "@moveNoteTitle": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@moveNoteBody": {
+    "placeholders": {
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "@noteMoved": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "@suggestionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@filesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@listTwo": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "@listThree": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      },
+      "third": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteProjectBody": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "@sourceMissingA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteProjectEmptyChatBody": "This project has no notes, but its chat will be deleted. You can't undo this.",
+  "selectedCount": "{count, plural, =0{Nothing selected} one{1 selected} other{{count} selected}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSelection": "Close selection",
+  "linkTogether": "Link together",
+  "groupAction": "Group",
+  "linkTogetherLimit": "You can link up to {max} notes together. For more, use a group.",
+  "@linkTogetherLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "linkTogetherNeedsTwo": "Select at least 2 notes to link them.",
+  "linksAdded": "{count, plural, =0{These notes were already linked} one{Added 1 link} other{Added {count} links}}",
+  "@linksAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "undo": "Undo",
+  "undoFailed": "Couldn't undo that.",
+  "chooseGroup": "Choose a group",
+  "newGroup": "New group",
+  "removeFromGroup": "Remove from group",
+  "noGroupsYet": "No groups in this project yet.",
+  "subGroupA11y": "{group}, inside {parent}, {notes}",
+  "@subGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "parent": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "notesGrouped": "Added {notes} to \"{group}\"",
+  "@notesGrouped": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupRemovedFrom": "Removed the group from {notes}",
+  "@groupRemovedFrom": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "groupFailed": "Couldn't update the group. Try again.",
+  "groupNameHint": "Group name",
+  "groupColorLabel": "Color: {color}",
+  "@groupColorLabel": {
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "colorNone": "No color",
+  "colorBlue": "Blue",
+  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
+  "colorGreen": "Green",
+  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
+  "colorYellow": "Yellow",
+  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
+  "colorGray": "Gray",
+  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
+  "groupParentLabel": "Inside a group (optional)",
+  "groupParentNone": "None",
+  "moveNotesTitle": "Move {notes} to \"{project}\"?",
+  "@moveNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBody": "{count, plural, one{The note moves with its files. Its {lost} to notes that stay here will be removed.} other{The notes move with their files. Their {lost} to notes that stay here will be removed.}}",
+  "@moveNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "lost": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesBodyNoLinks": "{count, plural, one{The note moves with its files. No links will be removed.} other{The notes move with their files. No links will be removed.}}",
+  "@moveNotesBodyNoLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesMoved": "Moved {notes} to \"{project}\"",
+  "@notesMoved": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      },
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNotesFailed": "Couldn't move the notes. Try again.",
+  "moveNotesNoOtherProject": "There's no other project to move these notes to.",
+  "deleteNotesTitle": "Delete {notes}?",
+  "@deleteNotesTitle": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesBody": "{count, plural, one{The note, its files and its links will be deleted. You can't undo this.} other{These notes, their files and their links will be deleted. You can't undo this.}}",
+  "@deleteNotesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesDeleted": "Deleted {notes}",
+  "@notesDeleted": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteNotesFailed": "Couldn't delete all the notes. Try again.",
+  "allGroupsFilter": "All",
+  "groupOptionsA11y": "Options for the group {group}",
+  "@groupOptionsA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupEmptyTitle": "This group is empty",
+  "groupEmptyBody": "Long-press a note to select it, then tap Group.",
+  "noteGroupA11y": "In group {group}",
+  "@noteGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "renameGroup": "Rename",
+  "changeGroupColor": "Change color",
+  "putInGroup": "Put inside another group",
+  "takeOutOfGroup": "Take out of \"{parent}\"",
+  "@takeOutOfGroup": {
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroup": "Delete group",
+  "deleteGroupTitle": "Delete the group \"{group}\"?",
+  "@deleteGroupTitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGroupBody": "Its notes stay as they are, just without a group. Groups inside it move out.",
+  "groupDeleted": "Group deleted",
+  "noParentGroups": "There's no other group to put it in.",
+  "groupRuleEmptyName": "Write a name for the group.",
+  "groupRuleInvalidColor": "That color isn't available.",
+  "groupRuleMissingProject": "This project no longer exists.",
+  "groupRuleMissingGroup": "This group no longer exists.",
+  "groupRuleInvalidParent": "A group can only go inside a top-level group, not inside a sub-group.",
+  "groupRuleSelfParent": "A group can't go inside itself.",
+  "groupRuleHasChildren": "This group has groups inside it, so it can't go inside another group.",
+  "suggestedTopics": "Suggested topics",
+  "makeTopicGroup": "Make {topic} a group",
+  "@makeTopicGroup": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "graphGroupA11y": "Group {group}, {notes}",
+  "@graphGroupA11y": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTopics": "More topics",
+  "moreTopicsCount": "{count, plural, one{{count} more topic} other{{count} more topics}}",
+  "@moreTopicsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "graphNoteInGroup": "{title}, in group {group}",
+  "@graphNoteInGroup": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphSearchHint": "Search the graph",
+  "graphSearchEmpty": "No results",
+  "graphSearchNote": "Note",
+  "graphSearchLink": "Link",
+  "graphSearchGroup": "Group",
+  "graphSearchLimited": "Hidden by graph limits. Opening the note.",
+  "graphCollapseGroup": "Collapse group {group}",
+  "@graphCollapseGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphExpandGroup": "Expand group {group}",
+  "@graphExpandGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "graphCollapsedGroup": "Group {group}, {notes}, collapsed",
+  "@graphCollapsedGroup": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
+  "graphMinimap": "Graph minimap. Tap or drag to move",
+  "vtTitle": "Voice to text",
+  "vtExperimental": "Experimental",
+  "vtIntro": "The model runs on your phone. Nothing is uploaded. It needs a one-time download.",
+  "vtModel": "Model",
+  "vtTiny": "Tiny",
+  "vtBase": "Medium",
+  "vtSmall": "More accurate",
+  "vtFullName": "{name} · uncompressed",
+  "@vtFullName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTinyHint": "Smallest and fastest, with more mistakes.",
+  "vtBaseHint": "Balances size and accuracy.",
+  "vtSmallHint": "May be more accurate, but slower and larger.",
+  "vtFullHint": "Larger, uncompressed version. Compare its accuracy with the smaller version.",
+  "vtOnPhone": "On your phone",
+  "vtNotDownloaded": "Not downloaded",
+  "vtUsed": "Model storage used: {size}",
+  "@vtUsed": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownload": "Download · {size}",
+  "@vtDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadTitle": "Download this model?",
+  "vtDownloadBody": "The download is {size}. Wi-Fi is better. You only need to download it once.",
+  "@vtDownloadBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDownloadConfirm": "Download",
+  "vtDeleteModel": "Delete model",
+  "vtDeleteModelTitle": "Delete this model?",
+  "vtDeleteModelBody": "You will need to download it again to use it.",
+  "vtProgress": "{received} of {total}",
+  "@vtProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "vtLanguage": "Speech language",
+  "vtAutomatic": "Automatic",
+  "vtAdvanced": "Advanced",
+  "vtThreads": "CPU threads: {count}",
+  "@vtThreads": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFormat": "Recording format",
+  "vtWav": "Test format (WAV)",
+  "vtAac": "The app's normal format (AAC)",
+  "vtClips": "Recent recordings",
+  "vtNoRecordings": "Record a few words to try transcription. Your last 10 recordings stay here.",
+  "vtClip": "Recording {number} · {format}",
+  "@vtClip": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "vtDeleteRecordingBody": "This recording will be deleted from the experiment.",
+  "vtTranscribe": "Transcribe",
+  "vtWorking": "Transcribing…",
+  "vtCannotCancel": "Once transcription starts, wait for it to finish.",
+  "vtWait": "Wait for the operation to finish, or stop recording first.",
+  "vtResult": "Transcript",
+  "vtNoSpeech": "No clear speech was found. Try again.",
+  "vtNumbers": "Numbers",
+  "vtAudioLength": "Audio length: {seconds} s",
+  "@vtAudioLength": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtWall": "Time taken: {seconds} s",
+  "@vtWall": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFaster": "{times} times faster than speech",
+  "@vtFaster": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtSlower": "{times} times slower than speech",
+  "@vtSlower": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "vtFactor": "Real-time factor: {factor}",
+  "@vtFactor": {
+    "placeholders": {
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "vtMs": "{ms} ms",
+  "@vtMs": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    },
+    "description": "Milliseconds, with a non-breaking space between the number and Latin unit."
+  },
+  "vtMemory": "Memory before: {before}, after: {after}",
+  "@vtMemory": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "vtPeak": "Peak memory: {size}",
+  "@vtPeak": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "vtConversion": "Audio conversion: {ms}",
+  "@vtConversion": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtEstimate": "Transcription and model load, approximately: {ms}",
+  "@vtEstimate": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtModelLoad": "Model startup: {ms}",
+  "@vtModelLoad": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "vtTimingHint": "Time includes audio conversion and model loading. Memory is for the whole app.",
+  "vtHistory": "Recent runs",
+  "vtLive": "Text while you speak",
+  "vtLiveHint": "Text updates while you speak. Stopping may take a little time.",
+  "vtLiveStart": "Start live transcription",
+  "vtLiveTiming": "Live session time includes speaking, so it does not measure transcription speed.",
+  "vtNetworkError": "Couldn't download the model. Check your connection and try again.",
+  "vtInterruptedError": "The download or recording was interrupted. Try again.",
+  "vtCorruptError": "Couldn't read the model. Delete it and download it again.",
+  "vtEmptyError": "The recording is empty or invalid. Record a few words and try again.",
+  "vtTranscriptionError": "Couldn't transcribe the audio. Try a shorter recording or a smaller model.",
+  "vtStorageError": "There is not enough storage. Free some space or choose a smaller model, then try again.",
+  "vtStorageCheckError": "Couldn't check free storage. Reopen this screen and try again.",
+  "vtCancelled": "Download cancelled. You can start it again.",
+  "vtEgyptian": "Egyptian · experimental",
+  "vtEgyptianHint": "Trained on Egyptian Arabic mixed with English.",
+  "vtVoiceSection": "Voice",
+  "@vtVoiceSection": {
+    "description": "Settings section for voice features."
+  },
+  "vtTry": "Try it",
+  "@vtTry": {
+    "description": "Everyday voice-to-text trial section."
+  },
+  "vtTesting": "For testing",
+  "@vtTesting": {
+    "description": "Collapsed section containing measurement controls and technical run history."
+  },
+  "vtFullModels": "Uncompressed models",
+  "@vtFullModels": {
+    "description": "Measurement-only full-size model variants."
+  },
+  "vtRefreshModels": "Refresh model list",
+  "@vtRefreshModels": {
+    "description": "Rescan model files, including an Egyptian model pushed by adb, from the testing area."
+  },
+  "trAutomatic": "Transcribe recordings automatically",
+  "@trAutomatic": {
+    "description": "Voice setting: transcribe only new recordings after a note save."
+  },
+  "trAutomaticHint": "Runs on your phone after saving and can take a while.",
+  "@trAutomaticHint": {
+    "description": "Hint below automatic recording transcription setting."
+  },
+  "trDownloadFirst": "Download a model first to transcribe recordings on your phone.",
+  "@trDownloadFirst": {
+    "description": "Explains why automatic transcription cannot be enabled without an installed model."
+  },
+  "trAfterSave": "Transcribe after saving",
+  "@trAfterSave": {
+    "description": "Toggle on a new recording draft; no inference runs before saving."
+  },
+  "trQueueFailed": "The recording is saved, but we couldn’t queue it. Try from the note.",
+  "@trQueueFailed": {
+    "description": "Failure persisting or waking a saved recording transcription request."
+  },
+  "trWorking": "Transcribing audio…",
+  "@trWorking": {
+    "description": "Live status on a note card and its running voice attachment."
+  },
+  "trQueued": "Waiting to transcribe…",
+  "@trQueued": {
+    "description": "A saved recording is queued behind another job."
+  },
+  "trExpand": "Show full transcript",
+  "@trExpand": {
+    "description": "Expand the collapsed transcript of a saved recording."
+  },
+  "trCollapse": "Show less",
+  "@trCollapse": {
+    "description": "Collapse a saved recording transcript to three lines."
+  },
+  "trLocalEngine": "On your phone · {model}",
+  "@trLocalEngine": {
+    "description": "Engine label for the model that produced a saved transcript.",
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "trModelMissing": "The model is missing or damaged. Download it in voice settings and try again.",
+  "@trModelMissing": {
+    "description": "Transcription failure with an action opening voice settings."
+  },
+  "trBusy": "Another transcription took too long. Try again when it finishes.",
+  "@trBusy": {
+    "description": "Timed out waiting for the process-wide local engine lease."
+  },
+  "trAudioUnreadable": "We couldn’t read the recording or find speech. Try playing it first.",
+  "@trAudioUnreadable": {
+    "description": "Unreadable or empty audio transcription failure."
+  },
+  "trFailed": "We couldn’t transcribe the recording. Try again.",
+  "@trFailed": {
+    "description": "Other saved recording transcription failure."
+  },
+  "trInterruptedTwice": "Transcription stopped twice because the app closed. Try again or choose a smaller model.",
+  "@trInterruptedTwice": {
+    "description": "Saved recording transcription failure: the app closed during transcription twice (possibly a crash or the phone running out of memory), so it was not restarted automatically."
+  },
+  "trNotificationChannel": "Transcription",
+  "@trNotificationChannel": {
+    "description": "Android notification channel name, shown in the system's notification settings, for the low-importance notification while recordings are transcribed in the background."
+  },
+  "trNotificationLeft": "{count, plural, =1{1 recording left} other{{count} recordings left}}",
+  "@trNotificationLeft": {
+    "description": "Second line of the transcription notification: recordings still to transcribe, including the one in progress.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trNotificationWhy": "Allow notifications to follow transcription after you leave the app.",
+  "@trNotificationWhy": {
+    "description": "One-line explanation shown just before Android asks for notification permission, the first time a recording is queued for transcription."
+  },
+  "trOpenSettings": "Open voice settings",
+  "@trOpenSettings": {
+    "description": "Open the model and speech settings after a missing-model failure."
+  },
+  "trTranscribe": "Transcribe audio",
+  "@trTranscribe": {
+    "description": "Queue a saved voice attachment for transcription."
+  },
+  "trRedo": "Transcribe again",
+  "@trRedo": {
+    "description": "Redo a saved recording with the currently selected engine and model."
+  },
+  "vtEngineBusy": "A recording is being transcribed. Wait for it to finish and try again.",
+  "@vtEngineBusy": {
+    "description": "The test screen cannot start another model while the app-wide Whisper lease is held."
+  },
+  "@originalKeptHint": {
+    "description": "Applies to every note source. Saved recordings can be transcribed locally after saving."
+  },
+  "vsEngine": "Transcription engine",
+  "@vsEngine": {
+    "description": "External transcription: Engine. User-added services only; no upload before consent."
+  },
+  "vsLocal": "On your phone",
+  "@vsLocal": {
+    "description": "External transcription: Local. User-added services only; no upload before consent."
+  },
+  "vsAdd": "Add a service",
+  "@vsAdd": {
+    "description": "External transcription: Add. User-added services only; no upload before consent."
+  },
+  "vsEdit": "Edit service",
+  "@vsEdit": {
+    "description": "External transcription: Edit. User-added services only; no upload before consent."
+  },
+  "vsType": "Service type",
+  "@vsType": {
+    "description": "External transcription: Type. User-added services only; no upload before consent."
+  },
+  "vsOpenAi": "OpenAI-compatible",
+  "@vsOpenAi": {
+    "description": "External transcription: OpenAi. User-added services only; no upload before consent."
+  },
+  "vsName": "Service name",
+  "@vsName": {
+    "description": "External transcription: Name. User-added services only; no upload before consent."
+  },
+  "vsBaseUrl": "Base URL",
+  "@vsBaseUrl": {
+    "description": "External transcription: BaseUrl. User-added services only; no upload before consent."
+  },
+  "vsModel": "Model ID",
+  "@vsModel": {
+    "description": "External transcription: Model. User-added services only; no upload before consent."
+  },
+  "vsKey": "API key",
+  "@vsKey": {
+    "description": "External transcription: Key. User-added services only; no upload before consent."
+  },
+  "vsKeyKeep": "Leave blank to keep the saved key.",
+  "@vsKeyKeep": {
+    "description": "External transcription: KeyKeep. User-added services only; no upload before consent."
+  },
+  "vsLanguageHint": "Language hint (optional)",
+  "@vsLanguageHint": {
+    "description": "External transcription: LanguageHint. User-added services only; no upload before consent."
+  },
+  "vsLanguageHelp": "Use a code such as ar or en. Leave blank to use the selected speech language.",
+  "@vsLanguageHelp": {
+    "description": "External transcription: LanguageHelp. User-added services only; no upload before consent."
+  },
+  "vsShowKey": "Show key",
+  "@vsShowKey": {
+    "description": "External transcription: ShowKey. User-added services only; no upload before consent."
+  },
+  "vsHideKey": "Hide key",
+  "@vsHideKey": {
+    "description": "External transcription: HideKey. User-added services only; no upload before consent."
+  },
+  "vsTest": "Test connection",
+  "@vsTest": {
+    "description": "External transcription: Test. User-added services only; no upload before consent."
+  },
+  "vsTesting": "Testing connection…",
+  "@vsTesting": {
+    "description": "External transcription: Testing. User-added services only; no upload before consent."
+  },
+  "vsConnected": "Connection works.",
+  "@vsConnected": {
+    "description": "External transcription: Connected. User-added services only; no upload before consent."
+  },
+  "vsDeleteTitle": "Delete this service?",
+  "@vsDeleteTitle": {
+    "description": "External transcription: DeleteTitle. User-added services only; no upload before consent."
+  },
+  "vsDeleteBody": "Its key will be deleted. If selected, transcription switches back to your phone.",
+  "@vsDeleteBody": {
+    "description": "External transcription: DeleteBody. User-added services only; no upload before consent."
+  },
+  "vsConsentTitle": "Send recordings to {service}?",
+  "@vsConsentTitle": {
+    "description": "External transcription: ConsentTitle. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentBody": "Recordings will be sent outside your phone to {service} at {host} for transcription. The service may retain them and charge for use. Nothing is sent until you agree.",
+  "@vsConsentBody": {
+    "description": "External transcription: ConsentBody. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "vsConsentConfirm": "Agree",
+  "@vsConsentConfirm": {
+    "description": "External transcription: ConsentConfirm. User-added services only; no upload before consent."
+  },
+  "vsHttpWarning": "This connection is unencrypted. Use it only on a trusted local network.",
+  "@vsHttpWarning": {
+    "description": "External transcription: HttpWarning. User-added services only; no upload before consent."
+  },
+  "vsInvalidUrl": "Use HTTPS, or HTTP to localhost or a private LAN address.",
+  "@vsInvalidUrl": {
+    "description": "External transcription: InvalidUrl. User-added services only; no upload before consent."
+  },
+  "vsInvalidFields": "Check the name, model and language code.",
+  "@vsInvalidFields": {
+    "description": "External transcription: InvalidFields. User-added services only; no upload before consent."
+  },
+  "vsKeyRequired": "Enter a key for this service first.",
+  "@vsKeyRequired": {
+    "description": "External transcription: KeyRequired. User-added services only; no upload before consent."
+  },
+  "vsSaveError": "We couldn’t save the service. Try again.",
+  "@vsSaveError": {
+    "description": "External transcription: SaveError. User-added services only; no upload before consent."
+  },
+  "vsLoadError": "We couldn’t read the service settings. Try again.",
+  "@vsLoadError": {
+    "description": "External transcription: LoadError. User-added services only; no upload before consent."
+  },
+  "vsRemoteIntro": "Recordings are sent outside your phone to {service} for transcription. The service may charge for use.",
+  "@vsRemoteIntro": {
+    "description": "External transcription: RemoteIntro. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemoteData": "Your notes and files are stored on your phone. Recordings are sent outside your phone to {service} for transcription.",
+  "@vsRemoteData": {
+    "description": "External transcription: RemoteData. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsVia": "Via {service}",
+  "@vsVia": {
+    "description": "External transcription: Via. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsRemovedService": "Deleted service",
+  "@vsRemovedService": {
+    "description": "External transcription: RemovedService. User-added services only; no upload before consent."
+  },
+  "vsLiveLocal": "Live text is available only on your phone. Switch engines to try it.",
+  "@vsLiveLocal": {
+    "description": "External transcription: LiveLocal. User-added services only; no upload before consent."
+  },
+  "vsRemoteAutoHint": "New recordings are sent outside your phone to {service} after saving and can take a while.",
+  "@vsRemoteAutoHint": {
+    "description": "External transcription: RemoteAutoHint. User-added services only; no upload before consent.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "vsOffline": "We couldn’t reach the service. Check your connection and try again.",
+  "@vsOffline": {
+    "description": "External transcription: Offline. User-added services only; no upload before consent."
+  },
+  "vsKeyRejected": "The service rejected the key. Check it in voice settings.",
+  "@vsKeyRejected": {
+    "description": "External transcription: KeyRejected. User-added services only; no upload before consent."
+  },
+  "vsRateLimited": "You reached a usage limit or ran out of credit. Check your account or try later.",
+  "@vsRateLimited": {
+    "description": "External transcription: RateLimited. User-added services only; no upload before consent."
+  },
+  "vsTooLarge": "The recording is too large or long for this service. Try a shorter recording or another service.",
+  "@vsTooLarge": {
+    "description": "External transcription: TooLarge. User-added services only; no upload before consent."
+  },
+  "vsServiceError": "The service is having a problem. Try later.",
+  "@vsServiceError": {
+    "description": "External transcription: ServiceError. User-added services only; no upload before consent."
+  },
+  "vsUnexpected": "The service returned an unexpected response. Check its URL and model in voice settings.",
+  "@vsUnexpected": {
+    "description": "External transcription: Unexpected. User-added services only; no upload before consent."
+  },
+  "vsTimeout": "The service took too long to respond. Check your connection and try again.",
+  "@vsTimeout": {
+    "description": "External transcription: Timeout. User-added services only; no upload before consent."
+  },
+  "vsNeedsConsent": "Agree to send recordings in voice settings first.",
+  "@vsNeedsConsent": {
+    "description": "External transcription: NeedsConsent. User-added services only; no upload before consent."
+  },
+  "vsRegion": "Region",
+  "@vsRegion": {
+    "description": "External transcription: Region. User-added services only; no upload before consent."
+  },
+  "vsSingapore": "International (Singapore)",
+  "@vsSingapore": {
+    "description": "External transcription: Singapore. User-added services only; no upload before consent."
+  },
+  "vsBeijing": "Mainland China (Beijing)",
+  "@vsBeijing": {
+    "description": "External transcription: Beijing. User-added services only; no upload before consent."
+  },
+  "vsOpenAiKeyHint": "Get the key, URL and model from your provider, such as OpenAI, Groq or SiliconFlow.",
+  "@vsOpenAiKeyHint": {
+    "description": "External transcription: OpenAiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGeminiKeyHint": "Get a key from Google AI Studio.",
+  "@vsGeminiKeyHint": {
+    "description": "External transcription: GeminiKeyHint. User-added services only; no upload before consent."
+  },
+  "vsElevenKeyHint": "Get a key from your ElevenLabs account settings.",
+  "@vsElevenKeyHint": {
+    "description": "External transcription: ElevenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsQwenKeyHint": "Get a key for the same region from Alibaba Cloud Model Studio. Workspace URLs are also supported.",
+  "@vsQwenKeyHint": {
+    "description": "External transcription: QwenKeyHint. User-added services only; no upload before consent."
+  },
+  "vsGemini": "Google Gemini",
+  "@vsGemini": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsElevenLabs": "ElevenLabs",
+  "@vsElevenLabs": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "vsQwen": "Qwen ASR",
+  "@vsQwen": {
+    "description": "External transcription service type; product name, identical in both languages."
+  },
+  "@eraseAllBody": {
+    "description": "Local wipe confirmation. Includes user-added transcription configuration and secure API keys; does not delete copies held by providers."
+  },
+  "vsRemoteTiming": "Time includes uploading and waiting for the service. Memory is for the whole app.",
+  "@vsRemoteTiming": {
+    "description": "Technical trial measurements for a remote engine: network/service wall time and whole-process RSS."
+  },
+  "v2Off": "No transcription",
+  "@v2Off": {
+    "description": "Per-recording off policy."
+  },
+  "v2Recommended": "Recommended",
+  "@v2Recommended": {
+    "description": "Recommended catalog group."
+  },
+  "v2Other": "Other",
+  "@v2Other": {
+    "description": "Other supported models group."
+  },
+  "v2Legacy": "Legacy",
+  "@v2Legacy": {
+    "description": "Legacy models group."
+  },
+  "v2Shutdown": "Legacy model. Shuts down on {date}. Choose a recommended model if you can.",
+  "@v2Shutdown": {
+    "description": "Known provider shutdown warning.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v2LegacyUnknown": "Legacy model. No shutdown date has been announced.",
+  "@v2LegacyUnknown": {
+    "description": "Legacy without a published shutdown date."
+  },
+  "v2Arabic": "Supports Arabic. Try it with mixed Egyptian Arabic and English.",
+  "@v2Arabic": {
+    "description": "Arabic suitability; no unmeasured quality claim."
+  },
+  "v2Generative": "Understands Arabic, but may rephrase speech. Check the transcript.",
+  "@v2Generative": {
+    "description": "Generative model suitability caveat."
+  },
+  "v2Unsupported": "Not supported here yet",
+  "@v2Unsupported": {
+    "description": "Catalog entry requires a different API."
+  },
+  "v2Custom": "Custom model",
+  "@v2Custom": {
+    "description": "Collapsed custom model ID field."
+  },
+  "v2Refresh": "Refresh list",
+  "@v2Refresh": {
+    "description": "Explicit model discovery action."
+  },
+  "v2Refreshing": "Refreshing list…",
+  "@v2Refreshing": {
+    "description": "Discovery working state."
+  },
+  "v2Available": "Available in your account",
+  "@v2Available": {
+    "description": "Discovered catalog ID."
+  },
+  "v2Checked": "Last checked: {time}",
+  "@v2Checked": {
+    "description": "Discovery cache timestamp.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "v2DiscoveryHint": "Checks models with the service outside your phone, without sending audio.",
+  "@v2DiscoveryHint": {
+    "description": "Discovery privacy explanation."
+  },
+  "v2DiscoveryQwen": "Model discovery is unavailable for Qwen here. Use the recommended model or enter an ID.",
+  "@v2DiscoveryQwen": {
+    "description": "Qwen discovery skipped without workspace context."
+  },
+  "v2EditTranscript": "Edit transcript",
+  "@v2EditTranscript": {
+    "description": "Transcript correction action and editor title."
+  },
+  "v2RestoreTranscript": "Restore machine transcript",
+  "@v2RestoreTranscript": {
+    "description": "Clear correction without changing machine output."
+  },
+  "v2NewTranscript": "New transcript available",
+  "@v2NewTranscript": {
+    "description": "Redo completed while a correction exists."
+  },
+  "v2UseTranscript": "Use it",
+  "@v2UseTranscript": {
+    "description": "Adopt new machine output, clearing correction."
+  },
+  "v2CopyUnchanged": "Transcript saved. The note text was left unchanged because it was edited.",
+  "@v2CopyUnchanged": {
+    "description": "Unsafe paragraph replacement outcome."
+  },
+  "v2AppendTranscript": "Append to note",
+  "@v2AppendTranscript": {
+    "description": "Explicit append after an unsafe replacement."
+  },
+  "v2TranscriptConflict": "The transcript changed while you were editing. Go back and reopen it.",
+  "@v2TranscriptConflict": {
+    "description": "Optimistic revision conflict; draft retained."
+  },
+  "v2TranscriptFailed": "Couldn’t save the transcript. Try again.",
+  "@v2TranscriptFailed": {
+    "description": "Correction save failure."
+  },
+  "v2TranscriptEmpty": "Enter the transcript first.",
+  "@v2TranscriptEmpty": {
+    "description": "Empty correction validation."
+  },
+  "v2TranscriptSaved": "Transcript saved",
+  "@v2TranscriptSaved": {
+    "description": "Correction success feedback."
+  },
+  "linksBrowse": "Browse",
+  "@linksBrowse": {
+    "description": "Links library browse segment."
+  },
+  "linksSuggestions": "Suggestions",
+  "@linksSuggestions": {
+    "description": "Links library suggestions segment and section heading."
+  },
+  "linksConfirmed": "Confirmed links",
+  "@linksConfirmed": {
+    "description": "Confirmed connections section heading."
+  },
+  "linksGroups": "Groups",
+  "@linksGroups": {
+    "description": "Links library group chips heading."
+  },
+  "linksSuggestedForYou": "Suggested for you",
+  "@linksSuggestedForYou": {
+    "description": "Explains that topic chips are AI suggestions."
+  },
+  "searchLinksHint": "Search links",
+  "@searchLinksHint": {
+    "description": "Search the links library by note text and title."
+  },
+  "linksSort": "Sort links",
+  "@linksSort": {
+    "description": "Filter dock tooltip and sort sheet title."
+  },
+  "linksNewest": "Newest first",
+  "@linksNewest": {
+    "description": "Links library sort order."
+  },
+  "linksMostLinked": "Most links first",
+  "@linksMostLinked": {
+    "description": "Links library sort by confirmed degree."
+  },
+  "linksOldest": "Oldest first",
+  "@linksOldest": {
+    "description": "Links library sort order."
+  },
+  "linksOpenGraph": "Open links graph",
+  "@linksOpenGraph": {
+    "description": "Header action to open the optional graph."
+  },
+  "linkNoReason": "No reason added",
+  "@linkNoReason": {
+    "description": "Muted fallback for an empty link reason."
+  },
+  "linksSuggestionsEmpty": "No suggestions right now",
+  "@linksSuggestionsEmpty": {
+    "description": "Empty suggestions list title."
+  },
+  "linksSuggestionsEmptyBody": "New suggestions will appear here.",
+  "@linksSuggestionsEmptyBody": {
+    "description": "Empty suggestions list explanation."
+  },
+  "linksBrowseSuggestionsBody": "Some suggestions are waiting for you. Accept a link to see it here.",
+  "@linksBrowseSuggestionsBody": {
+    "description": "Empty confirmed library directs the user to suggestions."
+  },
+  "linksSuggestionsCount": "Suggestions {count}",
+  "@linksSuggestionsCount": {
+    "description": "Suggestions segment label with the number of waiting suggestions (shown only when above zero).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksSuggestionsCountA11y": "Suggestions, {count}",
+  "@linksSuggestionsCountA11y": {
+    "description": "TalkBack label of the suggestions segment with the number of waiting suggestions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksFilterEmptyBody": "Nothing here yet. Try another group or topic.",
+  "@linksFilterEmptyBody": {
+    "description": "Links library empty state when a group or topic chip is selected and the search is empty."
+  },
+  "linkSuggestionRejected": "Suggestion rejected",
+  "@linkSuggestionRejected": {
+    "description": "Toast after rejecting a suggested link; carries Undo."
+  },
+  "servicesSection": "Connected services",
+  "@servicesSection": {
+    "description": "Settings section heading for the speech-to-text services the user added and the button to add one."
+  },
+  "privacySection": "Privacy & data",
+  "@privacySection": {
+    "description": "Settings section explaining where notes and recordings are stored."
+  },
+  "notesSort": "Sort notes",
+  "@notesSort": {
+    "description": "Notes list sort button label and sort sheet title."
+  },
+  "headerGraph": "Graph",
+  "@headerGraph": {
+    "description": "Short caption under the open-graph icon in the Links header."
+  },
+  "headerSearch": "Search",
+  "@headerSearch": {
+    "description": "Short caption under the search icon in the graph header."
+  },
+  "capsuleRecording": "Recording…",
+  "@capsuleRecording": {
+    "description": "Status label in the floating activity capsule above the tab bar while recording on another tab."
+  },
+  "capsuleRecordingA11y": "Recording. Tap to open recording",
+  "@capsuleRecordingA11y": {
+    "description": "Screen reader label for the floating recording activity capsule."
+  },
+  "capsuleTranscribing": "Transcribing…",
+  "@capsuleTranscribing": {
+    "description": "Status label in the floating activity capsule above the tab bar while a background transcription job runs."
+  },
+  "capsuleTranscribingA11y": "Transcribing recording. Tap to open note",
+  "@capsuleTranscribingA11y": {
+    "description": "Screen reader label for the floating transcription activity capsule."
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Concept navigation and Me screen: navHome."
+  },
+  "navMap": "Map",
+  "@navMap": {
+    "description": "Concept navigation and Me screen: navMap."
+  },
+  "navMe": "Me",
+  "@navMe": {
+    "description": "Concept navigation and Me screen: navMe."
+  },
+  "newIdea": "New idea",
+  "@newIdea": {
+    "description": "Concept navigation and Me screen: newIdea."
+  },
+  "meIdeas": "Ideas",
+  "@meIdeas": {
+    "description": "Concept navigation and Me screen: meIdeas."
+  },
+  "meLinks": "Links",
+  "@meLinks": {
+    "description": "Concept navigation and Me screen: meLinks."
+  },
+  "meWeekDays": "Days this week",
+  "@meWeekDays": {
+    "description": "Concept navigation and Me screen: meWeekDays."
+  },
+  "meAppearanceLanguage": "Appearance & language",
+  "@meAppearanceLanguage": {
+    "description": "Concept navigation and Me screen: meAppearanceLanguage."
+  },
+  "meVoiceServices": "Voice & services",
+  "@meVoiceServices": {
+    "description": "Concept navigation and Me screen: meVoiceServices."
+  },
+  "welcomeEyebrow": "فِكرة",
+  "@welcomeEyebrow": {
+    "description": "Small brand eyebrow label above the hero title on the welcome screen."
+  },
+  "welcomeBrandTitle": "Fikrah",
+  "@welcomeBrandTitle": {
+    "description": "Large brand title on the welcome screen."
+  },
+  "welcomeTagline": "Write it. Link it. Ask it.",
+  "@welcomeTagline": {
+    "description": "Short three-word tagline on the welcome screen."
+  },
+  "welcomeSubtitle": "Your ideas, connected. Ask your notes anything and get answers from your own thinking.",
+  "@welcomeSubtitle": {
+    "description": "Supporting line on the welcome screen."
+  },
+  "welcomeStartWriting": "Start writing",
+  "@welcomeStartWriting": {
+    "description": "Primary CTA on the welcome screen that creates the default project and opens Notes."
+  },
+  "welcomeTrySample": "Try a sample project",
+  "@welcomeTrySample": {
+    "description": "Secondary CTA on the welcome screen that seeds the sample project."
+  },
+  "welcomeFooter": "Your notes stay on your device · no account",
+  "@welcomeFooter": {
+    "description": "Privacy footer on the welcome screen."
+  },
+  "defaultProjectName": "My ideas",
+  "@defaultProjectName": {
+    "description": "Default project name created directly from the welcome screen."
+  },
+  "filterVoice": "Voice",
+  "@filterVoice": {
+    "description": "Filter chip and note-card badge label for voice notes."
+  },
+  "filterFiles": "Files",
+  "@filterFiles": {
+    "description": "Filter chip label for notes with PDF or image attachments."
+  },
+  "badgePdf": "PDF",
+  "@badgePdf": {
+    "description": "Short PDF badge label on note cards."
+  },
+  "filterEmptyTitle": "No matching notes",
+  "@filterEmptyTitle": {
+    "description": "Empty state title when a type filter (voice/files) matches no notes."
+  },
+  "filterEmptyBody": "No notes match this filter yet.",
+  "@filterEmptyBody": {
+    "description": "Empty state body when a type filter matches no notes."
+  },
+  "actionStripFailed": "{count, plural, one{1 note failed to analyze} other{{count} notes failed to analyze}}",
+  "@actionStripFailed": {
+    "description": "Action strip message when one or more notes failed analysis.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRetry": "Retry",
+  "@actionStripRetry": {
+    "description": "Short retry label on the failed-analysis action strip."
+  },
+  "actionStripSuggestions": "{count, plural, one{1 new link suggestion} other{{count} new link suggestions}}",
+  "@actionStripSuggestions": {
+    "description": "Action strip message when new link suggestions are waiting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripRewrites": "{count, plural, one{1 rewrite waiting for review} other{{count} rewrites waiting for review}}",
+  "@actionStripRewrites": {
+    "description": "Action strip message when note rewrites are waiting for review.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionStripDismiss": "Dismiss",
+  "@actionStripDismiss": {
+    "description": "Screen reader label for dismissing the notes action strip for the current session."
+  },
+  "activeDaysThisWeek": "{count, plural, one{1 day this week} other{{count} days this week}}",
+  "@activeDaysThisWeek": {
+    "description": "Chip showing how many distinct days in the rolling 7-day window have at least one note.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linksMap": "Map",
+  "@linksMap": {
+    "description": "Links Map: linksMap"
+  },
+  "mapOthers": "Others",
+  "@mapOthers": {
+    "description": "Links Map: mapOthers"
+  },
+  "mapShowMore": "Show more",
+  "@mapShowMore": {
+    "description": "Links Map: mapShowMore"
+  },
+  "mapOpen": "Open",
+  "@mapOpen": {
+    "description": "Links Map: mapOpen"
+  },
+  "mapNotes": "{count, plural, one{1 note} other{{count} notes}}",
+  "@mapNotes": {
+    "description": "Links Map: mapNotes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapConnections": "{count, plural, one{1 connection} other{{count} connections}}",
+  "@mapConnections": {
+    "description": "Links Map: mapConnections",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapCanvasSummary": "Notes map, total: {total}, omitted: {omitted}",
+  "@mapCanvasSummary": {
+    "description": "Links Map: mapCanvasSummary",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTotals": "Notes: {total} · Links: {confirmed} · Suggestions: {suggestions} · Omitted: {omitted}",
+  "@mapTotals": {
+    "description": "Links Map: mapTotals",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "confirmed": {
+        "type": "int"
+      },
+      "suggestions": {
+        "type": "int"
+      },
+      "omitted": {
+        "type": "int"
+      }
+    }
+  },
+  "mapPanHint": "Pan to explore the map",
+  "@mapPanHint": {
+    "description": "Hint for the unshrunk Map world; panning preserves readable text and touch targets."
+  },
+  "productMyAccount": "My account",
+  "productThisIsAVolatileDevelopmentWorkspaceExistingLocal": "This is a volatile development workspace. Existing local notes are kept separately in legacy demo mode.",
+  "productSignOutLocally": "Sign out locally",
+  "productProductionSetupPending": "Production setup pending",
+  "productPasswordPolicyEmailActionRoutingAndGooglePlatform": "Password policy, email-action routing and Google platform configuration require agreement. No real credentials or emails are used here.",
+  "productYourSessionExpiredSignInAgain": "Your session expired. Sign in again.",
+  "productPreviewAccountJourneys": "Preview account journeys",
+  "productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery": "Use fixture addresses only. Registration, verification and recovery preview states; they do not send emails or create real accounts.",
+  "productEmail": "Email",
+  "productNewPasswordPreview": "New password (preview)",
+  "productPassword": "Password",
+  "productFixtureActionToken": "Fixture action token",
+  "productAwaitingVerificationUseFixtureVerifyToPreviewSuccess": "Awaiting verification. Use fixture-verify to preview success. No email was sent.",
+  "productPreviewVerification": "Preview verification",
+  "productPreviewResendRequest": "Preview resend request",
+  "productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed": "Generic recovery acknowledgment (fixture). No delivery is claimed.",
+  "productPreviewResetForm": "Preview reset form",
+  "productUseFixtureResetTheRealPasswordPolicyIs": "Use fixture-reset. The real password policy is not finalized.",
+  "productPreviewPasswordReset": "Preview password reset",
+  "productPreviewRecoveryRequest": "Preview recovery request",
+  "productPreviewRegistration": "Preview registration",
+  "productOpenFixtureSession": "Open fixture session",
+  "productBackToSignIn": "Back to sign in",
+  "productPreviewNewAccount": "Preview new account",
+  "productForgotPassword": "Forgot password",
+  "productGoogleSignInWaitingForApprovedPlatformConfiguration": "Google sign-in: waiting for approved platform configuration. No Google request is made.",
+  "productPreviewSampleWorkspace": "Preview sample workspace",
+  "productPreviewSeparateEmptyAccount": "Preview separate empty account",
+  "productVerificationPreviewCompleteSignInSeparately": "Verification preview complete. Sign in separately.",
+  "productResetPreviewCompleteSignInAgain": "Reset preview complete. Sign in again.",
+  "productLocalPrivateStateClearedServerRevocationIsNot": "Local private state cleared. Server revocation is not confirmed.",
+  "productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount": "Development acknowledgment only; no real delivery or account operation occurred.",
+  "productCaptureAThought": "Capture a thought",
+  "productCloseComposer": "Close composer",
+  "productASaveAttemptIsUnresolvedRetryItsOriginal": "A save attempt is unresolved. Retry its original project and content with the same key before changing the draft.",
+  "productReturnToThePendingAttemptSProject": "Return to the pending attempt’s project",
+  "productTitleOptional": "Title (optional)",
+  "productYourThought": "Your thought",
+  "productReconcileTheSameSaveAttempt": "Reconcile the same save attempt",
+  "productSaveTextNote": "Save text note",
+  "productSavingAndProcessingAreSeparateAMissingTitle": "Saving and processing are separate. A missing title stays a placeholder until a backend result supplies one.",
+  "productVoiceReviewedText": "Voice → reviewed text",
+  "productAutomaticStopAt60SecondsTranscriptionDoesNot": "Automatic stop at 60 seconds. Transcription does not save a note.",
+  "productStopRecording": "Stop recording",
+  "productRecordVoice": "Record voice",
+  "productPreviewTranscription": "Preview transcription",
+  "productReviewAndEditTranscript": "Review and edit transcript",
+  "productUseThisTextInTheDraft": "Use this text in the draft",
+  "productThenPressSaveTextNoteWhenReady": "Then press Save text note when ready.",
+  "productDiscardRecording": "Discard recording",
+  "productLocalPDFs": "Local PDFs",
+  "productPDFsStayOnThisDeviceTheyAreNot": "PDFs stay on this device. They are not uploaded, extracted or attached to a server note. Save text separately.",
+  "productChooseLocalPDF": "Choose local PDF",
+  "productUntitledProcessing": "Untitled / processing",
+  "productSavedQueued": "Saved · queued",
+  "productSavedProcessing": "Saved · processing",
+  "productProcessingCompleted": "Processing completed",
+  "productSavedProcessingFailed": "Saved · processing failed",
+  "productSavedStatusUnavailable": "Saved · status unavailable",
+  "productDevelopmentFixturesMemoryOnlyNoLiveBackend": "Development fixtures · memory only · no live backend",
+  "productMicrophonePermissionIsRequiredEnableItInDevice": "Microphone permission is required. Enable it in device settings and try again.",
+  "productCheckTheInputYourDraftHasBeenKept": "Check the input. Your draft has been kept.",
+  "productSignInAgainOrCheckYourCredentials": "Sign in again, or check your credentials.",
+  "productVerifyYourEmailBeforeSigningIn": "Verify your email before signing in.",
+  "productThisItemIsNoLongerAvailableReloadThe": "This item is no longer available. Reload the current project.",
+  "productTheStateChangedReloadAndReviewBeforeActing": "The state changed. Reload and review before acting again.",
+  "productThisCreationAttemptRefersToADeletedNote": "This creation attempt refers to a deleted note. It will not be recreated.",
+  "productTheInputIsTooLargeReduceItBefore": "The input is too large. Reduce it before retrying.",
+  "productThisRecordingFormatIsNotSupported": "This recording format is not supported.",
+  "productRequestLimitReachedWaitBeforeTryingAgain": "Request limit reached. Wait before trying again.",
+  "productThisServiceIsUnavailableYourInputHasBeen": "This service is unavailable. Your input has been kept.",
+  "productTheResultIsUncertainReconcileBeforeTryingAgain": "The result is uncertain. Reconcile before trying again.",
+  "productRetryAfterSeconds": "Retry after {seconds}s.",
+  "productReloadRetry": "Reload / retry",
+  "productBack": "Back",
+  "productRenameProject": "Rename project",
+  "productNewProject": "New project",
+  "productName": "Name",
+  "productCancel": "Cancel",
+  "productSave": "Save",
+  "productProject": "Project",
+  "productRename": "Rename",
+  "productDeleteProject": "Delete project?",
+  "productThisPermanentlyDeletesItsNotesConversationsAndKnowledge": "This permanently deletes its notes, conversations and knowledge relationships.",
+  "productDelete": "Delete",
+  "productDeleteProject2": "Delete project",
+  "productNotes": "Notes",
+  "productReload": "Reload",
+  "productSearchThisProject": "Search this project",
+  "productSearch": "Search",
+  "productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic": "Development search uses literal fixture matching, not semantic retrieval.",
+  "productStillProcessingReloadLaterTheSavedNoteIs": "Still processing. Reload later; the saved note is safe.",
+  "productSearchResults": "Search results",
+  "productNoResultsInThisProject": "No results in this project.",
+  "productShowAllSavedNotes": "Show all saved notes",
+  "productNoNotesYet": "No notes yet",
+  "productNote": "Note",
+  "productTheCurrentProposalWasReloadedReviewItBefore": "The current proposal was reloaded. Review it before choosing another action.",
+  "productThisNoteIsUnavailableInTheSelectedProject": "This note is unavailable in the selected project.",
+  "productSavedContent": "Saved content",
+  "productSaveEdit": "Save edit",
+  "productCancelEditing": "Cancel editing",
+  "productEditNote": "Edit note",
+  "productRefinementProposal": "Refinement proposal",
+  "productAcceptAndReplaceSavedContent": "Accept and replace saved content",
+  "productReplaceSavedContent": "Replace saved content?",
+  "productAcceptancePermanentlyReplacesTheContentAndStartsProcessing": "Acceptance permanently replaces the content and starts processing again. There is no undo or version history.",
+  "productAccept": "Accept",
+  "productRejectProposal": "Reject proposal",
+  "productRequestAnotherProposal": "Request another proposal",
+  "productRetryReprocess": "Retry / reprocess",
+  "productReloadStatus": "Reload status",
+  "productRelatedNotes": "Related notes",
+  "productNoCurrentRelationships": "No current relationships.",
+  "productDeleteNote": "Delete note",
+  "productDeleteNote2": "Delete note?",
+  "productItsRelationshipsAndSourceCitationsWillAlsoBe": "Its relationships and source citations will also be removed.",
+  "productKnowledgeMap": "Knowledge map",
+  "productReloadMap": "Reload map",
+  "productEveryNodeIsANoteLinesShowSupplied": "Every node is a note. Lines show supplied relationships only. Drag nodes or pinch to zoom.",
+  "productNoCompletedNotesInThisProjectYet": "No completed notes in this project yet.",
+  "productZoomIn": "Zoom in",
+  "productResetView": "Reset view",
+  "productGraphCounts": "{notes, plural, =0{No notes} =1{1 note} other{{notes} notes}} · {relationships, plural, =0{No relationships} =1{1 relationship} other{{relationships} relationships}}",
+  "productAsk": "Ask",
+  "productNewConversation": "New conversation",
+  "productReloadHistoryList": "Reload history list",
+  "productConversationHistory": "Conversation history",
+  "productStartAConversationOrOpenItsHistoryConversations": "Start a conversation or open its history. Conversations stay inside the selected project.",
+  "productYou": "You",
+  "productNotSupportedByThisProjectSKnowledge": "Not supported by this project’s knowledge",
+  "productProvisionalNotConfirmedSaved": "Provisional · not confirmed saved",
+  "productStopWaiting": "Stop waiting",
+  "productReloadHistoryBeforeSendingAgain": "Reload history before sending again",
+  "productHistoryReloadedReviewItBeforeDeliberatelySendingYour": "History reloaded. Review it before deliberately sending your retained draft again.",
+  "productAskThisProject": "Ask this project",
+  "productSend": "Send",
+  "productDeleteConversation": "Delete conversation?",
+  "productThisDeletesTheConversationAndMessagesWhileKeeping": "This deletes the conversation and messages, while keeping the notes.",
+  "productDeleteConversation2": "Delete conversation",
+  "productReviewFailedSave": "Review draft for a new save",
+  "productNewIntentionalSaveExplanation": "The previous attempt was rejected or refers to a deleted note. Keep the draft and start a new intentional save only when you choose Save again."
+}
