@@ -1,14 +1,16 @@
-import 'dart:ui' show ImageFilter, Tristate;
+import 'dart:ui' show ImageFilter, PointerDeviceKind, Tristate;
 
 import 'package:fikra/app/tab_bar/floating_navigation.dart';
 import 'package:fikra/app/tab_bar/sliding_tab_bar.dart' show kLensHoldDelay;
 import 'package:fikra/app/shell.dart' show FikraBranchContainer;
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/theme/tokens.dart';
 import 'package:fikra/core/widgets/glass.dart';
 import 'package:fikra/core/widgets/glass_quality.dart';
 import 'package:fikra/core/widgets/glass_lens.dart';
 import 'package:fikra/core/widgets/glass_watchdog.dart';
 import 'package:fikra/l10n/localizations.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SemanticsAction, RenderBackdropFilter;
 import 'package:flutter/services.dart';
@@ -656,6 +658,162 @@ void main() {
     } finally {
       semantics.dispose();
     }
+  });
+
+  testWidgets('hardware keyboard cannot focus or activate hidden bar, restored on close with visible focus ring', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      final changes = <int>[];
+      final branch = ValueNotifier(1);
+      final keyboardOpen = ValueNotifier(false);
+      final input = TextEditingController();
+      addTearDown(branch.dispose);
+      addTearDown(keyboardOpen.dispose);
+      addTearDown(input.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            glassTierProvider(false).overrideWith((ref) => GlassTier.solid),
+            glassTierProvider(true).overrideWith((ref) => GlassTier.solid),
+            glassTimingsSourceProvider.overrideWithValue(FakeGlassTimings()),
+          ],
+          child: MaterialApp(
+            theme: buildFikraTheme(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ar'),
+            home: Scaffold(
+              body: Column(
+                children: [
+                  TextField(key: const ValueKey('draft-input'), controller: input),
+                  SizedBox(
+                    width: 358,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: branch,
+                      builder: (context, index, _) => ValueListenableBuilder<bool>(
+                        valueListenable: keyboardOpen,
+                        builder: (context, hidden, _) => FloatingNavigation(
+                          branch: index,
+                          keyboardOpen: hidden,
+                          onSelect: (next, _) {
+                            changes.add(next);
+                            branch.value = next;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      addTearDown(() async => tester.pumpWidget(const SizedBox.shrink()));
+
+      await tester.enterText(find.byKey(const ValueKey('draft-input')), 'مسودة محفوظة');
+      keyboardOpen.value = true;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 110));
+
+      // Tab, Shift+Tab, Enter, Space cannot reach or activate hidden navigation.
+      for (var i = 0; i < 6; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pump();
+      }
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+
+      expect(changes, isEmpty);
+      expect(branch.value, 1);
+      expect(input.text, 'مسودة محفوظة');
+      expect(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).navHome), findsNothing);
+
+      // Closing the keyboard restores keyboard focus, visible focus ring, activation and semantics.
+      keyboardOpen.value = false;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 110));
+      expect(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).navHome), findsOneWidget);
+
+      // Tab from the field to unselected nav-1 (Links).
+      final linksFocus = Focus.of(
+        tester.element(find.descendant(of: Tabs.finder(Tabs.links), matching: find.byType(DecoratedBox)).first),
+      );
+      for (var i = 0; i < 8 && !linksFocus.hasPrimaryFocus; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(linksFocus.hasPrimaryFocus, isTrue);
+      final ring = tester.widget<DecoratedBox>(
+        find.descendant(of: Tabs.finder(Tabs.links), matching: find.byType(DecoratedBox)).first,
+      );
+      final dec = ring.decoration as BoxDecoration;
+      expect(dec.border, Border.all(color: FikraPalette.light.accent, width: 2));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(branch.value, 2);
+      expect(changes, [2]);
+      expect(input.text, 'مسودة محفوظة');
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('secondary and middle mouse buttons neither change tabs nor schedule lens hold; primary still does', (
+    tester,
+  ) async {
+    final changes = <int>[];
+    final reselections = <bool>[];
+    final branch = await hostNavigation(tester, changes: changes, reselections: reselections);
+
+    for (final (button, targetTab) in [(kSecondaryMouseButton, Tabs.links), (kMiddleMouseButton, Tabs.ask)]) {
+      final pos = tester.getCenter(Tabs.finder(targetTab));
+      final mouse = TestPointer(10 + targetTab, PointerDeviceKind.mouse);
+      await tester.sendEventToBinding(mouse.hover(pos));
+      await tester.sendEventToBinding(mouse.down(pos, buttons: button));
+      await tester.pump();
+      expect(branch.value, 1);
+      expect(changes, isEmpty);
+      await tester.pump(kLensHoldDelay + const Duration(milliseconds: 50));
+      expect(find.byKey(_lens), findsNothing);
+      await tester.sendEventToBinding(mouse.up());
+      await tester.pump();
+      expect(branch.value, 1);
+      expect(changes, isEmpty);
+    }
+
+    // Primary mouse button still selects on pointer-down, holds to engage lens, and reselects on repeat.
+    final linksPos = tester.getCenter(Tabs.finder(Tabs.links));
+    final primary = TestPointer(20, PointerDeviceKind.mouse);
+    await tester.sendEventToBinding(primary.hover(linksPos));
+    await tester.sendEventToBinding(primary.down(linksPos, buttons: kPrimaryMouseButton));
+    await tester.pump();
+    expect(branch.value, 2);
+    expect(changes, [2]);
+    expect(reselections, [false]);
+    await tester.pump(kLensHoldDelay);
+    expect(find.byKey(_lens), findsOneWidget);
+    await tester.sendEventToBinding(primary.up());
+    await tester.pumpAndSettle();
+
+    // Quick primary re-tap on the selected tab triggers reselect on up.
+    await tester.sendEventToBinding(primary.down(linksPos, buttons: kPrimaryMouseButton));
+    await tester.pump();
+    await tester.sendEventToBinding(primary.up());
+    await tester.pumpAndSettle();
+    expect(changes, [2, 2]);
+    expect(reselections, [false, true]);
   });
 
   for (final direction in TextDirection.values) {

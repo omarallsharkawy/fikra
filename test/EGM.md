@@ -222,3 +222,11 @@ note_edit_race_test pauses a real staged copy with Completer, finishes fake tran
 pair_project_guard_test covers stale accept/dismiss after either or both endpoints move, no tombstone/Undo on stale commands, and valid action/Undo restoration. Existing pair and widget spies forward expectedProjectId and handle the typed result.
 
 The format, analyze, full-test and screenshot gates could not start in this run: Flutter bootstrap cannot write engine.stamp or engine.realm in the read-only SDK cache. No passing gate result is claimed.
+## Review fixes (S3, R1–R5, R8)
+
+- `ask_screen_test.dart`: verifies unchanged input clearing, mid-flight retyped draft preservation, failing write draft retention, preset submission preserving manual text, and per-project pending isolation without cross-project error toasts.
+- `floating_navigation_test.dart` & `concept_navigation_test.dart`: verify `ExcludeFocus` keyboard hiding/restoration with visible focus indicators on unselected controls, secondary/middle mouse clicks ignored while primary works, and real-font 2.0× narrow (320 dp) and wider (412 dp) Arabic tab layouts without clipping.
+- `arabic_normalization_test.dart`: verifies extended Latin case (`Łódź`/`łódź`), bounded distinct-word backtracking (`كتاب الكتاب`), `ال`-only prefix guards, and 5,000-note cached tokenization counts.
+- `note_connections_provider_test.dart` & `links_library_test.dart`: verify `connectionsIndexProvider` `autoDispose` release on project switch, reuse across consecutive pushes while listened, and controller disposal when a project is deleted.
+- `links_index_test.dart`: verifies O(G) group-scan operation growth across empty/nested groups and `shouldIsolateLinksDerivation` parity for dense `<1000`-note and small projects.
+- `glass_quality_test.dart` & `glass_widget_test.dart`: verify watchdog stops sampling and clears partial windows while keyboard-hidden or forced solid (battery saver, Reduce Motion, high contrast), while active visible frames still downgrade.

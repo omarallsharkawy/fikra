@@ -145,6 +145,7 @@ class _FikraNavBarState extends State<FikraNavBar> with TickerProviderStateMixin
 
   void _down(PointerDownEvent event) {
     if (_pointer != null || !widget.enabled) return;
+    if (event.kind == PointerDeviceKind.mouse && (event.buttons & kPrimaryMouseButton) == 0) return;
     _generation++;
     _cancelHold();
     _pointer = event.pointer;

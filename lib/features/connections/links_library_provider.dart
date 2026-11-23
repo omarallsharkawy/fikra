@@ -56,7 +56,12 @@ final linksLibraryProvider = FutureProvider.autoDispose.family<LinksIndex, Strin
     ],
     groups: [for (final g in allGroups) (id: g.id, projectId: g.projectId, parentId: g.parentId)],
   );
-  final index = input.notes.byId.length >= 1000
+  final index =
+      shouldIsolateLinksDerivation(
+        notes: input.notes.byId.length,
+        links: input.links.length,
+        groups: input.groups.length,
+      )
       ? await compute(_deriveIndex, input, debugLabel: 'links-library-pairs')
       : _deriveIndex(input);
   index.attachLinksSource(allLinks);

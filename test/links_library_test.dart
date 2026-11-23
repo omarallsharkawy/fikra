@@ -1,6 +1,7 @@
 import "dart:async";
 import "dart:ui" show Tristate;
 
+import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/format.dart';
 import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/data/local/database.dart';
@@ -10,6 +11,7 @@ import 'package:fikra/features/connections/links_library_screen.dart';
 import 'package:fikra/features/connections/suggestion_card.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/app_harness.dart';
@@ -339,4 +341,33 @@ void main() {
       expect(second, findsNothing);
     },
   );
+
+  fikraTest('deleting a project prunes and disposes its cached library controllers', (tester, db) async {
+    phone(tester);
+    final notesA = await seedLibrary(tester, db);
+    final projectAId = notesA.first.projectId;
+
+    // Capture project A's live search and scroll controllers.
+    final searchFieldA = tester.widget<TextField>(find.byKey(const ValueKey('links-search')));
+    final searchControllerA = searchFieldA.controller!;
+    final scrollControllerA = tester
+        .widget<CustomScrollView>(find.byKey(ValueKey('links-list-$projectAId-0')))
+        .controller!;
+
+    // Create project B (switches current project to B) and verify B mounts.
+    final container = ProviderScope.containerOf(tester.element(find.byType(LinksLibraryScreen)));
+    final projectsRepo = container.read(projectsRepoProvider);
+    final projectB = await pumpFuture(tester, () => projectsRepo.create('Project B'));
+    await pumpUntil(tester, find.byKey(ValueKey('links-controls-${projectB.id}')));
+
+    // Delete project A and let the post-frame controller disposal run.
+    await pumpFuture(tester, () => projectsRepo.delete(projectAId));
+    await tester.pump();
+    await tester.pump();
+
+    expect(() => searchControllerA.addListener(() {}), throwsFlutterError);
+    expect(() => scrollControllerA.addListener(() {}), throwsFlutterError);
+    // Project B remains alive and usable.
+    expect(find.byKey(ValueKey('links-controls-${projectB.id}')), findsOneWidget);
+  });
 }

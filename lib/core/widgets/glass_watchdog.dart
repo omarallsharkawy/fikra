@@ -50,21 +50,27 @@ class GlassWatchdog extends Notifier<GlassTier> {
 
   void show(Object owner, double refreshHz) {
     final wasEmpty = _visibleRates.isEmpty;
+    if (_visibleRates[owner] == refreshHz) return;
     _visibleRates[owner] = refreshHz;
     _updateBudget();
-    if (wasEmpty) {
-      _cursor = _count = _sinceCheck = 0;
-      _source.add(_callback);
-    }
+    _resetWindow();
+    if (wasEmpty) _source.add(_callback);
   }
 
   void hide(Object owner) {
     if (_visibleRates.remove(owner) == null) return;
+    _resetWindow();
     if (_visibleRates.isEmpty) {
       _source.remove(_callback);
     } else {
       _updateBudget();
     }
+  }
+
+  void _resetWindow() {
+    _cursor = 0;
+    _count = 0;
+    _sinceCheck = 0;
   }
 
   void _updateBudget() {
