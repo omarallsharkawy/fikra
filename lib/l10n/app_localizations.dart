@@ -3517,6 +3517,858 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اسحب عشان تشوف باقي الخريطة'**
   String get mapPanHint;
+
+  /// No description provided for @productMyAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسابي'**
+  String get productMyAccount;
+
+  /// No description provided for @productThisIsAVolatileDevelopmentWorkspaceExistingLocal.
+  ///
+  /// In ar, this message translates to:
+  /// **'دي مساحة تطوير مؤقتة. ملاحظاتك المحلية القديمة موجودة بشكل منفصل في وضع الديمو القديم.'**
+  String get productThisIsAVolatileDevelopmentWorkspaceExistingLocal;
+
+  /// No description provided for @productSignOutLocally.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل خروج محلي'**
+  String get productSignOutLocally;
+
+  /// No description provided for @productProductionSetupPending.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعدادات الإنتاج لسه معلّقة'**
+  String get productProductionSetupPending;
+
+  /// No description provided for @productPasswordPolicyEmailActionRoutingAndGooglePlatform.
+  ///
+  /// In ar, this message translates to:
+  /// **'سياسة كلمة المرور وروابط البريد وإعدادات Google محتاجة اتفاق. مفيش استخدام لبيانات دخول حقيقية أو إرسال بريد هنا.'**
+  String get productPasswordPolicyEmailActionRoutingAndGooglePlatform;
+
+  /// No description provided for @productYourSessionExpiredSignInAgain.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجلسة انتهت. سجّل دخول تاني.'**
+  String get productYourSessionExpiredSignInAgain;
+
+  /// No description provided for @productPreviewAccountJourneys.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة رحلات الحساب'**
+  String get productPreviewAccountJourneys;
+
+  /// No description provided for @productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدم عناوين التطوير فقط. التسجيل والتفعيل والاسترجاع بيعرضوا حالات تجريبية، بدون إرسال بريد أو إنشاء حساب حقيقي.'**
+  String get productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery;
+
+  /// No description provided for @productEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني'**
+  String get productEmail;
+
+  /// No description provided for @productNewPasswordPreview.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة مرور جديدة (تجربة)'**
+  String get productNewPasswordPreview;
+
+  /// No description provided for @productPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور'**
+  String get productPassword;
+
+  /// No description provided for @productFixtureActionToken.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز إجراء تجريبي'**
+  String get productFixtureActionToken;
+
+  /// No description provided for @productAwaitingVerificationUseFixtureVerifyToPreviewSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'في انتظار التفعيل. استخدم fixture-verify لتجربة النجاح. لم يتم إرسال بريد.'**
+  String get productAwaitingVerificationUseFixtureVerifyToPreviewSuccess;
+
+  /// No description provided for @productPreviewVerification.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة التفعيل'**
+  String get productPreviewVerification;
+
+  /// No description provided for @productPreviewResendRequest.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة طلب إعادة الإرسال'**
+  String get productPreviewResendRequest;
+
+  /// No description provided for @productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد عام لطلب الاسترجاع (تجربة). بدون ادعاء وصول رسالة.'**
+  String get productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed;
+
+  /// No description provided for @productPreviewResetForm.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة نموذج إعادة التعيين'**
+  String get productPreviewResetForm;
+
+  /// No description provided for @productUseFixtureResetTheRealPasswordPolicyIs.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدم fixture-reset. سياسة كلمة المرور الحقيقية لم تُحسم بعد.'**
+  String get productUseFixtureResetTheRealPasswordPolicyIs;
+
+  /// No description provided for @productPreviewPasswordReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة إعادة التعيين'**
+  String get productPreviewPasswordReset;
+
+  /// No description provided for @productPreviewRecoveryRequest.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة طلب الاسترجاع'**
+  String get productPreviewRecoveryRequest;
+
+  /// No description provided for @productPreviewRegistration.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة التسجيل'**
+  String get productPreviewRegistration;
+
+  /// No description provided for @productOpenFixtureSession.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح جلسة تجريبية'**
+  String get productOpenFixtureSession;
+
+  /// No description provided for @productBackToSignIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'رجوع للدخول'**
+  String get productBackToSignIn;
+
+  /// No description provided for @productPreviewNewAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة حساب جديد'**
+  String get productPreviewNewAccount;
+
+  /// No description provided for @productForgotPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسيت كلمة المرور'**
+  String get productForgotPassword;
+
+  /// No description provided for @productGoogleSignInWaitingForApprovedPlatformConfiguration.
+  ///
+  /// In ar, this message translates to:
+  /// **'دخول Google: في انتظار إعدادات المنصة المعتمدة. مفيش طلب بيتم إرساله لـ Google.'**
+  String get productGoogleSignInWaitingForApprovedPlatformConfiguration;
+
+  /// No description provided for @productPreviewSampleWorkspace.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة مساحة بملاحظات جاهزة'**
+  String get productPreviewSampleWorkspace;
+
+  /// No description provided for @productPreviewSeparateEmptyAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة حساب منفصل وفارغ'**
+  String get productPreviewSeparateEmptyAccount;
+
+  /// No description provided for @productVerificationPreviewCompleteSignInSeparately.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتملت تجربة التفعيل. سجّل الدخول بشكل منفصل.'**
+  String get productVerificationPreviewCompleteSignInSeparately;
+
+  /// No description provided for @productResetPreviewCompleteSignInAgain.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتملت تجربة إعادة التعيين. سجّل دخول تاني.'**
+  String get productResetPreviewCompleteSignInAgain;
+
+  /// No description provided for @productLocalPrivateStateClearedServerRevocationIsNot.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.'**
+  String get productLocalPrivateStateClearedServerRevocationIsNot;
+
+  /// No description provided for @productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد تجريبي فقط؛ لم يتم إرسال بريد أو تنفيذ إجراء على حساب حقيقي.'**
+  String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount;
+
+  /// No description provided for @productCaptureAThought.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل فكرة'**
+  String get productCaptureAThought;
+
+  /// No description provided for @productCloseComposer.
+  ///
+  /// In ar, this message translates to:
+  /// **'إغلاق الكتابة'**
+  String get productCloseComposer;
+
+  /// No description provided for @productASaveAttemptIsUnresolvedRetryItsOriginal.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيه محاولة حفظ لم تتأكد. أعدها بنفس المشروع والمحتوى قبل تغيير المسودة.'**
+  String get productASaveAttemptIsUnresolvedRetryItsOriginal;
+
+  /// No description provided for @productReturnToThePendingAttemptSProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'ارجع لمشروع محاولة الحفظ'**
+  String get productReturnToThePendingAttemptSProject;
+
+  /// No description provided for @productTitleOptional.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان (اختياري)'**
+  String get productTitleOptional;
+
+  /// No description provided for @productYourThought.
+  ///
+  /// In ar, this message translates to:
+  /// **'فكرتك'**
+  String get productYourThought;
+
+  /// No description provided for @productReconcileTheSameSaveAttempt.
+  ///
+  /// In ar, this message translates to:
+  /// **'مراجعة نفس محاولة الحفظ'**
+  String get productReconcileTheSameSaveAttempt;
+
+  /// No description provided for @productSaveTextNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ ملاحظة نصية'**
+  String get productSaveTextNote;
+
+  /// No description provided for @productSavingAndProcessingAreSeparateAMissingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحفظ منفصل عن المعالجة. العنوان الناقص بيفضل مؤقت لحد ما نتيجة الباك إند ترجع بعنوان.'**
+  String get productSavingAndProcessingAreSeparateAMissingTitle;
+
+  /// No description provided for @productVoiceReviewedText.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصوت ← نص تراجعه'**
+  String get productVoiceReviewedText;
+
+  /// No description provided for @productAutomaticStopAt60SecondsTranscriptionDoesNot.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيل بيقف تلقائيًا بعد 60 ثانية. التفريغ مش بيحفظ ملاحظة.'**
+  String get productAutomaticStopAt60SecondsTranscriptionDoesNot;
+
+  /// No description provided for @productStopRecording.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف التسجيل'**
+  String get productStopRecording;
+
+  /// No description provided for @productRecordVoice.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل صوت'**
+  String get productRecordVoice;
+
+  /// No description provided for @productPreviewTranscription.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجربة التفريغ النصي'**
+  String get productPreviewTranscription;
+
+  /// No description provided for @productReviewAndEditTranscript.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع وعدّل النص المفرّغ'**
+  String get productReviewAndEditTranscript;
+
+  /// No description provided for @productUseThisTextInTheDraft.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدم النص في المسودة'**
+  String get productUseThisTextInTheDraft;
+
+  /// No description provided for @productThenPressSaveTextNoteWhenReady.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد المراجعة اضغط حفظ ملاحظة نصية.'**
+  String get productThenPressSaveTextNoteWhenReady;
+
+  /// No description provided for @productDiscardRecording.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء التسجيل'**
+  String get productDiscardRecording;
+
+  /// No description provided for @productLocalPDFs.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملفات PDF محلية'**
+  String get productLocalPDFs;
+
+  /// No description provided for @productPDFsStayOnThisDeviceTheyAreNot.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملفات PDF بتفضل على الجهاز. مش بيتم رفعها أو استخراج نصها أو ربطها بملاحظة على الخادم. احفظ النص بشكل منفصل.'**
+  String get productPDFsStayOnThisDeviceTheyAreNot;
+
+  /// No description provided for @productChooseLocalPDF.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار PDF محلي'**
+  String get productChooseLocalPDF;
+
+  /// No description provided for @productUntitledProcessing.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدون عنوان / قيد المعالجة'**
+  String get productUntitledProcessing;
+
+  /// No description provided for @productSavedQueued.
+  ///
+  /// In ar, this message translates to:
+  /// **'محفوظة · في الانتظار'**
+  String get productSavedQueued;
+
+  /// No description provided for @productSavedProcessing.
+  ///
+  /// In ar, this message translates to:
+  /// **'محفوظة · قيد المعالجة'**
+  String get productSavedProcessing;
+
+  /// No description provided for @productProcessingCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتملت المعالجة'**
+  String get productProcessingCompleted;
+
+  /// No description provided for @productSavedProcessingFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'محفوظة · فشلت المعالجة'**
+  String get productSavedProcessingFailed;
+
+  /// No description provided for @productSavedStatusUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'محفوظة · الحالة غير معروفة'**
+  String get productSavedStatusUnavailable;
+
+  /// No description provided for @productDevelopmentFixturesMemoryOnlyNoLiveBackend.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيانات تطوير · في الذاكرة فقط · بدون اتصال بالباك إند'**
+  String get productDevelopmentFixturesMemoryOnlyNoLiveBackend;
+
+  /// No description provided for @productMicrophonePermissionIsRequiredEnableItInDevice.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسمح باستخدام الميكروفون من إعدادات الجهاز ثم حاول تاني.'**
+  String get productMicrophonePermissionIsRequiredEnableItInDevice;
+
+  /// No description provided for @productCheckTheInputYourDraftHasBeenKept.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع البيانات. المسودة محفوظة كما هي.'**
+  String get productCheckTheInputYourDraftHasBeenKept;
+
+  /// No description provided for @productSignInAgainOrCheckYourCredentials.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل دخول تاني أو راجع بيانات الدخول.'**
+  String get productSignInAgainOrCheckYourCredentials;
+
+  /// No description provided for @productVerifyYourEmailBeforeSigningIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'فعّل بريدك الإلكتروني قبل الدخول.'**
+  String get productVerifyYourEmailBeforeSigningIn;
+
+  /// No description provided for @productThisItemIsNoLongerAvailableReloadThe.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنصر ده مش متاح. حدّث المشروع الحالي.'**
+  String get productThisItemIsNoLongerAvailableReloadThe;
+
+  /// No description provided for @productTheStateChangedReloadAndReviewBeforeActing.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالة اتغيرت. حدّث وراجعها قبل تنفيذ الإجراء تاني.'**
+  String get productTheStateChangedReloadAndReviewBeforeActing;
+
+  /// No description provided for @productThisCreationAttemptRefersToADeletedNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاولة الحفظ دي تخص ملاحظة اتحذفت، ومش هتتعمل تلقائيًا من جديد.'**
+  String get productThisCreationAttemptRefersToADeletedNote;
+
+  /// No description provided for @productTheInputIsTooLargeReduceItBefore.
+  ///
+  /// In ar, this message translates to:
+  /// **'حجم المدخل كبير. قلّله قبل المحاولة.'**
+  String get productTheInputIsTooLargeReduceItBefore;
+
+  /// No description provided for @productThisRecordingFormatIsNotSupported.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيغة التسجيل دي غير مدعومة.'**
+  String get productThisRecordingFormatIsNotSupported;
+
+  /// No description provided for @productRequestLimitReachedWaitBeforeTryingAgain.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصلت لحد الطلبات. استنى قبل المحاولة.'**
+  String get productRequestLimitReachedWaitBeforeTryingAgain;
+
+  /// No description provided for @productThisServiceIsUnavailableYourInputHasBeen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمة مش متاحة حاليًا. البيانات اللي كتبتها موجودة.'**
+  String get productThisServiceIsUnavailableYourInputHasBeen;
+
+  /// No description provided for @productTheResultIsUncertainReconcileBeforeTryingAgain.
+  ///
+  /// In ar, this message translates to:
+  /// **'نتيجة العملية غير مؤكدة. راجع الحالة قبل المحاولة تاني.'**
+  String get productTheResultIsUncertainReconcileBeforeTryingAgain;
+
+  /// No description provided for @productRetryAfterSeconds.
+  ///
+  /// In ar, this message translates to:
+  /// **'حاول بعد {seconds} ثانية.'**
+  String productRetryAfterSeconds(int seconds);
+
+  /// No description provided for @productReloadRetry.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث / إعادة المحاولة'**
+  String get productReloadRetry;
+
+  /// No description provided for @productBack.
+  ///
+  /// In ar, this message translates to:
+  /// **'رجوع'**
+  String get productBack;
+
+  /// No description provided for @productRenameProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل اسم المشروع'**
+  String get productRenameProject;
+
+  /// No description provided for @productNewProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشروع جديد'**
+  String get productNewProject;
+
+  /// No description provided for @productName.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم'**
+  String get productName;
+
+  /// No description provided for @productCancel.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء'**
+  String get productCancel;
+
+  /// No description provided for @productSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ'**
+  String get productSave;
+
+  /// No description provided for @productProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشروع'**
+  String get productProject;
+
+  /// No description provided for @productRename.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير الاسم'**
+  String get productRename;
+
+  /// No description provided for @productDeleteProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المشروع؟'**
+  String get productDeleteProject;
+
+  /// No description provided for @productThisPermanentlyDeletesItsNotesConversationsAndKnowledge.
+  ///
+  /// In ar, this message translates to:
+  /// **'ده هيحذف ملاحظاته ومحادثاته وعلاقاته المعرفية نهائيًا.'**
+  String get productThisPermanentlyDeletesItsNotesConversationsAndKnowledge;
+
+  /// No description provided for @productDelete.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف'**
+  String get productDelete;
+
+  /// No description provided for @productDeleteProject2.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المشروع'**
+  String get productDeleteProject2;
+
+  /// No description provided for @productNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظات'**
+  String get productNotes;
+
+  /// No description provided for @productReload.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث'**
+  String get productReload;
+
+  /// No description provided for @productSearchThisProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث في المشروع ده'**
+  String get productSearchThisProject;
+
+  /// No description provided for @productSearch.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث'**
+  String get productSearch;
+
+  /// No description provided for @productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث التطوير بيطابق النصوص التجريبية حرفيًا، مش بحث دلالي.'**
+  String get productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic;
+
+  /// No description provided for @productStillProcessingReloadLaterTheSavedNoteIs.
+  ///
+  /// In ar, this message translates to:
+  /// **'لسه قيد المعالجة. حدّث لاحقًا؛ الملاحظة محفوظة.'**
+  String get productStillProcessingReloadLaterTheSavedNoteIs;
+
+  /// No description provided for @productSearchResults.
+  ///
+  /// In ar, this message translates to:
+  /// **'نتائج البحث'**
+  String get productSearchResults;
+
+  /// No description provided for @productNoResultsInThisProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش نتائج في المشروع ده.'**
+  String get productNoResultsInThisProject;
+
+  /// No description provided for @productShowAllSavedNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض كل الملاحظات المحفوظة'**
+  String get productShowAllSavedNotes;
+
+  /// No description provided for @productNoNotesYet.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات لسه'**
+  String get productNoNotesYet;
+
+  /// No description provided for @productNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظة'**
+  String get productNote;
+
+  /// No description provided for @productTheCurrentProposalWasReloadedReviewItBefore.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحميل الاقتراح الحالي. راجعه قبل اختيار إجراء جديد.'**
+  String get productTheCurrentProposalWasReloadedReviewItBefore;
+
+  /// No description provided for @productThisNoteIsUnavailableInTheSelectedProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظة مش متاحة في المشروع الحالي.'**
+  String get productThisNoteIsUnavailableInTheSelectedProject;
+
+  /// No description provided for @productSavedContent.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحتوى المحفوظ'**
+  String get productSavedContent;
+
+  /// No description provided for @productSaveEdit.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ التعديل'**
+  String get productSaveEdit;
+
+  /// No description provided for @productCancelEditing.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء التعديل'**
+  String get productCancelEditing;
+
+  /// No description provided for @productEditNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الملاحظة'**
+  String get productEditNote;
+
+  /// No description provided for @productRefinementProposal.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراح تحسين'**
+  String get productRefinementProposal;
+
+  /// No description provided for @productAcceptAndReplaceSavedContent.
+  ///
+  /// In ar, this message translates to:
+  /// **'قبول واستبدال المحتوى المحفوظ'**
+  String get productAcceptAndReplaceSavedContent;
+
+  /// No description provided for @productReplaceSavedContent.
+  ///
+  /// In ar, this message translates to:
+  /// **'استبدال المحتوى المحفوظ؟'**
+  String get productReplaceSavedContent;
+
+  /// No description provided for @productAcceptancePermanentlyReplacesTheContentAndStartsProcessing.
+  ///
+  /// In ar, this message translates to:
+  /// **'القبول بيستبدل المحتوى نهائيًا وبيبدأ المعالجة من جديد. مفيش تراجع أو سجل نسخ.'**
+  String get productAcceptancePermanentlyReplacesTheContentAndStartsProcessing;
+
+  /// No description provided for @productAccept.
+  ///
+  /// In ar, this message translates to:
+  /// **'قبول'**
+  String get productAccept;
+
+  /// No description provided for @productRejectProposal.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفض الاقتراح'**
+  String get productRejectProposal;
+
+  /// No description provided for @productRequestAnotherProposal.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب اقتراح جديد'**
+  String get productRequestAnotherProposal;
+
+  /// No description provided for @productRetryReprocess.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة المعالجة'**
+  String get productRetryReprocess;
+
+  /// No description provided for @productReloadStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث الحالة'**
+  String get productReloadStatus;
+
+  /// No description provided for @productRelatedNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظات مرتبطة'**
+  String get productRelatedNotes;
+
+  /// No description provided for @productNoCurrentRelationships.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش علاقات حالية.'**
+  String get productNoCurrentRelationships;
+
+  /// No description provided for @productDeleteNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الملاحظة'**
+  String get productDeleteNote;
+
+  /// No description provided for @productDeleteNote2.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الملاحظة؟'**
+  String get productDeleteNote2;
+
+  /// No description provided for @productItsRelationshipsAndSourceCitationsWillAlsoBe.
+  ///
+  /// In ar, this message translates to:
+  /// **'العلاقات والإشارات للملاحظة كمصدر هتتحذف كمان.'**
+  String get productItsRelationshipsAndSourceCitationsWillAlsoBe;
+
+  /// No description provided for @productKnowledgeMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'خريطة المعرفة'**
+  String get productKnowledgeMap;
+
+  /// No description provided for @productReloadMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث الخريطة'**
+  String get productReloadMap;
+
+  /// No description provided for @productEveryNodeIsANoteLinesShowSupplied.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل نقطة ملاحظة. الخطوط بتعرض العلاقات الواردة فقط. اسحب الملاحظات أو استخدم إصبعين للتكبير.'**
+  String get productEveryNodeIsANoteLinesShowSupplied;
+
+  /// No description provided for @productNoCompletedNotesInThisProjectYet.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات مكتملة المعالجة في المشروع لسه.'**
+  String get productNoCompletedNotesInThisProjectYet;
+
+  /// No description provided for @productZoomIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تكبير'**
+  String get productZoomIn;
+
+  /// No description provided for @productResetView.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة ضبط العرض'**
+  String get productResetView;
+
+  /// No description provided for @productGraphCounts.
+  ///
+  /// In ar, this message translates to:
+  /// **'{notes, plural, =0{مفيش ملاحظات} =1{ملاحظة واحدة} =2{ملاحظتان} few{{notes} ملاحظات} many{{notes} ملاحظة} other{{notes} ملاحظة}} · {relationships, plural, =0{مفيش علاقات} =1{علاقة واحدة} =2{علاقتان} few{{relationships} علاقات} many{{relationships} علاقة} other{{relationships} علاقة}}'**
+  String productGraphCounts(int notes, int relationships);
+
+  /// No description provided for @productAsk.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل'**
+  String get productAsk;
+
+  /// No description provided for @productNewConversation.
+  ///
+  /// In ar, this message translates to:
+  /// **'محادثة جديدة'**
+  String get productNewConversation;
+
+  /// No description provided for @productReloadHistoryList.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث قائمة المحادثات'**
+  String get productReloadHistoryList;
+
+  /// No description provided for @productConversationHistory.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجل المحادثات'**
+  String get productConversationHistory;
+
+  /// No description provided for @productStartAConversationOrOpenItsHistoryConversations.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ محادثة أو افتح سجلها. كل محادثة بتفضل داخل المشروع المختار.'**
+  String get productStartAConversationOrOpenItsHistoryConversations;
+
+  /// No description provided for @productYou.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنت'**
+  String get productYou;
+
+  /// No description provided for @productNotSupportedByThisProjectSKnowledge.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير مدعوم بمعرفة المشروع ده'**
+  String get productNotSupportedByThisProjectSKnowledge;
+
+  /// No description provided for @productProvisionalNotConfirmedSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض مؤقت · لم يتأكد حفظه'**
+  String get productProvisionalNotConfirmedSaved;
+
+  /// No description provided for @productStopWaiting.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف الانتظار'**
+  String get productStopWaiting;
+
+  /// No description provided for @productReloadHistoryBeforeSendingAgain.
+  ///
+  /// In ar, this message translates to:
+  /// **'حمّل السجل قبل الإرسال تاني'**
+  String get productReloadHistoryBeforeSendingAgain;
+
+  /// No description provided for @productHistoryReloadedReviewItBeforeDeliberatelySendingYour.
+  ///
+  /// In ar, this message translates to:
+  /// **'السجل اتحدّث. راجعه قبل ما تختار إرسال المسودة الموجودة تاني.'**
+  String get productHistoryReloadedReviewItBeforeDeliberatelySendingYour;
+
+  /// No description provided for @productAskThisProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل المشروع ده'**
+  String get productAskThisProject;
+
+  /// No description provided for @productSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get productSend;
+
+  /// No description provided for @productDeleteConversation.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المحادثة؟'**
+  String get productDeleteConversation;
+
+  /// No description provided for @productThisDeletesTheConversationAndMessagesWhileKeeping.
+  ///
+  /// In ar, this message translates to:
+  /// **'ده بيحذف المحادثة ورسائلها وبيحتفظ بالملاحظات.'**
+  String get productThisDeletesTheConversationAndMessagesWhileKeeping;
+
+  /// No description provided for @productDeleteConversation2.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المحادثة'**
+  String get productDeleteConversation2;
+
+  /// No description provided for @productReviewFailedSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'مراجعة المسودة لمحاولة حفظ جديدة'**
+  String get productReviewFailedSave;
+
+  /// No description provided for @productNewIntentionalSaveExplanation.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.'**
+  String get productNewIntentionalSaveExplanation;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

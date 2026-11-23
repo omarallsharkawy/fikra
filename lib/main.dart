@@ -9,7 +9,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (appMode == AppMode.connected) {
     // Fail loudly instead of running the demo services under a "connected" label.
-    throw UnsupportedError('FIKRA_MODE=connected is not wired yet. See docs/backend-integration.md');
+    throw UnsupportedError(
+      'FIKRA_MODE=connected is not wired yet. See docs/features/backend-aligned-journeys/implementation.md',
+    );
   }
   await initializeDateFormatting();
   runApp(const ProviderScope(child: FikraApp()));

@@ -33,9 +33,11 @@ import '../features/voice_text/remote_audio_converter.dart';
 import '../l10n/app_localizations.dart';
 import 'app_config.dart';
 
-export 'app_config.dart' show isDemo;
+export 'app_config.dart' show isDemo, AppMode;
 export 'activity_providers.dart';
 export '../data/settings_repository.dart' show AppTheme, AppLanguage, WipeFilesException;
+
+final appModeProvider = Provider<AppMode>((ref) => appMode);
 
 // ---------------------------------------------------------------- services
 
@@ -100,8 +102,8 @@ final attachmentStoreProvider = Provider<AttachmentStore>((ref) => AttachmentSto
 
 /// Backend seam: note analysis and question answering.
 final aiServiceProvider = Provider<AiService>(
-  (ref) => switch (appMode) {
-    AppMode.demo => DemoAiService(activeLocale: () => ref.read(appLocaleProvider)),
+  (ref) => switch (ref.watch(appModeProvider)) {
+    AppMode.development || AppMode.demo => DemoAiService(activeLocale: () => ref.read(appLocaleProvider)),
     // Wire ApiAiService here (docs/backend-integration.md).
     AppMode.connected => throw UnimplementedError('FIKRA_MODE=connected has no AiService yet'),
   },
