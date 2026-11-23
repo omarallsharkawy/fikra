@@ -17,7 +17,11 @@ enum SessionStage {
 }
 
 class SessionController extends ChangeNotifier {
-  SessionController(this.repository, this.vault);
+  SessionController(this.repository, this.vault, {this.clock = DateTime.now});
+  final DateTime Function() clock;
+  DateTime? retryAt;
+  Timer? _retryWake;
+  bool get coolingDown => retryAt != null && clock().isBefore(retryAt!);
   final AuthRepository repository;
   final SessionVault vault;
   SessionStage stage = SessionStage.restoring;
@@ -62,13 +66,13 @@ class SessionController extends ChangeNotifier {
   void show(SessionStage next) {
     if (busy) return;
     stage = next;
-    failure = null;
+    if (!coolingDown) failure = null;
     notice = null;
     _emit();
   }
 
   Future<void> _action(Future<void> Function(int ticket) work) async {
-    if (busy) return;
+    if (busy || coolingDown) return;
     busy = true;
     failure = null;
     notice = null;
@@ -79,6 +83,11 @@ class SessionController extends ChangeNotifier {
     } catch (error) {
       if (!_disposed && ticket == epoch) {
         failure = ProductFailure.from(error);
+        if (failure!.kind == FailureKind.quota && failure!.retryAfter != null) {
+          retryAt = clock().add(failure!.retryAfter!);
+          _retryWake?.cancel();
+          _retryWake = Timer(failure!.retryAfter!, _emit);
+        }
         if (failure!.kind == FailureKind.unverified) stage = SessionStage.awaitingVerification;
       }
     } finally {
@@ -190,6 +199,8 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> expire() async {
+    _retryWake?.cancel();
+    retryAt = null;
     epoch++;
     account = null;
     tokens = null;
@@ -201,6 +212,8 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    _retryWake?.cancel();
+    retryAt = null;
     final old = tokens;
     epoch++;
     account = null;
@@ -227,6 +240,7 @@ class SessionController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _retryWake?.cancel();
     epoch++;
     super.dispose();
   }

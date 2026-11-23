@@ -104,7 +104,7 @@ class ProductComposerScreen extends StatelessWidget {
             FikraButton.secondary(
               key: const ValueKey('transcribe-product-voice'),
               label: context.l10n.productPreviewTranscription,
-              onPressed: capture.transcribe,
+              onPressed: capture.coolingDown ? null : capture.transcribe,
             ),
           ],
           if (capture.state == CaptureState.review) ...[

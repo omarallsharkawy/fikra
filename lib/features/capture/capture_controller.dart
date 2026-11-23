@@ -16,8 +16,12 @@ abstract interface class CaptureDevice {
 enum CaptureState { idle, starting, recording, stopping, recorded, transcribing, review }
 
 class CaptureController extends ChangeNotifier {
-  CaptureController(this.device, this.repository, {this.clock = DateTime.now, this.documents});
+  CaptureController(this.device, this.repository, {this.clock = DateTime.now, this.documents, this.onUnauthorized});
   final CaptureDevice device;
+  final VoidCallback? onUnauthorized;
+  DateTime? retryAt;
+  Timer? _retryWake;
+  bool get coolingDown => retryAt != null && clock().isBefore(retryAt!);
   final LocalDocuments? documents;
   List<LocalDocument> localPdfs = const [];
   bool pickingPdf = false;
@@ -46,6 +50,10 @@ class CaptureController extends ChangeNotifier {
       state == CaptureState.stopping ||
       state == CaptureState.transcribing;
   void setAccount(String? id) {
+    if (id != accountId) {
+      _retryWake?.cancel();
+      retryAt = null;
+    }
     _epoch++;
     _timersOff();
     _cleanup = _cleanup.then((_) => device.cancel()).catchError((_) {});
@@ -134,7 +142,7 @@ class CaptureController extends ChangeNotifier {
 
   Future<void> transcribe() async {
     final account = accountId, recording = clip, ticket = _epoch;
-    if (account == null || recording == null || active) return;
+    if (account == null || recording == null || active || coolingDown) return;
     state = CaptureState.transcribing;
     failure = null;
     _emit();
@@ -146,7 +154,13 @@ class CaptureController extends ChangeNotifier {
     } catch (error) {
       if (_valid(ticket)) {
         failure = ProductFailure.from(error);
+        if (failure!.kind == FailureKind.quota && failure!.retryAfter != null) {
+          retryAt = clock().add(failure!.retryAfter!);
+          _retryWake?.cancel();
+          _retryWake = Timer(failure!.retryAfter!, _emit);
+        }
         state = CaptureState.recorded;
+        if (failure!.kind == FailureKind.unauthorized) onUnauthorized?.call();
       }
     } finally {
       if (_valid(ticket)) _emit();
@@ -207,6 +221,7 @@ class CaptureController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _retryWake?.cancel();
     _epoch++;
     _timersOff();
     unawaited(_cleanup.then((_) => device.dispose()));

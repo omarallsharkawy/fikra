@@ -54,7 +54,12 @@ class ProductRuntime {
     session = SessionController(auth, vault);
     workspace = WorkspaceController(repository, attempts, onUnauthorized: () => unawaited(session.expire()));
     chat = ConversationController(repository, onUnauthorized: () => unawaited(session.expire()));
-    capture = CaptureController(device, repository, documents: documents);
+    capture = CaptureController(
+      device,
+      repository,
+      documents: documents,
+      onUnauthorized: () => unawaited(session.expire()),
+    );
     session.addListener(_sessionChanged);
     workspace.addListener(_projectChanged);
   }

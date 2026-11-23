@@ -19,6 +19,8 @@ The user approved a separate product domain and preserving the local-first imple
 - `ProductRuntime` clears private controllers synchronously when account identity changes, rejects late session work, switches project-scoped chat and invalidates deleted source references. `ProductBoundary` replaces private route widget state on account/session boundaries.
 - `chat_frames.dart` is a pure UTF-8/SSE framing utility, tested without HTTP. Mapping validated wire DTOs to feature events belongs to the later transport adapter.
 
+Account and transcription actions honor a returned Retry-After cooldown without discarding credentials/drafts or the recording. Local recording replacement cannot reset an account-scoped transcription cooldown. A transcription authorization failure uses the shared session-expiry path.
+
 Widgets own layout and editable-field presentation. Repositories own data access; controllers own feature orchestration. Graph positions are presentation-only, and every displayed edge comes from the repository. Appearance/language reuse the existing preference repository. Legacy local models remain isolated instead of forcing incompatible server semantics into their schema.
 
 ## Corrected behavior

@@ -84,10 +84,10 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 key: const ValueKey('verify-email'),
                 label: context.l10n.productPreviewVerification,
                 loading: session.busy,
-                onPressed: _token.isEmpty ? null : () => session.verify(_token),
+                onPressed: session.coolingDown || _token.isEmpty ? null : () => session.verify(_token),
               ),
               TextButton(
-                onPressed: session.busy ? null : session.resend,
+                onPressed: (session.busy || session.coolingDown) ? null : session.resend,
                 child: Text(context.l10n.productPreviewResendRequest),
               ),
             ] else if (recovery) ...[
@@ -102,7 +102,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 FikraButton(
                   label: context.l10n.productPreviewPasswordReset,
                   loading: session.busy,
-                  onPressed: _token.isEmpty || _password.isEmpty
+                  onPressed: session.coolingDown || _token.isEmpty || _password.isEmpty
                       ? null
                       : () => session.confirmRecovery(_token, _password),
                 ),
@@ -110,14 +110,14 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 FikraButton(
                   label: context.l10n.productPreviewRecoveryRequest,
                   loading: session.busy,
-                  onPressed: _email.trim().isEmpty ? null : () => session.recover(_email),
+                  onPressed: session.coolingDown || _email.trim().isEmpty ? null : () => session.recover(_email),
                 ),
             ] else ...[
               FikraButton(
                 key: const ValueKey('account-submit'),
                 loading: session.busy,
                 label: _register ? context.l10n.productPreviewRegistration : context.l10n.productOpenFixtureSession,
-                onPressed: _email.trim().isEmpty || _password.isEmpty
+                onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty
                     ? null
                     : () => _register ? session.register(_email, _password) : session.login(_email, _password),
               ),
@@ -134,13 +134,17 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               FikraButton.secondary(
                 key: const ValueKey('fixture-reader'),
                 label: context.l10n.productPreviewSampleWorkspace,
-                onPressed: session.busy ? null : () => session.login('reader@example.invalid', 'fixture-only'),
+                onPressed: (session.busy || session.coolingDown)
+                    ? null
+                    : () => session.login('reader@example.invalid', 'fixture-only'),
               ),
               const SizedBox(height: 10),
               FikraButton.secondary(
                 key: const ValueKey('fixture-other'),
                 label: context.l10n.productPreviewSeparateEmptyAccount,
-                onPressed: session.busy ? null : () => session.login('other@example.invalid', 'fixture-only'),
+                onPressed: (session.busy || session.coolingDown)
+                    ? null
+                    : () => session.login('other@example.invalid', 'fixture-only'),
               ),
             ],
             if (verifying || recovery)
