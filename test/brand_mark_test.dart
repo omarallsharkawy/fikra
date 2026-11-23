@@ -8,7 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/app_harness.dart' show loadAppFonts;
+
 void main() {
+  setUpAll(loadAppFonts);
   testWidgets('brand artwork loads and follows a live app-theme change without RTL mirroring', (tester) async {
     for (final mode in ['light', 'dark']) {
       await tester.runAsync(() async {

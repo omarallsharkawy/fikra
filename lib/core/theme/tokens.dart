@@ -560,12 +560,12 @@ abstract final class FikraSpace {
 class FikraText {
   const FikraText(this.colors);
   final FikraPalette colors;
-  static const family = 'NotoSansArabic';
+  static const family = 'Inter';
+  static const fallbacks = ['NotoSansArabic', 'Roboto'];
   static const _base = TextStyle(
     fontFamily: family,
-    // NotoSansArabic has no Latin glyphs; Latin words (TCP, FastAPI…) use
-    // Roboto, which Android would pick anyway. Explicit so tests match.
-    fontFamilyFallback: ['Roboto'],
+    // Inter supplies Latin; preserve the existing Arabic face for Arabic glyphs.
+    fontFamilyFallback: fallbacks,
     height: 1.5,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,

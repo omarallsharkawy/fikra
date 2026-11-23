@@ -59,7 +59,8 @@ void main() {
         t.meta,
       ];
       for (final s in styles) {
-        expect(s.fontFamily, 'NotoSansArabic');
+        expect(s.fontFamily, 'Inter');
+        expect(s.fontFamilyFallback, ['NotoSansArabic', 'Roboto']);
         expect(s.letterSpacing ?? 0, 0);
         expect(s.fontSize, greaterThanOrEqualTo(12.5));
       }

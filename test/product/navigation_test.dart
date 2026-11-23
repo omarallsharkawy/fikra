@@ -14,6 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../support/app_harness.dart' show loadAppFonts;
+
 class DeviceStub implements CaptureDevice {
   @override
   Future<void> start() async {}
@@ -75,6 +77,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  setUpAll(loadAppFonts);
   testWidgets('creation timestamps use the stored instant with local weekday, date and time', (tester) async {
     await initializeDateFormatting();
     final stored = DateTime(2001, 1, 1, 14, 5).toUtc();
