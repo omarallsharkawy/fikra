@@ -16,6 +16,7 @@ import '../../core/widgets/voice_player.dart';
 import '../../data/links_repository.dart';
 import '../../data/local/database.dart';
 import 'voice_transcript.dart';
+import 'note_details_placeholder.dart';
 import '../shared/link_picker.dart';
 import '../shared/move_confirm.dart';
 import '../shared/note_links.dart';
@@ -57,6 +58,20 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
   /// A move is between its picker and its result; a second one can't start,
   /// and the options (so Edit) stay shut until it ends.
   bool _moving = false;
+
+  /// True from an Edit tap until the editor closes, so a double tap (even in
+  /// the same frame, before the route is pushed) opens one editor.
+  bool _openingEdit = false;
+
+  Future<void> _edit(Note note) async {
+    if (_openingEdit) return;
+    _openingEdit = true;
+    try {
+      await context.push('/note/${note.id}/edit');
+    } finally {
+      _openingEdit = false;
+    }
+  }
 
   Future<void> _showOptions(Note note) async {
     if (_moving) return;
@@ -123,7 +138,7 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
   /// failure (the target deleted meanwhile, too) keeps the page as it was.
   Future<void> _move(Note note) async {
     if (_moving) return;
-    _moving = true;
+    setState(() => _moving = true);
     try {
       final l10n = context.l10n;
       final target = await showProjectPicker(
@@ -160,7 +175,11 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
       // editor) stays, so nothing unsaved is thrown away.
       if (route?.isCurrent ?? false) context.go('/notes');
     } finally {
-      _moving = false;
+      if (mounted) {
+        setState(() => _moving = false);
+      } else {
+        _moving = false;
+      }
     }
   }
 
@@ -181,28 +200,65 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
             child: Row(
               children: [
                 FikraIconButton(icon: Icons.arrow_back_rounded, label: context.l10n.back, onTap: () => context.pop()),
-                const Spacer(),
-                if (note != null)
+                if (note != null) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Opacity(
+                        opacity: _moving ? 0.4 : 1,
+                        child: Pressable(
+                          key: const ValueKey('note-edit'),
+                          minTarget: true,
+                          semanticLabel: context.l10n.edit,
+                          onTap: _moving ? null : () => _edit(note),
+                          child: SolidSurface(
+                            radius: FikraRadius.full,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.edit_outlined, size: 18, color: context.colors.textPrimary),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    context.l10n.edit,
+                                    style: context.text.chip,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   FikraIconButton(
                     icon: Icons.more_horiz_rounded,
                     label: context.l10n.options,
                     onTap: () => _showOptions(note),
                   ),
+                ],
               ],
             ),
           ),
           Expanded(
-            child: AsyncBody<Note?>(
-              value: noteAsync,
-              onRetry: () => ref.invalidate(noteProvider(widget.noteId)),
-              data: (note) => note == null
-                  ? EmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: context.l10n.noteNotFoundTitle,
-                      description: context.l10n.noteNotFoundBody,
-                    )
-                  : _Body(note: note, view: _view, onView: (v) => setState(() => _view = v)),
-            ),
+            child: !noteAsync.hasValue && !noteAsync.hasError
+                ? const NoteDetailsPlaceholder()
+                : AsyncBody<Note?>(
+                    value: noteAsync,
+                    onRetry: () => ref.invalidate(noteProvider(widget.noteId)),
+                    data: (note) => note == null
+                        ? EmptyState(
+                            icon: Icons.search_off_rounded,
+                            title: context.l10n.noteNotFoundTitle,
+                            description: context.l10n.noteNotFoundBody,
+                          )
+                        : _Body(note: note, view: _view, onView: (v) => setState(() => _view = v)),
+                  ),
           ),
         ],
       ),

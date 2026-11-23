@@ -5,7 +5,7 @@ import '../motion/motion.dart';
 import '../theme/tokens.dart';
 
 import 'buttons.dart';
-import 'glass.dart';
+import 'solid_surface.dart';
 
 /// Destructive confirmation. Returns true when confirmed. With [danger] false
 /// the confirm button is the primary one, for a confirmation that loses nothing.
@@ -27,7 +27,7 @@ Future<bool> confirmDestructive(
       traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
       builder: (context) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 35),
-        child: Glass(
+        child: SolidSurface(
           radius: FikraRadius.xl,
           padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
           child: Column(

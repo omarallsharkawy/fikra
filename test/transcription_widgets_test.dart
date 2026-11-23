@@ -32,7 +32,7 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await pumpUntil(tester, find.text(l.startNewProject));
+    await pumpUntil(tester, find.text(l.welcomeStartWriting));
     return pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('Voice project');
       final notes = LocalNotesRepository(db);
@@ -191,12 +191,22 @@ void main() {
         tester.element(find.text('Voice project')).push('/note/${fixture.note.id}/edit');
         await pumpUntil(tester, find.text(l.editNoteTitle));
         await pumpUntil(tester, find.text('Typed'));
-        // What TranscriptionQueue writes when inference finishes (nothing edited yet).
+        // What TranscriptionQueue writes when inference finishes (nothing edited yet): the
+        // attachment's transcript identity and revision, and the note's original text, together.
         await pumpFuture(
           tester,
-          () => (db.update(db.notes)..where((n) => n.id.equals(fixture.note.id))).write(
-            const NotesCompanion(originalText: Value('Typed\n\nSpoken words.')),
-          ),
+          () => db.transaction(() async {
+            await (db.update(db.noteAttachments)..where((a) => a.id.equals(fixture.attachment.id))).write(
+              const NoteAttachmentsCompanion(
+                transcriptNoteText: Value('Spoken words.'),
+                transcriptRevision: Value(1),
+                transcriptionStatus: Value(TranscriptionStatus.done),
+              ),
+            );
+            await (db.update(db.notes)..where((n) => n.id.equals(fixture.note.id))).write(
+              const NotesCompanion(originalText: Value('Typed\n\nSpoken words.')),
+            );
+          }),
         );
         if (typed) {
           await tester.enterText(find.byType(TextField).last, 'Mine');

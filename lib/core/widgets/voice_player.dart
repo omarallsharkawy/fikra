@@ -152,10 +152,10 @@ class _VoicePlayerState extends State<VoicePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: widget.embedded ? FikraRadius.md : FikraRadius.lg,
-      color: widget.embedded ? context.colors.pressed : null,
-      borderColor: widget.embedded ? Colors.transparent : null,
+      color: widget.embedded ? context.colors.chip : null,
+
       padding: widget.embedded
           ? const EdgeInsetsDirectional.fromSTEB(4, 8, 8, 8)
           : const EdgeInsetsDirectional.fromSTEB(8, 12, 12, 12),
@@ -172,10 +172,10 @@ class _VoicePlayerState extends State<VoicePlayer> {
               child: Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(gradient: context.colors.selectedGradient, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: context.colors.chip, shape: BoxShape.circle),
                 child: Icon(
                   _playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                  color: context.colors.textOnSelected,
+                  color: context.colors.textSecondary,
                 ),
               ),
             ),
@@ -200,8 +200,8 @@ class _VoicePlayerState extends State<VoicePlayer> {
                             child: LinearProgressIndicator(
                               value: (pos.inMilliseconds / total).clamp(0.0, 1.0),
                               minHeight: 4,
-                              backgroundColor: context.colors.pressed,
-                              color: context.colors.accentLight,
+                              backgroundColor: context.colors.chip,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ),

@@ -33,7 +33,7 @@ void main() {
           final l10n = lookupAppLocalizations(locale);
           Future<void> capture(String name) =>
               saveScreenshot(tester, '${locale.languageCode}/${brightness.name}/$name');
-          await pumpUntil(tester, find.text(l10n.startNewProject));
+          await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
           final note = await pumpFuture(tester, () async {
             final p = await LocalProjectsRepository(db).create('project');
             return LocalNotesRepository(db).create(

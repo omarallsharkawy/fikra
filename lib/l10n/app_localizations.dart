@@ -1124,12 +1124,6 @@ abstract class AppLocalizations {
   /// **'«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.'**
   String get themeHint;
 
-  /// No description provided for @dataSection.
-  ///
-  /// In ar, this message translates to:
-  /// **'البيانات'**
-  String get dataSection;
-
   /// No description provided for @dataStaysLocal.
   ///
   /// In ar, this message translates to:
@@ -1766,25 +1760,25 @@ abstract class AppLocalizations {
   /// **'من غير لون'**
   String get colorNone;
 
-  /// No description provided for @colorBlue.
+  /// Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'أزرق'**
   String get colorBlue;
 
-  /// No description provided for @colorGreen.
+  /// Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'أخضر'**
   String get colorGreen;
 
-  /// No description provided for @colorYellow.
+  /// Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'أصفر'**
   String get colorYellow;
 
-  /// No description provided for @colorGray.
+  /// Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label.
   ///
   /// In ar, this message translates to:
   /// **'رمادي'**
@@ -2059,12 +2053,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'مش ظاهرة في الرسم، هنفتح الملاحظة'**
   String get graphSearchLimited;
-
-  /// No description provided for @graphNavigateGroup.
-  ///
-  /// In ar, this message translates to:
-  /// **'روح لمجموعة «{group}» في الرسم، من غير فلترة'**
-  String graphNavigateGroup(String group);
 
   /// No description provided for @graphCollapseGroup.
   ///
@@ -3139,6 +3127,396 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'التفريغ اتحفظ'**
   String get v2TranscriptSaved;
+
+  /// Links library browse segment.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصفّح'**
+  String get linksBrowse;
+
+  /// Links library suggestions segment and section heading.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراحات'**
+  String get linksSuggestions;
+
+  /// Confirmed connections section heading.
+  ///
+  /// In ar, this message translates to:
+  /// **'روابط مؤكدة'**
+  String get linksConfirmed;
+
+  /// Links library group chips heading.
+  ///
+  /// In ar, this message translates to:
+  /// **'المجموعات'**
+  String get linksGroups;
+
+  /// Explains that topic chips are AI suggestions.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقترحة ليك'**
+  String get linksSuggestedForYou;
+
+  /// Search the links library by note text and title.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوّر في الروابط'**
+  String get searchLinksHint;
+
+  /// Filter dock tooltip and sort sheet title.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترتيب الروابط'**
+  String get linksSort;
+
+  /// Links library sort order.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأحدث الأول'**
+  String get linksNewest;
+
+  /// Links library sort by confirmed degree.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللي فيها روابط أكتر'**
+  String get linksMostLinked;
+
+  /// Links library sort order.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأقدم الأول'**
+  String get linksOldest;
+
+  /// Header action to open the optional graph.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح خريطة الروابط'**
+  String get linksOpenGraph;
+
+  /// Muted fallback for an empty link reason.
+  ///
+  /// In ar, this message translates to:
+  /// **'من غير سبب مكتوب'**
+  String get linkNoReason;
+
+  /// Empty suggestions list title.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش اقتراحات دلوقتي'**
+  String get linksSuggestionsEmpty;
+
+  /// Empty suggestions list explanation.
+  ///
+  /// In ar, this message translates to:
+  /// **'لما يبقى فيه اقتراحات جديدة، هتلاقيها هنا.'**
+  String get linksSuggestionsEmptyBody;
+
+  /// Empty confirmed library directs the user to suggestions.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيه اقتراحات مستنية رأيك. اقبل أي رابط عشان يظهر هنا.'**
+  String get linksBrowseSuggestionsBody;
+
+  /// Suggestions segment label with the number of waiting suggestions (shown only when above zero).
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراحات {count}'**
+  String linksSuggestionsCount(int count);
+
+  /// TalkBack label of the suggestions segment with the number of waiting suggestions.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراحات، {count}'**
+  String linksSuggestionsCountA11y(int count);
+
+  /// Links library empty state when a group or topic chip is selected and the search is empty.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش حاجة هنا لسه. جرّب مجموعة أو موضوع تاني.'**
+  String get linksFilterEmptyBody;
+
+  /// Toast after rejecting a suggested link; carries Undo.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاقتراح اترفض'**
+  String get linkSuggestionRejected;
+
+  /// Settings section heading for the speech-to-text services the user added and the button to add one.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخدمات المتصلة'**
+  String get servicesSection;
+
+  /// Settings section explaining where notes and recordings are stored.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخصوصية والبيانات'**
+  String get privacySection;
+
+  /// Notes list sort button label and sort sheet title.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترتيب الملاحظات'**
+  String get notesSort;
+
+  /// Short caption under the open-graph icon in the Links header.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get headerGraph;
+
+  /// Short caption under the search icon in the graph header.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوّر'**
+  String get headerSearch;
+
+  /// Status label in the floating activity capsule above the tab bar while recording on another tab.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيسجّل…'**
+  String get capsuleRecording;
+
+  /// Screen reader label for the floating recording activity capsule.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيسجّل. دوس عشان تفتح التسجيل'**
+  String get capsuleRecordingA11y;
+
+  /// Status label in the floating activity capsule above the tab bar while a background transcription job runs.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيفرّغ الصوت…'**
+  String get capsuleTranscribing;
+
+  /// Screen reader label for the floating transcription activity capsule.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة'**
+  String get capsuleTranscribingA11y;
+
+  /// Concept navigation and Me screen: navHome.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرئيسية'**
+  String get navHome;
+
+  /// Concept navigation and Me screen: navMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get navMap;
+
+  /// Concept navigation and Me screen: navMe.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنا'**
+  String get navMe;
+
+  /// Concept navigation and Me screen: newIdea.
+  ///
+  /// In ar, this message translates to:
+  /// **'فكرة جديدة'**
+  String get newIdea;
+
+  /// Concept navigation and Me screen: meIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأفكار'**
+  String get meIdeas;
+
+  /// Concept navigation and Me screen: meLinks.
+  ///
+  /// In ar, this message translates to:
+  /// **'الروابط'**
+  String get meLinks;
+
+  /// Concept navigation and Me screen: meWeekDays.
+  ///
+  /// In ar, this message translates to:
+  /// **'أيام الأسبوع ده'**
+  String get meWeekDays;
+
+  /// Concept navigation and Me screen: meAppearanceLanguage.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر واللغة'**
+  String get meAppearanceLanguage;
+
+  /// Concept navigation and Me screen: meVoiceServices.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصوت والخدمات'**
+  String get meVoiceServices;
+
+  /// Small brand eyebrow label above the hero title on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'فِكرة'**
+  String get welcomeEyebrow;
+
+  /// Large brand title on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'فِكرة'**
+  String get welcomeBrandTitle;
+
+  /// Short three-word tagline on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب. اربط. اسأل.'**
+  String get welcomeTagline;
+
+  /// Supporting line on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.'**
+  String get welcomeSubtitle;
+
+  /// Primary CTA on the welcome screen that creates the default project and opens Notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ الكتابة'**
+  String get welcomeStartWriting;
+
+  /// Secondary CTA on the welcome screen that seeds the sample project.
+  ///
+  /// In ar, this message translates to:
+  /// **'جرّب بمشروع تجريبي'**
+  String get welcomeTrySample;
+
+  /// Privacy footer on the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظاتك محفوظة على جهازك · بدون حساب'**
+  String get welcomeFooter;
+
+  /// Default project name created directly from the welcome screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكاري'**
+  String get defaultProjectName;
+
+  /// Filter chip and note-card badge label for voice notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'صوت'**
+  String get filterVoice;
+
+  /// Filter chip label for notes with PDF or image attachments.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملفات'**
+  String get filterFiles;
+
+  /// Short PDF badge label on note cards.
+  ///
+  /// In ar, this message translates to:
+  /// **'PDF'**
+  String get badgePdf;
+
+  /// Empty state title when a type filter (voice/files) matches no notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات هنا'**
+  String get filterEmptyTitle;
+
+  /// Empty state body when a type filter matches no notes.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش ملاحظات بالفلتر ده لسه.'**
+  String get filterEmptyBody;
+
+  /// Action strip message when one or more notes failed analysis.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{ملاحظة فشل تحليلها} two{ملاحظتين فشل تحليلهم} few{{count} ملاحظات فشل تحليلها} other{{count} ملاحظة فشل تحليلها}}'**
+  String actionStripFailed(int count);
+
+  /// Short retry label on the failed-analysis action strip.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعد المحاولة'**
+  String get actionStripRetry;
+
+  /// Action strip message when new link suggestions are waiting.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{رابط مقترح جديد} two{رابطين مقترحين جداد} few{{count} روابط مقترحة جديدة} other{{count} رابط مقترح جديد}}'**
+  String actionStripSuggestions(int count);
+
+  /// Action strip message when note rewrites are waiting for review.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{صياغة مستنية رأيك} two{صياغتين مستنيين رأيك} few{{count} صياغات مستنية رأيك} other{{count} صياغة مستنية رأيك}}'**
+  String actionStripRewrites(int count);
+
+  /// Screen reader label for dismissing the notes action strip for the current session.
+  ///
+  /// In ar, this message translates to:
+  /// **'اخفي التنبيه'**
+  String get actionStripDismiss;
+
+  /// Chip showing how many distinct days in the rolling 7-day window have at least one note.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, one{يوم واحد الأسبوع ده} two{يومين الأسبوع ده} few{{count} أيام الأسبوع ده} other{{count} يوم الأسبوع ده}}'**
+  String activeDaysThisWeek(int count);
+
+  /// Links Map: linksMap
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get linksMap;
+
+  /// Links Map: mapOthers
+  ///
+  /// In ar, this message translates to:
+  /// **'تانيين'**
+  String get mapOthers;
+
+  /// Links Map: mapShowMore
+  ///
+  /// In ar, this message translates to:
+  /// **'اعرض أكتر'**
+  String get mapShowMore;
+
+  /// Links Map: mapOpen
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح'**
+  String get mapOpen;
+
+  /// Links Map: mapNotes
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{مفيش ملاحظات} =1{ملاحظة واحدة} =2{ملاحظتين} few{{count} ملاحظات} many{{count} ملاحظة} other{{count} ملاحظة}}'**
+  String mapNotes(int count);
+
+  /// Links Map: mapConnections
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{مفيش روابط} =1{رابط واحد} =2{رابطين} few{{count} روابط} many{{count} رابط} other{{count} رابط}}'**
+  String mapConnections(int count);
+
+  /// Links Map: mapCanvasSummary
+  ///
+  /// In ar, this message translates to:
+  /// **'خريطة الملاحظات، الإجمالي: {total}، مش ظاهر: {omitted}'**
+  String mapCanvasSummary(int total, int omitted);
+
+  /// Links Map: mapTotals
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظات: {total} · روابط: {confirmed} · اقتراحات: {suggestions} · مش ظاهر: {omitted}'**
+  String mapTotals(int total, int confirmed, int suggestions, int omitted);
+
+  /// Hint for the unshrunk Map world; panning preserves readable text and touch targets.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسحب عشان تشوف باقي الخريطة'**
+  String get mapPanHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

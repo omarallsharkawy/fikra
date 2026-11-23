@@ -118,7 +118,7 @@ void main() {
     AppLocalizations? l10n,
     bool other = true,
   }) async {
-    await pumpUntil(tester, find.text((l10n ?? ar).startNewProject));
+    await pumpUntil(tester, find.text((l10n ?? ar).welcomeStartWriting));
     final (p, q, notes) = await pumpFuture(tester, () async {
       final projects = LocalProjectsRepository(db);
       final repo = LocalNotesRepository(db);
@@ -307,7 +307,7 @@ void main() {
     final (_, _, [a]) = await seed(tester, db, ['A'], other: false);
     await open(tester, a);
     await openOptions(tester, ar);
-    expect(find.text(ar.edit), findsOneWidget);
+    expect(find.descendant(of: find.byType(BottomSheet), matching: find.text(ar.edit)), findsOneWidget);
     expect(find.text(ar.deleteNote), findsOneWidget);
     expect(find.byKey(const ValueKey('note-move')), findsNothing);
     expect(find.text(ar.moveToProject), findsNothing);
@@ -400,14 +400,17 @@ void main() {
       expect(find.text(ar.moveConfirm), findsNothing);
       expect(gatedSpy.moves, 1);
 
-      // The page is still there while the move is saving; its options (so
-      // Edit, and a second move) stay shut.
+      // The page is still there while the move is saving; its options (and the
+      // header Edit button, and a second move) stay disabled/shut.
       await tester.tap(find.bySemanticsLabel(ar.options));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
       expect(find.byType(BottomSheet), findsNothing);
       expect(find.text(ar.noteOptions), findsNothing);
-      expect(find.text(ar.edit), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('note-edit')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.text(ar.editNoteTitle), findsNothing);
 
       gate.complete();
       await settle(tester, find.text(ar.noteMoved(Fmt.isolate('Work'))));
@@ -769,21 +772,16 @@ void main() {
     expect(await pumpFuture(tester, () => db.select(db.projects).get()), hasLength(3));
   });
 
-  fikraTest('UX-17: the first project has its own title and example; later ones keep theirs', (tester, db) async {
+  fikraTest('welcome creates default project directly; new project keeps its name hint', (tester, db) async {
     phone(tester);
-    await pumpUntil(tester, find.text(ar.startNewProject));
-    await tester.tap(find.text(ar.startNewProject));
-    await settle(tester, find.text(ar.firstProjectTitle));
-    expect(ar.firstProjectTitle, 'سمّي أول مشروع');
-    expect(find.text('اسم المشروع، مثلاً: مذاكرة'), findsOneWidget);
-    expect(find.text(ar.projectNameHint), findsNothing);
-    await tester.enterText(find.byType(TextField).last, 'Study');
-    await tester.pump();
-    await tester.tap(find.text(ar.create));
-    await pumpUntil(tester, find.bySemanticsLabel(ar.projectPillA11y('Study')));
+    await pumpUntil(tester, find.text(ar.welcomeStartWriting));
+    await tester.tap(find.text(ar.welcomeStartWriting));
+    await pumpUntil(tester, find.bySemanticsLabel(ar.projectPillA11y(ar.defaultProjectName)));
+    expect(find.byType(BottomSheet), findsNothing);
     await tester.pump(const Duration(milliseconds: 600));
 
-    await openProjects(tester, ar);
+    await tester.tap(find.bySemanticsLabel(ar.projectPillA11y(ar.defaultProjectName)).first);
+    await settle(tester, find.text(ar.projectsTitle));
     await tester.tap(find.byKey(const ValueKey('new-project')));
     await settle(tester, find.text(ar.projectNameHint));
     expect(find.text(ar.newProject), findsOneWidget);

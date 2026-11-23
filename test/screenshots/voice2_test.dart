@@ -65,7 +65,7 @@ void main() {
           expect(find.byType(TranscriptEditorScreen), findsNothing);
           tester.element(find.byType(NoteDetailsScreen)).pop();
           await tester.pump(const Duration(milliseconds: 600));
-          await tester.tap(Tabs.finder(Tabs.add));
+          await tester.tap(Tabs.addButton);
           await pumpUntil(tester, find.byType(AddScreen));
           final editor = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
           editor.updateDraft(

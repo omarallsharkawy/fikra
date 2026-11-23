@@ -148,7 +148,10 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                       FikraSpace.s32,
                     ),
                     children: [
-                      Text(l.vtTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                      Semantics(
+                        header: true,
+                        child: Text(l.vtTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                      ),
                       const SizedBox(height: FikraSpace.s8),
                       Align(
                         alignment: AlignmentDirectional.centerStart,
@@ -163,8 +166,6 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                             : l.vtIntro,
                         style: context.text.body,
                       ),
-                      section(l.vsEngine),
-                      VoiceTextEngines(enabled: c.idle),
                       if (c.issue != null)
                         Padding(
                           padding: const EdgeInsets.only(top: FikraSpace.s12),
@@ -186,6 +187,8 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                           padding: const EdgeInsets.only(top: FikraSpace.s12),
                           child: VoiceTextProgress(label: l.vtWait),
                         ),
+                      section(l.vsEngine),
+                      VoiceTextEngines(enabled: c.idle),
                       if (!c.isRemote) section(l.vtModel),
                       if (!c.isRemote)
                         VoiceTextModels(
@@ -210,8 +213,12 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: FikraSpace.s24),
+                      const SizedBox(height: FikraSpace.s16),
                       VoiceTextAuto(controller: c, act: act, onChanged: () => ref.invalidate(autoTranscribeProvider)),
+                      Padding(
+                        padding: const EdgeInsets.only(top: FikraSpace.s24),
+                        child: Container(height: FikraSpace.hairline, color: context.colors.line),
+                      ),
                       section(l.vtTry),
                       VoiceTextRecording(controller: c, act: act),
                       const SizedBox(height: FikraSpace.s12),
@@ -224,7 +231,9 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                       const SizedBox(height: FikraSpace.s8),
                       Text(l.vtCannotCancel, style: context.text.caption),
                       if (c.phase == VoiceTextPhase.transcribing) VoiceTextProgress(label: l.vtWorking),
-                      section(l.vtLive),
+                      const SizedBox(height: FikraSpace.s20),
+                      Semantics(header: true, child: Text(l.vtLive, style: context.text.section)),
+                      const SizedBox(height: FikraSpace.s4),
                       Text(c.isRemote ? l.vsLiveLocal : l.vtLiveHint, style: context.text.caption),
                       if (live) ...[
                         InlineRecorder(
@@ -251,8 +260,16 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                             ? () => act(() => c.start(live: true))
                             : null,
                       ),
-                      if (c.history.isNotEmpty) ...[section(l.vtResult), VoiceTextTranscript(run: c.history.first)],
-                      const SizedBox(height: FikraSpace.s24),
+                      if (c.history.isNotEmpty) ...[
+                        const SizedBox(height: FikraSpace.s20),
+                        Semantics(header: true, child: Text(l.vtResult, style: context.text.section)),
+                        const SizedBox(height: FikraSpace.s8),
+                        VoiceTextTranscript(run: c.history.first),
+                      ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: FikraSpace.s24, bottom: FikraSpace.s16),
+                        child: Container(height: FikraSpace.hairline, color: context.colors.line),
+                      ),
                       Semantics(
                         expanded: _testing,
                         child: SheetOption(

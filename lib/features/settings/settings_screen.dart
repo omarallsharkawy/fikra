@@ -7,6 +7,8 @@ import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/format.dart';
 import '../../core/widgets/fikra_widgets.dart';
+import '../me/me_stats_tiles.dart';
+import '../projects/project_switcher.dart';
 
 /// Appearance, local data and what this build is.
 class SettingsScreen extends ConsumerWidget {
@@ -28,16 +30,13 @@ class SettingsScreen extends ConsumerWidget {
     if (!ok || !context.mounted) return;
     // With no projects left, the router sends the user to the welcome screen.
     final messenger = ScaffoldMessenger.of(context);
-    void toast(String m) => messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(m)));
     try {
       await ref.read(settingsRepoProvider).wipeAllData();
-      toast(l10n.eraseAllDone);
+      showMessengerToast(messenger, l10n.eraseAllDone);
     } on WipeFilesException {
-      toast(l10n.eraseAllPartial);
+      showMessengerToast(messenger, l10n.eraseAllPartial);
     } catch (_) {
-      toast(l10n.eraseAllFailed);
+      showMessengerToast(messenger, l10n.eraseAllFailed);
     }
   }
 
@@ -51,27 +50,38 @@ class SettingsScreen extends ConsumerWidget {
 
     Widget section(String title) => Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 10),
-      child: Text(title, style: t.section.copyWith(fontWeight: FontWeight.w600)),
+      child: Semantics(
+        header: true,
+        child: Text(title, style: t.section.copyWith(fontWeight: FontWeight.w600)),
+      ),
     );
+
+    final configuredServices = services.value?.services ?? const [];
 
     return FikraScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-            child: Row(
-              children: [
-                FikraIconButton(icon: Icons.arrow_back_rounded, label: context.l10n.back, onTap: () => context.pop()),
-              ],
-            ),
-          ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
+              padding: EdgeInsets.fromLTRB(FikraSpace.screen, 16, FikraSpace.screen, 32 + NavigationInset.of(context)),
               children: [
-                Text(context.l10n.settingsTitle, style: t.title.copyWith(fontWeight: FontWeight.w700)),
-                section(context.l10n.appearance),
+                Semantics(
+                  header: true,
+                  child: Text(context.l10n.navMe, style: t.title.copyWith(fontWeight: FontWeight.w700)),
+                ),
+                const SizedBox(height: 20),
+                const MeStatsTiles(),
+                section(context.l10n.projectsTitle),
+                SheetOption(
+                  key: const ValueKey('me-projects'),
+                  label: ref.watch(selectedProjectProvider)?.name ?? context.l10n.noProject,
+                  icon: Icons.folder_outlined,
+                  onTap: () => showProjectSwitcher(context, ref),
+                ),
+                section(context.l10n.meAppearanceLanguage),
+                Text(context.l10n.appearance, style: t.caption),
+                const SizedBox(height: 8),
                 SegmentedPill(
                   options: [context.l10n.themeSystem, context.l10n.themeLight, context.l10n.themeDark],
                   selected: _themes.indexOf(theme),
@@ -85,20 +95,34 @@ class SettingsScreen extends ConsumerWidget {
                   selected: _languages.indexOf(language),
                   onChanged: (i) => runAction(context, () => ref.read(settingsRepoProvider).setLanguage(_languages[i])),
                 ),
-                section(context.l10n.vtVoiceSection),
+                section(context.l10n.meVoiceServices),
                 SheetOption(
                   key: const ValueKey('settings-voice-text'),
                   label: '${context.l10n.vtTitle} · ${context.l10n.vtExperimental}',
                   icon: Icons.record_voice_over_outlined,
                   onTap: () => context.push('/settings/voice-text'),
                 ),
-                section(context.l10n.dataSection),
-                Glass(
+                section(context.l10n.servicesSection),
+                for (final service in configuredServices)
+                  SheetOption(
+                    key: ValueKey('settings-service-${service.id}'),
+                    label: service.name,
+                    icon: Icons.cloud_outlined,
+                    onTap: () => context.push('/settings/voice-text/service/${service.id}'),
+                  ),
+                SheetOption(
+                  key: const ValueKey('settings-add-service'),
+                  label: context.l10n.vsAdd,
+                  icon: Icons.add_rounded,
+                  onTap: () => context.push('/settings/voice-text/service/new'),
+                ),
+                section(context.l10n.privacySection),
+                SolidSurface(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(Icons.phone_android_rounded, size: 20, color: c.accentLight),
+                      Icon(Icons.phone_android_rounded, size: 20, color: c.accent),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -120,15 +144,8 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                SheetOption(
-                  label: context.l10n.eraseAll,
-                  icon: Icons.delete_forever_outlined,
-                  danger: true,
-                  onTap: () => _wipe(context, ref),
-                ),
                 section(context.l10n.aboutSection),
-                Glass(
+                SolidSurface(
                   radius: FikraRadius.md,
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -145,6 +162,17 @@ class SettingsScreen extends ConsumerWidget {
                       if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
                     ],
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: FikraSpace.s32, bottom: FikraSpace.s20),
+                  child: Container(height: FikraSpace.hairline, color: c.line),
+                ),
+                SheetOption(
+                  key: const ValueKey('settings-erase-all'),
+                  label: context.l10n.eraseAll,
+                  icon: Icons.delete_forever_outlined,
+                  danger: true,
+                  onTap: () => _wipe(context, ref),
                 ),
               ],
             ),

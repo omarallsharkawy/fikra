@@ -70,19 +70,36 @@ void main() {
     });
 
     for (final brightness in Brightness.values) {
-      testWidgets('the Undo button is readable on the ${brightness.name} toast', (tester) async {
-        await show(
+      for (final tier in [GlassTier.solid, GlassTier.frosted]) {
+        testWidgets('the Undo button is readable on the solid ${brightness.name} toast (tier=${tier.name})', (
           tester,
-          (c) => showToast(c, 'linked', actionLabel: 'Undo', onAction: () {}),
-          brightness: brightness,
-        );
-        final label = find.descendant(of: find.byType(SnackBarAction), matching: find.byType(RichText));
-        final color = (tester.renderObject(label) as RenderParagraph).text.style!.color!;
-        final background = Theme.of(tester.element(label)).snackBarTheme.backgroundColor!;
-        final (a, b) = (color.computeLuminance(), background.computeLuminance());
-        final contrast = (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
-        expect(contrast, greaterThanOrEqualTo(4.5));
-      });
+        ) async {
+          await host(
+            tester,
+            brightness: brightness,
+            overrides: [glassTierProvider(false).overrideWith((ref) => tier)],
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showToast(context, 'linked', actionLabel: 'Undo', onAction: () {}),
+                child: const Text('go'),
+              ),
+            ),
+          );
+          await tester.tap(find.text('go'));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 400));
+
+          final capsule = find.byKey(const ValueKey('toast-capsule'));
+          expect(find.descendant(of: capsule, matching: find.byType(BackdropFilter)), findsNothing);
+          final label = find.descendant(of: find.byType(SnackBarAction), matching: find.byType(RichText));
+          final color = (tester.renderObject(label) as RenderParagraph).text.style!.color!;
+          final backing = (tester.widget<DecoratedBox>(capsule).decoration as BoxDecoration).color!;
+          expect(backing.a, 1.0);
+          final (a, b) = (color.computeLuminance(), backing.computeLuminance());
+          final contrast = (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
+          expect(contrast, greaterThanOrEqualTo(4.5));
+        });
+      }
     }
 
     testWidgets('with a screen reader the Undo toast waits for the next one', (tester) async {

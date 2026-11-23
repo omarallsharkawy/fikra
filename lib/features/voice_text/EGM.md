@@ -14,7 +14,7 @@ An installed saved model wins. Otherwise choose installed Egyptian, small, base,
 - Try it: file recording, explicit transcription of the selected trial clip, live partials, and last trial transcript with elapsed seconds. Shared InlineRecorder and VoicePlayer behavior is preserved; this is not automatic transcription.
 - For testing: collapsed by default with expanded semantics. It expands through AnimatedSize with FikraMotion.expand; under Reduce Motion it appears at once without AnimatedSize, because a zero-duration AnimatedSize re-dirties itself during its own layout (a debug assertion). Contains format, threads, inventory refresh, uncompressed variants, ten recent playable/deletable recordings, re-run and all five run-history entries with technical numbers. An active uncompressed model is promoted into the main list so no restored selection is hidden; other full variants stay here.
 
-Every surface uses FikraScaffold, Glass, Pressable, SheetOption/showFikraSheet, FikraButton/IconButton, the app confirmation dialog, badges, StatusBanner/showToast and existing tokens. The title/tag gap uses FikraSpace.s8. Error actions and asynchronous capture failures show a toast and scroll to the persistent error banner with existing motion tokens, including a static jump under reduced motion. After a long jump the lazy list corrects its offset by the newly inserted banner's height, so the jump repeats (at most twice) on the following frames until the list rests at the top. Millisecond values and their Latin unit use a non-breaking space and one direction isolate.
+Every surface uses FikraScaffold, SolidSurface, Pressable, SheetOption/showFikraSheet, FikraButton/IconButton, the app confirmation dialog, badges, StatusBanner/showToast and existing tokens. The title/tag gap uses FikraSpace.s8. Error actions and asynchronous capture failures show a toast and scroll to the persistent error banner with existing motion tokens, including a static jump under reduced motion. After a long jump the lazy list corrects its offset by the newly inserted banner's height, so the jump repeats (at most twice) on the following frames until the list rests at the top. Millisecond values and their Latin unit use a non-breaking space and one direction isolate.
 
 ## Native/file boundaries
 
@@ -54,8 +54,27 @@ Remote format rejection alone may use remote_audio_converter.dart: the existing 
 
 TranscriptionSource labels local models as before and remote IDs as Via <service alias>. Deleted-service aliases remain in non-secret settings until wipe; IDs do not encode model revisions. All visible text lives in ARB, including provider product labels.
 
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+
 ## Voice 2a model picker
 
 The batch model field is now ServiceModelPicker: SheetOption opens the existing sheet, with Recommended/Other/Legacy groups, per-entry Arabic notes, exact legacy shutdown warnings, supported choices and a collapsed custom-ID field. Unsupported Gemini Transcribe is text only. Groq catalog filtering follows the base host; unknown discovered IDs are never offered. liveModel is retained but not shown. Refresh uses typed or origin-bound saved keys only after service consent, sends no audio, and shows cached account-availability and checked time; failure preserves model/cache and uses StatusBanner/toast. Form controls/navigation stay locked during refresh. The Qwen form explains why discovery is unavailable.
 
 WhisperRun now redacts text and raw error strings for every diagnostic/JSONL run, including old local trials, to follow Voice 2a's no-transcript-logging rule. Text still appears in the in-memory UI result. Private saved-note runs still create no JSONL history.
+
+## Ordering & IA (redesign phase 4)
+
+`VoiceTextScreen` orders its `ListView` with `Semantics(header: true)` headings: intro (followed by `vt-error` and loading progress when present, keeping scroll-to-0 error visibility intact), everyday choices (`vsEngine`, `vtModel` when local, `vtLanguage`, `VoiceTextAuto`), a hairline divider, `vtTry` (`VoiceTextRecording`, `vt-try-transcribe`, `vtLive` with `vt-live`, and `vtResult` when present; `vtLive` and `vtResult` are `Semantics(header: true)` headings too), a hairline divider, and `vt-testing-toggle` (`For testing`, collapsed by default, immediate under `FikraMotion.reduced` without zero-duration `AnimatedSize`) at the bottom. No backend, storage or model behaviour changes.
+
+## Motion & delight (redesign phase 7)
+
+`VoiceTextRecording` wraps `vt-stop` in `RecordingPulse` (`vt-stop-pulse`) while recording; capture, storage and permission paths are unchanged.
+
+## Finishing (redesign phase 8)
+
+`VoiceTextScreen` marks its top `vtTitle` page title with `Semantics(header: true)`.

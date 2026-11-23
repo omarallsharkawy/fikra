@@ -562,9 +562,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get themeHint => '«زي الموبايل» بيخلّي شكل التطبيق فاتح أو غامق على حسب موبايلك.';
 
   @override
-  String get dataSection => 'البيانات';
-
-  @override
   String get dataStaysLocal => 'ملاحظاتك وملفاتك محفوظة على الموبايل ده بس، ومش بتتبعت لأي مكان.';
 
   @override
@@ -1262,11 +1259,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get graphSearchLimited => 'مش ظاهرة في الرسم، هنفتح الملاحظة';
 
   @override
-  String graphNavigateGroup(String group) {
-    return 'روح لمجموعة «$group» في الرسم، من غير فلترة';
-  }
-
-  @override
   String graphCollapseGroup(String group) {
     return 'اقفل مجموعة «$group»';
   }
@@ -1874,4 +1866,271 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get v2TranscriptSaved => 'التفريغ اتحفظ';
+
+  @override
+  String get linksBrowse => 'تصفّح';
+
+  @override
+  String get linksSuggestions => 'اقتراحات';
+
+  @override
+  String get linksConfirmed => 'روابط مؤكدة';
+
+  @override
+  String get linksGroups => 'المجموعات';
+
+  @override
+  String get linksSuggestedForYou => 'مقترحة ليك';
+
+  @override
+  String get searchLinksHint => 'دوّر في الروابط';
+
+  @override
+  String get linksSort => 'ترتيب الروابط';
+
+  @override
+  String get linksNewest => 'الأحدث الأول';
+
+  @override
+  String get linksMostLinked => 'اللي فيها روابط أكتر';
+
+  @override
+  String get linksOldest => 'الأقدم الأول';
+
+  @override
+  String get linksOpenGraph => 'افتح خريطة الروابط';
+
+  @override
+  String get linkNoReason => 'من غير سبب مكتوب';
+
+  @override
+  String get linksSuggestionsEmpty => 'مفيش اقتراحات دلوقتي';
+
+  @override
+  String get linksSuggestionsEmptyBody => 'لما يبقى فيه اقتراحات جديدة، هتلاقيها هنا.';
+
+  @override
+  String get linksBrowseSuggestionsBody => 'فيه اقتراحات مستنية رأيك. اقبل أي رابط عشان يظهر هنا.';
+
+  @override
+  String linksSuggestionsCount(int count) {
+    return 'اقتراحات $count';
+  }
+
+  @override
+  String linksSuggestionsCountA11y(int count) {
+    return 'اقتراحات، $count';
+  }
+
+  @override
+  String get linksFilterEmptyBody => 'مفيش حاجة هنا لسه. جرّب مجموعة أو موضوع تاني.';
+
+  @override
+  String get linkSuggestionRejected => 'الاقتراح اترفض';
+
+  @override
+  String get servicesSection => 'الخدمات المتصلة';
+
+  @override
+  String get privacySection => 'الخصوصية والبيانات';
+
+  @override
+  String get notesSort => 'ترتيب الملاحظات';
+
+  @override
+  String get headerGraph => 'الخريطة';
+
+  @override
+  String get headerSearch => 'دوّر';
+
+  @override
+  String get capsuleRecording => 'بيسجّل…';
+
+  @override
+  String get capsuleRecordingA11y => 'بيسجّل. دوس عشان تفتح التسجيل';
+
+  @override
+  String get capsuleTranscribing => 'بيفرّغ الصوت…';
+
+  @override
+  String get capsuleTranscribingA11y => 'بيفرّغ التسجيل. دوس عشان تفتح الملاحظة';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navMap => 'الخريطة';
+
+  @override
+  String get navMe => 'أنا';
+
+  @override
+  String get newIdea => 'فكرة جديدة';
+
+  @override
+  String get meIdeas => 'الأفكار';
+
+  @override
+  String get meLinks => 'الروابط';
+
+  @override
+  String get meWeekDays => 'أيام الأسبوع ده';
+
+  @override
+  String get meAppearanceLanguage => 'المظهر واللغة';
+
+  @override
+  String get meVoiceServices => 'الصوت والخدمات';
+
+  @override
+  String get welcomeEyebrow => 'فِكرة';
+
+  @override
+  String get welcomeBrandTitle => 'فِكرة';
+
+  @override
+  String get welcomeTagline => 'اكتب. اربط. اسأل.';
+
+  @override
+  String get welcomeSubtitle => 'أفكارك متوصّلة ببعض. اسأل ملاحظاتك وخد إجابات من تفكيرك.';
+
+  @override
+  String get welcomeStartWriting => 'ابدأ الكتابة';
+
+  @override
+  String get welcomeTrySample => 'جرّب بمشروع تجريبي';
+
+  @override
+  String get welcomeFooter => 'ملاحظاتك محفوظة على جهازك · بدون حساب';
+
+  @override
+  String get defaultProjectName => 'أفكاري';
+
+  @override
+  String get filterVoice => 'صوت';
+
+  @override
+  String get filterFiles => 'ملفات';
+
+  @override
+  String get badgePdf => 'PDF';
+
+  @override
+  String get filterEmptyTitle => 'مفيش ملاحظات هنا';
+
+  @override
+  String get filterEmptyBody => 'مفيش ملاحظات بالفلتر ده لسه.';
+
+  @override
+  String actionStripFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة فشل تحليلها',
+      few: '$count ملاحظات فشل تحليلها',
+      two: 'ملاحظتين فشل تحليلهم',
+      one: 'ملاحظة فشل تحليلها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripRetry => 'أعد المحاولة';
+
+  @override
+  String actionStripSuggestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رابط مقترح جديد',
+      few: '$count روابط مقترحة جديدة',
+      two: 'رابطين مقترحين جداد',
+      one: 'رابط مقترح جديد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String actionStripRewrites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صياغة مستنية رأيك',
+      few: '$count صياغات مستنية رأيك',
+      two: 'صياغتين مستنيين رأيك',
+      one: 'صياغة مستنية رأيك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripDismiss => 'اخفي التنبيه';
+
+  @override
+  String activeDaysThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوم الأسبوع ده',
+      few: '$count أيام الأسبوع ده',
+      two: 'يومين الأسبوع ده',
+      one: 'يوم واحد الأسبوع ده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linksMap => 'الخريطة';
+
+  @override
+  String get mapOthers => 'تانيين';
+
+  @override
+  String get mapShowMore => 'اعرض أكتر';
+
+  @override
+  String get mapOpen => 'افتح';
+
+  @override
+  String mapNotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة',
+      many: '$count ملاحظة',
+      few: '$count ملاحظات',
+      two: 'ملاحظتين',
+      one: 'ملاحظة واحدة',
+      zero: 'مفيش ملاحظات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mapConnections(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رابط',
+      many: '$count رابط',
+      few: '$count روابط',
+      two: 'رابطين',
+      one: 'رابط واحد',
+      zero: 'مفيش روابط',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mapCanvasSummary(int total, int omitted) {
+    return 'خريطة الملاحظات، الإجمالي: $total، مش ظاهر: $omitted';
+  }
+
+  @override
+  String mapTotals(int total, int confirmed, int suggestions, int omitted) {
+    return 'ملاحظات: $total · روابط: $confirmed · اقتراحات: $suggestions · مش ظاهر: $omitted';
+  }
+
+  @override
+  String get mapPanHint => 'اسحب عشان تشوف باقي الخريطة';
 }

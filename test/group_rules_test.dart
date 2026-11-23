@@ -17,6 +17,8 @@ void main() {
   Future<NoteGroup> makeGroup(WidgetTester tester, FikraDatabase db, Project p, String name, {String? parent}) =>
       pumpFuture(tester, () => LocalGroupsRepository(db).create(p.id, name, parentId: parent));
   Future<void> options(WidgetTester tester, NoteGroup g) async {
+    await tester.ensureVisible(key('group-filter-${g.id}'));
+    await tester.pump();
     await tester.longPress(key('group-filter-${g.id}'));
     await settle(tester, key('group-delete'));
   }

@@ -6,30 +6,33 @@ import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/theme/fikra_theme.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderRepaintBoundary, SemanticsAction;
+import 'package:flutter/rendering.dart' show SemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('a labelled Pressable exposes a tap action to TalkBack', (tester) async {
     final semantics = tester.ensureSemantics();
-    var taps = 0;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Center(
-          child: Pressable(
-            onTap: () => taps++,
-            semanticLabel: lookupAppLocalizations(const Locale('ar')).save,
-            child: const SizedBox(width: 48, height: 48),
+    try {
+      var taps = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Center(
+            child: Pressable(
+              onTap: () => taps++,
+              semanticLabel: lookupAppLocalizations(const Locale('ar')).save,
+              child: const SizedBox(width: 48, height: 48),
+            ),
           ),
         ),
-      ),
-    );
-    final node = tester.getSemantics(find.bySemanticsLabel(lookupAppLocalizations(const Locale('ar')).save));
-    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-    tester.semantics.tap(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).save));
-    expect(taps, 1);
-    semantics.dispose();
+      );
+      final node = tester.getSemantics(find.bySemanticsLabel(lookupAppLocalizations(const Locale('ar')).save));
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      tester.semantics.tap(find.semantics.byLabel(lookupAppLocalizations(const Locale('ar')).save));
+      expect(taps, 1);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('switcher: the outgoing child takes no taps during its exit', (tester) async {
@@ -151,16 +154,19 @@ void main() {
 
     index.value = 1;
     await tester.pump();
-    expect(find.text('first: 1'), findsNothing); // also during the entrance
+    expect(find.text('first: 1'), findsOneWidget); // brief outgoing fade; already isolated
     expect(find.text('second: 0'), findsOneWidget);
     final hiddenContext = tester.element(find.text('first: 1', skipOffstage: false));
     expect(TickerMode.valuesOf(hiddenContext).enabled, isFalse);
     expect(Focus.of(hiddenContext).canRequestFocus, isFalse);
     final semantics = tester.ensureSemantics();
-    await tester.pump(const Duration(milliseconds: 90));
-    expect(find.bySemanticsLabel('first: 1'), findsNothing);
-    expect(find.bySemanticsLabel('second: 0'), findsOneWidget);
-    semantics.dispose();
+    try {
+      await tester.pump(const Duration(milliseconds: 90));
+      expect(find.semantics.byLabel('first: 1'), findsNothing);
+      expect(find.semantics.byLabel('second: 0'), findsOneWidget);
+    } finally {
+      semantics.dispose();
+    }
     await tester.pumpAndSettle();
 
     index.value = 0;
@@ -170,103 +176,41 @@ void main() {
     expect(tester.binding.transientCallbackCount, 0);
   });
 
-  // The tab fade is a background veil over the new tab, not an opacity layer
-  // or a scale on the tab itself (both were too slow on GLES devices).
-  double? veilOpacity(WidgetTester tester) {
-    final veil = find.descendant(of: find.byType(FikraBranchContainer), matching: find.byType(TabVeil));
-    return veil.evaluate().isEmpty ? null : tester.widget<TabVeil>(veil).opacity;
-  }
-
-  testWidgets('the veil lines up with the shell background, even under a shared transform', (tester) async {
-    tester.view.physicalSize = const Size(200, 400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    const gradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [Color(0xFF000000), Color(0xFFFFFFFF)],
-    );
-    final capture = GlobalKey();
-    final background = GlobalKey();
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.rtl,
-        child: RepaintBoundary(
-          key: capture,
-          // Something (a route transition, say) moves and scales the whole shell.
-          child: Transform(
-            transform: Matrix4.translationValues(0, 30, 0)..scaleByDouble(0.9, 0.9, 1, 1),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: DecoratedBox(
-                    key: background,
-                    decoration: const BoxDecoration(gradient: gradient),
-                  ),
-                ),
-                // A tab body below a status bar, with red content under the veil.
-                Positioned(
-                  top: 100,
-                  left: 0,
-                  right: 0,
-                  height: 100,
-                  child: ColoredBox(
-                    color: const Color(0xFFFF0000),
-                    child: TabVeil(opacity: 1, gradient: gradient, anchor: background, screen: const Size(200, 400)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    final bytes = (await tester.runAsync(() async {
-      final image = await (capture.currentContext!.findRenderObject()! as RenderRepaintBoundary).toImage();
-      return image.toByteData();
-    }))!;
-    int pixel(int x, int y) => bytes.getUint8((y * 200 + x) * 4); // red channel
-    // Local y = 150 is drawn at 30 + 0.9 * 150 = 165. There the background is
-    // 37.5 % white. A veil stretched over its own box would be 50 %; one
-    // anchored to the view origin would be ~46 %.
-    expect(pixel(90, 165), closeTo(0.375 * 255, 4));
-    // No seam at the veil's top (drawn at y = 120) or bottom (y = 210).
-    expect(pixel(90, 122), closeTo(pixel(90, 118), 4));
-    expect(pixel(90, 208), closeTo(pixel(90, 212), 4));
-  });
-
   for (final reduced in [false, true]) {
-    testWidgets('tab change fades through a veil with no scale or opacity layer (reduced: $reduced)', (tester) async {
+    testWidgets('branch opacity/scale ramps and reduces to one frame ($reduced)', (tester) async {
       final index = ValueNotifier(0);
       addTearDown(index.dispose);
       await tester.pumpWidget(
         MaterialApp(
-          theme: buildFikraTheme(Brightness.dark),
           home: MediaQuery(
             data: MediaQueryData(disableAnimations: reduced),
             child: ValueListenableBuilder(
               valueListenable: index,
-              builder: (context, value, _) =>
+              builder: (_, value, _) =>
                   FikraBranchContainer(index: value, children: const [Text('first'), Text('second')]),
             ),
           ),
         ),
       );
-      expect(veilOpacity(tester), isNull);
+      double opacity(int i) => tester.widget<FadeTransition>(find.byKey(ValueKey('branch-opacity-$i'))).opacity.value;
+      double scale(int i) => tester.widget<ScaleTransition>(find.byKey(ValueKey('branch-scale-$i'))).scale.value;
       index.value = 1;
       await tester.pump();
-      expect(veilOpacity(tester), closeTo(1, 0.01)); // starts as the background
-      final total = reduced ? FikraMotion.reducedFade : FikraMotion.enter;
-      await tester.pump(total ~/ 2);
-      final mid = veilOpacity(tester)!;
-      expect(mid, inExclusiveRange(0.0, 1.0));
-      if (reduced) expect(mid, closeTo(0.5, 0.01)); // linear
-      for (final type in [ScaleTransition, FadeTransition, Opacity]) {
-        expect(find.descendant(of: find.byType(FikraBranchContainer), matching: find.byType(type)), findsNothing);
+      expect(opacity(1), reduced ? 1 : 0);
+      expect(scale(1), reduced ? 1 : .98);
+      if (!reduced) {
+        await tester.pump(const Duration(milliseconds: 55));
+        expect(opacity(1), inExclusiveRange(0.0, 1.0));
+        expect(opacity(0), inExclusiveRange(0.0, 1.0));
+        expect(scale(1), inExclusiveRange(.98, 1.0));
+        await tester.pump(const Duration(milliseconds: 60));
+        expect(find.text('first'), findsNothing);
+        expect(opacity(1), lessThan(1));
+        await tester.pump(const Duration(milliseconds: 120));
       }
-      await tester.pump(total ~/ 2);
-      await tester.pump(const Duration(milliseconds: 16)); // one frame for the ticker to stop
-      expect(veilOpacity(tester), isNull);
+      expect(opacity(1), 1);
+      expect(scale(1), 1);
+      expect(find.text('first'), findsNothing);
       expect(tester.binding.transientCallbackCount, 0);
     });
   }

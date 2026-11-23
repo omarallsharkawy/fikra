@@ -43,6 +43,23 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
     }
   }
 
+  /// Accept or reject, with the shared toast and Undo. The pair's actions are
+  /// off until it is done.
+  Future<void> _change(NoteLinkEntry entry, {required bool accept}) async {
+    final pair = _pair(entry.other);
+    if (!_busy.add(pair)) return;
+    setState(() {});
+    await changeSuggestedPair(
+      context,
+      a: entry.link.sourceId,
+      b: entry.link.targetId,
+      accept: accept,
+      expectedProjectId: entry.link.projectId,
+    );
+    _busy.remove(pair);
+    if (mounted) setState(() {});
+  }
+
   void _open(Note other) => _leave(() => context.push('/note/${other.id}', extra: other));
 
   void _link() => _leave(() => showLinkPicker(context, source: widget.note));
@@ -95,10 +112,8 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
                     busy: _busy.contains(_pair(entry.other)),
                     onOpen: () => _open(entry.other),
                     onOptions: () => _options(entry),
-                    onAccept: () =>
-                        _run(context, _pair(entry.other), () => changeLinkPair(_linksRepo, entry.link, accept: true)),
-                    onReject: () =>
-                        _run(context, _pair(entry.other), () => changeLinkPair(_linksRepo, entry.link, accept: false)),
+                    onAccept: () => _change(entry, accept: true),
+                    onReject: () => _change(entry, accept: false),
                   ),
               ],
             );

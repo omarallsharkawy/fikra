@@ -1,10 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import '../motion/pressable.dart';
+import '../motion/rolling_text.dart';
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 class FikraChip extends StatelessWidget {
   const FikraChip({super.key, required this.label, this.selected = false, this.onTap});
@@ -19,20 +22,20 @@ class FikraChip extends StatelessWidget {
       selected: onTap == null ? null : selected,
       minTarget: onTap != null,
       child: Container(
-        height: onTap == null ? 30 : 36,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        constraints: BoxConstraints(minHeight: onTap == null ? 30 : 36),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          gradient: selected ? context.colors.selectedGradient : null,
-          color: selected ? null : context.colors.glassHighlight,
+          color: selected ? context.colors.brandLime : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
-          border: selected ? null : Border.all(color: context.colors.border, width: FikraSpace.hairline),
+          border: selected ? null : Border.all(color: context.colors.line, width: FikraSpace.hairline),
         ),
         child: Center(
           widthFactor: 1,
+          heightFactor: 1,
           child: Text(
             label,
             style: context.text.chip.copyWith(
-              color: selected ? context.colors.textOnSelected : context.colors.textPrimary,
+              color: selected ? context.colors.onBrandLime : context.colors.textPrimary,
             ),
           ),
         ),
@@ -42,12 +45,28 @@ class FikraChip extends StatelessWidget {
 }
 
 /// Segmented control: the selected pill slides with the smooth spring
-/// (instantly under Remove animations). Each segment is a 48 dp target.
+/// (instantly under Remove animations). Each segment is at least a 48 dp target.
 class SegmentedPill extends StatefulWidget {
-  const SegmentedPill({super.key, required this.options, required this.selected, required this.onChanged});
+  const SegmentedPill({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+    this.semanticLabels,
+    this.segmentKeys,
+    this.height,
+  });
   final List<String> options;
   final int selected;
   final ValueChanged<int> onChanged;
+
+  /// Read by TalkBack instead of the visible option text (e.g. "Suggestions, 3").
+  final List<String>? semanticLabels;
+  final List<Key>? segmentKeys;
+
+  /// Fixed outer height when a floating dock reserves an exact extent; when
+  /// omitted, defaults to 58 dp at 1.0x and grows up to two lines at large text.
+  final double? height;
 
   @override
   State<SegmentedPill> createState() => _SegmentedPillState();
@@ -76,15 +95,21 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    final fixedHeight = widget.height;
+    return SolidSurface(
       radius: FikraRadius.full,
       padding: const EdgeInsets.all(4),
-      height: Pressable.minTargetSize + 10,
+      height: fixedHeight,
       child: LayoutBuilder(
         builder: (context, c) {
           final w = c.maxWidth / widget.options.length;
           final rtl = Directionality.of(context) == TextDirection.rtl;
-          return Stack(
+          final textScaler = MediaQuery.textScalerOf(context);
+          final canWrap = fixedHeight == null && textScaler.scale(1.0) > 1.0;
+          final horizontalPad = canWrap ? 4.0 : 8.0;
+          final maxLines = canWrap ? 2 : 1;
+
+          Widget stack = Stack(
             children: [
               AnimatedBuilder(
                 animation: _c,
@@ -96,8 +121,8 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                   width: w,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: context.colors.selectedGradient,
-                      borderRadius: BorderRadius.all(Radius.circular(FikraRadius.full)),
+                      color: context.colors.brandLime,
+                      borderRadius: const BorderRadius.all(Radius.circular(FikraRadius.full)),
                     ),
                   ),
                 ),
@@ -109,20 +134,31 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
                     for (var i = 0; i < widget.options.length; i++)
                       Expanded(
                         child: Semantics(
+                          key: widget.segmentKeys?[i],
                           button: true,
                           selected: i == widget.selected,
+                          label: widget.semanticLabels?[i],
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => widget.onChanged(i),
                             child: Center(
-                              child: Text(
-                                widget.options[i],
-                                // Follows the pill, so a label is never light-on-light mid-slide.
-                                style: context.text.chip.copyWith(
-                                  color: Color.lerp(
-                                    context.colors.textSecondary,
-                                    context.colors.textOnSelected,
-                                    (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
+                              child: ExcludeSemantics(
+                                excluding: widget.semanticLabels != null,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: horizontalPad),
+                                  child: RollingText(
+                                    widget.options[i],
+                                    textAlign: canWrap ? TextAlign.center : null,
+                                    maxLines: maxLines,
+                                    overflow: TextOverflow.ellipsis,
+                                    // Follows the pill, so a label is never light-on-light mid-slide.
+                                    style: context.text.chip.copyWith(
+                                      color: Color.lerp(
+                                        context.colors.textSecondary,
+                                        context.colors.onBrandLime,
+                                        (1 - (_c.value - i).abs()).clamp(0.0, 1.0),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -135,6 +171,29 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
               ),
             ],
           );
+
+          if (fixedHeight != null) return stack;
+          final minInner = math.max(Pressable.minTargetSize, Pressable.minTargetSize + 2 - 2 * FikraSpace.hairline);
+          var innerHeight = minInner;
+          if (canWrap) {
+            final labelStyle = DefaultTextStyle.of(context).style.merge(context.text.chip);
+            final locale = Localizations.maybeLocaleOf(context);
+            final maxTextWidth = math.max(0.0, w - horizontalPad * 2);
+            for (final opt in widget.options) {
+              final painter = TextPainter(
+                text: TextSpan(text: opt, style: labelStyle),
+                textAlign: TextAlign.center,
+                textDirection: Directionality.of(context),
+                textScaler: textScaler,
+                locale: locale,
+                maxLines: 2,
+                ellipsis: '…',
+              )..layout(maxWidth: maxTextWidth);
+              innerHeight = math.max(innerHeight, painter.height.ceilToDouble() + 12);
+              painter.dispose();
+            }
+          }
+          return SizedBox(height: innerHeight, child: stack);
         },
       ),
     );

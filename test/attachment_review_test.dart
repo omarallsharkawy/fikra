@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fikra/app/providers.dart';
+import 'package:fikra/core/motion/motion.dart';
 import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/widgets/fikra_widgets.dart';
 import 'package:fikra/core/widgets/voice_player.dart';
@@ -72,7 +73,7 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
     final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     final p = await pumpFuture(tester, () => LocalProjectsRepository(db).create('project'));
     await pumpUntil(tester, find.text('project'));
     return p;
@@ -106,6 +107,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(save);
     await waitFor(tester, () => !add.saving);
+    await tester.pump(FikraMotion.saveTick);
     final all = await pumpFuture(tester, () => LocalNotesRepository(db).notesOf(p.id));
     return all.singleWhere((n) => !before.any((old) => old.id == n.id));
   }
@@ -252,6 +254,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(save);
     await waitFor(tester, () => !add.saving);
+    await tester.pump(FikraMotion.saveTick);
     final all = await pumpFuture(tester, () => LocalNotesRepository(db).notesOf(p.id));
     expect(all, hasLength(2));
     expect(all.any((n) => n.title == 'draft'), isTrue);
@@ -422,11 +425,12 @@ class CountingEdits extends LocalNotesRepository {
     required String title,
     required String text,
     List<AttachmentDraft>? attachments,
+    NoteEditBasis? basis,
   }) async {
     calls++;
     await gate;
     try {
-      await super.edit(id, title: title, text: text, attachments: attachments);
+      await super.edit(id, title: title, text: text, attachments: attachments, basis: basis);
     } finally {
       completed++;
     }

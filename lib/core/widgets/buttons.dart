@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../motion/pressable.dart';
 import '../theme/tokens.dart';
 
-import 'glass.dart';
+import 'solid_surface.dart';
 
 enum FikraButtonStyle { primary, secondary, danger }
 
@@ -60,20 +60,10 @@ class FikraButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !loading;
-    final (Gradient? gradient, Color? color, Color fg, TextStyle text) = switch (style) {
-      FikraButtonStyle.primary => (
-        context.colors.primaryGradient,
-        null,
-        context.colors.textOnLight,
-        context.text.button,
-      ),
-      FikraButtonStyle.secondary => (
-        context.colors.glassGradient,
-        null,
-        context.colors.textPrimary,
-        context.text.section,
-      ),
-      FikraButtonStyle.danger => (null, context.colors.dangerBg, context.colors.danger, context.text.section),
+    final (Color color, Color fg, TextStyle text) = switch (style) {
+      FikraButtonStyle.primary => (context.colors.brandLime, context.colors.onBrandLime, context.text.button),
+      FikraButtonStyle.secondary => (context.colors.surface, context.colors.textPrimary, context.text.section),
+      FikraButtonStyle.danger => (context.colors.dangerBg, context.colors.danger, context.text.section),
     };
     final content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -89,7 +79,7 @@ class FikraButton extends StatelessWidget {
             label,
             style: text.copyWith(color: fg),
             overflow: growForText ? TextOverflow.visible : TextOverflow.ellipsis,
-            maxLines: maxLines,
+            maxLines: growForText ? maxLines : (maxLines ?? 1),
             textAlign: TextAlign.center,
           ),
         ),
@@ -101,17 +91,13 @@ class FikraButton extends StatelessWidget {
         onTap: enabled ? onPressed : null,
         semanticLabel: label,
         child: Container(
-          height: growForText ? null : FikraSpace.button,
-          constraints: growForText ? const BoxConstraints(minHeight: FikraSpace.button) : null,
+          constraints: const BoxConstraints(minHeight: FikraSpace.button),
           width: expand ? double.infinity : null,
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 0),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 6),
           decoration: BoxDecoration(
-            gradient: gradient,
             color: color,
-            borderRadius: BorderRadius.circular(FikraRadius.full),
-            border: style == FikraButtonStyle.secondary
-                ? Border.all(color: context.colors.border, width: FikraSpace.hairline)
-                : null,
+            borderRadius: BorderRadius.circular(FikraRadius.md),
+            border: style == FikraButtonStyle.secondary ? Border.all(color: context.colors.line, width: 1) : null,
           ),
           // `alignment` would make the container fill the available width,
           // so compact buttons hug their content instead.
@@ -123,24 +109,14 @@ class FikraButton extends StatelessWidget {
   }
 }
 
-/// Round glass icon button (back, more, zoom…). [label] is read by screen
+/// Round solid icon button (back, more, zoom…). [label] is read by screen
 /// readers; the hit area is at least 48 dp whatever the visual [size].
 class FikraIconButton extends StatelessWidget {
-  const FikraIconButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.size = 44,
-    this.solid = false,
-  });
+  const FikraIconButton({super.key, required this.icon, required this.label, required this.onTap, this.size = 44});
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
   final double size;
-
-  /// Opaque background, for buttons floating over content.
-  final bool solid;
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +124,11 @@ class FikraIconButton extends StatelessWidget {
       onTap: onTap,
       semanticLabel: label,
       minTarget: true,
-      child: Glass(
+      child: SolidSurface(
         radius: FikraRadius.full,
         width: size,
         height: size,
         padding: EdgeInsets.zero,
-        color: solid ? context.colors.glass : null,
         child: Icon(icon, size: size * 0.48),
       ),
     );

@@ -25,7 +25,7 @@ void main() {
       opener: (path) async => throw StateError('platform opener failed'),
       (tester, db) async {
         final l10n = lookupAppLocalizations(const Locale('ar'));
-        await pumpUntil(tester, find.text(l10n.startNewProject));
+        await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
         final note = await pumpFuture(tester, () async {
           final project = await LocalProjectsRepository(db).create('test');
           return LocalNotesRepository(db).create(

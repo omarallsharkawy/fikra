@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/fikra_widgets.dart';
 import '../../data/groups_repository.dart';
 import '../../data/local/database.dart';
 
@@ -15,13 +16,13 @@ final groupsOfProjectProvider = StreamProvider.autoDispose.family<List<NoteGroup
 /// The stored colours (0..3); null is "no colour".
 const groupColors = [0, 1, 2, 3];
 
-/// The calm shade for a stored colour, from existing tokens. Only ever a
-/// marker next to the group's name, never the only signal.
+/// The calm, muted hue for a stored colour (blue, sage, sand, gray). Only ever
+/// a marker next to the group's name, never the only signal.
 Color? groupColor(BuildContext context, int? color) => switch (color) {
-  0 => context.colors.accentLight,
-  1 => context.colors.success,
-  2 => context.colors.warning,
-  3 => context.colors.textMeta,
+  0 => context.colors.groupBlue,
+  1 => context.colors.groupSage,
+  2 => context.colors.groupSand,
+  3 => context.colors.groupGray,
   _ => null,
 };
 
@@ -81,9 +82,7 @@ Map<String, int> groupNoteCounts(Iterable<Note> notes) {
 Future<bool> runGroupAction(BuildContext context, Future<void> Function() action, {String? success}) async {
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.maybeOf(context);
-  void toast(String m) => messenger
-    ?..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(m), duration: const Duration(seconds: 3)));
+  void toast(String m) => showMessengerToast(messenger, m, measureContext: context.mounted ? context : null);
   try {
     await action();
     if (success != null) toast(success);
@@ -128,7 +127,7 @@ class GroupTag extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(FikraRadius.full),
-          border: Border.all(color: groupColor(context, group.color) ?? context.colors.border),
+          border: Border.all(color: groupColor(context, group.color) ?? context.colors.line),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -140,7 +139,7 @@ class GroupTag extends StatelessWidget {
                 group.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 11.5),
+                style: context.text.meta.copyWith(color: context.colors.textSecondary),
               ),
             ),
           ],

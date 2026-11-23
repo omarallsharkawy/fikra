@@ -567,9 +567,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeHint => '\"System\" follows your phone\'s light or dark mode.';
 
   @override
-  String get dataSection => 'Data';
-
-  @override
   String get dataStaysLocal => 'Your notes and files are stored only on this phone and are never sent anywhere.';
 
   @override
@@ -1216,11 +1213,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get graphSearchLimited => 'Hidden by graph limits. Opening the note.';
 
   @override
-  String graphNavigateGroup(String group) {
-    return 'Go to group $group in the graph, without filtering';
-  }
-
-  @override
   String graphCollapseGroup(String group) {
     return 'Collapse group $group';
   }
@@ -1829,4 +1821,246 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v2TranscriptSaved => 'Transcript saved';
+
+  @override
+  String get linksBrowse => 'Browse';
+
+  @override
+  String get linksSuggestions => 'Suggestions';
+
+  @override
+  String get linksConfirmed => 'Confirmed links';
+
+  @override
+  String get linksGroups => 'Groups';
+
+  @override
+  String get linksSuggestedForYou => 'Suggested for you';
+
+  @override
+  String get searchLinksHint => 'Search links';
+
+  @override
+  String get linksSort => 'Sort links';
+
+  @override
+  String get linksNewest => 'Newest first';
+
+  @override
+  String get linksMostLinked => 'Most links first';
+
+  @override
+  String get linksOldest => 'Oldest first';
+
+  @override
+  String get linksOpenGraph => 'Open links graph';
+
+  @override
+  String get linkNoReason => 'No reason added';
+
+  @override
+  String get linksSuggestionsEmpty => 'No suggestions right now';
+
+  @override
+  String get linksSuggestionsEmptyBody => 'New suggestions will appear here.';
+
+  @override
+  String get linksBrowseSuggestionsBody => 'Some suggestions are waiting for you. Accept a link to see it here.';
+
+  @override
+  String linksSuggestionsCount(int count) {
+    return 'Suggestions $count';
+  }
+
+  @override
+  String linksSuggestionsCountA11y(int count) {
+    return 'Suggestions, $count';
+  }
+
+  @override
+  String get linksFilterEmptyBody => 'Nothing here yet. Try another group or topic.';
+
+  @override
+  String get linkSuggestionRejected => 'Suggestion rejected';
+
+  @override
+  String get servicesSection => 'Connected services';
+
+  @override
+  String get privacySection => 'Privacy & data';
+
+  @override
+  String get notesSort => 'Sort notes';
+
+  @override
+  String get headerGraph => 'Graph';
+
+  @override
+  String get headerSearch => 'Search';
+
+  @override
+  String get capsuleRecording => 'Recording…';
+
+  @override
+  String get capsuleRecordingA11y => 'Recording. Tap to open recording';
+
+  @override
+  String get capsuleTranscribing => 'Transcribing…';
+
+  @override
+  String get capsuleTranscribingA11y => 'Transcribing recording. Tap to open note';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMap => 'Map';
+
+  @override
+  String get navMe => 'Me';
+
+  @override
+  String get newIdea => 'New idea';
+
+  @override
+  String get meIdeas => 'Ideas';
+
+  @override
+  String get meLinks => 'Links';
+
+  @override
+  String get meWeekDays => 'Days this week';
+
+  @override
+  String get meAppearanceLanguage => 'Appearance & language';
+
+  @override
+  String get meVoiceServices => 'Voice & services';
+
+  @override
+  String get welcomeEyebrow => 'فِكرة';
+
+  @override
+  String get welcomeBrandTitle => 'Fikrah';
+
+  @override
+  String get welcomeTagline => 'Write it. Link it. Ask it.';
+
+  @override
+  String get welcomeSubtitle =>
+      'Your ideas, connected. Ask your notes anything and get answers from your own thinking.';
+
+  @override
+  String get welcomeStartWriting => 'Start writing';
+
+  @override
+  String get welcomeTrySample => 'Try a sample project';
+
+  @override
+  String get welcomeFooter => 'Your notes stay on your device · no account';
+
+  @override
+  String get defaultProjectName => 'My ideas';
+
+  @override
+  String get filterVoice => 'Voice';
+
+  @override
+  String get filterFiles => 'Files';
+
+  @override
+  String get badgePdf => 'PDF';
+
+  @override
+  String get filterEmptyTitle => 'No matching notes';
+
+  @override
+  String get filterEmptyBody => 'No notes match this filter yet.';
+
+  @override
+  String actionStripFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes failed to analyze',
+      one: '1 note failed to analyze',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripRetry => 'Retry';
+
+  @override
+  String actionStripSuggestions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new link suggestions',
+      one: '1 new link suggestion',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String actionStripRewrites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rewrites waiting for review',
+      one: '1 rewrite waiting for review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actionStripDismiss => 'Dismiss';
+
+  @override
+  String activeDaysThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days this week',
+      one: '1 day this week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linksMap => 'Map';
+
+  @override
+  String get mapOthers => 'Others';
+
+  @override
+  String get mapShowMore => 'Show more';
+
+  @override
+  String get mapOpen => 'Open';
+
+  @override
+  String mapNotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count notes', one: '1 note');
+    return '$_temp0';
+  }
+
+  @override
+  String mapConnections(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count connections', one: '1 connection');
+    return '$_temp0';
+  }
+
+  @override
+  String mapCanvasSummary(int total, int omitted) {
+    return 'Notes map, total: $total, omitted: $omitted';
+  }
+
+  @override
+  String mapTotals(int total, int confirmed, int suggestions, int omitted) {
+    return 'Notes: $total · Links: $confirmed · Suggestions: $suggestions · Omitted: $omitted';
+  }
+
+  @override
+  String get mapPanHint => 'Pan to explore the map';
 }

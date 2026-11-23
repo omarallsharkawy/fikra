@@ -46,7 +46,7 @@ void main() {
             await saveScreenshot(tester, '${locale.languageCode}/${brightness.name}/transcription_$name');
           }
 
-          await pumpUntil(tester, find.text(l.startNewProject));
+          await pumpUntil(tester, find.text(l.welcomeStartWriting));
           final fixture = await pumpFuture(tester, () async {
             final p = await LocalProjectsRepository(db).create(ar ? 'أفكار صوتية' : 'Voice ideas');
             final repo = LocalNotesRepository(db);
@@ -96,7 +96,7 @@ void main() {
           await capture('failure');
           tester.element(find.byType(NoteDetailsScreen)).pop();
           await tester.pump(const Duration(milliseconds: 600));
-          await tester.tap(Tabs.finder(Tabs.add));
+          await tester.tap(Tabs.addButton);
           await pumpUntil(tester, find.byType(AddScreen));
           final editor = tester.state(find.byType(AddScreen)) as AttachmentEditing<AddScreen>;
           editor.updateDraft(

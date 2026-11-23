@@ -34,6 +34,7 @@ import '../l10n/app_localizations.dart';
 import 'app_config.dart';
 
 export 'app_config.dart' show isDemo;
+export 'activity_providers.dart';
 export '../data/settings_repository.dart' show AppTheme, AppLanguage, WipeFilesException;
 
 // ---------------------------------------------------------------- services
@@ -245,26 +246,6 @@ final microphonePermissionProvider = Provider<Future<PermissionStatus> Function(
   (ref) =>
       () => Permission.microphone.request(),
 );
-
-class RecordingActivity extends Notifier<bool> {
-  Object? _owner;
-  @override
-  bool build() => false;
-  bool claim(Object owner) {
-    if (_owner != null) return false;
-    _owner = owner;
-    state = true;
-    return true;
-  }
-
-  void release(Object owner) {
-    if (!identical(_owner, owner)) return;
-    _owner = null;
-    if (ref.mounted) state = false;
-  }
-}
-
-final recordingActiveProvider = NotifierProvider<RecordingActivity, bool>(RecordingActivity.new);
 
 final transcriptCorrectionsProvider = Provider<TranscriptCorrections>(
   (ref) => TranscriptCorrections(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/motion/pressable.dart';
+import '../../core/motion/rolling_text.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
@@ -171,16 +172,16 @@ class GroupColorPicker extends StatelessWidget {
                   height: 34,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: groupColor(context, c),
+                    color: groupColor(context, c) ?? context.colors.chip,
                     border: Border.all(
-                      color: c == selected ? context.colors.textPrimary : context.colors.border,
+                      color: c == selected ? context.colors.textPrimary : context.colors.line,
                       width: c == selected ? 2.5 : 1,
                     ),
                   ),
                   child: c == null
                       ? Icon(Icons.block_rounded, size: 18, color: context.colors.textSecondary)
                       : c == selected
-                      ? Icon(Icons.check_rounded, size: 18, color: context.colors.screen)
+                      ? Icon(Icons.check_rounded, size: 18, color: _groupCheckColor(context, c))
                       : null,
                 ),
               ),
@@ -189,6 +190,19 @@ class GroupColorPicker extends StatelessWidget {
       ],
     );
   }
+}
+
+// The neutral shade can be lighter or darker than the canvas in either theme.
+Color _groupCheckColor(BuildContext context, int color) {
+  final bg = groupColor(context, color)!.computeLuminance();
+  double ratio(Color fg) {
+    final value = fg.computeLuminance();
+    return value > bg ? (value + .05) / (bg + .05) : (bg + .05) / (value + .05);
+  }
+
+  final body = context.colors.textPrimary;
+  final canvas = context.colors.canvas;
+  return ratio(body) >= ratio(canvas) ? body : canvas;
 }
 
 /// A selectable tag that grows with large text instead of clipping, with an
@@ -217,7 +231,7 @@ class ChoiceTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = selected ? context.colors.textOnSelected : context.colors.textPrimary;
+    final fg = selected ? context.colors.onBrandLime : context.colors.textPrimary;
     return Pressable(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -226,12 +240,11 @@ class ChoiceTag extends StatelessWidget {
       minTarget: true,
       child: Container(
         constraints: const BoxConstraints(minHeight: 36),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         decoration: BoxDecoration(
-          gradient: selected ? context.colors.selectedGradient : null,
-          color: selected ? null : context.colors.glassHighlight,
+          color: selected ? context.colors.brandLime : context.colors.chip,
           borderRadius: BorderRadius.circular(FikraRadius.full),
-          border: selected ? null : Border.all(color: context.colors.border, width: FikraSpace.hairline),
+          border: selected ? null : Border.all(color: context.colors.line, width: FikraSpace.hairline),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -239,11 +252,11 @@ class ChoiceTag extends StatelessWidget {
             if (selected) ...[Icon(Icons.check_rounded, size: 16, color: fg), const SizedBox(width: 4)],
             if (color != null) ...[GroupDot(color: color), const SizedBox(width: 6)],
             Flexible(
-              child: Text(
+              child: RollingText(
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: context.text.chip.copyWith(color: fg),
+                style: context.text.chip.copyWith(color: fg, fontWeight: selected ? FontWeight.w700 : null),
               ),
             ),
           ],

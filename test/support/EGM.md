@@ -29,3 +29,29 @@ Phase 3 fake_external_transcription.dart supplies MemoryServiceKeys, FakeTranscr
 ## Voice 2a
 
 voice2_fixture.dart seeds realistic machine/correction/copy-marker/revision states and provides keyed bottom-sheet scrolling with an explicit vertical scrollable. Screen scrolling keeps the existing keyed outer-page helper. All sheet-opening tests pump the slide before interacting. New DB-backed editor tests await processor work before the existing pumpFuture database close.
+
+## Floating navigation (redesign phase 2)
+
+Tabs.finder supports four visible indices: notes=0 (Home), links=1 (Map), ask=2, me=3. Add is
+Tabs.addButton (nav-add), never a tab index. All existing Add callers are updated.
+The harness optionally accepts glassTier for deterministic frosted screenshots;
+production automatic tier selection is unchanged. Existing DB/resource teardown
+remains inside the test zone, with no new close-after-unmount awaits.
+
+## Links library (redesign phase 3)
+
+links_library_data supplies pure projection factories and the 5,000-note/9,998-pair diagnostic shared by the unit test and direct cached-Dart timing. links_library_fixture seeds a real app project with parent/child groups, topics, confirmed chains and three suggestions, supports localized screenshot content, exposes unique vertical scroll/segment/route helpers and LibrarySpy (per-operation gate/failure/call counts and a completion future). Tests own gates through addTearDown and wait for writes before teardown. No harness cleanup or native mocks change.
+
+measureLargeLibrary is the exact diagnostic body called by links_index_test. It times the notes half, the links half (cold, and the median of five link-write re-runs) and one search. Latest host run: ~40 ms cold total (notes ~19 ms, links ~20 ms), ~8 ms per link write, ~4.5 ms search, for 5,000 notes and 9,998 pair rows producing 5,000 Browse rows and 4,999 suggestions. Projection creation is outside the timer. Direct Dart smoke assertions for dedupe/project/dismissal/count/search/cache rules passed; no Flutter suite result is claimed.
+
+## Motion & delight (redesign phase 7)
+
+`fikraTest` accepts optional `glassPreview` (enabling `glassPreviewEnabledProvider`), `saveScreenshot` accepts optional `settle` (`Duration`, default 400 ms; `Duration.zero` captures mid-animation frames), and `RecordingFake` accepts optional `amplitudeSequence` for deterministic live waveform tests and screenshots.
+
+## Finishing (redesign phase 8)
+
+`fikraTest` accepts optional `double? textScale` (setting `tester.platformDispatcher.textScaleFactorTestValue` and clearing it in `addTearDown`). `a11y_fixture.dart` provides `seedA11yApp` and `visitAllMainScreensAndSheets`, shared across `phase8_accessibility_test.dart`, `phase8_large_text_test.dart` and `screenshots/phase8_finishing_test.dart`.
+
+LibrarySpy forwards expectedProjectId through gated pair commands and returns PairCommandResult, preserving PairCommandStale as a result without Undo. MemoryServiceKeys treats map keys as secure slots for the credential publication tests.
+
+`seedLibrary(browse: false)` starts in Map. `tapMapNode` converts world coordinates to a painted tap and settles the level transition. `librarySegment` takes a named `LinksLibrarySegment` value and taps its widget key.

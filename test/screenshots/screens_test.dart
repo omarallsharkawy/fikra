@@ -11,7 +11,6 @@ import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/features/add/add_screen.dart';
 import 'package:fikra/features/shared/attachment_editor.dart';
-import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:flutter/material.dart';
@@ -47,10 +46,10 @@ void main() {
           phone(tester);
           BuildContext ctx() => tester.element(find.byType(Scaffold).last);
 
-          await pumpUntil(tester, find.text(l10n.trySampleProject));
+          await pumpUntil(tester, find.text(l10n.welcomeTrySample));
           await capture('01_welcome');
 
-          await tester.tap(find.text(l10n.trySampleProject));
+          await tester.tap(find.text(l10n.welcomeTrySample));
           await pumpUntil(tester, find.text(l10n.sample7Title));
           await capture('02_notes');
 
@@ -229,25 +228,34 @@ void main() {
           await capture('06_delete_confirm');
           await tester.tap(find.text(l10n.cancel).last);
           await pumpUntil(tester, find.text(l10n.noteOptions));
-          await tester.tap(find.text(l10n.edit));
+          await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(l10n.edit)));
           await pumpUntil(tester, find.text(l10n.editNoteTitle));
           await capture('07_edit');
           ctx().go('/notes');
           await pumpUntil(tester, find.text(l10n.sample7Title));
 
-          await tester.tap(Tabs.finder(Tabs.add));
+          await tester.tap(Tabs.addButton);
           await pumpUntil(tester, find.byKey(const ValueKey('add-mic')));
           await capture('08_add_empty');
           await tester.enterText(find.byType(TextField).last, l10n.sample1Body);
           await tester.pump();
           await capture('09_add_typed');
 
+          await tester.tap(find.byKey(const ValueKey('add-close')));
+          await tester.pumpAndSettle();
           await tester.tap(Tabs.finder(Tabs.links));
-          final aiGroup = await DemoAiService.clusterFor('rag', locale: locale);
-          await pumpUntil(tester, find.text(aiGroup));
+          await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
           await capture('10_links');
-          await tester.tap(find.text(l10n.sample2Title));
-          await pumpUntil(tester, find.text(l10n.openNote));
+          await tester.enterText(find.byKey(const ValueKey('links-search')), l10n.sample2Title);
+          await tester.pump(const Duration(milliseconds: 250));
+          final result = find.byWidgetPredicate(
+            (w) =>
+                w is ListTile &&
+                w.key is ValueKey<String> &&
+                (w.key as ValueKey<String>).value.startsWith('map-search-'),
+          );
+          await tester.tap(result);
+          await tester.pump(const Duration(milliseconds: 300));
           await capture('11_links_selected');
 
           await tester.tap(Tabs.finder(Tabs.ask));
@@ -281,7 +289,7 @@ void main() {
           await pumpUntil(tester, find.text(l10n.linksEmptyTitle));
           await capture('18_links_empty');
 
-          await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
+          await tester.tap(Tabs.finder(Tabs.me));
           await pumpUntil(tester, find.text(l10n.appearance));
           await capture('19_settings');
 

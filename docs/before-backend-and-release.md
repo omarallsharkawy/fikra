@@ -32,7 +32,7 @@
   - adapters للتسجيل واختيار الملفات، عشان التيستات تقدر تبدّلهم
   - قرار واضح المسودة يحصلها إيه لما المستخدم يغيّر المشروع أو التاب
 - **شاشة اسأل** (`lib/features/ask/ask_screen.dart`): حالة "بيفكر" المفروض تبقى تبع المشروع مش تبع الشاشة. نطلّع controller لكل مشروع، فيه timeout لعمر الطلب.
-- **الجراف** (`lib/features/links/links_screen.dart`): نطلّع حساب الأماكن في `GraphLayout.compute(...)` كـpure function، ونكتب له تيست للـRTL.
+- **الخريطة** (`lib/features/connections/map_index.dart`): حساب الأماكن في `MapLayout.build`، واختبارات التداخل والاتجاه في `test/map_layout_overlap_test.dart`.
 - **النصوص العربي**: نجمّع النصوص المكررة في مكان واحد، ونحوّل أخطاء الـservices لنصوص في طبقة العرض بدل ما الـdata layer يرجّع رسالة جاهزة. ARB لما نضيف لغة تانية.
 
 ## تصميم: مؤجل (من مراجعة Codex بطريقة impeccable)

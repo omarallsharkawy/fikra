@@ -1,21 +1,16 @@
-import 'package:drift/drift.dart';
-
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
+
+import '../ids.dart';
 import '../local/database.dart';
-import 'service_config.dart';
+import 'credential_reference.dart';
 import 'model_discovery.dart';
+import 'service_config.dart';
 import 'service_keys.dart';
+import 'services_state.dart';
 
-class TranscriptionServicesState {
-  const TranscriptionServicesState({this.services = const [], this.selected = 'local', this.names = const {}});
-  final List<TranscriptionService> services;
-  final String selected;
-
-  /// Keep attribution after a service is deleted. Wipe removes these aliases.
-  final Map<String, String> names;
-  TranscriptionService? get selectedService => services.where((s) => s.engineId == selected).firstOrNull;
-}
+export 'services_state.dart';
 
 abstract interface class TranscriptionServices {
   Future<TranscriptionServicesState> read();
@@ -53,32 +48,101 @@ class LocalTranscriptionServices implements TranscriptionServices {
           TranscriptionService.fromJson(item as Map<String, dynamic>),
       ],
       names: Map<String, String>.from(json['names'] as Map? ?? {}),
+      credentials: _decodeCredentials(json['credentials']),
+      garbage: List<String>.from(json['garbage'] as List? ?? []),
+      legacy: json['credentialVersion'] != 1,
       selected: values[engineKey] ?? 'local',
     );
   }
 
   Future<TranscriptionServicesState> _read() async =>
       _decode(await (db.select(db.settings)..where((s) => s.key.isIn([configKey, engineKey]))).get());
-  @override
-  Future<TranscriptionServicesState> read() async {
-    await _tail;
-    return _read();
+
+  // Old service-id slots have no provable destination. Never adopt them.
+  Future<TranscriptionServicesState> _load() async {
+    var state = await _read();
+    final invalid = state.services.where((s) => state.credentials[s.id]?.matches(s) != true).toList();
+    if (invalid.isNotEmpty) {
+      final ids = invalid.map((s) => s.id).toSet();
+      final selected = invalid.any((s) => s.engineId == state.selected) ? 'local' : state.selected;
+      final garbage = {
+        ...state.garbage,
+        if (state.legacy) ...ids,
+        for (final id in ids)
+          if (state.credentials[id] case final ref?) ref.slot,
+      };
+      final refs = {...state.credentials}..removeWhere((id, _) => ids.contains(id));
+      final next = state.copy(selected: selected, credentials: refs, garbage: garbage.toList(), legacy: false);
+      if (state.legacy ||
+          selected != state.selected ||
+          refs.length != state.credentials.length ||
+          garbage.length != state.garbage.length) {
+        await _write(next);
+      }
+      state = next;
+    }
+    if (state.selected != 'local' && state.selectedService == null) {
+      final id = state.selected.startsWith('remote:') ? state.selected.substring(7) : null;
+      state = state.copy(
+        selected: 'local',
+        legacy: false,
+        garbage: {...state.garbage, if (state.legacy && id != null) id}.toList(),
+      );
+      await _write(state);
+    }
+    return _cleanup(state);
+  }
+
+  Future<TranscriptionServicesState> _cleanup(TranscriptionServicesState state) async {
+    final remaining = <String>[];
+    for (final slot in state.garbage) {
+      try {
+        await keys.delete(slot);
+      } catch (_) {
+        remaining.add(slot);
+      }
+    }
+    if (remaining.length != state.garbage.length) {
+      final next = state.copy(garbage: remaining);
+      try {
+        await _write(next);
+        return next;
+      } catch (_) {
+        // Keep the journal for the next retry. Deleting twice is harmless.
+      }
+    }
+    return state;
   }
 
   @override
-  Stream<TranscriptionServicesState> watch() =>
-      (db.select(db.settings)..where((s) => s.key.isIn([configKey, engineKey]))).watch().map(_decode);
+  Future<TranscriptionServicesState> read() => _change(_load);
+
+  @override
+  Stream<TranscriptionServicesState> watch() async* {
+    await read();
+    yield* (db.select(db.settings)..where((s) => s.key.isIn([configKey, engineKey]))).watch().map((rows) {
+      final state = _decode(rows);
+      final service = state.selectedService;
+      return state.selected != 'local' && (service == null || state.credentials[service.id]?.matches(service) != true)
+          ? state.copy(selected: 'local')
+          : state;
+    });
+  }
+
   @override
   Future<String?> readKey(String id, {TranscriptionService? forService}) => _change(() async {
-    if (forService != null) {
-      final current = (await _read()).services.where((s) => s.id == id).firstOrNull;
-      if (current == null ||
-          current.type != forService.type ||
-          Uri.parse(current.baseUrl).origin != Uri.parse(forService.baseUrl).origin) {
-        throw const ServiceConfigException(ServiceConfigIssue.consentRequired);
-      }
+    final state = await _load();
+    final current = state.services.where((s) => s.id == id).firstOrNull;
+    final ref = state.credentials[id];
+    if (current == null ||
+        ref == null ||
+        !ref.matches(current) ||
+        (forService != null && (forService.id != id || !ref.matches(forService)))) {
+      throw const ServiceConfigException(ServiceConfigIssue.keyRequired);
     }
-    return keys.read(id);
+    final key = await keys.read(ref.slot);
+    if (key == null || key.trim().isEmpty) throw const ServiceConfigException(ServiceConfigIssue.keyRequired);
+    return key;
   });
 
   Future<void> _write(TranscriptionServicesState state) => db.transaction(() async {
@@ -87,7 +151,13 @@ class LocalTranscriptionServices implements TranscriptionServices {
         .insertOnConflictUpdate(
           Setting(
             key: configKey,
-            value: jsonEncode({'services': state.services.map((s) => s.toJson()).toList(), 'names': state.names}),
+            value: jsonEncode({
+              'services': state.services.map((s) => s.toJson()).toList(),
+              'names': state.names,
+              'credentialVersion': 1,
+              'credentials': state.credentials.map((id, ref) => MapEntry(id, ref.toJson())),
+              'garbage': state.garbage,
+            }),
           ),
         );
     await db.into(db.settings).insertOnConflictUpdate(Setting(key: engineKey, value: state.selected));
@@ -96,90 +166,104 @@ class LocalTranscriptionServices implements TranscriptionServices {
   @override
   Future<void> save(TranscriptionService service, {String? key}) => _change(() async {
     service.validate();
-    final state = await _read();
-    final old = state.services.where((s) => s.id == service.id).firstOrNull;
-    final needsKey =
-        old == null || old.type != service.type || Uri.parse(old.baseUrl).origin != Uri.parse(service.baseUrl).origin;
-    if (needsKey && (key == null || key.trim().isEmpty)) {
-      throw const ServiceConfigException(ServiceConfigIssue.keyRequired);
+    var state = await _load();
+    final previous = state.credentials[service.id];
+    final CredentialReference ref;
+    final freshKey = key?.trim();
+    if (freshKey != null && freshKey.isNotEmpty) {
+      ref = CredentialReference('v1-${newId()}', CredentialReference.identityOf(service));
+      // Journal the slot before the OS write, without changing active config.
+      state = state.copy(garbage: [...state.garbage, ref.slot]);
+      await _write(state);
+      await keys.write(ref.slot, freshKey);
+    } else {
+      if (previous == null || !previous.matches(service) || (await keys.read(previous.slot))?.isNotEmpty != true) {
+        throw const ServiceConfigException(ServiceConfigIssue.keyRequired);
+      }
+      ref = previous;
     }
-    // Publish the manifest before touching secure storage so every secret is
-    // discoverable for delete/wipe, even if an OS key operation is interrupted.
-    // An edited active service is deselected until the save/key write finishes.
-    await _write(
-      TranscriptionServicesState(
-        services: old == null
-            ? [...state.services, service]
-            : [for (final s in state.services) s.id == service.id ? service : s],
-        selected: state.selected == service.engineId ? 'local' : state.selected,
-        names: {...state.names, service.id: service.name},
-      ),
+    final next = state.copy(
+      services: state.services.any((s) => s.id == service.id)
+          ? [for (final s in state.services) s.id == service.id ? service : s]
+          : [...state.services, service],
+      selected: state.selected == service.engineId && !service.consented ? 'local' : state.selected,
+      names: {...state.names, service.id: service.name},
+      credentials: {...state.credentials, service.id: ref},
+      garbage: {
+        ...state.garbage.where((slot) => slot != ref.slot),
+        if (previous != null && previous.slot != ref.slot) previous.slot,
+      }.toList(),
     );
-    if (key != null && key.trim().isNotEmpty) await keys.write(service.id, key.trim());
-    if (state.selected == service.engineId && service.consented) {
-      await _write(
-        TranscriptionServicesState(
-          services: old == null
-              ? [...state.services, service]
-              : [for (final s in state.services) s.id == service.id ? service : s],
-          selected: service.engineId,
-          names: {...state.names, service.id: service.name},
-        ),
-      );
-    }
+    // Config, reference and selection become visible together, after the key.
+    await _write(next);
+    await _cleanup(next);
   });
 
   @override
   Future<void> select(String engineId) => _change(() async {
-    final state = await _read();
+    final state = await _load();
     if (engineId != 'local') {
       final service = state.services.where((s) => s.engineId == engineId).firstOrNull;
       if (service == null || !service.consented) {
         throw const ServiceConfigException(ServiceConfigIssue.consentRequired);
       }
+      final ref = state.credentials[service.id];
+      if (ref == null || !ref.matches(service) || (await keys.read(ref.slot))?.isNotEmpty != true) {
+        throw const ServiceConfigException(ServiceConfigIssue.keyRequired);
+      }
     }
-    await _write(TranscriptionServicesState(services: state.services, selected: engineId, names: state.names));
+    await _write(state.copy(selected: engineId));
   });
 
   @override
   Future<void> authorize(TranscriptionService service) => _change(() async {
-    final state = await _read();
-    // Do not authorize a stale destination that changed while a dialog was up.
+    final state = await _load();
     await _write(
-      TranscriptionServicesState(
+      state.copy(
         services: [
           for (final s in state.services)
             s.id == service.id && s.consentIdentity == service.consentIdentity ? s.authorize() : s,
         ],
-        selected: state.selected,
-        names: state.names,
       ),
     );
   });
 
   @override
   Future<void> delete(String id) => _change(() async {
-    final state = await _read();
+    final state = await _load();
     final cacheKeys = (await db.select(db.settings).get())
         .where((r) => r.key.startsWith('${ModelDiscovery.prefix}$id.'))
         .map((r) => r.key);
-    await (db.delete(db.settings)..where((r) => r.key.isIn(cacheKeys))).go();
-    await keys.delete(id); // On failure retain the manifest for a safe retry.
-    await _write(
-      TranscriptionServicesState(
-        services: state.services.where((s) => s.id != id).toList(),
-        selected: state.selected == 'remote:$id' ? 'local' : state.selected,
-        names: state.names,
-      ),
+    final refs = {...state.credentials}..remove(id);
+    final next = state.copy(
+      services: state.services.where((s) => s.id != id).toList(),
+      credentials: refs,
+      selected: state.selected == 'remote:$id' ? 'local' : state.selected,
+      garbage: {...state.garbage, id, if (state.credentials[id] case final ref?) ref.slot}.toList(),
     );
+    await db.transaction(() async {
+      await (db.delete(db.settings)..where((r) => r.key.isIn(cacheKeys))).go();
+      await _write(next);
+    });
+    await _cleanup(next);
   });
 
   @override
   Future<void> wipe() => _change(() async {
-    final manifest = await (db.select(db.settings)..where((s) => s.key.equals(configKey))).getSingleOrNull();
-    if (manifest != null) await keys.clear();
+    // Includes staged/orphan slots even when a manifest publish never happened.
+    await keys.clear();
     await (db.delete(
       db.settings,
     )..where((s) => s.key.isIn([configKey, engineKey]) | s.key.like('${ModelDiscovery.prefix}%'))).go();
   });
+}
+
+/// Decodes stored credential references, dropping entries that do not decode.
+Map<String, CredentialReference> _decodeCredentials(Object? raw) {
+  final out = <String, CredentialReference>{};
+  for (final entry in (raw as Map? ?? const {}).entries) {
+    final ref = CredentialReference.decode(entry.value);
+    if (ref != null) out[entry.key as String] = ref;
+  }
+  return out;
 }

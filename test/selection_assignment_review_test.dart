@@ -11,7 +11,7 @@ import 'support/app_harness.dart';
 import 'support/selection_fixture.dart';
 
 void main() {
-  fikraTest('fresh assignment snapshot is not filtered by a stale project provider', locale: const Locale('en'), (
+  fikraTest('assignment prunes notes missing from the current project provider', locale: const Locale('en'), (
     t,
     db,
   ) async {
@@ -37,7 +37,6 @@ void main() {
                   projectId: p.id,
                   notes: fresh.where((n) => n.projectId == p.id).toList(),
                   target: group,
-                  freshlyRead: true,
                 );
               } finally {
                 guard.release();
@@ -55,10 +54,9 @@ void main() {
     await settle(t, find.byKey(const ValueKey('stale-ready')));
     await t.tap(find.text('Assign'));
     await pumpAnimations(t);
-    expect((await readNote(t, db, notes.first.id)).groupId, group.id);
-    expect((await readNote(t, db, notes.last.id)).groupId, group.id);
-    await t.tap(find.text(enL10n.undo));
-    await pumpAnimations(t);
+    expect((await readNote(t, db, notes.first.id)).groupId, isNull);
+    expect((await readNote(t, db, notes.last.id)).groupId, isNull);
+    expect(find.text(enL10n.undo), findsNothing);
     expect((await readNote(t, db, notes.first.id)).groupId, isNull);
     expect((await allGroups(t, db)).single.id, group.id);
   });

@@ -37,7 +37,7 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     return pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('p');
       return LocalNotesRepository(db).create(

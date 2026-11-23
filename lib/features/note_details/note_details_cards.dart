@@ -25,16 +25,16 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.lg,
-      borderColor: context.colors.accentLight.withValues(alpha: 0.5),
+      borderColor: context.colors.accent.withValues(alpha: 0.5),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, size: 18, color: context.colors.accentLight),
+              Icon(Icons.auto_awesome_outlined, size: 18, color: context.colors.accent),
               const SizedBox(width: 8),
               Expanded(child: Text(context.l10n.suggestedRewrite, style: context.text.cardTitleSmall)),
               if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoBadge),
@@ -120,7 +120,7 @@ class _Attachment extends ConsumerWidget {
               onTap: () => context.push('/note/${note.id}/pdf/${a.id}'),
               pressedScale: 0.98,
               semanticLabel: context.l10n.openFileA11y(a.name ?? context.l10n.pdfFile),
-              child: Glass(
+              child: SolidSurface(
                 radius: FikraRadius.lg,
                 padding: const EdgeInsets.all(14),
                 child: Row(
@@ -142,7 +142,7 @@ class _Attachment extends ConsumerWidget {
                         style: context.text.meta,
                       ),
                     const SizedBox(width: 10),
-                    Icon(Icons.open_in_new_rounded, size: 18, color: context.colors.textMeta),
+                    Icon(Icons.open_in_new_rounded, size: 18, color: context.colors.textSecondary),
                   ],
                 ),
               ),

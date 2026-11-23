@@ -14,6 +14,7 @@ import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/motion.dart';
 import '../../core/motion/pressable.dart';
+import '../../core/motion/recording_pulse.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/widgets/photo_thumb.dart';
@@ -22,7 +23,10 @@ import '../../data/files/attachment_store.dart';
 import '../../data/local/database.dart';
 import 'inline_recorder.dart';
 import 'group_form.dart';
+import 'save_tick_button.dart';
 import '../../data/attachment_draft.dart';
+
+export 'save_tick_button.dart' show SaveTickMark;
 
 part 'attachment_files.dart';
 part 'attachment_voice.dart';
@@ -47,6 +51,7 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   RecordingState rec = RecordingState.idle;
   final List<double> levels = [];
+  final ValueNotifier<int> levelUpdates = ValueNotifier<int>(0);
   StreamSubscription<Amplitude>? ampSub;
   Timer? ticker;
   Duration elapsed = Duration.zero;
@@ -59,6 +64,7 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   bool get attachmentBusy => saving || picking || recording;
   bool get hasAttachment => draftFiles.isNotEmpty;
   bool get confirmAttachmentRemoval => false;
+  bool get isAddComposer => false;
 
   void updateDraft(VoidCallback fn) {
     if (mounted) setState(fn);
@@ -150,8 +156,13 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     ),
   );
 
-  Widget recordingPreview() =>
-      InlineRecorder(key: const ValueKey('recording'), levels: levels, elapsed: elapsed, max: maxRecording);
+  Widget recordingPreview() => InlineRecorder(
+    key: const ValueKey('recording'),
+    levels: levels,
+    elapsed: elapsed,
+    max: maxRecording,
+    levelUpdates: levelUpdates,
+  );
   Widget permissionCard() => FikraSwitcher(
     animateSize: true,
     child: mic == MicPermission.unknown
@@ -171,6 +182,8 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     required VoidCallback onSave,
     bool enabled = true,
     bool showSave = true,
+    Animation<double>? saveTick,
+    bool saveTickActive = false,
   }) => _Toolbar(
     showSave: showSave,
     recording: recording,
@@ -179,6 +192,8 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     imagesEnabled: enabled && !attachmentBusy,
     canSave: canSave,
     saving: saving,
+    saveTick: saveTick,
+    saveTickActive: saveTickActive,
     onMic: startRecording,
     onPdf: pickPdf,
     onImages: pickImages,
@@ -191,6 +206,7 @@ mixin AttachmentEditing<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   void dispose() {
     ampSub?.cancel();
     ticker?.cancel();
+    levelUpdates.dispose();
     final activeRecorder = recorderInstance;
     if (activeRecorder != null) {
       unawaited(() async {

@@ -8,7 +8,7 @@ holds no domain, storage or network logic.
 
 ## Interface
 
-- `format.dart`: `Fmt` static methods return display strings.
+- `format.dart`: `Fmt` static methods return display strings, plus pure Arabic/Latin search helpers `normalizeArabic(String)` (single-pass Alef/ة/ى/ؤ/ئ unification, tashkeel/tatweel removal, Arabic-Indic digits to 0-9, ASCII/Latin-1 fast-path and extended Unicode lowercasing, whitespace collapse; preserves `ال`), `tokenizeNormalizedArabic(String)` (reusable word lists), and `matchesNormalizedArabic(String haystack, String query, {List<String>? haystackWords, List<String>? queryWords})` (direct substring or bounded exact-first backtracking distinct-word assignment tolerating a leading `ال` on haystack tokens when the query token does not start with `ال`, keeping the last token as a prefix).
   - `time(AppLocalizations, DateTime)`: locale-specific 12-hour clock.
   - `dayHeader(AppLocalizations, DateTime, {DateTime? now})`: today, yesterday, or weekday/date.
   - `relative(AppLocalizations, DateTime, {DateTime? now})`: localized ICU minutes/hours or day header.
@@ -22,16 +22,16 @@ holds no domain, storage or network logic.
   - [theme](./theme/EGM.md): `buildFikraTheme`, `FikraPalette`, `FikraRadius`,
     `FikraSpace`, `FikraText`, and the `context.colors` and `context.text`
     getters.
-  - [widgets](./widgets/EGM.md): `Glass`, `FikraButton`, `FikraField`,
+  - [widgets](./widgets/EGM.md): `SolidSurface`, `Glass`, `GlassLens`, `PearlCanvas`, `FikraButton`, `FikraField`,
     `FikraChip`, `FikraBadge`, `StatusBanner`, `EmptyState`, `SegmentedPill`,
     `SheetOption`, `FikraScaffold`, `FikraIconButton`, `AsyncBody`,
-    `LoadErrorView`, `FillScroll`, `VoicePlayer`, and the functions
+    `LoadErrorView`, `FillScroll`, `NavigationInset`, `VoicePlayer`, and the functions
     `showFikraSheet`, `confirmDestructive`, `showToast`, `runAction`.
 
 ## Invariants
 
 - `lib/core` imports nothing from `lib/app`, `lib/data` or `lib/features`. Its
-  external packages are Flutter, `intl`, `flutter_riverpod` and `just_audio`; localized strings come from `lib/l10n`.
+  external packages are Flutter, `intl`, `flutter_riverpod`, `just_audio` and the approved MIT `liquid_glass_easy`; localized strings come from `lib/l10n`.
 - Internal dependencies point one way: `widgets` depends on `theme`, `motion` and
   `format.dart`, and `theme` depends on `motion`. `motion` depends on no other
   core package.
@@ -46,7 +46,7 @@ holds no domain, storage or network logic.
 - `Fmt.dayHeader` and `Fmt.relative` read the device clock through `DateTime.now`.
   unless `now` is supplied. `Fmt` is otherwise pure.
 - Subpackage side effects are listed in their contracts. Runtime resources are
-  limited to widget-owned controllers, a `WidgetsBindingObserver`, modal routes,
+  limited to widget-owned controllers, a `WidgetsBindingObserver`, the glass power MethodChannel subscription and visibility-scoped SchedulerBinding timings callback, modal routes,
   snackbars, and the audio player in `VoicePlayer`.
 
 ## Verification

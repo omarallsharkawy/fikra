@@ -49,7 +49,7 @@ void main() {
               );
             }
 
-            await pumpUntil(tester, find.text(l.startNewProject));
+            await pumpUntil(tester, find.text(l.welcomeStartWriting));
             await pumpFuture(tester, () => LocalProjectsRepository(db).create('Whisper'));
             await pumpUntil(tester, find.text('Whisper'));
             tester.element(find.text('Whisper').first).push('/settings');

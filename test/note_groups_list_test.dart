@@ -150,13 +150,15 @@ void main() {
     });
   });
 
-  fikraTest('the filter row: hidden with no groups, a parent shows its sub-groups, search still works', (
+  fikraTest('the filter row: shows type chips with no groups, a parent shows its sub-groups, search still works', (
     tester,
     db,
   ) async {
     phone(tester, height: 1100);
     final (p, _, [a, b, c, d]) = await seedNotes(tester, db, ['Alpha', 'Beta', 'Gamma', 'Delta']);
-    expect(key('group-filter-all'), findsNothing);
+    expect(key('group-filter-all'), findsOneWidget);
+    expect(key('notes-filter-voice'), findsOneWidget);
+    expect(key('notes-filter-files'), findsOneWidget);
     final parent = await makeGroup(tester, db, p, 'Parent', color: 0);
     final child = await makeGroup(tester, db, p, 'Child', parent: parent.id);
     final other = await makeGroup(tester, db, p, 'Other');
@@ -166,21 +168,26 @@ void main() {
     await pumpUntil(tester, key('group-filter-all'));
     expect(key('group-filter-${child.id}'), findsNothing); // second row only for a picked parent
 
-    await tester.tap(key('group-filter-${parent.id}'));
-    await tester.pump();
+    Future<void> tapChip(String k) async {
+      final f = key(k);
+      await tester.ensureVisible(f);
+      await tester.pump();
+      await tester.tap(f);
+      await tester.pump();
+    }
+
+    await tapChip('group-filter-${parent.id}');
     for (final (n, shown) in [(a, true), (b, true), (c, false), (d, false)]) {
       expect(card(n.id), shown ? findsOneWidget : findsNothing, reason: n.title);
     }
     expect(key('group-filter-children'), findsOneWidget);
     expect(find.bySemanticsLabel(ar.groupOptionsA11y('Parent')), findsOneWidget);
 
-    await tester.tap(key('group-filter-${child.id}'));
-    await tester.pump();
+    await tapChip('group-filter-${child.id}');
     expect(card(a.id), findsNothing);
     expect(card(b.id), findsOneWidget);
 
-    await tester.tap(key('group-filter-${child.id}')); // again: back to the parent
-    await tester.pump();
+    await tapChip('group-filter-${child.id}'); // again: back to the parent
     expect(card(a.id), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'beta');
     await tester.pump(const Duration(milliseconds: 300));
@@ -192,21 +199,19 @@ void main() {
     await tester.enterText(find.byType(TextField), '');
     await tester.pump();
 
-    await tester.tap(key('group-filter-${other.id}'));
-    await tester.pump();
+    await tapChip('group-filter-${other.id}');
     expect(card(d.id), findsOneWidget);
     expect(card(a.id), findsNothing);
     await assign(tester, db, null, [d]);
     await pumpUntil(tester, find.text(ar.groupEmptyTitle));
 
-    await tester.tap(key('group-filter-all'));
+    await tapChip('group-filter-all');
     await pumpAnimations(tester);
     for (final n in [a, b, c, d]) {
       expect(card(n.id), findsOneWidget);
     }
     // The selected group's filter goes back to all when the group is deleted.
-    await tester.tap(key('group-filter-${other.id}'));
-    await tester.pump();
+    await tapChip('group-filter-${other.id}');
     await pumpFuture(tester, () => LocalGroupsRepository(db).delete(other.id));
     await pumpUntil(tester, card(c.id));
     await pumpAnimations(tester);
@@ -215,7 +220,10 @@ void main() {
 
   group('managing a group from the filter row', () {
     Future<void> options(WidgetTester tester, NoteGroup g) async {
-      await tester.longPress(key('group-filter-${g.id}'));
+      final f = key('group-filter-${g.id}');
+      await tester.ensureVisible(f);
+      await tester.pump();
+      await tester.longPress(f);
       await settle(tester, key('group-delete'));
     }
 
@@ -254,6 +262,8 @@ void main() {
       await pumpFuture(tester, () => Future<void>.delayed(const Duration(milliseconds: 20)));
       expect((await allGroups(tester, db)).singleWhere((g) => g.id == loose.id).parentId, top.id);
 
+      await tester.ensureVisible(key('group-filter-${top.id}'));
+      await tester.pump();
       await tester.tap(key('group-filter-${top.id}'));
       await tester.pump();
       await pumpUntil(tester, key('group-filter-${loose.id}'));
@@ -264,6 +274,8 @@ void main() {
       await pumpFuture(tester, () => Future<void>.delayed(const Duration(milliseconds: 20)));
       expect((await allGroups(tester, db)).singleWhere((g) => g.id == loose.id).parentId, isNull);
 
+      await tester.ensureVisible(key('group-filter-${loose.id}'));
+      await tester.pump();
       await tester.tap(key('group-filter-${loose.id}'));
       await tester.pump();
       await tester.tap(key('group-filter-options'));

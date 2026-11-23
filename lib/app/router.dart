@@ -4,17 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/motion/container_transform.dart';
 import '../core/theme/tokens.dart';
 import '../data/local/database.dart';
 import '../features/add/add_screen.dart';
 import '../features/ask/ask_screen.dart';
-import '../features/links/links_screen.dart';
+import '../features/connections/library_session.dart';
+import '../features/connections/links_library_screen.dart';
+import '../features/connections/note_connections_screen.dart';
+import '../features/connections/links_index.dart';
 import '../features/note_details/edit_note_screen.dart';
 import '../features/note_details/note_details_screen.dart';
 import '../features/note_details/pdf_viewer_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/projects/welcome_screen.dart';
-import '../features/settings/settings_screen.dart';
+import '../features/me/me_screen.dart';
 import '../features/voice_text/voice_text_screen.dart';
 import '../features/voice_text/service_form_screen.dart';
 import 'providers.dart';
@@ -28,13 +32,26 @@ import 'storage_error_screen.dart';
 /// `package:material_ui`. With Flutter's own `MaterialApp` it falls back to
 /// `NoTransitionPage` for `builder:` routes, and every push jumps in one frame.
 /// Routes that replace each other (splash, welcome, the shell) keep that.
-Page<void> _pushed(GoRouterState state, Widget child) => MaterialPage<void>(
-  key: state.pageKey,
-  name: state.name ?? state.path,
-  arguments: <String, String>{...state.pathParameters, ...state.uri.queryParameters},
-  restorationId: state.pageKey.value,
-  child: child,
-);
+Page<void> _pushed(GoRouterState state, Widget child, {CardOrigin? origin}) {
+  final args = <String, String>{...state.pathParameters, ...state.uri.queryParameters};
+  if (origin != null) {
+    return ContainerTransformPage<void>(
+      key: state.pageKey,
+      name: state.name ?? state.path,
+      arguments: args,
+      restorationId: state.pageKey.value,
+      origin: origin,
+      child: child,
+    );
+  }
+  return MaterialPage<void>(
+    key: state.pageKey,
+    name: state.name ?? state.path,
+    arguments: args,
+    restorationId: state.pageKey.value,
+    child: child,
+  );
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run redirects whenever the project list changes (first project created,
@@ -43,9 +60,23 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.listen(projectsProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
+  bool selectMap() {
+    final project = ref.read(selectedProjectProvider);
+    if (project == null) return false;
+    ref.read(linksSegmentProvider.notifier).select(project.id, LinksLibrarySegment.map);
+    return true;
+  }
+
   final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: refresh,
+    onEnter: (_, current, next, router) {
+      // Handle legacy calls from the library without pushing a second library page.
+      if (current.uri.path == '/links' && next.uri.path == '/links/graph' && !router.canPop() && selectMap()) {
+        return const Block.stop();
+      }
+      return const Allow();
+    },
     redirect: (context, state) {
       final projects = ref.read(projectsProvider);
       final loc = state.matchedLocation;
@@ -59,7 +90,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, _) => ColoredBox(color: context.colors.screen),
+        builder: (context, _) => ColoredBox(color: context.colors.canvas),
       ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
       GoRoute(path: '/storage-error', builder: (_, _) => const StorageErrorScreen()),
@@ -75,14 +106,47 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: '/notes', builder: (_, _) => const NotesScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/links', builder: (_, _) => const LinksScreen())],
+            routes: [
+              GoRoute(
+                path: '/links',
+                builder: (_, _) => const LinksLibraryScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'graph',
+                    redirect: (_, _) {
+                      selectMap();
+                      return '/links';
+                    },
+                  ),
+                  GoRoute(
+                    path: 'note/:id',
+                    pageBuilder: (_, s) {
+                      final id = s.pathParameters['id']!;
+                      final (initial, origin) = switch (s.extra) {
+                        (final LibraryNote? n, final CardOrigin? o) => (n?.id == id ? n : null, o),
+                        final CardOrigin o => (null, o),
+                        _ => (null, null),
+                      };
+                      return _pushed(
+                        s,
+                        NoteConnectionsScreen(noteId: id, initial: initial),
+                        origin: origin,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: '/ask', builder: (_, _) => const AskScreen())],
           ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/me', builder: (_, _) => const MeScreen())],
+          ),
         ],
       ),
-      GoRoute(path: '/settings', pageBuilder: (_, s) => _pushed(s, const SettingsScreen())),
+      GoRoute(path: '/settings', redirect: (_, _) => '/me'),
       GoRoute(path: '/settings/voice-text', pageBuilder: (_, s) => _pushed(s, const VoiceTextScreen())),
       GoRoute(path: '/settings/voice-text/service/new', pageBuilder: (_, s) => _pushed(s, const ServiceFormScreen())),
       GoRoute(
@@ -91,18 +155,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/note/:id',
-        // `extra` is the note the caller already has, so the screen draws it on
-        // the first frame instead of waiting for the query. Deep links omit it.
-        pageBuilder: (_, s) => _pushed(
-          s,
-          NoteDetailsScreen(
-            noteId: s.pathParameters['id']!,
-            initial: switch (s.extra) {
-              final Note n when n.id == s.pathParameters['id'] => n,
-              _ => null,
-            },
-          ),
-        ),
+        // `extra` supplies the note (for first-frame rendering) and/or the
+        // tapped card's CardOrigin (for the container-transform transition).
+        pageBuilder: (_, s) {
+          final id = s.pathParameters['id']!;
+          final (initial, origin) = switch (s.extra) {
+            final Note n when n.id == id => (n, null),
+            (final Note? n, final CardOrigin? o) => (n?.id == id ? n : null, o),
+            final CardOrigin o => (null, o),
+            _ => (null, null),
+          };
+          return _pushed(
+            s,
+            NoteDetailsScreen(noteId: id, initial: initial),
+            origin: origin,
+          );
+        },
         routes: [
           GoRoute(
             path: 'pdf/:attachmentId',

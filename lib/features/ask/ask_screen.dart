@@ -22,15 +22,33 @@ class AskScreen extends ConsumerStatefulWidget {
 class _AskScreenState extends ConsumerState<AskScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
-  bool _thinking = false;
+  final _thinkingProjects = <String>{};
+  int _draftRevision = 0;
+  String _lastDraftText = '';
 
   // Messages already on screen. Only ids that arrive later animate in, so the
   // first load and a project switch show the history as-is.
   String? _chatProject;
   Set<String>? _seen;
 
+  bool _isThinking(String? projectId) => projectId != null && _thinkingProjects.contains(projectId);
+
+  @override
+  void initState() {
+    super.initState();
+    _input.addListener(_onInputChanged);
+  }
+
+  void _onInputChanged() {
+    if (_input.text == _lastDraftText) return;
+    _lastDraftText = _input.text;
+    _draftRevision++;
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _input.removeListener(_onInputChanged);
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -39,33 +57,42 @@ class _AskScreenState extends ConsumerState<AskScreen> {
   Future<void> _send([String? preset]) async {
     final q = (preset ?? _input.text).trim();
     final project = ref.read(selectedProjectProvider);
-    if (q.isEmpty || project == null || _thinking) return;
-    setState(() => _thinking = true);
+    if (q.isEmpty || project == null || _thinkingProjects.contains(project.id)) return;
+    final projectId = project.id;
+    final draftRevision = _draftRevision;
+    setState(() => _thinkingProjects.add(projectId));
     final chat = ref.read(chatRepoProvider);
     try {
-      await chat.add(projectId: project.id, role: 'user', body: q);
-      if (preset == null) _input.clear(); // keep the draft until it's stored
-      _toBottom();
-      final notes = await ref.read(notesRepoProvider).notesOf(project.id);
+      await chat.add(projectId: projectId, role: 'user', body: q);
+      final sameProject = mounted && ref.read(selectedProjectProvider)?.id == projectId;
+      if (preset == null && sameProject && _draftRevision == draftRevision) {
+        _input.clear(); // keep the draft until stored, and never erase a newer draft
+      }
+      if (sameProject) _toBottom(projectId);
+      final notes = await ref.read(notesRepoProvider).notesOf(projectId);
       final answer = await ref.read(aiServiceProvider).ask(q, notes).timeout(const Duration(seconds: 60));
       await chat.add(
-        projectId: project.id,
+        projectId: projectId,
         role: 'assistant',
         body: answer.text,
         sourceIds: answer.sourceIds,
         found: answer.found,
       );
     } catch (_) {
-      if (mounted) showToast(context, context.l10n.askFailed);
+      if (mounted && ref.read(selectedProjectProvider)?.id == projectId) {
+        showToast(context, context.l10n.askFailed);
+      }
     } finally {
-      if (mounted) setState(() => _thinking = false);
-      _toBottom();
+      if (mounted) {
+        setState(() => _thinkingProjects.remove(projectId));
+        if (ref.read(selectedProjectProvider)?.id == projectId) _toBottom(projectId);
+      }
     }
   }
 
-  void _toBottom() {
+  void _toBottom(String projectId) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scroll.hasClients) return;
+      if (!mounted || !_scroll.hasClients || ref.read(selectedProjectProvider)?.id != projectId) return;
       // During an empty ↔ chat swap the outgoing list can still be attached;
       // the newest position is the visible one.
       final position = _scroll.positions.last;
@@ -79,14 +106,16 @@ class _AskScreenState extends ConsumerState<AskScreen> {
 
   Future<void> _clear() async {
     final project = ref.read(selectedProjectProvider);
-    if (project == null || _thinking) return;
+    if (project == null || _thinkingProjects.contains(project.id)) return;
     final ok = await confirmDestructive(
       context,
       title: context.l10n.clearChatTitle,
       message: context.l10n.clearChatBody,
       confirmLabel: context.l10n.clear,
     );
-    if (ok && mounted) await runAction(context, () => ref.read(chatRepoProvider).clear(project.id));
+    if (ok && mounted && !_thinkingProjects.contains(project.id)) {
+      await runAction(context, () => ref.read(chatRepoProvider).clear(project.id));
+    }
   }
 
   @override
@@ -94,6 +123,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
     final chatAsync = ref.watch(selectedChatProvider);
     final entries = chatAsync.value ?? const <ChatEntry>[];
     final projectId = ref.watch(selectedProjectProvider)?.id;
+    final thinking = _isThinking(projectId);
     if (projectId != _chatProject) {
       _chatProject = projectId;
       _seen = null;
@@ -113,135 +143,132 @@ class _AskScreenState extends ConsumerState<AskScreen> {
       for (final n in notes.where((n) => n.title.trim().isNotEmpty).take(3)) context.l10n.askSuggestion(n.title.trim()),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ProjectHeader(
-          title: context.l10n.askTitle,
-          trailing: entries.isEmpty || _thinking
-              ? null
-              : Pressable(
-                  onTap: _clear,
-                  minTarget: true,
-                  semanticLabel: context.l10n.clearChatA11y,
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Icon(Icons.delete_sweep_outlined, color: context.colors.textSecondary),
+    return NavigationInsetPadding(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ProjectHeader(
+            title: context.l10n.askTitle,
+            trailing: entries.isEmpty || thinking
+                ? null
+                : HeaderActionButton(
+                    key: const ValueKey('ask-clear-chat'),
+                    icon: Icons.delete_sweep_outlined,
+                    label: context.l10n.clear,
+                    semanticLabel: context.l10n.clearChatA11y,
+                    iconColor: context.colors.textSecondary,
+                    onTap: _clear,
                   ),
-                ),
-        ),
-        if (isDemo)
-          Padding(
-            padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.askDemoBadge),
-            ),
           ),
-        Expanded(
-          child: FikraSwitcher(
-            child: KeyedSubtree(
-              key: ValueKey(
-                chatAsync.hasError && !chatAsync.hasValue
-                    ? 'error'
-                    : entries.isEmpty && !_thinking
-                    ? 'empty'
-                    : 'chat',
+          if (isDemo)
+            Padding(
+              padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.askDemoBadge),
               ),
-              child: chatAsync.hasError && !chatAsync.hasValue
-                  ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
-                  : entries.isEmpty && !_thinking
-                  ? ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
-                      children: [
-                        EmptyState(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          icon: Icons.chat_bubble_outline_rounded,
-                          title: context.l10n.askEmptyTitle,
-                          description: notes.isEmpty ? context.l10n.askEmptyNoNotes : context.l10n.askEmptyBody,
-                        ),
-                        if (suggestions.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
+            ),
+          Expanded(
+            child: FikraSwitcher(
+              child: KeyedSubtree(
+                key: ValueKey(
+                  chatAsync.hasError && !chatAsync.hasValue
+                      ? 'error'
+                      : entries.isEmpty && !thinking
+                      ? 'empty'
+                      : 'chat',
+                ),
+                child: chatAsync.hasError && !chatAsync.hasValue
+                    ? LoadErrorView(onRetry: () => ref.invalidate(selectedChatProvider))
+                    : entries.isEmpty && !thinking
+                    ? ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: FikraSpace.screen),
+                        children: [
+                          EmptyState(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            icon: Icons.chat_bubble_outline_rounded,
+                            title: context.l10n.askEmptyTitle,
+                            description: notes.isEmpty ? context.l10n.askEmptyNoNotes : context.l10n.askEmptyBody,
                           ),
-                        ],
-                      ],
-                    )
-                  : ListView(
-                      controller: _scroll,
-                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      children: [
-                        for (final e in entries)
-                          Padding(
-                            key: ValueKey(e.id),
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _MessageEnter(
-                              animate: newMessages.contains(e.id),
-                              child: e.isUser ? _UserBubble(e.body) : _AnswerBubble(entry: e, notesById: notesById),
+                          if (suggestions.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [for (final s in suggestions) FikraChip(label: s, onTap: () => _send(s))],
                             ),
-                          ),
-                        FikraSwitcher(
-                          child: _thinking
-                              ? Align(
-                                  key: const ValueKey('thinking'),
-                                  alignment: AlignmentDirectional.centerEnd,
-                                  child: Glass(
-                                    radius: FikraRadius.lg,
-                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                                    child: SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: context.colors.accentLight,
+                          ],
+                        ],
+                      )
+                    : ListView(
+                        controller: _scroll,
+                        padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        children: [
+                          for (final e in entries)
+                            Padding(
+                              key: ValueKey(e.id),
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _MessageEnter(
+                                animate: newMessages.contains(e.id),
+                                child: e.isUser ? _UserBubble(e.body) : _AnswerBubble(entry: e, notesById: notesById),
+                              ),
+                            ),
+                          FikraSwitcher(
+                            child: thinking
+                                ? Align(
+                                    key: const ValueKey('thinking'),
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: SolidSurface(
+                                      radius: FikraRadius.lg,
+                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                                      child: SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
                                       ),
                                     ),
-                                  ),
-                                )
-                              : const SizedBox.shrink(key: ValueKey('idle')),
-                        ),
-                      ],
-                    ),
+                                  )
+                                : const SizedBox.shrink(key: ValueKey('idle')),
+                          ),
+                        ],
+                      ),
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: FikraField(
-                  controller: _input,
-                  hint: context.l10n.askHint,
-                  textInputAction: TextInputAction.send,
-                  maxLength: 500,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _send(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Opacity(
-                opacity: _input.text.trim().isEmpty || _thinking ? 0.4 : 1,
-                child: Pressable(
-                  onTap: _input.text.trim().isEmpty || _thinking ? null : _send,
-                  semanticLabel: context.l10n.send,
-                  child: Container(
-                    width: FikraSpace.field,
-                    height: FikraSpace.field,
-                    decoration: BoxDecoration(gradient: context.colors.sendGradient, shape: BoxShape.circle),
-                    child: Icon(Icons.arrow_upward_rounded, color: context.colors.textOnSend),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FikraField(
+                    controller: _input,
+                    hint: context.l10n.askHint,
+                    textInputAction: TextInputAction.send,
+                    maxLength: 500,
+                    onSubmitted: (_) => _send(),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Opacity(
+                  opacity: _input.text.trim().isEmpty || thinking ? 0.4 : 1,
+                  child: Pressable(
+                    onTap: _input.text.trim().isEmpty || thinking ? null : _send,
+                    semanticLabel: context.l10n.send,
+                    child: Container(
+                      width: FikraSpace.field,
+                      height: FikraSpace.field,
+                      decoration: BoxDecoration(color: context.colors.brandLime, shape: BoxShape.circle),
+                      child: Icon(Icons.arrow_upward_rounded, color: context.colors.onBrandLime),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -259,10 +286,10 @@ class _UserBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            gradient: context.colors.selectedGradient,
-            borderRadius: BorderRadius.circular(FikraRadius.md),
+            color: context.colors.brandBlue,
+            borderRadius: BorderRadius.circular(FikraRadius.lg),
           ),
-          child: Text(text, style: context.text.body.copyWith(color: context.colors.textOnSelected)),
+          child: Text(text, style: context.text.body.copyWith(color: context.colors.onBrandBlue)),
         ),
       ),
     );
@@ -281,9 +308,9 @@ class _AnswerBubble extends StatelessWidget {
       alignment: AlignmentDirectional.centerEnd,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.88),
-        child: Glass(
+        child: SolidSurface(
           radius: FikraRadius.lg,
-          borderColor: entry.found ? context.colors.border : context.colors.warning.withValues(alpha: 0.5),
+          borderColor: entry.found ? context.colors.line : context.colors.warning.withValues(alpha: 0.5),
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,9 +320,11 @@ class _AnswerBubble extends StatelessWidget {
                   children: [
                     Icon(Icons.search_off_rounded, size: 18, color: context.colors.warning),
                     const SizedBox(width: 6),
-                    Text(
-                      context.l10n.notFoundInNotes,
-                      style: context.text.chip.copyWith(color: context.colors.warning),
+                    Flexible(
+                      child: Text(
+                        context.l10n.notFoundInNotes,
+                        style: context.text.chip.copyWith(color: context.colors.warning),
+                      ),
                     ),
                   ],
                 ),
@@ -304,7 +333,7 @@ class _AnswerBubble extends StatelessWidget {
               Text(entry.body, style: context.text.answer),
               if (sources.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(context.l10n.sources, style: context.text.meta.copyWith(fontSize: 12)),
+                Text(context.l10n.sources, style: context.text.meta),
                 const SizedBox(height: 6),
                 for (var i = 0; i < sources.length; i++)
                   Padding(
@@ -340,29 +369,31 @@ class _SourceRow extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(minHeight: Pressable.minTargetSize),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(color: context.colors.pressed, borderRadius: BorderRadius.circular(FikraRadius.sm)),
+        decoration: BoxDecoration(color: context.colors.chip, borderRadius: BorderRadius.circular(FikraRadius.sm)),
         child: Row(
           children: [
             Container(
-              width: 22,
-              height: 22,
+              constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: context.colors.selectedEnd, shape: BoxShape.circle),
-              child: Text(
-                '$index',
-                style: context.text.meta.copyWith(color: context.colors.textOnSelected, height: 1.1),
+              decoration: BoxDecoration(
+                color: context.colors.selected,
+                borderRadius: BorderRadius.circular(FikraRadius.full),
               ),
+              child: Text('$index', style: context.text.meta.copyWith(color: context.colors.accent, height: 1.1)),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 n == null ? context.l10n.sourceMissing : noteTitle(context, n),
-                style: context.text.chip.copyWith(color: n == null ? context.colors.textMeta : context.colors.textLink),
+                style: context.text.chip.copyWith(
+                  color: n == null ? context.colors.textSecondary : context.colors.accent,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (n != null) Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textMeta),
+            if (n != null) Icon(Icons.chevron_right_rounded, size: 18, color: context.colors.textSecondary),
           ],
         ),
       ),

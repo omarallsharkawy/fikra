@@ -4,7 +4,8 @@ import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/add/add_screen.dart';
-import 'package:fikra/features/links/links_screen.dart';
+import 'package:fikra/features/connections/library_session.dart';
+import 'package:fikra/features/connections/map_canvas.dart';
 import 'package:fikra/features/note_details/pdf_viewer_screen.dart';
 import 'package:fikra/features/shared/attachment_editor.dart';
 import 'package:fikra/features/shared/note_presentation.dart';
@@ -23,8 +24,8 @@ void phone(WidgetTester tester, {double width = 390}) {
   addTearDown(tester.view.reset);
 }
 
-Future<List<Note>> graphNotes(WidgetTester tester, FikraDatabase db) async {
-  await pumpUntil(tester, find.text(lookupAppLocalizations(tester.platformDispatcher.locale).startNewProject));
+Future<List<Note>> mapNotes(WidgetTester tester, FikraDatabase db) async {
+  await pumpUntil(tester, find.text(lookupAppLocalizations(tester.platformDispatcher.locale).welcomeStartWriting));
   final notes = await pumpFuture(tester, () async {
     final project = await LocalProjectsRepository(db).create('project');
     final repo = LocalNotesRepository(db);
@@ -38,6 +39,18 @@ Future<List<Note>> graphNotes(WidgetTester tester, FikraDatabase db) async {
   });
   await pumpUntil(tester, find.text('project'));
   await tester.tap(Tabs.finder(Tabs.links));
+  final browse = find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse));
+  await pumpUntil(tester, browse);
+  await tester.tap(browse);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
+  await pumpUntil(tester, find.byKey(const ValueKey('map-paint')));
+  final paint = tester.widget<CustomPaint>(find.byKey(const ValueKey('map-paint'))).painter! as LinksMapPainter;
+  final p = paint.layout.positions.values.first;
+  final box = tester.renderObject<RenderBox>(find.byKey(const ValueKey('map-paint')));
+  await tester.tapAt(box.localToGlobal(Offset(p.x, p.y)));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
   await pumpUntil(tester, find.byType(InteractiveViewer));
   await tester.pumpAndSettle();
   return notes;
@@ -46,26 +59,35 @@ Future<List<Note>> graphNotes(WidgetTester tester, FikraDatabase db) async {
 void main() {
   setUpAll(loadAppFonts);
   for (final locale in [const Locale('ar'), const Locale('en')]) {
-    fikraTest('blank graph nodes reuse the note-title fallback (${locale.languageCode})', locale: locale, (
+    fikraTest('blank Map nodes reuse the note-title fallback (${locale.languageCode})', locale: locale, (
       tester,
       db,
     ) async {
       phone(tester);
-      final notes = await graphNotes(tester, db);
-      final context = tester.element(find.byType(LinksScreen));
-      for (final note in notes.take(2)) {
-        final node = find.byKey(ValueKey(note.id));
-        expect(find.descendant(of: node, matching: find.text(noteTitle(context, note))), findsOneWidget);
+      final notes = await mapNotes(tester, db);
+      final semantics = tester.ensureSemantics();
+      try {
+        final surface = find.byKey(const ValueKey('map-paint'));
+        final context = tester.element(surface);
+        final painter = tester.widget<CustomPaint>(surface).painter! as LinksMapPainter;
+        for (final note in notes.take(2)) {
+          final index = painter.nodes.indexWhere((node) => node.id == note.id);
+          expect(index, isNonNegative);
+          expect(painter.labels[index], '${noteTitle(context, note)}, ${context.l10n.mapConnections(0)}');
+          expect(find.semantics.byLabel(RegExp('^${noteTitle(context, note)},')), findsWidgets);
+        }
+      } finally {
+        semantics.dispose();
       }
     });
 
     for (final resize in [false, true]) {
-      fikraTest('zoom keeps the graph viewport centre fixed (${locale.languageCode}, resize=$resize)', locale: locale, (
+      fikraTest('zoom keeps the Map viewport centre fixed (${locale.languageCode}, resize=$resize)', locale: locale, (
         tester,
         db,
       ) async {
         phone(tester);
-        await graphNotes(tester, db);
+        await mapNotes(tester, db);
         if (resize) {
           tester.view.physicalSize = const Size(390, 620);
           await tester.pumpAndSettle();
@@ -78,6 +100,9 @@ void main() {
         final scene = controller.toScene(centre);
         final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
         for (final label in [l10n.zoomIn, l10n.zoomOut]) {
+          // Short screens scroll the Map page above the floating bar's clearance.
+          await tester.ensureVisible(find.bySemanticsLabel(label));
+          await tester.pumpAndSettle();
           await tester.tap(find.bySemanticsLabel(label));
           await tester.pumpAndSettle();
           final projected = MatrixUtils.transformPoint(controller.value, scene);
@@ -94,7 +119,7 @@ void main() {
     ) async {
       phone(tester);
       final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       final note = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('project');
         return LocalNotesRepository(db).create(
@@ -166,7 +191,7 @@ void main() {
     fikraTest('RTL file-size glyph order is number then Latin unit in $screen', (tester, db) async {
       phone(tester);
       final l10n = lookupAppLocalizations(tester.platformDispatcher.locale);
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       final note = await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('project');
         final repo = LocalNotesRepository(db);

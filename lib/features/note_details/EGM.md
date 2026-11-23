@@ -20,7 +20,7 @@ The pushed screens for one note: the read view at `/note/:id`, editor at `/note/
 - The improved/original toggle appears only when `Note.hasImprovedVersion` is true.
 - The proposal card appears only when `rewrite == RewriteStatus.pending` and `proposedText` is non-null. `_busy` locks its buttons during a decision.
 - After a delete, the screen pops only if the delete succeeded. Delete requires `confirmDestructive`.
-- `EditNoteScreen` creates its text controllers once, from the first non-null note, starting from `title` and `displayText`. Later stream emissions do not overwrite them.
+- `EditNoteScreen` creates its text controllers once, when note and attachment snapshots are available, starting from `title` and `displayText`. Later stream emissions do not overwrite them.
 - Once the controllers exist, leaving the screen goes through `_requestLeave`: unsaved edits prompt for save, discard, or stay. `_requestLeave` does nothing while `saving`.
 - `_exit` sets `_allowPop` before popping on the next frame, bypassing the unsaved-changes guard.
 - Field limits: title 80 characters, text 5000 characters.
@@ -77,7 +77,7 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 
 - Header `noteLinksHeader`, then the "Link to a note" secondary button (key `link-to-note`, always shown), then the empty text, the load failure or the rows inside a `FikraSwitcher`.
 - Your link: solid glass card, accent link icon, reason in `textLink`, options control (`link-options-<otherId>`). Suggestion: no fill, dashed `borderGraph` outline, sparkle icon in `textMeta`, outlined "Suggested" tag, inline accept (`link-accept-<otherId>`, primary pill) and reject (`link-reject-<otherId>`, secondary pill). The open area is `open-link-<otherId>`; row key `note-link-<otherId>`.
-- Options sheet: edit reason (closes, then opens `_LinkReasonSheet` from the page if it is still mounted) and remove (`confirmDestructive` with `removeLinkConfirm`, then `removeLink` and the `linkRemoved` toast). Reject has no confirmation. Accept and reject call `acceptPair`/`dismissPair` with the two note ids, not the row id, so they still work after a re-analysis replaced the suggestion. The options sheet builds its content from its own context, and `_options` captures the repository and link id before opening it; the confirmed removal runs with the sheet's context and only touches `_busy`/`setState` when the section is still mounted, so a page disposed under the sheet (note deleted) is never used.
+- Options sheet: edit reason (closes, then opens `_LinkReasonSheet` from the page if it is still mounted) and remove (`confirmDestructive` with `removeLinkConfirm`, then `removeLink` and the `linkRemoved` toast). Reject has no confirmation. Accept and reject call shared project-bound pair commands with the two note ids and the rendered link project, so they still work after a re-analysis replaced the suggestion. The options sheet builds its content from its own context, and `_options` captures the repository and link id before opening it; the confirmed removal runs with the sheet's context and only touches `_busy`/`setState` when the section is still mounted, so a page disposed under the sheet (note deleted) is never used.
 - Guards: `_busy` holds unordered note-pair keys (`_pairKey`) with an accept, reject or remove in flight; `_away` blocks a second open/sheet tap until the pushed route or sheet closes (also in the same frame, before go_router pushes). Failures use `runAction` with `linkUpdateFailed`. `_LinkReasonSheet` just closes for a link removed meanwhile (`updateLabel` is a no-op then); failures show an inline error banner and keep the sheet. It pops only if its route is still current, so dismissing it while saving never closes the page.
 - All controls are 48 dp targets with semantics labels (the open area has a 48 dp minimum height, which matters for a suggestion without a reason); insets are directional. No new colours or motion: sheets and the switcher use the existing reduced-motion handling.
 - Verification: `test/note_links_test.dart`; screenshots `28`–`34` in `test/screenshots/screens_test.dart`.
@@ -94,7 +94,7 @@ Edit initializes its file draft once from the attachment stream and shares `Atta
 
 ## Shared link actions (links phase 4)
 
-The former `note_link_actions.dart` part moved to `features/shared/note_link_actions.dart`. Details imports `showLinkOptions` without changing its user-link appearance, callbacks, keys, confirmation or editor lifecycle. Inline suggestion actions call shared `changeLinkPair` inside the existing per-pair busy guard. The graph uses those same sheets and pair operations. Existing `test/note_links_test.dart` remains the note-page regression suite.
+The former `note_link_actions.dart` part moved to `features/shared/note_link_actions.dart`. Details imports `showLinkOptions` without changing its user-link appearance, callbacks, keys, confirmation or editor lifecycle. Inline suggestion actions call shared `changeSuggestedPair` inside the existing per-pair busy guard, so accept/reject show the shared toast with Undo; Undo brings the suggestion row back with its actions on. The graph uses those same sheets and pair operations. Existing `test/note_links_test.dart` remains the note-page regression suite.
 
 ## Shared move confirmation (links phase 5a)
 
@@ -106,11 +106,19 @@ VoiceTranscript renders below each existing VoicePlayer from attachment streams.
 
 Edit combines the current auto preference with explicit new-voice toggles and persists queued requests with the note save; existing recordings retain transcript/status/provenance and are never automatically re-queued. The queue wakes only after successful commit. Later transcription success re-reads live note text, preserving user edits made during native work.
 
-A transcript counts as text the user wrote: it is in originalText (and editedText when edited), so «ارجع للأصل» keeps it and an unedited voice note offers no restore. Edit loads its text once. If a transcript is appended while Edit is open (detected when the stored originalText extends the originalText Edit loaded), saving keeps it: an untouched body saves the stored text, and a changed body gets the appended part added after a blank line unless the body already contains it. Edit save and the details transcribe/retry/redo button call `askTranscriptionNotificationsOnce` (features/shared) unawaited when they queue a recording.
+A transcript counts as text the user wrote: it is in originalText (and editedText when edited), so «ارجع للأصل» keeps it and an unedited voice note offers no restore. Edit loads its text once. Edit passes its base note/attachment snapshot and raw draft to the repository. After copies finish, the edit transaction reconciles the live body using attachment IDs, revisions and copied-block markers. It preserves typed edits, prior corrections and explicit removals; competing replacements raise NoteEditConflict. Conflict rollback removes new copies and keeps the editor draft. Edit save and the details transcribe/retry/redo button call `askTranscriptionNotificationsOnce` (features/shared) unawaited when they queue a recording.
 
 `interruptedTwice` failures show `trInterruptedTwice` and offer both retry and voice settings (a smaller model is one way out). The details button's transcribe/retry/redo is a manual request, so it resets the attempt count.
 
 Phase 3 TranscriptionSource renders remote:<serviceId> as the localized Via <name>, retaining attribution after config/key deletion through the alias archive. Stable remote failure codes show plain localized offline/auth/quota/size/service/response/timeout/consent messages. Failed recordings offer both retry and voice settings; existing manual enqueue/crash-attempt reset and local transcript behavior remain unchanged. No key or provider request body reaches details.
+
+## Pearl foundation (redesign phase 1)
+
+Reading content now uses opaque SolidSurface/surface or chip plus the line
+hairline; all old gradient Glass call sites are migrated. Selected controls
+use opaque selected fill with accent labels; primary/send actions use the
+single Pearl Add gradient and onAccent. Typography, layout and springs remain.
+Graph-related note rows, rewrite/read cards, transcripts, edit areas and the PDF page counter remain solid reading surfaces.
 
 ## Voice 2a transcript editing
 
@@ -119,3 +127,13 @@ VoiceTranscript displays correction ?? machine transcript, retaining machine sou
 TranscriptEditorScreen initializes its long text controller once, automatically chooses RTL/LTR, and uses existing Glass/TextField/buttons/banners/sheets. Save/cancel and the existing save/discard/stay guard protect unsaved edits. Restore machine transcript clears correction. A conflict keeps the draft with a plain reopen message. A safe save that changes the note schedules the processor without awaiting it (an identical body is not rewritten); unsafe replacement keeps the editor and offers explicit append. Machine text is never overwritten by editing. All actions use stable keys; no text/correction is logged.
 
 Edit's policy-only changes participate in the dirty guard. Attachment replacement preserves current transcription metadata from the live row; only explicit chip changes override live policy. Reopening an old recording never auto-queues it.
+
+## Ordering & IA (redesign phase 4)
+
+`NoteDetailsScreen` exposes a visible `note-edit` pill button (`SolidSurface` + `Icons.edit_outlined` + `edit` label, >= 48×48 dp target, `edit` semantics) in the top header row beside `options`, pushing `/note/<id>/edit` directly without opening the options sheet. While `_moving` is true, `note-edit` dims to 0.4 opacity and ignores taps alongside `options`. `_openingEdit` guards it from the tap until the editor closes, so a double tap opens one editor. The `Edit` row in `options` remains as a secondary path.
+
+## Finishing (redesign phase 8)
+
+`note_details_body.dart` marks the note title and `topicsHeader` with `Semantics(header: true)`; `edit_note_screen.dart` marks `editNote` with `Semantics(header: true)`; `_InlineAction` (`note_link_row.dart`) uses `minHeight: 36` + `Flexible` label so large text grows cleanly without overflowing.
+
+Cold `/note/:id` renders `NoteDetailsPlaceholder` inside the existing opaque Pearl scaffold until the note arrives. Initial-note validation, live-data authority and Edit behavior are unchanged.

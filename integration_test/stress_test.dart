@@ -4,6 +4,13 @@
 //   flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
 //     --driver=test_driver/integration_test.dart --target=integration_test/stress_test.dart
 //
+// Glass comparison: 12-second scroll + six held slides across tabs per tier:
+//   flutter drive --profile -d <device> --dart-define=FIKRA_STRESS_N=5000 \
+//     --dart-define=FIKRA_GLASS_PERF=true --driver=test_driver/integration_test.dart \
+//     --target=integration_test/stress_test.dart
+//
+// Add --dart-define=FIKRA_GLASS_PERF=true for per-tier Notes/slide/Links/graph metrics.
+// Use --dart-define=FIKRA_STRESS_N=5000 for the phase-3 phone comparison.
 // Results: build/integration_response_data.json. Uses its own database file and
 // never touches the app's real data or attachment files. Profile builds install
 // as com.fikra.app.stress (android/app/build.gradle.kts), a separate app.
@@ -12,9 +19,11 @@ import 'dart:math';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/motion/motion.dart';
+import 'package:fikra/core/widgets/glass_watchdog.dart';
 import 'package:fikra/data/ai/demo_ai_service.dart';
 import 'package:fikra/data/files/attachment_store.dart';
 import 'package:fikra/data/local/database.dart';
@@ -29,6 +38,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'glass_perf_scenario.dart';
+
+const _glassPerf = bool.fromEnvironment('FIKRA_GLASS_PERF');
 
 const _n = int.fromEnvironment('FIKRA_STRESS_N', defaultValue: 1000);
 
@@ -128,6 +141,10 @@ void main() {
     final file = File('${dir.path}/fikra_stress.sqlite');
     if (file.existsSync()) file.deleteSync();
     final db = FikraDatabase(NativeDatabase.createInBackground(file));
+    addTearDown(() {
+      if (file.existsSync()) file.deleteSync();
+    });
+    addTearDown(db.close);
     final rnd = Random(42);
 
     Future<double> time(Future<void> Function() f) async {
@@ -136,12 +153,27 @@ void main() {
       return sw.elapsedMicroseconds / 1000;
     }
 
-    // ---- seed: N notes, ~2 links each, 40 chat entries
+    // ---- seed: N notes, one confirmed chain edge + one AI suggestion each, 40 chat entries
     final now = DateTime.now();
     final ids = <String>[];
     report['seed_ms'] = await time(() async {
       await db.into(db.projects).insert(Project(id: 'p', name: 'ضغط', createdAt: now));
       await db.into(db.settings).insert(Setting(key: 'current_project', value: 'p'));
+      await db.batch((batch) {
+        for (var g = 0; g < 5; g++) {
+          batch.insert(
+            db.noteGroups,
+            NoteGroup(
+              id: 'g$g',
+              projectId: 'p',
+              name: 'مجموعة $g',
+              position: g,
+              createdAt: now,
+              parentId: g == 1 ? 'g0' : null,
+            ),
+          );
+        }
+      });
       const chunk = 500;
       for (var start = 0; start < _n; start += chunk) {
         await db.batch((b) {
@@ -161,6 +193,7 @@ void main() {
                 status: ProcessingStatus.ready,
                 concepts: Value([topic, 'مراجعة', 'نوت ${i % 50}'].join('|')),
                 cluster: Value(topic),
+                groupId: i % 3 == 0 ? Value('g${i % 5}') : const Value(null),
                 createdAt: now.subtract(Duration(minutes: i * 37)),
                 updatedAt: now,
               ),
@@ -199,10 +232,10 @@ void main() {
                 id: 'l$i-$k',
                 projectId: 'p',
                 sourceId: 'n$i',
-                targetId: 'n${rnd.nextInt(i)}',
+                targetId: k == 0 ? 'n${i - 1}' : 'n${(i + 37) % _n}',
                 label: 'مرتبطة',
                 strength: rnd.nextDouble(),
-                origin: LinkOrigin.ai,
+                origin: k == 0 ? LinkOrigin.user : LinkOrigin.ai,
                 dismissed: false,
                 createdAt: now,
               ),
@@ -246,6 +279,7 @@ void main() {
     final timings = <FrameTiming>[];
     void collect(List<FrameTiming> t) => timings.addAll(t);
     SchedulerBinding.instance.addTimingsCallback(collect);
+    addTearDown(() => SchedulerBinding.instance.removeTimingsCallback(collect));
     Future<Map<String, Object>> frames(Future<void> Function() f) async {
       timings.clear();
       await f();
@@ -264,13 +298,26 @@ void main() {
     report['open_app_to_list_ms'] = await time(() async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [databaseProvider.overrideWithValue(db), attachmentStoreProvider.overrideWithValue(_NoFiles())],
+          overrides: [
+            databaseProvider.overrideWithValue(db),
+            attachmentStoreProvider.overrideWithValue(_NoFiles()),
+            if (_glassPerf) glassTimingsSourceProvider.overrideWithValue(MeasurementGlassTimings()),
+          ],
           child: const FikraApp(),
         ),
       );
       await until(find.byType(NoteCard).hitTestable(), maxMs: 120000);
     });
     report['rss_after_list_mb'] = ProcessInfo.currentRss ~/ (1024 * 1024);
+    if (_glassPerf) {
+      SchedulerBinding.instance.removeTimingsCallback(collect);
+      final container = ProviderScope.containerOf(tester.element(find.byType(NoteCard).first));
+      await runGlassPerformance(tester, binding, container);
+      binding.reportData = {...?binding.reportData, ...report};
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      return;
+    }
 
     final list = find.byType(Scrollable).last;
     report['scroll_notes'] = await frames(() async {
@@ -292,9 +339,11 @@ void main() {
     await tester.enterText(find.byType(TextField).first, '');
     await tester.pumpAndSettle();
 
-    // Links graph
+    // Links Map
     report['open_links_ms'] = await time(() async {
-      await tester.tap(find.byKey(const ValueKey('nav-2')));
+      await tester.tap(find.byKey(const ValueKey('nav-1')));
+      await until(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
+      await tester.tap(find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.map)));
       await until(find.byType(InteractiveViewer));
       await tester.pump();
     });
@@ -309,7 +358,7 @@ void main() {
 
     // Ask tab (chat history)
     report['open_ask_ms'] = await time(() async {
-      await tester.tap(find.byKey(const ValueKey('nav-3')));
+      await tester.tap(find.byKey(const ValueKey('nav-2')));
       await tester.pumpAndSettle();
     });
 
@@ -370,7 +419,7 @@ void main() {
 
     Future<void> wait(int ms) => Future<void>.delayed(Duration(milliseconds: ms));
 
-    await tester.tap(find.byKey(const ValueKey('nav-1')));
+    await tester.tap(find.byKey(const ValueKey('nav-0')));
     await wait(800);
     final notesScroll = tester.state<ScrollableState>(find.byType(Scrollable).last).position;
     report['fps_notes_scroll'] = await live('notes_scroll', () async {
@@ -393,17 +442,17 @@ void main() {
       }
     });
     report['fps_tabs'] = await live('tabs', () async {
-      for (final tab in [2, 3, 0, 1, 2, 1]) {
+      for (final branch in [2, 3, 4, 1, 2, 1]) {
         await during(() async {
-          await tester.tap(find.byKey(ValueKey('nav-$tab')));
+          await tester.tap(find.byKey(ValueKey(branch == 0 ? 'nav-add' : 'nav-${branch - 1}')));
           await wait(FikraMotion.enter.inMilliseconds);
         });
         await wait(450);
       }
     });
-    await tester.tap(find.byKey(const ValueKey('nav-2')));
+    await tester.tap(find.byKey(const ValueKey('nav-1')));
     await wait(1200);
-    report['fps_graph_pan'] = await live('graph_pan', () async {
+    report['fps_map_pan'] = await live('map_pan', () async {
       for (var i = 0; i < 3; i++) {
         await during(
           () => tester.timedDrag(
@@ -415,7 +464,7 @@ void main() {
         await wait(500);
       }
     });
-    await tester.tap(find.byKey(const ValueKey('nav-1')));
+    await tester.tap(find.byKey(const ValueKey('nav-0')));
     await wait(800);
     report['fps_open_note'] = await live('open_note', () async {
       for (var i = 0; i < 3; i++) {
@@ -440,7 +489,5 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));
-    await db.close();
-    file.deleteSync();
   }, timeout: const Timeout(Duration(minutes: 20)));
 }

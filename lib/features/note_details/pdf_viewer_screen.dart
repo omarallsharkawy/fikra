@@ -145,10 +145,10 @@ class _DocumentState extends ConsumerState<_Document> {
           right: 0,
           child: IgnorePointer(
             child: Center(
-              child: Glass(
+              child: SolidSurface(
                 radius: FikraRadius.full,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                color: context.colors.glass,
+                color: context.colors.surface,
                 child: ValueListenableBuilder<int>(
                   valueListenable: _page,
                   builder: (context, page, _) =>

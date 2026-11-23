@@ -19,8 +19,8 @@ class PhotoThumb extends StatelessWidget {
         fit: BoxFit.cover,
         cacheWidth: 360,
         errorBuilder: (context, _, _) => ColoredBox(
-          color: context.colors.pressed,
-          child: Center(child: Icon(Icons.broken_image_outlined, color: context.colors.textMeta)),
+          color: context.colors.chip,
+          child: Center(child: Icon(Icons.broken_image_outlined, color: context.colors.textSecondary)),
         ),
       ),
     );

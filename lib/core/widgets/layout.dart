@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../theme/tokens.dart';
+import 'pearl_canvas.dart';
+import 'navigation_inset.dart';
 
-/// Full-screen page outside the tab shell: screen gradient + transparent
+/// Full-screen page outside the tab shell: Pearl canvas + transparent
 /// Scaffold + SafeArea. Tab screens get the same chrome from AppShell.
 class FikraScaffold extends StatelessWidget {
   const FikraScaffold({super.key, required this.child, this.safeBottom = true});
@@ -11,8 +12,7 @@ class FikraScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(gradient: context.colors.screenGradient),
+    return PearlCanvas(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(bottom: safeBottom, child: child),
@@ -31,8 +31,11 @@ class FillScroll extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, box) => SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: NavigationInset.of(context)),
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: box.maxHeight),
+          constraints: BoxConstraints(
+            minHeight: (box.maxHeight - NavigationInset.of(context)).clamp(0, double.infinity),
+          ),
           child: Center(child: child),
         ),
       ),

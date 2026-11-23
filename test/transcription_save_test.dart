@@ -42,7 +42,7 @@ void main() {
           tester.view.physicalSize = const Size(390, 844);
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
-          await pumpUntil(tester, find.text(l.startNewProject));
+          await pumpUntil(tester, find.text(l.welcomeStartWriting));
           final project = await pumpFuture(tester, () => LocalProjectsRepository(db).create('Save project'));
           await pumpFuture(tester, () => LocalSettingsRepository(db, _Copies()).setAutoTranscribe(automatic));
           Note? existing;
@@ -61,7 +61,7 @@ void main() {
             tester.element(find.text('Save project')).push('/note/${existing!.id}/edit');
             await pumpUntil(tester, find.text(l.editNoteTitle));
           } else {
-            await tester.tap(Tabs.finder(Tabs.add));
+            await tester.tap(Tabs.addButton);
             await pumpUntil(tester, find.byType(AddScreen));
           }
           final type = editing ? EditNoteScreen : AddScreen;
@@ -130,7 +130,7 @@ void main() {
 
   // Saves one voice recording from Add with auto transcription on.
   Future<void> saveVoiceFromAdd(WidgetTester tester, String path) async {
-    await tester.tap(Tabs.finder(Tabs.add));
+    await tester.tap(Tabs.addButton);
     await pumpUntil(tester, find.byType(AddScreen));
     final dynamic editor = tester.state(find.byType(AddScreen));
     editor.updateDraft(() {
@@ -167,7 +167,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        await pumpUntil(tester, find.text(l.startNewProject));
+        await pumpUntil(tester, find.text(l.welcomeStartWriting));
         await pumpFuture(tester, () => LocalProjectsRepository(db).create('Save project'));
         final settings = LocalSettingsRepository(db, _Copies());
         await pumpFuture(tester, () => settings.setAutoTranscribe(true));

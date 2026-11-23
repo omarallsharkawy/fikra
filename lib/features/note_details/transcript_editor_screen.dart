@@ -141,7 +141,7 @@ class _TranscriptEditorScreenState extends ConsumerState<TranscriptEditorScreen>
                       children: [
                         Text(l.v2EditTranscript, style: context.text.title),
                         const SizedBox(height: FikraSpace.s16),
-                        Glass(
+                        SolidSurface(
                           radius: FikraRadius.lg,
                           padding: const EdgeInsets.all(FikraSpace.s16),
                           child: TextField(

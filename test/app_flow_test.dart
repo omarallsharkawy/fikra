@@ -1,3 +1,4 @@
+import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/data/attachment_draft.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/features/settings/settings_screen.dart';
@@ -19,7 +20,7 @@ import 'support/app_harness.dart';
 void main() {
   final l10n = lookupAppLocalizations(const Locale('ar'));
   fikraTest('welcome -> demo project -> notes list -> links tab', (tester, db) async {
-    final tryDemo = find.text(l10n.trySampleProject);
+    final tryDemo = find.text(l10n.welcomeTrySample);
     await pumpUntil(tester, tryDemo);
     expect(Directionality.of(tester.element(tryDemo)), TextDirection.rtl);
 
@@ -29,12 +30,13 @@ void main() {
     expect(find.text(l10n.sampleProjectName), findsOneWidget);
 
     await tester.tap(Tabs.finder(Tabs.links));
-    await pumpUntil(tester, find.text('الذكاء الاصطناعي'));
+    await pumpUntil(tester, find.byKey(LinksLibrarySegment.key(LinksLibrarySegment.browse)));
+    expect(find.text(l10n.linksBrowse), findsOneWidget);
   });
 
   fikraTest('notes search filters after a short pause and clears instantly', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.trySampleProject));
-    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.welcomeTrySample));
+    await tester.tap(find.text(l10n.welcomeTrySample));
     await pumpUntil(tester, find.text(l10n.sample7Title));
     expect(find.text(l10n.sample6Title), findsWidgets);
 
@@ -53,11 +55,11 @@ void main() {
   });
 
   fikraTest('settings: theme choice applies and wipe returns to welcome', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.trySampleProject));
-    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.welcomeTrySample));
+    await tester.tap(find.text(l10n.welcomeTrySample));
     await pumpUntil(tester, find.text(l10n.sample7Title));
 
-    await tester.tap(find.byIcon(Icons.settings_outlined).hitTestable().first);
+    await tester.tap(Tabs.finder(Tabs.me));
     await pumpUntil(tester, find.text(l10n.appearance));
     expect(Theme.of(tester.element(find.text(l10n.appearance))).brightness, Brightness.dark);
 
@@ -78,22 +80,24 @@ void main() {
       200,
       scrollable: find.descendant(of: find.byType(SettingsScreen), matching: find.byType(Scrollable)).first,
     );
+    await Scrollable.ensureVisible(tester.element(find.text(l10n.eraseAll)), alignment: .5);
+    await tester.pump(const Duration(milliseconds: 250));
     await tester.tap(find.text(l10n.eraseAll));
     await pumpUntil(tester, find.text(l10n.eraseAllConfirm));
     await tester.tap(find.text(l10n.eraseAllConfirm));
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     await pumpUntil(tester, find.text(l10n.eraseAllDone));
     expect(await pumpFuture(tester, () => db.select(db.notes).get()), isEmpty);
     // The theme choice survives the wipe.
-    expect(Theme.of(tester.element(find.text(l10n.startNewProject))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text(l10n.welcomeStartWriting))).brightness, Brightness.light);
   });
 
   fikraTest('add: one composer box holds title, text, tools and save', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.trySampleProject));
-    await tester.tap(find.text(l10n.trySampleProject));
+    await pumpUntil(tester, find.text(l10n.welcomeTrySample));
+    await tester.tap(find.text(l10n.welcomeTrySample));
     await pumpUntil(tester, find.text(l10n.sample7Title));
 
-    await tester.tap(Tabs.finder(Tabs.add));
+    await tester.tap(Tabs.addButton);
     final save = find.byKey(const ValueKey('add-save'));
     await pumpUntil(tester, save);
     expect(find.byKey(const ValueKey('add-mic')), findsOneWidget);
@@ -116,19 +120,19 @@ void main() {
   });
 
   fikraTest('deleting the last project returns to welcome', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
 
     final projects = LocalProjectsRepository(db);
     final p = await pumpFuture(tester, () => projects.create('مؤقت'));
     await pumpUntil(tester, find.text('مؤقت'));
 
     await pumpFuture(tester, () => projects.delete(p.id));
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     expect(await pumpFuture(tester, () => db.select(db.projects).get()), isEmpty);
   });
 
   fikraTest('a note from another project still shows its related notes', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     final projects = LocalProjectsRepository(db);
     final notes = LocalNotesRepository(db);
 
@@ -168,7 +172,7 @@ void main() {
     });
 
     Future<Note> seed(WidgetTester tester, FikraDatabase db) async {
-      await pumpUntil(tester, find.text(l10n.startNewProject));
+      await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
       late Note note;
       await pumpFuture(tester, () async {
         final p = await LocalProjectsRepository(db).create('مشروع');
@@ -294,7 +298,7 @@ void main() {
   });
 
   fikraTest('an opened note shows its content on the first frame, before the query returns', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     late Note note;
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('مشروع');
@@ -334,8 +338,11 @@ void main() {
 
   // go_router 18 falls back to NoTransitionPage for Flutter's own MaterialApp,
   // so pushed screens must stay explicit pages with the app's transition.
-  fikraTest('note, edit and settings slide in with the push transition through the real router', (tester, db) async {
-    await pumpUntil(tester, find.text(l10n.startNewProject));
+  fikraTest('note and edit push transitions and the settings alias resolve through the real router', (
+    tester,
+    db,
+  ) async {
+    await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
     late Note note;
     await pumpFuture(tester, () async {
       final p = await LocalProjectsRepository(db).create('مشروع');
@@ -378,6 +385,8 @@ void main() {
     await systemBack(EditNoteScreen); // the form is unchanged, so it leaves without asking
     expect(find.byType(NoteDetailsScreen), findsOneWidget);
     await systemBack(NoteDetailsScreen);
-    await expectSlideIn('/settings', SettingsScreen);
+    tester.element(find.byType(AppShell)).go('/settings');
+    await pumpUntil(tester, find.byType(SettingsScreen));
+    expect(GoRouter.of(tester.element(find.byType(SettingsScreen))).state.uri.path, '/me');
   });
 }

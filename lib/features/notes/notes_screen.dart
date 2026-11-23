@@ -9,18 +9,37 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../core/format.dart';
 import '../../core/motion/motion.dart';
+import '../../core/motion/stagger.dart';
+import '../../core/motion/stagger_visibility.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/local/database.dart';
+import '../connections/links_library_provider.dart';
 import '../projects/project_header.dart';
 import '../shared/group_filter.dart';
+import '../shared/group_form.dart';
 import '../shared/group_options.dart';
 import '../shared/note_groups.dart';
 import '../shared/selection_bar.dart';
 import '../shared/note_selection_actions.dart';
 import 'note_card.dart';
+import 'notes_action_strip.dart';
 
 part 'notes_selection.dart';
+
+enum NotesSort { newest, oldest }
+
+enum NotesKindFilter { voice, files }
+
+class NotesSortNotifier extends Notifier<NotesSort> {
+  @override
+  NotesSort build() => NotesSort.newest;
+
+  void set(NotesSort sort) => state = sort;
+}
+
+/// Session-scoped sort order for the notes list.
+final notesSortProvider = NotifierProvider<NotesSortNotifier, NotesSort>(NotesSortNotifier.new);
 
 class NotesScreen extends ConsumerStatefulWidget {
   const NotesScreen({super.key});
@@ -29,23 +48,31 @@ class NotesScreen extends ConsumerStatefulWidget {
   ConsumerState<NotesScreen> createState() => _NotesScreenState();
 }
 
-class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
+class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProviderStateMixin, _Selection {
   final _search = TextEditingController();
+  late final StaggerController _stagger = StaggerController(this);
+  // Snapshot only: StaggerVisibility owns the inherited visibility dependency.
+  bool get _tickerEnabled => TickerMode.getValuesNotifier(context).value.enabled;
   String _query = '';
   Timer? _debounce;
 
   /// The group filter: a group id (with its sub-groups), or null for all.
   String? _filter;
 
-  // Lower-cased search text per note, rebuilt only when the note changes, so
-  // a keystroke doesn't re-lowercase thousands of notes.
-  final _haystacks = <String, (String, String, String, String)>{};
+  /// Kind filter (voice or files), mutually exclusive with [_filter].
+  NotesKindFilter? _kindFilter;
 
-  // The filtered + grouped list, recomputed only when the notes, the groups,
-  // the filter or the query change (not on every rebuild).
+  // Normalized search text and tokenized words per note, rebuilt only when the
+  // note changes, so a keystroke doesn't re-normalize or re-tokenize thousands of notes.
+  final _haystacks = <String, (String, String, String, String, List<String>)>{};
+
+  // The filtered + grouped list, recomputed only when inputs change.
   List<Note>? _lastAll;
   List<NoteGroup>? _lastGroups;
+  Map<String, List<NoteAttachment>>? _lastAttachments;
   String? _lastFilter;
+  NotesKindFilter? _lastKindFilter;
+  NotesSort? _lastSort;
   String? _lastQuery;
   DateTime? _lastDay;
   String? _lastLocale;
@@ -57,13 +84,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
   @override
   void dispose() {
     _debounce?.cancel();
+    _stagger.dispose();
     _search.dispose();
     super.dispose();
   }
 
   void _onSearch(String v) {
     _debounce?.cancel();
-    // Short debounce: typing stays smooth on big projects; clearing is instant.
     final q = v.trim();
     if (q.isEmpty) {
       setState(() => _query = '');
@@ -74,25 +101,69 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     });
   }
 
-  String _haystack(Note n) {
-    // Keyed on the searchable fields themselves (updatedAt only has 1 s
-    // resolution): string equality is cheap and never serves stale text.
-    final cached = _haystacks[n.id];
-    if (cached != null && cached.$1 == n.title && cached.$2 == n.displayText && cached.$3 == n.concepts) {
-      return cached.$4;
-    }
-    final h = '${n.title}\n${n.displayText}\n${n.concepts}'.toLowerCase();
-    _haystacks[n.id] = (n.title, n.displayText, n.concepts, h);
-    return h;
+  void _showSortSheet(BuildContext context, NotesSort current) {
+    final l10n = context.l10n;
+    showFikraSheet<void>(
+      context,
+      title: l10n.notesSort,
+      builder: (sheet) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (order, label) in [(NotesSort.newest, l10n.linksNewest), (NotesSort.oldest, l10n.linksOldest)])
+            SheetOption(
+              key: ValueKey('notes-sort-${order.name}'),
+              label: label,
+              selected: order == current,
+              icon: order == current ? Icons.check_rounded : Icons.sort_rounded,
+              onTap: () {
+                ref.read(notesSortProvider.notifier).set(order);
+                Navigator.pop(sheet);
+              },
+            ),
+        ],
+      ),
+    );
   }
 
-  void _rebuildRows(List<Note> all, List<NoteGroup> groups) {
-    // Rebuild date labels when the locale or calendar day changes.
+  (String, List<String>) _haystack(Note n) {
+    final cached = _haystacks[n.id];
+    if (cached != null && cached.$1 == n.title && cached.$2 == n.displayText && cached.$3 == n.concepts) {
+      return (cached.$4, cached.$5);
+    }
+    final h = normalizeArabic('${n.title}\n${n.displayText}\n${n.concepts}');
+    final words = tokenizeNormalizedArabic(h);
+    _haystacks[n.id] = (n.title, n.displayText, n.concepts, h, words);
+    return (h, words);
+  }
+
+  bool _matchesQuery(Note n, String q, List<String> qWords) {
+    final (haystack, words) = _haystack(n);
+    return matchesNormalizedArabic(haystack, q, haystackWords: words, queryWords: qWords);
+  }
+
+  static bool _matchesKind(Note n, List<NoteAttachment> attachments, NotesKindFilter kind) => switch (kind) {
+    NotesKindFilter.voice =>
+      attachments.any((a) => a.kind == AttachmentKind.voice) || (attachments.isEmpty && n.source == NoteSource.voice),
+    NotesKindFilter.files =>
+      attachments.any((a) => a.kind == AttachmentKind.pdf || a.kind == AttachmentKind.image) ||
+          (attachments.isEmpty && n.source == NoteSource.pdf),
+  };
+
+  void _rebuildRows(
+    List<Note> all,
+    List<NoteGroup> groups,
+    Map<String, List<NoteAttachment>> attachmentsByNote,
+    NotesSort sort,
+  ) {
     final now = ref.read(appClockProvider)();
     final today = DateTime(now.year, now.month, now.day);
+    final attachmentsUnchanged = _kindFilter == null || identical(attachmentsByNote, _lastAttachments);
     if (identical(all, _lastAll) &&
         identical(groups, _lastGroups) &&
+        attachmentsUnchanged &&
         _filter == _lastFilter &&
+        _kindFilter == _lastKindFilter &&
+        sort == _lastSort &&
         _query == _lastQuery &&
         today == _lastDay &&
         _lastLocale == context.l10n.localeName) {
@@ -100,32 +171,40 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
     }
     _lastAll = all;
     _lastGroups = groups;
+    _lastAttachments = attachmentsByNote;
     _lastFilter = _filter;
+    _lastKindFilter = _kindFilter;
+    _lastSort = sort;
     _lastQuery = _query;
     _lastDay = today;
     _lastLocale = context.l10n.localeName;
     _groupsById = {for (final g in groups) g.id: g};
-    final q = _query.toLowerCase();
+    final q = normalizeArabic(_query);
+    final qWords = q.isEmpty ? const <String>[] : tokenizeNormalizedArabic(q);
     final filter = _filter;
+    final kindFilter = _kindFilter;
     final inGroup = filter == null ? null : groupWithChildren(groups, filter);
-    final notes = q.isEmpty && inGroup == null
+    final filtered = q.isEmpty && inGroup == null && kindFilter == null
         ? all
         : [
             for (final n in all)
-              if ((inGroup == null || inGroup.contains(n.groupId)) && (q.isEmpty || _haystack(n).contains(q))) n,
+              if ((inGroup == null || inGroup.contains(n.groupId)) &&
+                  (kindFilter == null || _matchesKind(n, attachmentsByNote[n.id] ?? const [], kindFilter)) &&
+                  (q.isEmpty || _matchesQuery(n, q, qWords)))
+                n,
           ];
+    final notes = sort == NotesSort.newest ? filtered : filtered.reversed.toList();
     if (_haystacks.length > all.length * 2) {
       final live = {for (final n in all) n.id};
       _haystacks.removeWhere((id, _) => !live.contains(id));
     }
-    // Group by calendar day (list is newest first); one header per day.
     final rows = <_Row>[];
     DateTime? day;
     for (final n in notes) {
       final d = DateTime(n.createdAt.year, n.createdAt.month, n.createdAt.day);
       if (d != day) {
         day = d;
-        rows.add(_Row.header(Fmt.dayHeader(context.l10n, d, now: ref.read(appClockProvider)())));
+        rows.add(_Row.header(Fmt.dayHeader(context.l10n, d, now: now)));
       }
       rows.add(_Row.note(n));
     }
@@ -137,29 +216,47 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
   @override
   Widget build(BuildContext context) {
     final project = ref.watch(selectedProjectProvider);
-    // Another project: its own filter, and no selection carried over.
     ref.listen(selectedProjectProvider, (previous, next) {
       if (previous?.id == next?.id) return;
+      _stagger.onProjectChanged(next?.id, tickerEnabled: _tickerEnabled);
       setState(() {
         _filter = null;
+        _kindFilter = null;
         _selection = null;
       });
     });
+    final sort = ref.watch(notesSortProvider);
     final notesAsync = ref.watch(selectedNotesProvider);
     final all = notesAsync.value ?? const <Note>[];
     final groupsAsync = project == null
         ? const AsyncData(<NoteGroup>[])
         : ref.watch(groupsOfProjectProvider(project.id));
     final groups = groupsAsync.value ?? const <NoteGroup>[];
-    // The filtered group was deleted: back to all notes.
+    final attachmentsByNote = project == null
+        ? const <String, List<NoteAttachment>>{}
+        : ref.watch(projectAttachmentsProvider(project.id)).value ?? const <String, List<NoteAttachment>>{};
+    final suggestionsCount = project == null
+        ? 0
+        : ref.watch(linksLibraryProvider(project.id).select((v) => v.value?.suggestions.length ?? 0));
     if (_filter != null && groupsAsync.hasValue && !groups.any((g) => g.id == _filter)) _filter = null;
-    _rebuildRows(all, groups);
-    if (notesAsync.hasValue) _keepVisible(_rowOf);
+    _rebuildRows(all, groups, attachmentsByNote, sort);
+    if (notesAsync.hasValue) {
+      _keepVisible(_rowOf);
+      _stagger.maybeStart(
+        projectId: project?.id,
+        visibleIds: _rows.map((r) => r.note?.id).whereType<String>(),
+        tickerEnabled: _tickerEnabled,
+        reduced: FikraMotion.reduced(context),
+      );
+    }
     final rows = _rows;
     final selection = _selection;
+    final activeDays = all.isEmpty ? 0 : activeDaysThisWeek(all, ref.read(appClockProvider)());
+    final actionStrip = project == null || all.isEmpty || selection != null
+        ? null
+        : resolveNotesActionStrip(context, ref, projectId: project.id, notes: all, suggestionsCount: suggestionsCount);
 
     return PopScope(
-      // Back ends a selection first and stays on the screen.
       canPop: selection == null,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _endSelection();
@@ -167,28 +264,71 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          StaggerVisibility(controllers: [_stagger], onHidden: _endSelection),
           if (selection == null)
             ProjectHeader(title: context.l10n.notesTitle)
           else
             SelectionHeader(count: selection.length, onClose: _endSelection),
+          if (selection == null && activeDays > 0) ActiveDaysChip(days: activeDays),
           if (all.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
-              child: FikraField(
-                controller: _search,
-                hint: context.l10n.searchNotesHint,
-                icon: Icons.search_rounded,
-                textInputAction: TextInputAction.search,
-                onChanged: _onSearch,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FikraField(
+                      key: const ValueKey('notes-search'),
+                      controller: _search,
+                      hint: context.l10n.searchNotesHint,
+                      icon: Icons.search_rounded,
+                      textInputAction: TextInputAction.search,
+                      clearable: true,
+                      clearButtonKey: const ValueKey('notes-search-clear'),
+                      onChanged: _onSearch,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FikraIconButton(
+                    key: const ValueKey('notes-sort'),
+                    icon: Icons.tune_rounded,
+                    label: context.l10n.notesSort,
+                    size: FikraSpace.field,
+                    onTap: () => _showSortSheet(context, sort),
+                  ),
+                ],
               ),
             ),
-          if (groups.isNotEmpty)
+          ?actionStrip,
+          if (all.isNotEmpty || groups.isNotEmpty)
             GroupFilterRow(
               groups: groups,
               selectedId: _filter,
-              // Another filter starts with no selection.
+              allSelected: _filter == null && _kindFilter == null,
+              leadingChips: [
+                ChoiceTag(
+                  key: const ValueKey('notes-filter-voice'),
+                  label: context.l10n.filterVoice,
+                  selected: _kindFilter == NotesKindFilter.voice,
+                  onTap: () => setState(() {
+                    _kindFilter = _kindFilter == NotesKindFilter.voice ? null : NotesKindFilter.voice;
+                    _filter = null;
+                    _selection = null;
+                  }),
+                ),
+                ChoiceTag(
+                  key: const ValueKey('notes-filter-files'),
+                  label: context.l10n.filterFiles,
+                  selected: _kindFilter == NotesKindFilter.files,
+                  onTap: () => setState(() {
+                    _kindFilter = _kindFilter == NotesKindFilter.files ? null : NotesKindFilter.files;
+                    _filter = null;
+                    _selection = null;
+                  }),
+                ),
+              ],
               onSelect: (id) => setState(() {
                 _filter = id;
+                _kindFilter = null;
                 _selection = null;
               }),
               onOptions: (group) => showGroupOptions(context, ref, group),
@@ -204,7 +344,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
                       : all.isEmpty
                       ? 'empty'
                       : _matchCount == 0
-                      ? (_query.isEmpty ? 'group-empty' : 'no-results')
+                      ? (_query.isEmpty ? (_kindFilter != null ? 'kind-empty' : 'group-empty') : 'no-results')
                       : 'list',
                 ),
                 child: notesAsync.hasError && !notesAsync.hasValue
@@ -229,9 +369,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
                     ? FillScroll(
                         child: _query.isEmpty
                             ? EmptyState(
-                                icon: Icons.folder_copy_outlined,
-                                title: context.l10n.groupEmptyTitle,
-                                description: context.l10n.groupEmptyBody,
+                                icon: _kindFilter != null ? Icons.filter_list_off_rounded : Icons.folder_copy_outlined,
+                                title: _kindFilter != null
+                                    ? context.l10n.filterEmptyTitle
+                                    : context.l10n.groupEmptyTitle,
+                                description: _kindFilter != null
+                                    ? context.l10n.filterEmptyBody
+                                    : context.l10n.groupEmptyBody,
                               )
                             : EmptyState(
                                 icon: Icons.search_off_rounded,
@@ -239,9 +383,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
                                 description: context.l10n.noResultsBody(_query),
                               ),
                       )
-                    // Built lazily: only the visible rows exist, whatever the size.
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          FikraSpace.screen,
+                          4,
+                          FikraSpace.screen,
+                          24 + NavigationInset.of(context),
+                        ),
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         itemCount: rows.length,
                         findChildIndexCallback: (key) => key is ValueKey<String> ? _rowOf[key.value] : null,
@@ -251,23 +399,31 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
                           if (n == null) {
                             return Padding(
                               padding: const EdgeInsets.only(top: 10, bottom: 10),
-                              child: Text(
-                                row.header!,
-                                style: context.text.section.copyWith(color: context.colors.textSecondary),
+                              child: Semantics(
+                                header: true,
+                                child: Text(
+                                  row.header!,
+                                  style: context.text.section.copyWith(color: context.colors.textSecondary),
+                                ),
                               ),
                             );
                           }
                           return Padding(
                             key: ValueKey(n.id),
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: NoteCard(
-                              note: n,
-                              group: _groupsById[n.groupId],
-                              selected: selection?.contains(n.id),
-                              onTap: selection != null
-                                  ? () => _toggle(n.id)
-                                  : () => context.push('/note/${n.id}', extra: n),
-                              onLongPress: () => selection != null ? _toggle(n.id) : _startSelection(n.id),
+                            child: StaggeredEntry(
+                              stagger: _stagger,
+                              itemId: n.id,
+                              child: NoteCard(
+                                note: n,
+                                group: _groupsById[n.groupId],
+                                selected: selection?.contains(n.id),
+                                onTap: selection == null ? null : () => _toggle(n.id),
+                                onOpenWithOrigin: selection != null
+                                    ? null
+                                    : (origin) => context.push('/note/${n.id}', extra: (n, origin)),
+                                onLongPress: () => selection != null ? _toggle(n.id) : _startSelection(n.id),
+                              ),
                             ),
                           );
                         },
@@ -275,7 +431,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with _Selection {
               ),
             ),
           ),
-          if (selection != null) _actionBar(context, selection.length),
+          if (selection != null) NavigationInsetPadding(child: _actionBar(context, selection.length)),
         ],
       ),
     );

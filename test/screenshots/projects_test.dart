@@ -52,7 +52,7 @@ void main() {
 
           BuildContext ctx() => tester.element(find.byType(Scaffold).last);
 
-          await pumpUntil(tester, find.text(l10n.startNewProject));
+          await pumpUntil(tester, find.text(l10n.welcomeStartWriting));
           final longName = ar ? 'تدريب الصيف في الشركة، الأسبوع الأول والتاني' : 'Summer internship, weeks one and two';
           final (rag, plain) = await pumpFuture(tester, () async {
             final projects = LocalProjectsRepository(db);

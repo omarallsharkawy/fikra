@@ -8,10 +8,9 @@ class _PdfChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Glass(
+    return SolidSurface(
       radius: FikraRadius.md,
-      color: context.colors.pressed,
-      borderColor: Colors.transparent,
+      color: context.colors.chip,
       padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 12, 8),
       child: Row(
         children: [
@@ -74,8 +73,8 @@ class _ImageStrip extends StatelessWidget {
                     child: Container(
                       width: 26,
                       height: 26,
-                      decoration: BoxDecoration(color: context.colors.scrim, shape: BoxShape.circle),
-                      child: Icon(Icons.close_rounded, size: 16, color: context.colors.textOnSelected),
+                      decoration: BoxDecoration(color: context.colors.chip, shape: BoxShape.circle),
+                      child: Icon(Icons.close_rounded, size: 16, color: context.colors.textPrimary),
                     ),
                   ),
                 ),

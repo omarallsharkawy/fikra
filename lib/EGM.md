@@ -34,3 +34,5 @@ Schema v6 adds local user links, dismissed-pair memory and note groups. Reposito
 Schema v7 stores attachment transcription state and provenance. Settings persist optional auto-transcription (off by default), saved recordings enter a separate durable queue, and details/card streams expose progress. A local engine adapter beside the voice experiment implements the data-layer TranscriptionEngine seam; app wiring shares the Whisper lock with trial file/live inference. No external transcription services are implemented.
 
 Phase 3 adds user-configured remote transcription behind the same queue seam. Config/consent/selection use the existing settings table, credentials use Keystore-backed secure storage, and the composition root selects local/remote adapters at job start. Consent gates both trials and saved-note requests; remote data is never logged. This is independent of the still-unimplemented connected AI backend.
+
+Connections uses a shared project adjacency provider and background large-project link derivation. Pushed connections and cold note details paint opaque Pearl with static loading shapes.

@@ -11,6 +11,8 @@ class _Toolbar extends StatelessWidget {
     required this.imagesEnabled,
     required this.canSave,
     required this.saving,
+    this.saveTick,
+    this.saveTickActive = false,
     required this.onMic,
     required this.onPdf,
     required this.onImages,
@@ -25,6 +27,8 @@ class _Toolbar extends StatelessWidget {
   final bool imagesEnabled;
   final bool canSave;
   final bool saving;
+  final Animation<double>? saveTick;
+  final bool saveTickActive;
   final VoidCallback onMic;
   final VoidCallback onPdf;
   final VoidCallback onImages;
@@ -55,7 +59,9 @@ class _Toolbar extends StatelessWidget {
                     icon: Icons.stop_rounded,
                     label: context.l10n.stopRecording,
                     color: c.danger,
-                    foreground: c.textOnSelected,
+                    foreground: c.dangerBg,
+                    pulse: onStop != null,
+                    pulseColor: c.danger,
                     onTap: onStop,
                   ),
                 ],
@@ -85,13 +91,12 @@ class _Toolbar extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (showSave)
-                    _RoundAction(
+                    SaveTickButton(
                       key: const ValueKey('add-save'),
-                      icon: Icons.check_rounded,
                       label: context.l10n.save,
-                      gradient: c.sendGradient,
-                      foreground: c.textOnSend,
                       loading: saving,
+                      tick: saveTick,
+                      tickActive: saveTickActive,
                       onTap: canSave ? onSave : null,
                     ),
                 ],
@@ -121,9 +126,9 @@ class _ToolButton extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: context.colors.pressed,
+            color: context.colors.chip,
             shape: BoxShape.circle,
-            border: Border.all(color: context.colors.border, width: FikraSpace.hairline),
+            border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
           ),
           child: Icon(icon, size: 21, color: context.colors.textPrimary),
         ),
@@ -132,7 +137,7 @@ class _ToolButton extends StatelessWidget {
   }
 }
 
-/// The composer's main action (save, stop): filled circle at the end side.
+/// Filled round action (stop recording) at the end side.
 class _RoundAction extends StatelessWidget {
   const _RoundAction({
     super.key,
@@ -140,38 +145,42 @@ class _RoundAction extends StatelessWidget {
     required this.label,
     required this.foreground,
     required this.onTap,
-    this.gradient,
     this.color,
-    this.loading = false,
+    this.pulse = false,
+    this.pulseColor,
   });
   final IconData icon;
   final String label;
   final Color foreground;
   final VoidCallback? onTap;
-  final Gradient? gradient;
   final Color? color;
-  final bool loading;
+  final bool pulse;
+  final Color? pulseColor;
 
   @override
   Widget build(BuildContext context) {
+    Widget circle = Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: Icon(icon, size: 24, color: foreground),
+    );
+    if (pulse) {
+      circle = RecordingPulse(
+        key: const ValueKey('add-stop-pulse'),
+        active: true,
+        color: pulseColor ?? foreground,
+        child: circle,
+      );
+    }
     return Pressable(
-      onTap: loading ? null : onTap,
+      onTap: onTap,
       semanticLabel: label,
       minTarget: true,
       child: AnimatedOpacity(
-        opacity: onTap == null && !loading ? 0.35 : 1,
+        opacity: onTap == null ? 0.35 : 1,
         duration: FikraMotion.reduced(context) ? Duration.zero : FikraMotion.exit,
-        child: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(gradient: gradient, color: color, shape: BoxShape.circle),
-          child: loading
-              ? Padding(
-                  padding: const EdgeInsets.all(13),
-                  child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
-                )
-              : Icon(icon, size: 24, color: foreground),
-        ),
+        child: circle,
       ),
     );
   }

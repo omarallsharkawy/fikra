@@ -1,11 +1,12 @@
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/core/motion/pressable.dart';
 import 'package:fikra/core/theme/fikra_theme.dart';
+import 'package:fikra/core/theme/tokens.dart';
 import 'package:fikra/data/local/database.dart';
 import 'package:fikra/features/projects/project_header.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -25,19 +26,28 @@ Future<void> pumpProjectHeaders(
   WidgetTester tester, {
   required Locale locale,
   required List<HeaderCase> headers,
+  Brightness brightness = Brightness.dark,
   double width = 390,
+  double height = 640,
   double scale = 1,
+  bool boldText = false,
+  double? lineHeightScaleFactorOverride,
+  double? letterSpacingOverride,
+  double? wordSpacingOverride,
+  String? projectName,
+  Widget Function(Widget action)? wrapAction,
+  String? actionLabel,
 }) async {
   final l10n = lookupAppLocalizations(locale);
   tester.view.devicePixelRatio = 1;
-  tester.view.physicalSize = Size(width, 640);
+  tester.view.physicalSize = Size(width, height);
   await tester.pumpWidget(
     RepaintBoundary(
       key: appBoundaryKey,
       child: ProviderScope(
         overrides: [
           selectedProjectProvider.overrideWithValue(
-            Project(id: 'sample', name: l10n.sampleProjectName, createdAt: DateTime(2026, 11, 10)),
+            Project(id: 'sample', name: projectName ?? l10n.sampleProjectName, createdAt: DateTime(2026, 11, 10)),
           ),
         ],
         child: MaterialApp(
@@ -45,32 +55,44 @@ Future<void> pumpProjectHeaders(
           debugShowCheckedModeBanner: false,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          theme: buildFikraTheme(Brightness.dark),
+          theme: buildFikraTheme(brightness),
           home: Builder(
-            builder: (context) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
-              child: Scaffold(
-                body: Column(
-                  children: [
-                    for (final header in headers)
-                      ProjectHeader(
-                        title: header.title,
-                        trailing: header.action
-                            ? Pressable(
-                                onTap: () {},
-                                minTarget: true,
-                                semanticLabel: l10n.clearChatA11y,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Icon(Icons.delete_sweep_outlined, color: Theme.of(context).iconTheme.color),
-                                ),
-                              )
-                            : null,
-                      ),
-                  ],
+            builder: (context) {
+              var media = MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale), boldText: boldText);
+              if (lineHeightScaleFactorOverride != null ||
+                  letterSpacingOverride != null ||
+                  wordSpacingOverride != null) {
+                media = media.applyTextStyleOverrides(
+                  lineHeightScaleFactorOverride: lineHeightScaleFactorOverride,
+                  letterSpacingOverride: letterSpacingOverride,
+                  wordSpacingOverride: wordSpacingOverride,
+                  paragraphSpacingOverride: null,
+                );
+              }
+              return MediaQuery(
+                data: media,
+                child: Scaffold(
+                  body: Column(
+                    children: [
+                      for (final header in headers)
+                        ProjectHeader(
+                          title: header.title,
+                          trailing: header.action
+                              ? (wrapAction ?? (w) => w)(
+                                  HeaderActionButton(
+                                    icon: Icons.delete_sweep_outlined,
+                                    label: actionLabel ?? l10n.clear,
+                                    semanticLabel: l10n.clearChatA11y,
+                                    onTap: () {},
+                                  ),
+                                )
+                              : null,
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -79,110 +101,95 @@ Future<void> pumpProjectHeaders(
   await tester.pumpAndSettle();
 }
 
-void expectSingleLineTitle(WidgetTester tester, String title) {
-  final paragraph = tester.renderObject<RenderParagraph>(find.text(title));
-  final natural = TextPainter(
-    text: paragraph.text,
-    textDirection: paragraph.textDirection,
-    textScaler: paragraph.textScaler,
-    locale: paragraph.locale,
-  )..layout();
-  expect(paragraph.size.height, closeTo(natural.height, 0.01), reason: 'The full title must render on one line');
-  expect(paragraph.size.width, greaterThanOrEqualTo(natural.width - 0.01), reason: 'Keep normal-size title width');
-  expect(paragraph.didExceedMaxLines, isFalse);
-  natural.dispose();
-}
-
-void expectHeaderLayout(WidgetTester tester, HeaderCase header, AppLocalizations l10n, double width, double scale) {
+void expectHeaderLayout(
+  WidgetTester tester,
+  HeaderCase header,
+  AppLocalizations l10n,
+  double width,
+  double scale, {
+  String? expectedProjectName,
+}) {
+  final root = find.ancestor(of: find.text(header.title), matching: find.byType(ProjectHeader));
+  expect(find.descendant(of: root, matching: find.byKey(const ValueKey('header-settings'))), findsNothing);
   final title = find.text(header.title);
-  final root = find.ancestor(of: title, matching: find.byType(ProjectHeader));
-  expectSingleLineTitle(tester, header.title);
   final titleParagraph = tester.renderObject<RenderParagraph>(title);
-  expect((titleParagraph.text as TextSpan).style!.fontSize, 26);
-  expect(titleParagraph.textScaler.scale(26), closeTo(26 * scale, 0.01));
-  expect(Directionality.of(tester.element(title)), l10n.localeName == 'ar' ? TextDirection.rtl : TextDirection.ltr);
+  expect((titleParagraph.text as TextSpan).style!.fontSize, 28);
+  expect(titleParagraph.textScaler.scale(28), closeTo(28 * scale, 0.01));
+  final rtl = l10n.localeName == 'ar';
+  expect(Directionality.of(tester.element(title)), rtl ? TextDirection.rtl : TextDirection.ltr);
 
-  final projectName = find.descendant(of: root, matching: find.text(l10n.sampleProjectName));
-  final projectText = tester.widget<Text>(projectName);
-  expect(projectText.maxLines, 1);
-  expect(projectText.overflow, TextOverflow.ellipsis);
-  final projectParagraph = tester.renderObject<RenderParagraph>(projectName);
-  final ellipsis = TextPainter(
-    text: TextSpan(text: '${l10n.sampleProjectName.characters.first}\u2026', style: projectText.style),
-    textDirection: projectParagraph.textDirection,
-    textScaler: projectParagraph.textScaler,
-    locale: projectParagraph.locale,
-  )..layout();
-  expect(
-    projectParagraph.size.width,
-    greaterThanOrEqualTo(ellipsis.width),
-    reason: 'The project name must show at least an initial and ellipsis',
-  );
-  ellipsis.dispose();
+  final name = expectedProjectName ?? l10n.sampleProjectName;
   final chip = find.descendant(
     of: root,
-    matching: find.byWidgetPredicate(
-      (w) => w is Pressable && w.semanticLabel == l10n.projectPillA11y(l10n.sampleProjectName),
-    ),
+    matching: find.byWidgetPredicate((w) => w is Pressable && w.semanticLabel == l10n.projectPillA11y(name)),
   );
-  final settings = find.descendant(
-    of: root,
-    matching: find.byWidgetPredicate((w) => w is Pressable && w.semanticLabel == l10n.settings),
-  );
-  final titleRect = tester.getRect(title);
+  final titleRect = tester.getRect(find.text(header.title));
   final chipRect = tester.getRect(chip);
-  final settingsRect = tester.getRect(settings);
-  final sameRow = (titleRect.center.dy - chipRect.center.dy).abs() < 1;
-  if (sameRow) {
-    final gap = l10n.localeName == 'ar' ? titleRect.left - chipRect.right : chipRect.left - titleRect.right;
-    expect(gap, greaterThanOrEqualTo(12 - 0.01));
+  expect(chipRect.top, greaterThanOrEqualTo(titleRect.bottom + 8));
+  expect(chipRect.width, greaterThanOrEqualTo(48));
+  expect(chipRect.height, greaterThanOrEqualTo(48));
+  expect(chipRect.left, greaterThanOrEqualTo(0));
+  expect(chipRect.right, lessThanOrEqualTo(width));
+  expect(tester.widget<Text>(find.descendant(of: chip, matching: find.text(name))).overflow, TextOverflow.ellipsis);
+  if (l10n.localeName == 'ar') {
+    expect(chipRect.right, closeTo(width - FikraSpace.screen, .01));
   } else {
-    expect(chipRect.top - titleRect.bottom, greaterThanOrEqualTo(8 - 0.01));
+    expect(chipRect.left, closeTo(FikraSpace.screen, .01));
   }
-  for (final rect in [titleRect, chipRect, settingsRect]) {
-    expect(rect.left, greaterThanOrEqualTo(0));
-    expect(rect.right, lessThanOrEqualTo(width));
-  }
-  for (final rect in [chipRect, settingsRect]) {
-    expect(rect.width, greaterThanOrEqualTo(48));
-    expect(rect.height, greaterThanOrEqualTo(48));
-  }
-  if (header.action) {
-    final action = find.descendant(
-      of: root,
-      matching: find.byWidgetPredicate((w) => w is Pressable && w.semanticLabel == l10n.clearChatA11y),
-    );
-    expect(action.hitTestable(), findsOneWidget);
-    expect(tester.getRect(action).width, greaterThanOrEqualTo(48));
-  }
-  expect(tester.takeException(), isNull);
 }
 
 void main() {
   setUpAll(loadAppFonts);
-
-  testWidgets('Arabic Add header renders the complete title on one line', (tester) async {
-    addTearDown(tester.view.reset);
-    final locale = const Locale('ar');
-    final title = lookupAppLocalizations(locale).addTitle;
-    await pumpProjectHeaders(tester, locale: locale, headers: [(title: title, action: false)]);
-    expectSingleLineTitle(tester, title);
-  });
-
   for (final language in ['ar', 'en']) {
-    for (final width in [320.0, 390.0]) {
-      for (final scale in [1.0, 1.3]) {
-        testWidgets('all tab headers: $language, $width dp, text scale $scale', (tester) async {
+    final locale = Locale(language);
+    final l = lookupAppLocalizations(locale);
+    for (final scale in [1.0, 1.3, 2.0]) {
+      for (final width in [320.0, 390.0]) {
+        testWidgets('project header has no Settings and retains chip $language $width $scale', (tester) async {
           addTearDown(tester.view.reset);
-          final locale = Locale(language);
-          final l10n = lookupAppLocalizations(locale);
-          final headers = tabHeaders(l10n);
-          await pumpProjectHeaders(tester, locale: locale, headers: headers, width: width, scale: scale);
+          final headers = tabHeaders(l);
+          await pumpProjectHeaders(tester, locale: locale, headers: headers, width: width, height: 1200, scale: scale);
+          expect(tester.takeException(), isNull);
           for (final header in headers) {
-            expectHeaderLayout(tester, header, l10n, width, scale);
+            expectHeaderLayout(tester, header, l, width, scale);
           }
         });
       }
     }
+    testWidgets('long project and accessibility spacing fit $language', (tester) async {
+      addTearDown(tester.view.reset);
+      final name = List.filled(12, l.sampleProjectName).join(' ');
+      await pumpProjectHeaders(
+        tester,
+        locale: locale,
+        headers: [(title: l.notesTitle, action: false)],
+        width: 360,
+        projectName: name,
+        boldText: true,
+        letterSpacingOverride: 2,
+        wordSpacingOverride: 8,
+      );
+      expectHeaderLayout(tester, (title: l.notesTitle, action: false), l, 360, 1, expectedProjectName: name);
+      expect(tester.takeException(), isNull);
+    });
   }
+  testWidgets('wrapped action uses icon only and keeps its accessible name', (tester) async {
+    addTearDown(tester.view.reset);
+    final semantics = tester.ensureSemantics();
+    try {
+      final l = lookupAppLocalizations(const Locale('en'));
+      await pumpProjectHeaders(
+        tester,
+        locale: const Locale('en'),
+        headers: [(title: l.askTitle, action: true)],
+        wrapAction: (w) => Padding(padding: EdgeInsets.zero, child: w),
+      );
+      expect(find.text(l.clear), findsNothing);
+      final action = find.byType(HeaderActionButton);
+      expect(tester.getSize(action), const Size(48, 48));
+      expect(tester.getSemantics(action).label, l.clearChatA11y);
+    } finally {
+      semantics.dispose();
+    }
+  });
 }
