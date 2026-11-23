@@ -79,6 +79,8 @@ flutter:
 
   assets:
     - lib/l10n/demo_vocabulary.json
+    - assets/icons/fikrah-icon-dark-mode.png
+    - assets/icons/fikrah-icon-light-mode.png
 
   fonts:
     - family: NotoSansArabic

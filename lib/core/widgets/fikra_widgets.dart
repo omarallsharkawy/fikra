@@ -1,6 +1,7 @@
 /// Shared UI kit. Import this barrel; each export holds one kind of widget.
 library;
 
+export 'brand_mark.dart';
 export 'buttons.dart';
 export 'dialogs.dart';
 export 'empty_states.dart';
