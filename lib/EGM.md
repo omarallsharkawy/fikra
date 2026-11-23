@@ -1,5 +1,9 @@
 # lib
 
+## Backend-aligned default composition
+
+The default `development` mode now uses `data/product`, `product_runtime.dart`, `product_router.dart` and account/workspace/conversation/capture controllers. See `docs/features/backend-aligned-journeys/implementation.md` for boundaries, fixtures and validation. The existing local-first implementation documented below is preserved under explicit `FIKRA_MODE=demo`; it is not the default production-client contract. Connected mode remains unavailable.
+
 ## Overview
 
 All application source for FIKRA, a local-first Arabic and English notes app for Android. `main.dart` starts the app. The four subpackages split the code by role: `app` wires it together, `core` holds shared presentation code, `data` owns storage and the AI boundary, and `features` holds the screens.

@@ -15,8 +15,9 @@ export 'tab_bar/sliding_tab_bar.dart';
 export 'branch_container.dart';
 
 class AppShell extends ConsumerStatefulWidget {
-  const AppShell({super.key, required this.shell});
+  const AppShell({super.key, required this.shell, this.showLegacyActivity = true});
   final StatefulNavigationShell shell;
+  final bool showLegacyActivity;
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -141,11 +142,13 @@ class _AppShellState extends ConsumerState<AppShell> {
                       branch: shell.currentIndex,
                       keyboardOpen: hidden,
                       shrink: shrinkEnabled ? _scrollShrink : null,
-                      aboveBar: ActivityCapsule(
-                        branch: shell.currentIndex,
-                        onOpenAdd: () => shell.goBranch(0, initialLocation: false),
-                        onOpenNote: (id) => context.push('/note/$id'),
-                      ),
+                      aboveBar: widget.showLegacyActivity
+                          ? ActivityCapsule(
+                              branch: shell.currentIndex,
+                              onOpenAdd: () => shell.goBranch(0, initialLocation: false),
+                              onOpenNote: (id) => context.push('/note/$id'),
+                            )
+                          : null,
                       onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
                     ),
                   ),

@@ -2063,4 +2063,479 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapPanHint => 'Pan to explore the map';
+
+  @override
+  String get productMyAccount => 'My account';
+
+  @override
+  String get productThisIsAVolatileDevelopmentWorkspaceExistingLocal =>
+      'This is a volatile development workspace. Existing local notes are kept separately in legacy demo mode.';
+
+  @override
+  String get productSignOutLocally => 'Sign out locally';
+
+  @override
+  String get productProductionSetupPending => 'Production setup pending';
+
+  @override
+  String get productPasswordPolicyEmailActionRoutingAndGooglePlatform =>
+      'Password policy, email-action routing and Google platform configuration require agreement. No real credentials or emails are used here.';
+
+  @override
+  String get productYourSessionExpiredSignInAgain => 'Your session expired. Sign in again.';
+
+  @override
+  String get productPreviewAccountJourneys => 'Preview account journeys';
+
+  @override
+  String get productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery =>
+      'Use fixture addresses only. Registration, verification and recovery preview states; they do not send emails or create real accounts.';
+
+  @override
+  String get productEmail => 'Email';
+
+  @override
+  String get productNewPasswordPreview => 'New password (preview)';
+
+  @override
+  String get productPassword => 'Password';
+
+  @override
+  String get productFixtureActionToken => 'Fixture action token';
+
+  @override
+  String get productAwaitingVerificationUseFixtureVerifyToPreviewSuccess =>
+      'Awaiting verification. Use fixture-verify to preview success. No email was sent.';
+
+  @override
+  String get productPreviewVerification => 'Preview verification';
+
+  @override
+  String get productPreviewResendRequest => 'Preview resend request';
+
+  @override
+  String get productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed =>
+      'Generic recovery acknowledgment (fixture). No delivery is claimed.';
+
+  @override
+  String get productPreviewResetForm => 'Preview reset form';
+
+  @override
+  String get productUseFixtureResetTheRealPasswordPolicyIs =>
+      'Use fixture-reset. The real password policy is not finalized.';
+
+  @override
+  String get productPreviewPasswordReset => 'Preview password reset';
+
+  @override
+  String get productPreviewRecoveryRequest => 'Preview recovery request';
+
+  @override
+  String get productPreviewRegistration => 'Preview registration';
+
+  @override
+  String get productOpenFixtureSession => 'Open fixture session';
+
+  @override
+  String get productBackToSignIn => 'Back to sign in';
+
+  @override
+  String get productPreviewNewAccount => 'Preview new account';
+
+  @override
+  String get productForgotPassword => 'Forgot password';
+
+  @override
+  String get productGoogleSignInWaitingForApprovedPlatformConfiguration =>
+      'Google sign-in: waiting for approved platform configuration. No Google request is made.';
+
+  @override
+  String get productPreviewSampleWorkspace => 'Preview sample workspace';
+
+  @override
+  String get productPreviewSeparateEmptyAccount => 'Preview separate empty account';
+
+  @override
+  String get productVerificationPreviewCompleteSignInSeparately => 'Verification preview complete. Sign in separately.';
+
+  @override
+  String get productResetPreviewCompleteSignInAgain => 'Reset preview complete. Sign in again.';
+
+  @override
+  String get productLocalPrivateStateClearedServerRevocationIsNot =>
+      'Local private state cleared. Server revocation is not confirmed.';
+
+  @override
+  String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount =>
+      'Development acknowledgment only; no real delivery or account operation occurred.';
+
+  @override
+  String get productCaptureAThought => 'Capture a thought';
+
+  @override
+  String get productCloseComposer => 'Close composer';
+
+  @override
+  String get productASaveAttemptIsUnresolvedRetryItsOriginal =>
+      'A save attempt is unresolved. Retry its original project and content with the same key before changing the draft.';
+
+  @override
+  String get productReturnToThePendingAttemptSProject => 'Return to the pending attempt’s project';
+
+  @override
+  String get productTitleOptional => 'Title (optional)';
+
+  @override
+  String get productYourThought => 'Your thought';
+
+  @override
+  String get productReconcileTheSameSaveAttempt => 'Reconcile the same save attempt';
+
+  @override
+  String get productSaveTextNote => 'Save text note';
+
+  @override
+  String get productSavingAndProcessingAreSeparateAMissingTitle =>
+      'Saving and processing are separate. A missing title stays a placeholder until a backend result supplies one.';
+
+  @override
+  String get productVoiceReviewedText => 'Voice → reviewed text';
+
+  @override
+  String get productAutomaticStopAt60SecondsTranscriptionDoesNot =>
+      'Automatic stop at 60 seconds. Transcription does not save a note.';
+
+  @override
+  String get productStopRecording => 'Stop recording';
+
+  @override
+  String get productRecordVoice => 'Record voice';
+
+  @override
+  String get productPreviewTranscription => 'Preview transcription';
+
+  @override
+  String get productReviewAndEditTranscript => 'Review and edit transcript';
+
+  @override
+  String get productUseThisTextInTheDraft => 'Use this text in the draft';
+
+  @override
+  String get productThenPressSaveTextNoteWhenReady => 'Then press Save text note when ready.';
+
+  @override
+  String get productDiscardRecording => 'Discard recording';
+
+  @override
+  String get productLocalPDFs => 'Local PDFs';
+
+  @override
+  String get productPDFsStayOnThisDeviceTheyAreNot =>
+      'PDFs stay on this device. They are not uploaded, extracted or attached to a server note. Save text separately.';
+
+  @override
+  String get productChooseLocalPDF => 'Choose local PDF';
+
+  @override
+  String get productUntitledProcessing => 'Untitled / processing';
+
+  @override
+  String get productSavedQueued => 'Saved · queued';
+
+  @override
+  String get productSavedProcessing => 'Saved · processing';
+
+  @override
+  String get productProcessingCompleted => 'Processing completed';
+
+  @override
+  String get productSavedProcessingFailed => 'Saved · processing failed';
+
+  @override
+  String get productSavedStatusUnavailable => 'Saved · status unavailable';
+
+  @override
+  String get productDevelopmentFixturesMemoryOnlyNoLiveBackend =>
+      'Development fixtures · memory only · no live backend';
+
+  @override
+  String get productMicrophonePermissionIsRequiredEnableItInDevice =>
+      'Microphone permission is required. Enable it in device settings and try again.';
+
+  @override
+  String get productCheckTheInputYourDraftHasBeenKept => 'Check the input. Your draft has been kept.';
+
+  @override
+  String get productSignInAgainOrCheckYourCredentials => 'Sign in again, or check your credentials.';
+
+  @override
+  String get productVerifyYourEmailBeforeSigningIn => 'Verify your email before signing in.';
+
+  @override
+  String get productThisItemIsNoLongerAvailableReloadThe =>
+      'This item is no longer available. Reload the current project.';
+
+  @override
+  String get productTheStateChangedReloadAndReviewBeforeActing =>
+      'The state changed. Reload and review before acting again.';
+
+  @override
+  String get productThisCreationAttemptRefersToADeletedNote =>
+      'This creation attempt refers to a deleted note. It will not be recreated.';
+
+  @override
+  String get productTheInputIsTooLargeReduceItBefore => 'The input is too large. Reduce it before retrying.';
+
+  @override
+  String get productThisRecordingFormatIsNotSupported => 'This recording format is not supported.';
+
+  @override
+  String get productRequestLimitReachedWaitBeforeTryingAgain => 'Request limit reached. Wait before trying again.';
+
+  @override
+  String get productThisServiceIsUnavailableYourInputHasBeen =>
+      'This service is unavailable. Your input has been kept.';
+
+  @override
+  String get productTheResultIsUncertainReconcileBeforeTryingAgain =>
+      'The result is uncertain. Reconcile before trying again.';
+
+  @override
+  String productRetryAfterSeconds(int seconds) {
+    return 'Retry after ${seconds}s.';
+  }
+
+  @override
+  String get productReloadRetry => 'Reload / retry';
+
+  @override
+  String get productBack => 'Back';
+
+  @override
+  String get productRenameProject => 'Rename project';
+
+  @override
+  String get productNewProject => 'New project';
+
+  @override
+  String get productName => 'Name';
+
+  @override
+  String get productCancel => 'Cancel';
+
+  @override
+  String get productSave => 'Save';
+
+  @override
+  String get productProject => 'Project';
+
+  @override
+  String get productRename => 'Rename';
+
+  @override
+  String get productDeleteProject => 'Delete project?';
+
+  @override
+  String get productThisPermanentlyDeletesItsNotesConversationsAndKnowledge =>
+      'This permanently deletes its notes, conversations and knowledge relationships.';
+
+  @override
+  String get productDelete => 'Delete';
+
+  @override
+  String get productDeleteProject2 => 'Delete project';
+
+  @override
+  String get productNotes => 'Notes';
+
+  @override
+  String get productReload => 'Reload';
+
+  @override
+  String get productSearchThisProject => 'Search this project';
+
+  @override
+  String get productSearch => 'Search';
+
+  @override
+  String get productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic =>
+      'Development search uses literal fixture matching, not semantic retrieval.';
+
+  @override
+  String get productStillProcessingReloadLaterTheSavedNoteIs =>
+      'Still processing. Reload later; the saved note is safe.';
+
+  @override
+  String get productSearchResults => 'Search results';
+
+  @override
+  String get productNoResultsInThisProject => 'No results in this project.';
+
+  @override
+  String get productShowAllSavedNotes => 'Show all saved notes';
+
+  @override
+  String get productNoNotesYet => 'No notes yet';
+
+  @override
+  String get productNote => 'Note';
+
+  @override
+  String get productTheCurrentProposalWasReloadedReviewItBefore =>
+      'The current proposal was reloaded. Review it before choosing another action.';
+
+  @override
+  String get productThisNoteIsUnavailableInTheSelectedProject => 'This note is unavailable in the selected project.';
+
+  @override
+  String get productSavedContent => 'Saved content';
+
+  @override
+  String get productSaveEdit => 'Save edit';
+
+  @override
+  String get productCancelEditing => 'Cancel editing';
+
+  @override
+  String get productEditNote => 'Edit note';
+
+  @override
+  String get productRefinementProposal => 'Refinement proposal';
+
+  @override
+  String get productAcceptAndReplaceSavedContent => 'Accept and replace saved content';
+
+  @override
+  String get productReplaceSavedContent => 'Replace saved content?';
+
+  @override
+  String get productAcceptancePermanentlyReplacesTheContentAndStartsProcessing =>
+      'Acceptance permanently replaces the content and starts processing again. There is no undo or version history.';
+
+  @override
+  String get productAccept => 'Accept';
+
+  @override
+  String get productRejectProposal => 'Reject proposal';
+
+  @override
+  String get productRequestAnotherProposal => 'Request another proposal';
+
+  @override
+  String get productRetryReprocess => 'Retry / reprocess';
+
+  @override
+  String get productReloadStatus => 'Reload status';
+
+  @override
+  String get productRelatedNotes => 'Related notes';
+
+  @override
+  String get productNoCurrentRelationships => 'No current relationships.';
+
+  @override
+  String get productDeleteNote => 'Delete note';
+
+  @override
+  String get productDeleteNote2 => 'Delete note?';
+
+  @override
+  String get productItsRelationshipsAndSourceCitationsWillAlsoBe =>
+      'Its relationships and source citations will also be removed.';
+
+  @override
+  String get productKnowledgeMap => 'Knowledge map';
+
+  @override
+  String get productReloadMap => 'Reload map';
+
+  @override
+  String get productEveryNodeIsANoteLinesShowSupplied =>
+      'Every node is a note. Lines show supplied relationships only. Drag nodes or pinch to zoom.';
+
+  @override
+  String get productNoCompletedNotesInThisProjectYet => 'No completed notes in this project yet.';
+
+  @override
+  String get productZoomIn => 'Zoom in';
+
+  @override
+  String get productResetView => 'Reset view';
+
+  @override
+  String productGraphCounts(int notes, int relationships) {
+    String _temp0 = intl.Intl.pluralLogic(
+      notes,
+      locale: localeName,
+      other: '$notes notes',
+      one: '1 note',
+      zero: 'No notes',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      relationships,
+      locale: localeName,
+      other: '$relationships relationships',
+      one: '1 relationship',
+      zero: 'No relationships',
+    );
+    return '$_temp0 · $_temp1';
+  }
+
+  @override
+  String get productAsk => 'Ask';
+
+  @override
+  String get productNewConversation => 'New conversation';
+
+  @override
+  String get productReloadHistoryList => 'Reload history list';
+
+  @override
+  String get productConversationHistory => 'Conversation history';
+
+  @override
+  String get productStartAConversationOrOpenItsHistoryConversations =>
+      'Start a conversation or open its history. Conversations stay inside the selected project.';
+
+  @override
+  String get productYou => 'You';
+
+  @override
+  String get productNotSupportedByThisProjectSKnowledge => 'Not supported by this project’s knowledge';
+
+  @override
+  String get productProvisionalNotConfirmedSaved => 'Provisional · not confirmed saved';
+
+  @override
+  String get productStopWaiting => 'Stop waiting';
+
+  @override
+  String get productReloadHistoryBeforeSendingAgain => 'Reload history before sending again';
+
+  @override
+  String get productHistoryReloadedReviewItBeforeDeliberatelySendingYour =>
+      'History reloaded. Review it before deliberately sending your retained draft again.';
+
+  @override
+  String get productAskThisProject => 'Ask this project';
+
+  @override
+  String get productSend => 'Send';
+
+  @override
+  String get productDeleteConversation => 'Delete conversation?';
+
+  @override
+  String get productThisDeletesTheConversationAndMessagesWhileKeeping =>
+      'This deletes the conversation and messages, while keeping the notes.';
+
+  @override
+  String get productDeleteConversation2 => 'Delete conversation';
+
+  @override
+  String get productReviewFailedSave => 'Review draft for a new save';
+
+  @override
+  String get productNewIntentionalSaveExplanation =>
+      'The previous attempt was rejected or refers to a deleted note. Keep the draft and start a new intentional save only when you choose Save again.';
 }

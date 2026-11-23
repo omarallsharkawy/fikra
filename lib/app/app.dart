@@ -8,13 +8,16 @@ import '../core/theme/tokens.dart';
 import '../core/widgets/glass_preview.dart';
 import 'providers.dart';
 import 'router.dart';
+import 'product_router.dart';
+import 'product_runtime.dart';
 
 class FikraApp extends ConsumerWidget {
   const FikraApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(startupMaintenanceProvider);
+    final development = ref.watch(appModeProvider) == AppMode.development;
+    if (!development) ref.watch(startupMaintenanceProvider);
     // Wait for the saved theme (one quick DB read) so a restart never flashes
     // the wrong appearance. A read error falls back to the system setting.
     final savedTheme = ref.watch(appThemeProvider);
@@ -42,13 +45,15 @@ class FikraApp extends ConsumerWidget {
             systemNavigationBarColor: context.colors.canvas,
             systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
           ),
-          child: GlassDebugOverlay(child: child!),
+          child: GlassDebugOverlay(
+            child: development ? ProductBoundary(runtime: ref.watch(productRuntimeProvider), child: child!) : child!,
+          ),
         );
       },
       locale: ref.watch(appLocaleProvider),
       supportedLocales: const [Locale('ar'), Locale('en')],
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      routerConfig: ref.watch(routerProvider),
+      routerConfig: development ? ref.watch(productRouterProvider) : ref.watch(routerProvider),
     );
   }
 }

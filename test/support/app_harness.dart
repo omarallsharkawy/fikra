@@ -102,6 +102,8 @@ void fikraTest(
         key: appBoundaryKey,
         child: ProviderScope(
           overrides: [
+            // These regressions exercise the preserved local-first demo.
+            appModeProvider.overrideWithValue(AppMode.demo),
             if (glassTier != null) glassTierProvider(false).overrideWith((ref) => glassTier),
             if (glassPreview) glassPreviewEnabledProvider.overrideWithValue(true),
             databaseProvider.overrideWithValue(db),

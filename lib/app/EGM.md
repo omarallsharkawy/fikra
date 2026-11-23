@@ -1,5 +1,9 @@
 # lib/app
 
+## Backend-aligned default composition
+
+The default `development` mode now uses `data/product`, `product_runtime.dart`, `product_router.dart` and account/workspace/conversation/capture controllers. See `docs/features/backend-aligned-journeys/implementation.md` for boundaries, fixtures and validation. The existing local-first implementation documented below is preserved under explicit `FIKRA_MODE=demo`; it is not the default production-client contract. Connected mode remains unavailable.
+
 ## Overview
 
 Composition root of the FIKRA Flutter app. This package reads the build mode,

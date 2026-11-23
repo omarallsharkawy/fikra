@@ -4,9 +4,25 @@
 
 ده تطبيق الأندرويد (Flutter). الباك إند (FastAPI + AI) في ريبو لوحده.
 
+## Current development phase
+
+The default `flutter run` opens backend-aligned product journeys using explicit, volatile development fixtures. No backend or third-party provider is contacted. Registration/email/Google/processing/search/chat/transcription previews are not real integration or durable storage. Existing local notes and files are kept separately without migration.
+
+- [Behavior audit](docs/phases/backend-alignment/behavior-audit.md)
+- [User-story capability map](docs/features/backend-aligned-journeys/story-capability-map.md)
+- [Implementation, fixture limits, connection checklist and walkthrough](docs/features/backend-aligned-journeys/implementation.md)
+- [Validation record](docs/phases/backend-alignment/validation-results.md)
+- [Reviewed backend handbook](https://github.com/theg4br/fikrah/blob/dev/docs/mobile/README.md)
+
+Use `flutter run --dart-define=FIKRA_MODE=demo` for the preserved local-first app described below. `FIKRA_MODE=connected` remains unavailable. Appearance and language preferences are shared; private fixture and legacy note data are separate.
+
+## Legacy local demo reference
+
+The remaining local storage/attachment/transcription documentation describes explicit legacy demo mode, not the new default product contract.
+
 ## النسخة الحالية: تجريبية
 - كل حاجة offline على الموبايل: داتابيز SQLite (drift)، والملفات في مساحة التطبيق الخاصة.
-- الذكاء الاصطناعي تجريبي (`DemoAiService`). الباك إند هيتركّب مكانه: [docs/backend-api.md](docs/backend-api.md) و[docs/backend-integration.md](docs/backend-integration.md).
+- الذكاء الاصطناعي تجريبي (`DemoAiService`). ده المسار المحلي القديم؛ المسار الجديد وواجهات الربط موضحين في دليل التنفيذ أعلاه.
 - الصوت والـPDF والصور بيفضلوا على الموبايل، ومش بيتحللوا. النص المكتوب بس هو اللي بيتحلل.
 - الباك أب مقفول (`allowBackup=false` + data extraction rules)، عشان البيانات متخرجش من الموبايل.
 - فاتح وغامق: الألوان في `FikraPalette` (`lib/core/theme/tokens.dart`) وبتتقري بـ`context.colors` و`context.text`، مفيش ألوان ثابتة في الشاشات. الاختيار من شاشة الإعدادات (الترس في الهيدر) وبيتحفظ في جدول Settings.
@@ -19,7 +35,8 @@
 ## التشغيل
 ```bash
 flutter pub get
-flutter run                     # demo
+flutter run                     # backend-aligned development fixtures
+flutter run --dart-define=FIKRA_MODE=demo  # preserved local-first demo
 flutter analyze                 # لازم يطلع "No issues found!"
 flutter test                    # كل التيستات
 ```

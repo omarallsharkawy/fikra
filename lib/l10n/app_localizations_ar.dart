@@ -2133,4 +2133,480 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get mapPanHint => 'اسحب عشان تشوف باقي الخريطة';
+
+  @override
+  String get productMyAccount => 'حسابي';
+
+  @override
+  String get productThisIsAVolatileDevelopmentWorkspaceExistingLocal =>
+      'دي مساحة تطوير مؤقتة. ملاحظاتك المحلية القديمة موجودة بشكل منفصل في وضع الديمو القديم.';
+
+  @override
+  String get productSignOutLocally => 'تسجيل خروج محلي';
+
+  @override
+  String get productProductionSetupPending => 'إعدادات الإنتاج لسه معلّقة';
+
+  @override
+  String get productPasswordPolicyEmailActionRoutingAndGooglePlatform =>
+      'سياسة كلمة المرور وروابط البريد وإعدادات Google محتاجة اتفاق. مفيش استخدام لبيانات دخول حقيقية أو إرسال بريد هنا.';
+
+  @override
+  String get productYourSessionExpiredSignInAgain => 'الجلسة انتهت. سجّل دخول تاني.';
+
+  @override
+  String get productPreviewAccountJourneys => 'تجربة رحلات الحساب';
+
+  @override
+  String get productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery =>
+      'استخدم عناوين التطوير فقط. التسجيل والتفعيل والاسترجاع بيعرضوا حالات تجريبية، بدون إرسال بريد أو إنشاء حساب حقيقي.';
+
+  @override
+  String get productEmail => 'البريد الإلكتروني';
+
+  @override
+  String get productNewPasswordPreview => 'كلمة مرور جديدة (تجربة)';
+
+  @override
+  String get productPassword => 'كلمة المرور';
+
+  @override
+  String get productFixtureActionToken => 'رمز إجراء تجريبي';
+
+  @override
+  String get productAwaitingVerificationUseFixtureVerifyToPreviewSuccess =>
+      'في انتظار التفعيل. استخدم fixture-verify لتجربة النجاح. لم يتم إرسال بريد.';
+
+  @override
+  String get productPreviewVerification => 'تجربة التفعيل';
+
+  @override
+  String get productPreviewResendRequest => 'تجربة طلب إعادة الإرسال';
+
+  @override
+  String get productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed =>
+      'تأكيد عام لطلب الاسترجاع (تجربة). بدون ادعاء وصول رسالة.';
+
+  @override
+  String get productPreviewResetForm => 'تجربة نموذج إعادة التعيين';
+
+  @override
+  String get productUseFixtureResetTheRealPasswordPolicyIs =>
+      'استخدم fixture-reset. سياسة كلمة المرور الحقيقية لم تُحسم بعد.';
+
+  @override
+  String get productPreviewPasswordReset => 'تجربة إعادة التعيين';
+
+  @override
+  String get productPreviewRecoveryRequest => 'تجربة طلب الاسترجاع';
+
+  @override
+  String get productPreviewRegistration => 'تجربة التسجيل';
+
+  @override
+  String get productOpenFixtureSession => 'فتح جلسة تجريبية';
+
+  @override
+  String get productBackToSignIn => 'رجوع للدخول';
+
+  @override
+  String get productPreviewNewAccount => 'تجربة حساب جديد';
+
+  @override
+  String get productForgotPassword => 'نسيت كلمة المرور';
+
+  @override
+  String get productGoogleSignInWaitingForApprovedPlatformConfiguration =>
+      'دخول Google: في انتظار إعدادات المنصة المعتمدة. مفيش طلب بيتم إرساله لـ Google.';
+
+  @override
+  String get productPreviewSampleWorkspace => 'تجربة مساحة بملاحظات جاهزة';
+
+  @override
+  String get productPreviewSeparateEmptyAccount => 'تجربة حساب منفصل وفارغ';
+
+  @override
+  String get productVerificationPreviewCompleteSignInSeparately => 'اكتملت تجربة التفعيل. سجّل الدخول بشكل منفصل.';
+
+  @override
+  String get productResetPreviewCompleteSignInAgain => 'اكتملت تجربة إعادة التعيين. سجّل دخول تاني.';
+
+  @override
+  String get productLocalPrivateStateClearedServerRevocationIsNot =>
+      'تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.';
+
+  @override
+  String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount =>
+      'تأكيد تجريبي فقط؛ لم يتم إرسال بريد أو تنفيذ إجراء على حساب حقيقي.';
+
+  @override
+  String get productCaptureAThought => 'سجّل فكرة';
+
+  @override
+  String get productCloseComposer => 'إغلاق الكتابة';
+
+  @override
+  String get productASaveAttemptIsUnresolvedRetryItsOriginal =>
+      'فيه محاولة حفظ لم تتأكد. أعدها بنفس المشروع والمحتوى قبل تغيير المسودة.';
+
+  @override
+  String get productReturnToThePendingAttemptSProject => 'ارجع لمشروع محاولة الحفظ';
+
+  @override
+  String get productTitleOptional => 'العنوان (اختياري)';
+
+  @override
+  String get productYourThought => 'فكرتك';
+
+  @override
+  String get productReconcileTheSameSaveAttempt => 'مراجعة نفس محاولة الحفظ';
+
+  @override
+  String get productSaveTextNote => 'حفظ ملاحظة نصية';
+
+  @override
+  String get productSavingAndProcessingAreSeparateAMissingTitle =>
+      'الحفظ منفصل عن المعالجة. العنوان الناقص بيفضل مؤقت لحد ما نتيجة الباك إند ترجع بعنوان.';
+
+  @override
+  String get productVoiceReviewedText => 'الصوت ← نص تراجعه';
+
+  @override
+  String get productAutomaticStopAt60SecondsTranscriptionDoesNot =>
+      'التسجيل بيقف تلقائيًا بعد 60 ثانية. التفريغ مش بيحفظ ملاحظة.';
+
+  @override
+  String get productStopRecording => 'إيقاف التسجيل';
+
+  @override
+  String get productRecordVoice => 'تسجيل صوت';
+
+  @override
+  String get productPreviewTranscription => 'تجربة التفريغ النصي';
+
+  @override
+  String get productReviewAndEditTranscript => 'راجع وعدّل النص المفرّغ';
+
+  @override
+  String get productUseThisTextInTheDraft => 'استخدم النص في المسودة';
+
+  @override
+  String get productThenPressSaveTextNoteWhenReady => 'بعد المراجعة اضغط حفظ ملاحظة نصية.';
+
+  @override
+  String get productDiscardRecording => 'إلغاء التسجيل';
+
+  @override
+  String get productLocalPDFs => 'ملفات PDF محلية';
+
+  @override
+  String get productPDFsStayOnThisDeviceTheyAreNot =>
+      'ملفات PDF بتفضل على الجهاز. مش بيتم رفعها أو استخراج نصها أو ربطها بملاحظة على الخادم. احفظ النص بشكل منفصل.';
+
+  @override
+  String get productChooseLocalPDF => 'اختيار PDF محلي';
+
+  @override
+  String get productUntitledProcessing => 'بدون عنوان / قيد المعالجة';
+
+  @override
+  String get productSavedQueued => 'محفوظة · في الانتظار';
+
+  @override
+  String get productSavedProcessing => 'محفوظة · قيد المعالجة';
+
+  @override
+  String get productProcessingCompleted => 'اكتملت المعالجة';
+
+  @override
+  String get productSavedProcessingFailed => 'محفوظة · فشلت المعالجة';
+
+  @override
+  String get productSavedStatusUnavailable => 'محفوظة · الحالة غير معروفة';
+
+  @override
+  String get productDevelopmentFixturesMemoryOnlyNoLiveBackend =>
+      'بيانات تطوير · في الذاكرة فقط · بدون اتصال بالباك إند';
+
+  @override
+  String get productMicrophonePermissionIsRequiredEnableItInDevice =>
+      'اسمح باستخدام الميكروفون من إعدادات الجهاز ثم حاول تاني.';
+
+  @override
+  String get productCheckTheInputYourDraftHasBeenKept => 'راجع البيانات. المسودة محفوظة كما هي.';
+
+  @override
+  String get productSignInAgainOrCheckYourCredentials => 'سجّل دخول تاني أو راجع بيانات الدخول.';
+
+  @override
+  String get productVerifyYourEmailBeforeSigningIn => 'فعّل بريدك الإلكتروني قبل الدخول.';
+
+  @override
+  String get productThisItemIsNoLongerAvailableReloadThe => 'العنصر ده مش متاح. حدّث المشروع الحالي.';
+
+  @override
+  String get productTheStateChangedReloadAndReviewBeforeActing => 'الحالة اتغيرت. حدّث وراجعها قبل تنفيذ الإجراء تاني.';
+
+  @override
+  String get productThisCreationAttemptRefersToADeletedNote =>
+      'محاولة الحفظ دي تخص ملاحظة اتحذفت، ومش هتتعمل تلقائيًا من جديد.';
+
+  @override
+  String get productTheInputIsTooLargeReduceItBefore => 'حجم المدخل كبير. قلّله قبل المحاولة.';
+
+  @override
+  String get productThisRecordingFormatIsNotSupported => 'صيغة التسجيل دي غير مدعومة.';
+
+  @override
+  String get productRequestLimitReachedWaitBeforeTryingAgain => 'وصلت لحد الطلبات. استنى قبل المحاولة.';
+
+  @override
+  String get productThisServiceIsUnavailableYourInputHasBeen => 'الخدمة مش متاحة حاليًا. البيانات اللي كتبتها موجودة.';
+
+  @override
+  String get productTheResultIsUncertainReconcileBeforeTryingAgain =>
+      'نتيجة العملية غير مؤكدة. راجع الحالة قبل المحاولة تاني.';
+
+  @override
+  String productRetryAfterSeconds(int seconds) {
+    return 'حاول بعد $seconds ثانية.';
+  }
+
+  @override
+  String get productReloadRetry => 'تحديث / إعادة المحاولة';
+
+  @override
+  String get productBack => 'رجوع';
+
+  @override
+  String get productRenameProject => 'تعديل اسم المشروع';
+
+  @override
+  String get productNewProject => 'مشروع جديد';
+
+  @override
+  String get productName => 'الاسم';
+
+  @override
+  String get productCancel => 'إلغاء';
+
+  @override
+  String get productSave => 'حفظ';
+
+  @override
+  String get productProject => 'المشروع';
+
+  @override
+  String get productRename => 'تغيير الاسم';
+
+  @override
+  String get productDeleteProject => 'حذف المشروع؟';
+
+  @override
+  String get productThisPermanentlyDeletesItsNotesConversationsAndKnowledge =>
+      'ده هيحذف ملاحظاته ومحادثاته وعلاقاته المعرفية نهائيًا.';
+
+  @override
+  String get productDelete => 'حذف';
+
+  @override
+  String get productDeleteProject2 => 'حذف المشروع';
+
+  @override
+  String get productNotes => 'الملاحظات';
+
+  @override
+  String get productReload => 'تحديث';
+
+  @override
+  String get productSearchThisProject => 'ابحث في المشروع ده';
+
+  @override
+  String get productSearch => 'بحث';
+
+  @override
+  String get productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic =>
+      'بحث التطوير بيطابق النصوص التجريبية حرفيًا، مش بحث دلالي.';
+
+  @override
+  String get productStillProcessingReloadLaterTheSavedNoteIs => 'لسه قيد المعالجة. حدّث لاحقًا؛ الملاحظة محفوظة.';
+
+  @override
+  String get productSearchResults => 'نتائج البحث';
+
+  @override
+  String get productNoResultsInThisProject => 'مفيش نتائج في المشروع ده.';
+
+  @override
+  String get productShowAllSavedNotes => 'عرض كل الملاحظات المحفوظة';
+
+  @override
+  String get productNoNotesYet => 'مفيش ملاحظات لسه';
+
+  @override
+  String get productNote => 'الملاحظة';
+
+  @override
+  String get productTheCurrentProposalWasReloadedReviewItBefore =>
+      'تم تحميل الاقتراح الحالي. راجعه قبل اختيار إجراء جديد.';
+
+  @override
+  String get productThisNoteIsUnavailableInTheSelectedProject => 'الملاحظة مش متاحة في المشروع الحالي.';
+
+  @override
+  String get productSavedContent => 'المحتوى المحفوظ';
+
+  @override
+  String get productSaveEdit => 'حفظ التعديل';
+
+  @override
+  String get productCancelEditing => 'إلغاء التعديل';
+
+  @override
+  String get productEditNote => 'تعديل الملاحظة';
+
+  @override
+  String get productRefinementProposal => 'اقتراح تحسين';
+
+  @override
+  String get productAcceptAndReplaceSavedContent => 'قبول واستبدال المحتوى المحفوظ';
+
+  @override
+  String get productReplaceSavedContent => 'استبدال المحتوى المحفوظ؟';
+
+  @override
+  String get productAcceptancePermanentlyReplacesTheContentAndStartsProcessing =>
+      'القبول بيستبدل المحتوى نهائيًا وبيبدأ المعالجة من جديد. مفيش تراجع أو سجل نسخ.';
+
+  @override
+  String get productAccept => 'قبول';
+
+  @override
+  String get productRejectProposal => 'رفض الاقتراح';
+
+  @override
+  String get productRequestAnotherProposal => 'طلب اقتراح جديد';
+
+  @override
+  String get productRetryReprocess => 'إعادة المعالجة';
+
+  @override
+  String get productReloadStatus => 'تحديث الحالة';
+
+  @override
+  String get productRelatedNotes => 'ملاحظات مرتبطة';
+
+  @override
+  String get productNoCurrentRelationships => 'مفيش علاقات حالية.';
+
+  @override
+  String get productDeleteNote => 'حذف الملاحظة';
+
+  @override
+  String get productDeleteNote2 => 'حذف الملاحظة؟';
+
+  @override
+  String get productItsRelationshipsAndSourceCitationsWillAlsoBe => 'العلاقات والإشارات للملاحظة كمصدر هتتحذف كمان.';
+
+  @override
+  String get productKnowledgeMap => 'خريطة المعرفة';
+
+  @override
+  String get productReloadMap => 'تحديث الخريطة';
+
+  @override
+  String get productEveryNodeIsANoteLinesShowSupplied =>
+      'كل نقطة ملاحظة. الخطوط بتعرض العلاقات الواردة فقط. اسحب الملاحظات أو استخدم إصبعين للتكبير.';
+
+  @override
+  String get productNoCompletedNotesInThisProjectYet => 'مفيش ملاحظات مكتملة المعالجة في المشروع لسه.';
+
+  @override
+  String get productZoomIn => 'تكبير';
+
+  @override
+  String get productResetView => 'إعادة ضبط العرض';
+
+  @override
+  String productGraphCounts(int notes, int relationships) {
+    String _temp0 = intl.Intl.pluralLogic(
+      notes,
+      locale: localeName,
+      other: '$notes ملاحظة',
+      many: '$notes ملاحظة',
+      few: '$notes ملاحظات',
+      two: 'ملاحظتان',
+      one: 'ملاحظة واحدة',
+      zero: 'مفيش ملاحظات',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      relationships,
+      locale: localeName,
+      other: '$relationships علاقة',
+      many: '$relationships علاقة',
+      few: '$relationships علاقات',
+      two: 'علاقتان',
+      one: 'علاقة واحدة',
+      zero: 'مفيش علاقات',
+    );
+    return '$_temp0 · $_temp1';
+  }
+
+  @override
+  String get productAsk => 'اسأل';
+
+  @override
+  String get productNewConversation => 'محادثة جديدة';
+
+  @override
+  String get productReloadHistoryList => 'تحديث قائمة المحادثات';
+
+  @override
+  String get productConversationHistory => 'سجل المحادثات';
+
+  @override
+  String get productStartAConversationOrOpenItsHistoryConversations =>
+      'ابدأ محادثة أو افتح سجلها. كل محادثة بتفضل داخل المشروع المختار.';
+
+  @override
+  String get productYou => 'أنت';
+
+  @override
+  String get productNotSupportedByThisProjectSKnowledge => 'غير مدعوم بمعرفة المشروع ده';
+
+  @override
+  String get productProvisionalNotConfirmedSaved => 'عرض مؤقت · لم يتأكد حفظه';
+
+  @override
+  String get productStopWaiting => 'إيقاف الانتظار';
+
+  @override
+  String get productReloadHistoryBeforeSendingAgain => 'حمّل السجل قبل الإرسال تاني';
+
+  @override
+  String get productHistoryReloadedReviewItBeforeDeliberatelySendingYour =>
+      'السجل اتحدّث. راجعه قبل ما تختار إرسال المسودة الموجودة تاني.';
+
+  @override
+  String get productAskThisProject => 'اسأل المشروع ده';
+
+  @override
+  String get productSend => 'إرسال';
+
+  @override
+  String get productDeleteConversation => 'حذف المحادثة؟';
+
+  @override
+  String get productThisDeletesTheConversationAndMessagesWhileKeeping =>
+      'ده بيحذف المحادثة ورسائلها وبيحتفظ بالملاحظات.';
+
+  @override
+  String get productDeleteConversation2 => 'حذف المحادثة';
+
+  @override
+  String get productReviewFailedSave => 'مراجعة المسودة لمحاولة حفظ جديدة';
+
+  @override
+  String get productNewIntentionalSaveExplanation =>
+      'المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.';
 }

@@ -299,6 +299,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            appModeProvider.overrideWithValue(AppMode.demo),
             databaseProvider.overrideWithValue(db),
             attachmentStoreProvider.overrideWithValue(_NoFiles()),
             if (_glassPerf) glassTimingsSourceProvider.overrideWithValue(MeasurementGlassTimings()),
