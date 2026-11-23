@@ -117,6 +117,8 @@ class ProductScaffold extends StatelessWidget {
                     onPressed: () => context.pop(),
                     icon: const Icon(Icons.arrow_back),
                   ),
+                const FikraBrandMark(),
+                const SizedBox(width: 12),
                 Expanded(child: Text(title, style: context.text.title)),
                 ?trailing,
               ],
