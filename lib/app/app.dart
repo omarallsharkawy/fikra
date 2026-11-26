@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/fikra_theme.dart';
+import '../core/theme/product_theme.dart';
 import '../core/theme/tokens.dart';
 import '../core/widgets/glass_preview.dart';
 import 'providers.dart';
@@ -28,8 +29,8 @@ class FikraApp extends ConsumerWidget {
     return MaterialApp.router(
       onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
-      theme: buildFikraTheme(Brightness.light),
-      darkTheme: buildFikraTheme(Brightness.dark),
+      theme: development ? buildProductTheme(Brightness.light) : buildFikraTheme(Brightness.light),
+      darkTheme: development ? buildProductTheme(Brightness.dark) : buildFikraTheme(Brightness.dark),
       themeMode: switch (savedTheme.value ?? AppTheme.system) {
         AppTheme.system => ThemeMode.system,
         AppTheme.light => ThemeMode.light,

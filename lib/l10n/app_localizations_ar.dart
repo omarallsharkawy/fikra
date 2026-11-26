@@ -2610,4 +2610,76 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get productNewIntentionalSaveExplanation =>
       'المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.';
+
+  @override
+  String get uiSignUpEmail => 'إنشاء حساب بالبريد الإلكتروني';
+
+  @override
+  String get uiLogIn => 'تسجيل الدخول';
+
+  @override
+  String get uiContinueGoogle => 'المتابعة باستخدام Google';
+
+  @override
+  String get uiCreateAccount => 'إنشاء حسابك';
+
+  @override
+  String get uiWelcomeBack => 'مرحبًا بعودتك';
+
+  @override
+  String get uiShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get uiHidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get uiNewIdea => 'فكرة جديدة';
+
+  @override
+  String get uiVoice => 'صوت';
+
+  @override
+  String get uiFile => 'ملف';
+
+  @override
+  String get uiProfile => 'الملف الشخصي';
+
+  @override
+  String get uiSettings => 'الإعدادات';
+
+  @override
+  String get uiIdeas => 'الأفكار';
+
+  @override
+  String get uiAll => 'الكل';
+
+  @override
+  String get uiToday => 'اليوم';
+
+  @override
+  String get uiEarlier => 'سابقًا';
+
+  @override
+  String get uiIdeaMap => 'خريطة الأفكار';
+
+  @override
+  String get uiSearchIdeas => 'ابحث في أفكارك';
+
+  @override
+  String get uiMapHint => 'اسحب الأفكار، وكبّر بإصبعين، واضغط للفتح';
+
+  @override
+  String get uiZoomOut => 'تصغير';
+
+  @override
+  String get uiFitIdeas => 'إظهار كل الأفكار';
+
+  @override
+  String get uiOpenNote => 'فتح الملاحظة';
+
+  @override
+  String get uiConnectedIdeas => 'أفكار مرتبطة';
+
+  @override
+  String get uiUnavailable => 'غير متاح بعد';
 }

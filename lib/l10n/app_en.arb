@@ -630,13 +630,21 @@
   },
   "colorNone": "No color",
   "colorBlue": "Blue",
-  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
+  "@colorBlue": {
+    "description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."
+  },
   "colorGreen": "Green",
-  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
+  "@colorGreen": {
+    "description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."
+  },
   "colorYellow": "Yellow",
-  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
+  "@colorYellow": {
+    "description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."
+  },
   "colorGray": "Gray",
-  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
+  "@colorGray": {
+    "description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."
+  },
   "groupParentLabel": "Inside a group (optional)",
   "groupParentNone": "None",
   "moveNotesTitle": "Move {notes} to \"{project}\"?",
@@ -1984,5 +1992,29 @@
   "productThisDeletesTheConversationAndMessagesWhileKeeping": "This deletes the conversation and messages, while keeping the notes.",
   "productDeleteConversation2": "Delete conversation",
   "productReviewFailedSave": "Review draft for a new save",
-  "productNewIntentionalSaveExplanation": "The previous attempt was rejected or refers to a deleted note. Keep the draft and start a new intentional save only when you choose Save again."
+  "productNewIntentionalSaveExplanation": "The previous attempt was rejected or refers to a deleted note. Keep the draft and start a new intentional save only when you choose Save again.",
+  "uiSignUpEmail": "Sign up with email",
+  "uiLogIn": "Log in",
+  "uiContinueGoogle": "Continue with Google",
+  "uiCreateAccount": "Create your account",
+  "uiWelcomeBack": "Welcome back",
+  "uiShowPassword": "Show password",
+  "uiHidePassword": "Hide password",
+  "uiNewIdea": "New idea",
+  "uiVoice": "Voice",
+  "uiFile": "File",
+  "uiProfile": "Profile",
+  "uiSettings": "Settings",
+  "uiIdeas": "Ideas",
+  "uiAll": "All",
+  "uiToday": "Today",
+  "uiEarlier": "Earlier",
+  "uiIdeaMap": "Idea map",
+  "uiSearchIdeas": "Search your ideas",
+  "uiMapHint": "Drag ideas, pinch to zoom, tap to open",
+  "uiZoomOut": "Zoom out",
+  "uiFitIdeas": "Fit all ideas",
+  "uiOpenNote": "Open note",
+  "uiConnectedIdeas": "Connected ideas",
+  "uiUnavailable": "Not available yet"
 }

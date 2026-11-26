@@ -9,6 +9,7 @@ import '../../core/widgets/fikra_widgets.dart';
 import '../../core/theme/tokens.dart';
 import '../workspace/product_widgets.dart';
 import 'session_controller.dart';
+import 'product_welcome.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -19,6 +20,7 @@ class ProductAccountScreen extends StatefulWidget {
 class _ProductAccountScreenState extends State<ProductAccountScreen> {
   String _email = '', _password = '', _token = '';
   bool _register = false;
+  bool _loginForm = false;
   @override
   Widget build(BuildContext context) => ProductView(
     listenTo: (r) => [r.session],
@@ -31,8 +33,15 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           session.stage == SessionStage.recoverySent ||
           session.stage == SessionStage.recoveryConfirm;
       final resetForm = session.stage == SessionStage.recoveryConfirm;
+      final welcome = !signedIn && !verifying && !recovery && !_loginForm && !_register;
       return ProductScaffold(
-        title: signedIn ? context.l10n.productMyAccount : 'FIKRAH',
+        title: signedIn
+            ? context.l10n.uiProfile
+            : welcome
+            ? 'FIKRAH'
+            : _register
+            ? context.l10n.uiCreateAccount
+            : context.l10n.uiWelcomeBack,
         children: [
           if (signedIn) ...[
             Text(session.account!.email, style: context.text.section),
@@ -45,6 +54,18 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             const SizedBox(height: 20),
             Text(context.l10n.productProductionSetupPending, style: context.text.section),
             Text(context.l10n.productPasswordPolicyEmailActionRoutingAndGooglePlatform),
+          ] else if (welcome) ...[
+            ProductWelcome(
+              busy: session.busy,
+              onSignup: session.busy ? null : () => setState(() => _register = true),
+              onLogin: session.busy ? null : () => setState(() => _loginForm = true),
+              onSample: session.busy || session.coolingDown
+                  ? null
+                  : () => session.login('reader@example.invalid', 'fixture-only'),
+              onEmpty: session.busy || session.coolingDown
+                  ? null
+                  : () => session.login('other@example.invalid', 'fixture-only'),
+            ),
           ] else ...[
             if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
             Text(context.l10n.productPreviewAccountJourneys, style: context.text.title),

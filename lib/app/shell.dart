@@ -10,6 +10,7 @@ import '../core/widgets/navigation_inset.dart';
 import 'composer_navigation.dart';
 import 'tab_bar/activity_capsule.dart';
 import 'tab_bar/floating_navigation.dart';
+import 'tab_bar/product_navigation.dart';
 
 export 'tab_bar/sliding_tab_bar.dart';
 export 'branch_container.dart';
@@ -138,19 +139,25 @@ class _AppShellState extends ConsumerState<AppShell> {
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     heightFactor: 1,
-                    child: FloatingNavigation(
-                      branch: shell.currentIndex,
-                      keyboardOpen: hidden,
-                      shrink: shrinkEnabled ? _scrollShrink : null,
-                      aboveBar: widget.showLegacyActivity
-                          ? ActivityCapsule(
-                              branch: shell.currentIndex,
-                              onOpenAdd: () => shell.goBranch(0, initialLocation: false),
-                              onOpenNote: (id) => context.push('/note/$id'),
-                            )
-                          : null,
-                      onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
-                    ),
+                    child: !widget.showLegacyActivity
+                        ? ProductNavigation(
+                            branch: shell.currentIndex,
+                            hidden: hidden,
+                            onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
+                          )
+                        : FloatingNavigation(
+                            branch: shell.currentIndex,
+                            keyboardOpen: hidden,
+                            shrink: shrinkEnabled ? _scrollShrink : null,
+                            aboveBar: widget.showLegacyActivity
+                                ? ActivityCapsule(
+                                    branch: shell.currentIndex,
+                                    onOpenAdd: () => shell.goBranch(0, initialLocation: false),
+                                    onOpenNote: (id) => context.push('/note/$id'),
+                                  )
+                                : null,
+                            onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
+                          ),
                   ),
                 ),
               ],

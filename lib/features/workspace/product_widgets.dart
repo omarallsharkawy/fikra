@@ -96,38 +96,54 @@ class ProductFailureView extends StatelessWidget {
 }
 
 class ProductScaffold extends StatelessWidget {
-  const ProductScaffold({super.key, required this.title, required this.children, this.back = false, this.trailing});
+  const ProductScaffold({
+    super.key,
+    required this.title,
+    required this.children,
+    this.back = false,
+    this.trailing,
+    this.header,
+  });
   final String title;
   final List<Widget> children;
   final bool back;
   final Widget? trailing;
+  final Widget? header;
   @override
   Widget build(BuildContext context) => PearlCanvas(
     child: Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + NavigationInset.of(context)),
-          children: [
-            Row(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 24 + NavigationInset.of(context)),
               children: [
-                if (back)
-                  IconButton(
-                    tooltip: context.l10n.productBack,
-                    onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                const FikraBrandMark(),
-                const SizedBox(width: 12),
-                Expanded(child: Text(title, style: context.text.title)),
-                ?trailing,
+                header ??
+                    Row(
+                      children: [
+                        if (back)
+                          IconButton(
+                            tooltip: context.l10n.productBack,
+                            onPressed: () => context.pop(),
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                        const FikraBrandMark(),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(title, style: context.text.title)),
+                        ?trailing,
+                      ],
+                    ),
+                const SizedBox(height: 16),
+                const DevelopmentBanner(),
+                const SizedBox(height: 20),
+                ...children,
               ],
             ),
-            const SizedBox(height: 16),
-            const DevelopmentBanner(),
-            const SizedBox(height: 20),
-            ...children,
-          ],
+          ),
         ),
       ),
     ),
@@ -158,6 +174,7 @@ class ProductTextInput extends StatefulWidget {
 
 class _ProductTextInputState extends State<ProductTextInput> {
   late final _controller = TextEditingController(text: widget.value);
+  bool _revealed = false;
   @override
   void didUpdateWidget(covariant ProductTextInput old) {
     super.didUpdateWidget(old);
@@ -184,12 +201,21 @@ class _ProductTextInputState extends State<ProductTextInput> {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
-      obscureText: widget.obscure,
+      obscureText: widget.obscure && !_revealed,
+      enableSuggestions: !widget.obscure,
+      autocorrect: !widget.obscure,
       minLines: widget.lines,
       maxLines: widget.lines == 1 ? 1 : null,
       decoration: InputDecoration(
         labelText: widget.label,
         alignLabelWithHint: true,
+        suffixIcon: widget.obscure
+            ? IconButton(
+                tooltip: _revealed ? context.l10n.uiHidePassword : context.l10n.uiShowPassword,
+                onPressed: widget.enabled ? () => setState(() => _revealed = !_revealed) : null,
+                icon: Icon(_revealed ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              )
+            : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ),
