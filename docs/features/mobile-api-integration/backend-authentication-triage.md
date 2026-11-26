@@ -26,3 +26,10 @@ These are diagnostic checks, not requested backend contract changes. No backend 
 ## Separate connection observation
 
 AdGuard filtering was active during initial connection timeouts. Later successful HTTP responses coincided with a changed device network state. This does not establish which network component caused the original failure. The agent did not disable filtering, change device network policy, bypass TLS verification, or automatically replay authentication requests.
+
+
+## Account origin confirmed
+
+The account owner confirmed that the credentials were used before API integration. That preview account was not provisioned on the deployed backend by the Flutter fixtures. Using the same email address does not migrate a preview identity or password. The next verification step is real registration through `POST /v1/auth/register/otp`, email-code verification, and separate login. Existing preview data remains isolated as previously agreed; no migration or automatic backend registration is introduced.
+
+This explains why a preview login must not be used as an end-to-end backend login test. It does not establish whether the same email was independently registered elsewhere. Backend mail delivery should be investigated if registration or an eligible verification resend is accepted but the account owner still receives no code.
