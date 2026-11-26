@@ -20,11 +20,25 @@ class ProductWelcome extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      const ExcludeSemantics(child: _WelcomeShapes()),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: const ExcludeSemantics(child: _WelcomeShapes()),
+      ),
       const SizedBox(height: 16),
-      Text(context.l10n.welcomeTagline, style: context.text.title.copyWith(fontSize: 24)),
+      Semantics(
+        header: true,
+        child: Text(
+          context.l10n.welcomeTagline,
+          textAlign: TextAlign.center,
+          style: context.text.title.copyWith(fontSize: 30, height: 1.2),
+        ),
+      ),
       const SizedBox(height: 8),
-      Text(context.l10n.uiWelcomeSubtitle, style: context.text.body.copyWith(color: context.colors.textSecondary)),
+      Text(
+        context.l10n.uiWelcomeSubtitle,
+        textAlign: TextAlign.center,
+        style: context.text.body.copyWith(color: context.colors.textSecondary),
+      ),
       const SizedBox(height: 24),
       FikraButton(label: context.l10n.uiSignUpEmail, onPressed: onSignup, growForText: true),
       const SizedBox(height: 12),
@@ -35,7 +49,7 @@ class ProductWelcome extends StatelessWidget {
         growForText: true,
       ),
       const SizedBox(height: 8),
-      Text(context.l10n.uiGoogleUnavailable, style: context.text.meta),
+      Text(context.l10n.uiGoogleUnavailable, textAlign: TextAlign.center, style: context.text.meta),
       TextButton(onPressed: onLogin, child: Text(context.l10n.uiLogIn)),
       const Divider(height: 28),
       FikraButton.secondary(
