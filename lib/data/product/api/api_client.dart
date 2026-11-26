@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show debugPrint, kReleaseMode;
+
 import '../../../features/account/session_controller.dart';
 import '../models.dart';
 
@@ -133,6 +135,7 @@ class ApiClient {
       final token = accountId == null ? accessToken : coordinator!.tokens?.access;
       if (accountId != null && token == null) throw const ProductFailure(FailureKind.unauthorized);
       ApiResponse response;
+      _diagnose(method, path, 'started');
       try {
         response = await transport
             .send(
@@ -146,14 +149,18 @@ class ApiClient {
               timeout,
               onTimeout: () {
                 cancel.cancel();
-                throw const ProductFailure(FailureKind.uncertain);
+                throw const ProductFailure(FailureKind.uncertain, cause: FailureCause.timeout);
               },
             );
-      } on ProductFailure {
+      } on ProductFailure catch (error) {
+        _diagnose(method, path, error.cause?.name ?? error.kind.name);
         rethrow;
-      } catch (_) {
-        throw const ProductFailure(FailureKind.uncertain);
+      } catch (error) {
+        final failure = _transportFailure(error);
+        _diagnose(method, path, failure.cause?.name ?? failure.kind.name);
+        throw failure;
       }
+      _diagnose(method, path, 'HTTP ${response.status}');
       if (accountId != null && !_valid(coordinator!, accountId, epoch!)) {
         response.close();
         throw const ProductFailure(FailureKind.unauthorized);
@@ -211,7 +218,9 @@ class ApiClient {
         try {
           value = jsonDecode(utf8.decode(bytes));
         } catch (_) {
-          if (response.status >= 200 && response.status < 300) throw const ProductFailure(FailureKind.unavailable);
+          if (response.status >= 200 && response.status < 300) {
+            throw const ProductFailure(FailureKind.unavailable, cause: FailureCause.invalidResponse);
+          }
         }
       }
       if (response.status < 200 || response.status >= 300) {
@@ -220,11 +229,29 @@ class ApiClient {
       return value;
     } on ProductFailure {
       rethrow;
-    } catch (_) {
-      throw const ProductFailure(FailureKind.uncertain);
+    } catch (error) {
+      throw _transportFailure(error);
     } finally {
       response?.close();
       cancel.cancel();
+    }
+  }
+
+  static ProductFailure _transportFailure(Object error) => ProductFailure(
+    FailureKind.uncertain,
+    cause: switch (error) {
+      TimeoutException() => FailureCause.timeout,
+      HandshakeException() || TlsException() => FailureCause.secureConnection,
+      SocketException() || HttpException() => FailureCause.connection,
+      _ => null,
+    },
+  );
+
+  // Profile diagnostics contain only a fixed auth route and a status/category.
+  // Never include query strings, bodies, headers, exception text or credentials.
+  static void _diagnose(String method, String path, String outcome) {
+    if (!kReleaseMode && RegExp(r'^/v1/auth/[a-z/-]+$').hasMatch(path)) {
+      debugPrint('FIKRAH_AUTH $method $path $outcome');
     }
   }
 
@@ -278,6 +305,7 @@ class ApiClient {
       },
       field: field,
       retryAfter: retry,
+      status: status,
     );
   }
 }

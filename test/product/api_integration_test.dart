@@ -520,6 +520,29 @@ void main() {
     expect(await attempts.read('user-a'), isNull);
     expect(await vault.read(), isNull);
   });
+  test('transport failures keep a safe connection category without exposing exception text', () async {
+    for (final entry in <Object, FailureCause>{
+      const SocketException('private network details'): FailureCause.connection,
+      TimeoutException('private timeout details'): FailureCause.timeout,
+      const HandshakeException('private certificate details'): FailureCause.secureConnection,
+    }.entries) {
+      final api = client(ScriptTransport((_) => throw entry.key));
+      await expectLater(
+        api.request('POST', '/v1/auth/login', json: {'password': 'never-log-this'}),
+        throwsA(
+          isA<ProductFailure>()
+              .having((f) => f.cause, 'cause', entry.value)
+              .having((f) => f.toString().contains('private'), 'no private details', false),
+        ),
+      );
+    }
+    final api = client(ScriptTransport((_) => jsonReply({'detail': 'private error'}, status: 503)));
+    await expectLater(
+      api.request('POST', '/v1/auth/register/otp'),
+      throwsA(isA<ProductFailure>().having((f) => f.status, 'status', 503)),
+    );
+  });
+
   test('native transport sends bytes and does not follow a redirect', () async {
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     addTearDown(() => server.close(force: true));

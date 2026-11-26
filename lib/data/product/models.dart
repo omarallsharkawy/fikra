@@ -215,11 +215,15 @@ enum FailureKind {
   uncertain,
 }
 
+enum FailureCause { connection, timeout, secureConnection, invalidResponse }
+
 class ProductFailure implements Exception {
-  const ProductFailure(this.kind, {this.retryAfter, this.field});
+  const ProductFailure(this.kind, {this.retryAfter, this.field, this.cause, this.status});
   final FailureKind kind;
   final Duration? retryAfter;
   final String? field;
+  final FailureCause? cause;
+  final int? status;
   static ProductFailure from(Object error) =>
       error is ProductFailure ? error : const ProductFailure(FailureKind.uncertain);
   // No private request or exception payload is exposed to logging/UI.
