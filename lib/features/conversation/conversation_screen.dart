@@ -7,7 +7,6 @@ import '../../core/theme/tokens.dart';
 import '../../data/product/models.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../workspace/product_widgets.dart';
-import '../workspace/project_controls.dart';
 import 'conversation_controller.dart';
 
 class ProductConversationScreen extends StatefulWidget {
@@ -57,6 +56,9 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
       _observe(c);
       return ProductScaffold(
         title: context.l10n.productAsk,
+        subtitle: r.workspace.projects.any((p) => !p.isGeneral)
+            ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
+            : null,
         controller: _scroll,
         footer: c.current == null
             ? null
@@ -76,7 +78,8 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
                 ),
               ),
         children: [
-          ProductProjectControls(runtime: r),
+          if (r.workspace.failure != null)
+            ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
           Wrap(
             spacing: 12,
             children: [

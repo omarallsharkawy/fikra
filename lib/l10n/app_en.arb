@@ -2019,5 +2019,29 @@
   "uiUnavailable": "Not available yet",
   "uiPreviewNotice": "Development preview · temporary data",
   "uiGoogleUnavailable": "Google sign-in is not available in this preview.",
-  "uiWelcomeSubtitle": "Your ideas, connected. Ask your notes anything."
+  "uiWelcomeSubtitle": "Your ideas, connected. Ask your notes anything.",
+  "uxPreviewInfo": "Preview information",
+  "uxCaptureDetails": "About voice and files",
+  "uxCaptureHint": "Review voice text before saving. PDFs stay on this device.",
+  "uxLocalPdf": "Local PDF",
+  "uxChatIntro": "Ask a question about the ideas in this project.",
+  "uxConversationList": "Conversations",
+  "uxVerifyTitle": "Verify your email",
+  "uxRecoveryTitle": "Reset your password",
+  "uxRecoverySentTitle": "Reset requested",
+  "uxResetTitle": "Choose a new password",
+  "uxRequestReset": "Request reset",
+  "uxResetPassword": "Reset password",
+  "uxEmptyChat": "Ask your ideas",
+  "uxSearchHint": "Search ideas in this project",
+  "uxNoConversations": "No conversations yet",
+  "uxProjectsHelp": "Choose the workspace for your ideas. You can create a project whenever you need one.",
+  "uxProjectContext": "Project: {name}",
+  "@uxProjectContext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

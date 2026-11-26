@@ -297,6 +297,21 @@ class _ProductPreferences extends ConsumerWidget {
 class ProductSettingsScreen extends StatelessWidget {
   const ProductSettingsScreen({super.key});
   @override
-  Widget build(BuildContext context) =>
-      ProductScaffold(title: context.l10n.uiSettings, back: true, children: const [_ProductPreferences()]);
+  Widget build(BuildContext context) => ProductScaffold(
+    title: context.l10n.uiSettings,
+    back: true,
+    children: [
+      Card(
+        child: ListTile(
+          key: const ValueKey('manage-product-projects'),
+          leading: const Icon(Icons.folder_outlined),
+          title: Text(context.l10n.projectsTitle),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push('/settings/projects'),
+        ),
+      ),
+      const SizedBox(height: 20),
+      const _ProductPreferences(),
+    ],
+  );
 }

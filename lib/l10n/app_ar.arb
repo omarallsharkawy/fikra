@@ -2055,5 +2055,29 @@
   "uiUnavailable": "غير متاح بعد",
   "uiPreviewNotice": "معاينة تطوير · بيانات مؤقتة",
   "uiGoogleUnavailable": "تسجيل الدخول عبر Google غير متاح في هذه المعاينة.",
-  "uiWelcomeSubtitle": "أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء."
+  "uiWelcomeSubtitle": "أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.",
+  "uxPreviewInfo": "معلومات المعاينة",
+  "uxCaptureDetails": "عن الصوت والملفات",
+  "uxCaptureHint": "راجع النص الصوتي قبل الحفظ. ملفات PDF تفضل على الجهاز ده.",
+  "uxLocalPdf": "PDF محلي",
+  "uxChatIntro": "اسأل عن الأفكار المحفوظة في المشروع ده.",
+  "uxConversationList": "المحادثات",
+  "uxVerifyTitle": "تأكيد بريدك الإلكتروني",
+  "uxRecoveryTitle": "استعادة كلمة المرور",
+  "uxRecoverySentTitle": "تم طلب الاستعادة",
+  "uxResetTitle": "اختار كلمة مرور جديدة",
+  "uxRequestReset": "طلب الاستعادة",
+  "uxResetPassword": "تعيين كلمة المرور",
+  "uxEmptyChat": "اسأل أفكارك",
+  "uxSearchHint": "ابحث في أفكار المشروع",
+  "uxNoConversations": "مفيش محادثات لسه",
+  "uxProjectsHelp": "اختار مساحة أفكارك. تقدر تنشئ مشروع وقت ما تحتاج.",
+  "uxProjectContext": "المشروع: {name}",
+  "@uxProjectContext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -102,34 +102,37 @@ void main() {
       }
     }
   }
-  testWidgets('General is implicit until a custom project exists and remains reachable afterwards', (tester) async {
+  testWidgets('project management lives in settings and General remains reachable', (tester) async {
     final r = await boot(tester, size: const Size(360, 800));
     await r.session.login('reader@example.invalid', 'fixture-only');
     await tester.pumpAndSettle();
     final generalId = r.workspace.selectedProjectId;
-    expect(r.workspace.selected!.isGeneral, isTrue);
-    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+    expect(find.byKey(const ValueKey('new-product-project')), findsNothing);
     expect(find.textContaining('General'), findsNothing);
-    expect(find.text('Fixture: study plan'), findsOneWidget);
+    final router = GoRouter.of(tester.element(find.byKey(const ValueKey('product-navigation'))));
+    router.push('/settings');
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byKey(const ValueKey('manage-product-projects')));
+    expect(find.byKey(ValueKey('select-project-$generalId')), findsNothing);
     await tapVisible(tester, find.byKey(const ValueKey('new-product-project')));
     await tester.enterText(find.byType(TextFormField), 'My project');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
-    expect(r.workspace.selected!.name, 'My project');
     final customId = r.workspace.selectedProjectId!;
-    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    expect(r.workspace.selected!.name, 'My project');
+    await tapVisible(tester, find.byKey(ValueKey('select-project-$generalId')));
+    expect(r.workspace.selected!.isGeneral, isTrue);
+    router.pop();
     await tester.pumpAndSettle();
-    await tester.tap(find.text('General ★').last);
+    router.pop();
     await tester.pumpAndSettle();
-    expect(r.workspace.selectedProjectId, generalId);
     expect(find.text('Fixture: study plan'), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+    expect(find.byKey(const ValueKey('new-product-project')), findsNothing);
     await r.workspace.selectProject(customId);
     await r.workspace.deleteProject();
     await tester.pumpAndSettle();
     expect(r.workspace.selectedProjectId, generalId);
-    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
-    expect(find.byKey(const ValueKey('new-product-project')), findsOneWidget);
     expect(find.text('Fixture: study plan'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await cleanup(tester);

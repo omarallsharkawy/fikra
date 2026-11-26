@@ -2691,4 +2691,57 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get uiWelcomeSubtitle => 'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.';
+
+  @override
+  String get uxPreviewInfo => 'معلومات المعاينة';
+
+  @override
+  String get uxCaptureDetails => 'عن الصوت والملفات';
+
+  @override
+  String get uxCaptureHint => 'راجع النص الصوتي قبل الحفظ. ملفات PDF تفضل على الجهاز ده.';
+
+  @override
+  String get uxLocalPdf => 'PDF محلي';
+
+  @override
+  String get uxChatIntro => 'اسأل عن الأفكار المحفوظة في المشروع ده.';
+
+  @override
+  String get uxConversationList => 'المحادثات';
+
+  @override
+  String get uxVerifyTitle => 'تأكيد بريدك الإلكتروني';
+
+  @override
+  String get uxRecoveryTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get uxRecoverySentTitle => 'تم طلب الاستعادة';
+
+  @override
+  String get uxResetTitle => 'اختار كلمة مرور جديدة';
+
+  @override
+  String get uxRequestReset => 'طلب الاستعادة';
+
+  @override
+  String get uxResetPassword => 'تعيين كلمة المرور';
+
+  @override
+  String get uxEmptyChat => 'اسأل أفكارك';
+
+  @override
+  String get uxSearchHint => 'ابحث في أفكار المشروع';
+
+  @override
+  String get uxNoConversations => 'مفيش محادثات لسه';
+
+  @override
+  String get uxProjectsHelp => 'اختار مساحة أفكارك. تقدر تنشئ مشروع وقت ما تحتاج.';
+
+  @override
+  String uxProjectContext(String name) {
+    return 'المشروع: $name';
+  }
 }

@@ -9,6 +9,7 @@ import '../features/conversation/conversation_screen.dart';
 import '../features/workspace/graph_screen.dart';
 import '../features/workspace/note_screen.dart';
 import '../features/workspace/notes_screen.dart';
+import '../features/workspace/project_controls.dart';
 import 'product_runtime.dart';
 import 'shell.dart';
 
@@ -54,6 +55,7 @@ final productRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/settings', builder: (_, _) => const ProductSettingsScreen()),
+      GoRoute(path: '/settings/projects', builder: (_, _) => const ProductProjectsScreen()),
       GoRoute(
         path: '/note/:id',
         pageBuilder: (_, state) => MaterialPage(

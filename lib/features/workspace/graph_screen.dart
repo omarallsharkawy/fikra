@@ -12,7 +12,6 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/product/models.dart';
 import 'product_widgets.dart';
-import 'project_controls.dart';
 
 class ProductGraphScreen extends ConsumerStatefulWidget {
   const ProductGraphScreen({super.key});
@@ -52,13 +51,16 @@ class _ProductGraphScreenState extends ConsumerState<ProductGraphScreen> {
   Widget build(BuildContext context) => ProductView(
     builder: (context, r) => ProductScaffold(
       title: context.l10n.uiIdeaMap,
+      subtitle: r.workspace.projects.any((p) => !p.isGeneral)
+          ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
+          : null,
       trailing: IconButton(
         tooltip: context.l10n.productReloadMap,
         onPressed: r.workspace.graphLoading ? null : r.workspace.loadGraph,
         icon: const Icon(Icons.refresh),
       ),
       children: [
-        ProductProjectControls(runtime: r),
+        if (r.workspace.failure != null) ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
         Text(context.l10n.uiMapHint, style: context.text.caption),
         const SizedBox(height: 12),
         if (r.workspace.graphLoading)

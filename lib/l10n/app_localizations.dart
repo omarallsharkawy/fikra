@@ -4531,6 +4531,108 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.'**
   String get uiWelcomeSubtitle;
+
+  /// No description provided for @uxPreviewInfo.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلومات المعاينة'**
+  String get uxPreviewInfo;
+
+  /// No description provided for @uxCaptureDetails.
+  ///
+  /// In ar, this message translates to:
+  /// **'عن الصوت والملفات'**
+  String get uxCaptureDetails;
+
+  /// No description provided for @uxCaptureHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع النص الصوتي قبل الحفظ. ملفات PDF تفضل على الجهاز ده.'**
+  String get uxCaptureHint;
+
+  /// No description provided for @uxLocalPdf.
+  ///
+  /// In ar, this message translates to:
+  /// **'PDF محلي'**
+  String get uxLocalPdf;
+
+  /// No description provided for @uxChatIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل عن الأفكار المحفوظة في المشروع ده.'**
+  String get uxChatIntro;
+
+  /// No description provided for @uxConversationList.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحادثات'**
+  String get uxConversationList;
+
+  /// No description provided for @uxVerifyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد بريدك الإلكتروني'**
+  String get uxVerifyTitle;
+
+  /// No description provided for @uxRecoveryTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة كلمة المرور'**
+  String get uxRecoveryTitle;
+
+  /// No description provided for @uxRecoverySentTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم طلب الاستعادة'**
+  String get uxRecoverySentTitle;
+
+  /// No description provided for @uxResetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختار كلمة مرور جديدة'**
+  String get uxResetTitle;
+
+  /// No description provided for @uxRequestReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب الاستعادة'**
+  String get uxRequestReset;
+
+  /// No description provided for @uxResetPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين كلمة المرور'**
+  String get uxResetPassword;
+
+  /// No description provided for @uxEmptyChat.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل أفكارك'**
+  String get uxEmptyChat;
+
+  /// No description provided for @uxSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث في أفكار المشروع'**
+  String get uxSearchHint;
+
+  /// No description provided for @uxNoConversations.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش محادثات لسه'**
+  String get uxNoConversations;
+
+  /// No description provided for @uxProjectsHelp.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختار مساحة أفكارك. تقدر تنشئ مشروع وقت ما تحتاج.'**
+  String get uxProjectsHelp;
+
+  /// No description provided for @uxProjectContext.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشروع: {name}'**
+  String uxProjectContext(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
