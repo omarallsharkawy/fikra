@@ -22,3 +22,14 @@ Run relevant controller, contract, connected-interface, localization/accessibili
 - ARM64 profile APK built successfully (129.8 MB, Gradle assembly 103.6 seconds) using two CPU cores, one Gradle worker and 1 GiB heap. Installed with `adb install -r` on the connected Xiaomi M2010J19SG; cold launch returned Status ok. No app data was cleared.
 - The connected sign-in screen was visually checked on the awake physical phone with the email keyboard open. Fixture disclosures/shortcuts are absent. The user was asked to exercise account/email-code login themselves; a verified live-user session and provider-dependent features are not claimed as tested until that result is available.
 - Backend source/deployment, platform identifiers, Google registration and legacy local data were not changed. Local AGENTS.md and the user's unrelated backend-documentation moves are excluded.
+
+
+## Authentication failure follow-up
+
+The user reported failures in both login and registration after the first connected APK. Do not treat the successful scripted journeys as proof that a real account can sign in, and do not merge until the real failure is understood.
+
+The phone process remained alive and the inspected Android runtime/Flutter error logs contained no crash. Public health and deliberately invalid authentication requests were checked from the physical Android device without creating accounts or sending email: health returned 200, an incorrect reserved-example login returned 401, and malformed registration email returned 422. HTTP/1.1 with the Dart user agent also returned the expected 401. These checks establish reachability only; they do not validate the user's credentials, email delivery, or a complete account journey.
+
+Account failures now appear in a live-region panel above the fields and scroll into view, preserve entered input, and distinguish connection, timeout, TLS, server availability, and rejected credentials. Submitting dismisses the keyboard. Auth headings, icon sizes, and spacing are consistent across login, signup, verification, and reset. Profile/debug builds emit only fixed auth route names and status/category diagnostics; bodies, headers, token values, email addresses, exception text, and passwords are excluded. Release builds do not emit these diagnostics. No server contracts, account data, or backend source were changed.
+
+Validation: 163 offline regression tests passed (one opt-in live smoke test skipped), including new English/Arabic login/signup failure journeys at 360dp and 1x/2x text scaling. The analyzer reported no issues. Real-font failure screenshots were reviewed. A new physical-device attempt is still required to classify the original report.

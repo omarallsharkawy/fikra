@@ -48,3 +48,8 @@ Repositories implement project listing/create/rename/delete; note listing/read/c
 No existing verified live test account or native Google client ID was supplied. Do not create unsolicited real accounts, bypass email verification, infer platform IDs or change backend requirements. Automated tests use synthetic accounts and injected HTTP responses plus a real loopback transport. A separate read-only live smoke check covers TLS, readiness, schema and unauthenticated protection. Live email delivery, a verified-user session, provider-dependent processing/chat/transcription and Android/iOS Google sign-in require user testing/configuration and are not claimed as verified.
 
 The deployment does not expose profile editing, stars/streak/achievements or flexible category contracts. Those previously discussed features still need explicit backend contracts. No fake connected results are substituted.
+
+
+### Account failure presentation
+
+Authentication uses account-specific feedback rather than note/draft reconciliation messages. Transport failures retain a safe connection/timeout/TLS category and HTTP failures retain their status internally. Feedback is announced, automatically revealed, and shown before form fields; submission dismisses the keyboard without discarding entered values. These are presentation and diagnostic changes only: no automatic registration/login retries, SMTP guarantees, or new backend rules are introduced.

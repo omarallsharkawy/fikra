@@ -2069,5 +2069,13 @@
   "apiSignedOut": "Signed out.",
   "apiTranscribe": "Transcribe recording",
   "apiInvalidCode": "This code is invalid or no longer usable. Check it or request a new code.",
-  "apiInvalidEmail": "Check your email address."
+  "apiInvalidEmail": "Check your email address.",
+  "authConnectionError": "Could not connect. Check your internet connection and try again.",
+  "authTimeoutError": "The server took too long to respond. Try again shortly.",
+  "authSecureConnectionError": "A secure connection could not be established. Check your connection and device date.",
+  "authServiceError": "Sign-in services are temporarily unavailable. Try again shortly.",
+  "authResponseError": "The server returned an unexpected response. Please try again later.",
+  "authCredentialsError": "The email or password is incorrect. Check your details and try again.",
+  "authRequestError": "The request could not be completed. Please try again.",
+  "authCheckDetails": "Check your details and try again."
 }

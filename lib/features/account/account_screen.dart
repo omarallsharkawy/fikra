@@ -13,6 +13,7 @@ import '../workspace/product_widgets.dart';
 import 'session_controller.dart';
 import 'product_welcome.dart';
 import 'product_auth_layout.dart';
+import 'product_auth_feedback.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -24,6 +25,11 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
   String _email = '', _password = '', _token = '';
   bool _register = false;
   bool _loginForm = false;
+  Future<void> _submit(Future<void> Function() action) async {
+    FocusScope.of(context).unfocus();
+    await action();
+  }
+
   @override
   Widget build(BuildContext context) => ProductView(
     listenTo: (r) => [r.session],
@@ -70,6 +76,22 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
         if (resetForm) context.l10n.productUseFixtureResetTheRealPasswordPolicyIs,
       ];
       final children = <Widget>[
+        if (session.notice != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(switch (session.notice!) {
+              'verified' =>
+                preview ? context.l10n.productVerificationPreviewCompleteSignInSeparately : context.l10n.apiVerified,
+              'reset' => preview ? context.l10n.productResetPreviewCompleteSignInAgain : context.l10n.apiResetComplete,
+              'localLogout' => context.l10n.productLocalPrivateStateClearedServerRevocationIsNot,
+              'logout' => context.l10n.apiSignedOut,
+              _ =>
+                preview
+                    ? context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount
+                    : context.l10n.apiCodeAcknowledgment,
+            }),
+          ),
+        if (session.failure != null) ProductAuthFeedback(session.failure!),
         if (signedIn) ...[
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -204,7 +226,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               onPressed: session.coolingDown || !validCode
                   ? null
                   : () async {
-                      await session.verify(_token);
+                      await _submit(() => session.verify(_token));
                       if (mounted && session.stage == SessionStage.unauthenticated) {
                         setState(() {
                           _register = false;
@@ -238,7 +260,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 onPressed: session.coolingDown || !validCode || _password.isEmpty || !validPassword
                     ? null
                     : () async {
-                        await session.confirmRecovery(_token, _password);
+                        await _submit(() => session.confirmRecovery(_token, _password));
                         if (mounted && session.stage == SessionStage.unauthenticated) {
                           setState(() {
                             _password = '';
@@ -259,7 +281,9 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 label: context.l10n.uxRequestReset,
                 loading: session.busy,
                 growForText: true,
-                onPressed: session.coolingDown || _email.trim().isEmpty ? null : () => session.recover(_email),
+                onPressed: session.coolingDown || _email.trim().isEmpty
+                    ? null
+                    : () => _submit(() => session.recover(_email)),
               ),
           ] else ...[
             FikraButton(
@@ -269,7 +293,9 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
               onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty || !validPassword
                   ? null
-                  : () => _register ? session.register(_email, _password) : session.login(_email, _password),
+                  : () => _submit(
+                      () => _register ? session.register(_email, _password) : session.login(_email, _password),
+                    ),
             ),
             const SizedBox(height: 16),
             TextButton(
@@ -305,28 +331,12 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               child: Text(context.l10n.productBackToSignIn),
             ),
         ],
-        if (session.notice != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(switch (session.notice!) {
-              'verified' =>
-                preview ? context.l10n.productVerificationPreviewCompleteSignInSeparately : context.l10n.apiVerified,
-              'reset' => preview ? context.l10n.productResetPreviewCompleteSignInAgain : context.l10n.apiResetComplete,
-              'localLogout' => context.l10n.productLocalPrivateStateClearedServerRevocationIsNot,
-              'logout' => context.l10n.apiSignedOut,
-              _ =>
-                preview
-                    ? context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount
-                    : context.l10n.apiCodeAcknowledgment,
-            }),
-          ),
-        if (session.failure != null) ProductFailureView(session.failure!),
       ];
       if (signedIn) {
         return ProductScaffold(title: title, trailing: trailing, previewDetails: previewDetails, children: children);
       }
       return ProductAuthLayout(
-        key: ValueKey(title),
+        key: ValueKey((welcome, verifying, recovery, resetForm, _register)),
         title: title,
         welcome: welcome,
         subtitle: welcome

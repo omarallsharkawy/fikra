@@ -2822,4 +2822,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get apiInvalidEmail => 'راجع عنوان البريد الإلكتروني.';
+
+  @override
+  String get authConnectionError => 'تعذّر الاتصال. راجع اتصال الإنترنت وحاول مرة أخرى.';
+
+  @override
+  String get authTimeoutError => 'الخادم استغرق وقتًا طويلًا للرد. حاول بعد قليل.';
+
+  @override
+  String get authSecureConnectionError => 'تعذّر إنشاء اتصال آمن. راجع اتصالك وتاريخ الجهاز.';
+
+  @override
+  String get authServiceError => 'خدمة الحسابات غير متاحة مؤقتًا. حاول بعد قليل.';
+
+  @override
+  String get authResponseError => 'وصل رد غير متوقع من الخادم. حاول لاحقًا.';
+
+  @override
+  String get authCredentialsError => 'البريد الإلكتروني أو كلمة المرور غير صحيحة. راجع بياناتك وحاول مرة أخرى.';
+
+  @override
+  String get authRequestError => 'تعذّر إكمال الطلب. حاول مرة أخرى.';
+
+  @override
+  String get authCheckDetails => 'راجع البيانات وحاول مرة أخرى.';
 }

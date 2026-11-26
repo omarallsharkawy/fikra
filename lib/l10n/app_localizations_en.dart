@@ -2750,4 +2750,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apiInvalidEmail => 'Check your email address.';
+
+  @override
+  String get authConnectionError => 'Could not connect. Check your internet connection and try again.';
+
+  @override
+  String get authTimeoutError => 'The server took too long to respond. Try again shortly.';
+
+  @override
+  String get authSecureConnectionError =>
+      'A secure connection could not be established. Check your connection and device date.';
+
+  @override
+  String get authServiceError => 'Sign-in services are temporarily unavailable. Try again shortly.';
+
+  @override
+  String get authResponseError => 'The server returned an unexpected response. Please try again later.';
+
+  @override
+  String get authCredentialsError => 'The email or password is incorrect. Check your details and try again.';
+
+  @override
+  String get authRequestError => 'The request could not be completed. Please try again.';
+
+  @override
+  String get authCheckDetails => 'Check your details and try again.';
 }

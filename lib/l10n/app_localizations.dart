@@ -4789,6 +4789,54 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'راجع عنوان البريد الإلكتروني.'**
   String get apiInvalidEmail;
+
+  /// No description provided for @authConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر الاتصال. راجع اتصال الإنترنت وحاول مرة أخرى.'**
+  String get authConnectionError;
+
+  /// No description provided for @authTimeoutError.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخادم استغرق وقتًا طويلًا للرد. حاول بعد قليل.'**
+  String get authTimeoutError;
+
+  /// No description provided for @authSecureConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إنشاء اتصال آمن. راجع اتصالك وتاريخ الجهاز.'**
+  String get authSecureConnectionError;
+
+  /// No description provided for @authServiceError.
+  ///
+  /// In ar, this message translates to:
+  /// **'خدمة الحسابات غير متاحة مؤقتًا. حاول بعد قليل.'**
+  String get authServiceError;
+
+  /// No description provided for @authResponseError.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصل رد غير متوقع من الخادم. حاول لاحقًا.'**
+  String get authResponseError;
+
+  /// No description provided for @authCredentialsError.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني أو كلمة المرور غير صحيحة. راجع بياناتك وحاول مرة أخرى.'**
+  String get authCredentialsError;
+
+  /// No description provided for @authRequestError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إكمال الطلب. حاول مرة أخرى.'**
+  String get authRequestError;
+
+  /// No description provided for @authCheckDetails.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع البيانات وحاول مرة أخرى.'**
+  String get authCheckDetails;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
