@@ -4,11 +4,13 @@ import '../../app/providers.dart';
 import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/theme/tokens.dart';
 import '../workspace/product_widgets.dart';
 import 'session_controller.dart';
+import 'product_welcome.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -19,6 +21,7 @@ class ProductAccountScreen extends StatefulWidget {
 class _ProductAccountScreenState extends State<ProductAccountScreen> {
   String _email = '', _password = '', _token = '';
   bool _register = false;
+  bool _loginForm = false;
   @override
   Widget build(BuildContext context) => ProductView(
     listenTo: (r) => [r.session],
@@ -31,20 +34,73 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           session.stage == SessionStage.recoverySent ||
           session.stage == SessionStage.recoveryConfirm;
       final resetForm = session.stage == SessionStage.recoveryConfirm;
+      final welcome = !signedIn && !verifying && !recovery && !_loginForm && !_register;
       return ProductScaffold(
-        title: signedIn ? context.l10n.productMyAccount : 'FIKRAH',
+        title: signedIn
+            ? context.l10n.uiProfile
+            : welcome
+            ? 'FIKRAH'
+            : _register
+            ? context.l10n.uiCreateAccount
+            : context.l10n.uiWelcomeBack,
+        trailing: signedIn
+            ? IconButton(
+                tooltip: context.l10n.uiSettings,
+                onPressed: () => context.push('/settings'),
+                icon: const Icon(Icons.settings_outlined),
+              )
+            : null,
         children: [
           if (signedIn) ...[
-            Text(session.account!.email, style: context.text.section),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 84,
+                    height: 84,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: context.colors.brandPurple,
+                      border: Border.all(color: context.colors.brandLime, width: 4),
+                    ),
+                    child: Text(
+                      session.account!.email.substring(0, 1).toUpperCase(),
+                      style: context.text.title.copyWith(color: context.colors.onBrandPurple),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(child: Text(session.account!.email, style: context.text.section)),
+                ],
+              ),
+            ),
             const SizedBox(height: 12),
             Text(context.l10n.productThisIsAVolatileDevelopmentWorkspaceExistingLocal),
             const SizedBox(height: 16),
             FikraButton.secondary(label: context.l10n.productSignOutLocally, onPressed: session.signOut),
             const SizedBox(height: 20),
-            const _ProductPreferences(),
-            const SizedBox(height: 20),
-            Text(context.l10n.productProductionSetupPending, style: context.text.section),
-            Text(context.l10n.productPasswordPolicyEmailActionRoutingAndGooglePlatform),
+            Card(
+              child: ListTile(
+                title: Text(context.l10n.uiSettings),
+                leading: const Icon(Icons.settings_outlined),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings'),
+              ),
+            ),
+          ] else if (welcome) ...[
+            if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
+            ProductWelcome(
+              busy: session.busy,
+              onSignup: session.busy ? null : () => setState(() => _register = true),
+              onLogin: session.busy ? null : () => setState(() => _loginForm = true),
+              onSample: session.busy || session.coolingDown
+                  ? null
+                  : () => session.login('reader@example.invalid', 'fixture-only'),
+              onEmpty: session.busy || session.coolingDown
+                  ? null
+                  : () => session.login('other@example.invalid', 'fixture-only'),
+            ),
           ] else ...[
             if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
             Text(context.l10n.productPreviewAccountJourneys, style: context.text.title),
@@ -84,7 +140,19 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 key: const ValueKey('verify-email'),
                 label: context.l10n.productPreviewVerification,
                 loading: session.busy,
-                onPressed: session.coolingDown || _token.isEmpty ? null : () => session.verify(_token),
+                onPressed: session.coolingDown || _token.isEmpty
+                    ? null
+                    : () async {
+                        await session.verify(_token);
+                        if (mounted && session.stage == SessionStage.unauthenticated) {
+                          setState(() {
+                            _register = false;
+                            _loginForm = true;
+                            _password = '';
+                            _token = '';
+                          });
+                        }
+                      },
               ),
               TextButton(
                 onPressed: (session.busy || session.coolingDown) ? null : session.resend,
@@ -122,7 +190,12 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                     : () => _register ? session.register(_email, _password) : session.login(_email, _password),
               ),
               TextButton(
-                onPressed: session.busy ? null : () => setState(() => _register = !_register),
+                onPressed: session.busy
+                    ? null
+                    : () => setState(() {
+                        _register = !_register;
+                        _loginForm = !_register;
+                      }),
                 child: Text(_register ? context.l10n.productBackToSignIn : context.l10n.productPreviewNewAccount),
               ),
               TextButton(
@@ -149,7 +222,15 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             ],
             if (verifying || recovery)
               TextButton(
-                onPressed: session.busy ? null : () => session.show(SessionStage.unauthenticated),
+                onPressed: session.busy
+                    ? null
+                    : () {
+                        setState(() {
+                          _register = false;
+                          _loginForm = true;
+                        });
+                        session.show(SessionStage.unauthenticated);
+                      },
                 child: Text(context.l10n.productBackToSignIn),
               ),
           ],
@@ -211,4 +292,11 @@ class _ProductPreferences extends ConsumerWidget {
       ],
     );
   }
+}
+
+class ProductSettingsScreen extends StatelessWidget {
+  const ProductSettingsScreen({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      ProductScaffold(title: context.l10n.uiSettings, back: true, children: const [_ProductPreferences()]);
 }

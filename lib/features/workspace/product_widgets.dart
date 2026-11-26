@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat, Bidi;
 
 import '../../core/format.dart';
 
@@ -15,6 +15,10 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/widgets/pearl_canvas.dart';
 import '../../data/product/models.dart';
+
+/// Content direction follows its script, independently of the interface locale.
+TextDirection productContentDirection(String text) =>
+    Bidi.detectRtlDirectionality(text) ? TextDirection.rtl : TextDirection.ltr;
 
 String productTimestamp(BuildContext context, DateTime storedTimestamp) {
   final local = storedTimestamp.toLocal(), l10n = context.l10n;
@@ -55,7 +59,23 @@ class DevelopmentBanner extends StatelessWidget {
       color: context.colors.brandLime.withValues(alpha: .12),
       borderRadius: BorderRadius.circular(12),
     ),
-    child: Text(context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend, style: context.text.meta),
+    child: Row(
+      children: [
+        Expanded(child: Text(context.l10n.uiPreviewNotice, style: context.text.meta)),
+        IconButton(
+          tooltip: context.l10n.uiPreviewNotice,
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(context.l10n.uiPreviewNotice),
+              content: Text(context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend),
+              actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productBack))],
+            ),
+          ),
+          icon: const Icon(Icons.info_outline, size: 18),
+        ),
+      ],
+    ),
   );
 }
 
@@ -96,38 +116,67 @@ class ProductFailureView extends StatelessWidget {
 }
 
 class ProductScaffold extends StatelessWidget {
-  const ProductScaffold({super.key, required this.title, required this.children, this.back = false, this.trailing});
+  const ProductScaffold({
+    super.key,
+    required this.title,
+    required this.children,
+    this.back = false,
+    this.trailing,
+    this.header,
+    this.footer,
+    this.controller,
+  });
   final String title;
   final List<Widget> children;
   final bool back;
   final Widget? trailing;
+  final Widget? header;
+  final Widget? footer;
+  final ScrollController? controller;
   @override
   Widget build(BuildContext context) => PearlCanvas(
     child: Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + NavigationInset.of(context)),
-          children: [
-            Row(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
               children: [
-                if (back)
-                  IconButton(
-                    tooltip: context.l10n.productBack,
-                    onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back),
+                Expanded(
+                  child: ListView(
+                    controller: controller,
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.fromLTRB(16, 12, 16, 24 + (footer == null ? NavigationInset.of(context) : 0)),
+                    children: [
+                      header ??
+                          Row(
+                            children: [
+                              if (back)
+                                IconButton(
+                                  tooltip: context.l10n.productBack,
+                                  onPressed: () => context.pop(),
+                                  icon: const Icon(Icons.arrow_back),
+                                ),
+                              const FikraBrandMark(),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(title, style: context.text.title)),
+                              ?trailing,
+                            ],
+                          ),
+                      const SizedBox(height: 16),
+                      const DevelopmentBanner(),
+                      const SizedBox(height: 20),
+                      ...children,
+                    ],
                   ),
-                const FikraBrandMark(),
-                const SizedBox(width: 12),
-                Expanded(child: Text(title, style: context.text.title)),
-                ?trailing,
+                ),
+                if (footer != null)
+                  Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + NavigationInset.of(context)), child: footer),
               ],
             ),
-            const SizedBox(height: 16),
-            const DevelopmentBanner(),
-            const SizedBox(height: 20),
-            ...children,
-          ],
+          ),
         ),
       ),
     ),
@@ -145,6 +194,7 @@ class ProductTextInput extends StatefulWidget {
     this.enabled = true,
     this.onSubmitted,
     this.keyboardType,
+    this.suffix,
   });
   final String value, label;
   final ValueChanged<String> onChanged;
@@ -152,12 +202,14 @@ class ProductTextInput extends StatefulWidget {
   final int lines;
   final bool obscure, enabled;
   final TextInputType? keyboardType;
+  final Widget? suffix;
   @override
   State<ProductTextInput> createState() => _ProductTextInputState();
 }
 
 class _ProductTextInputState extends State<ProductTextInput> {
   late final _controller = TextEditingController(text: widget.value);
+  bool _revealed = false;
   @override
   void didUpdateWidget(covariant ProductTextInput old) {
     super.didUpdateWidget(old);
@@ -184,12 +236,22 @@ class _ProductTextInputState extends State<ProductTextInput> {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
-      obscureText: widget.obscure,
+      textInputAction: widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null,
+      obscureText: widget.obscure && !_revealed,
+      enableSuggestions: !widget.obscure,
+      autocorrect: !widget.obscure,
       minLines: widget.lines,
       maxLines: widget.lines == 1 ? 1 : null,
       decoration: InputDecoration(
         labelText: widget.label,
         alignLabelWithHint: true,
+        suffixIcon: widget.obscure
+            ? IconButton(
+                tooltip: _revealed ? context.l10n.uiHidePassword : context.l10n.uiShowPassword,
+                onPressed: widget.enabled ? () => setState(() => _revealed = !_revealed) : null,
+                icon: Icon(_revealed ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              )
+            : widget.suffix,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ),

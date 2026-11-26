@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../motion/page_transitions.dart';
 import 'tokens.dart';
 
-ThemeData buildFikraTheme(Brightness brightness) {
+ThemeData buildFikraTheme(Brightness brightness, {FikraPalette? palette}) {
   final dark = brightness == Brightness.dark;
-  final colors = dark ? FikraPalette.dark : FikraPalette.light;
+  final colors = palette ?? (dark ? FikraPalette.dark : FikraPalette.light);
   final text = FikraText(colors);
   final scheme = ColorScheme(
     brightness: brightness,

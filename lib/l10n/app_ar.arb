@@ -652,13 +652,21 @@
   },
   "colorNone": "من غير لون",
   "colorBlue": "أزرق",
-  "@colorBlue": {"description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."},
+  "@colorBlue": {
+    "description": "Name of a note group colour in the group colour picker (a muted blue marker); also its screen reader label."
+  },
   "colorGreen": "أخضر",
-  "@colorGreen": {"description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."},
+  "@colorGreen": {
+    "description": "Name of a note group colour in the group colour picker (a sage green marker); also its screen reader label."
+  },
   "colorYellow": "أصفر",
-  "@colorYellow": {"description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."},
+  "@colorYellow": {
+    "description": "Name of a note group colour in the group colour picker (a sand yellow marker); also its screen reader label."
+  },
   "colorGray": "رمادي",
-  "@colorGray": {"description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."},
+  "@colorGray": {
+    "description": "Name of a note group colour in the group colour picker (a neutral gray marker); also its screen reader label."
+  },
   "groupParentLabel": "جوه مجموعة (اختياري)",
   "groupParentNone": "ولا واحدة",
   "moveNotesTitle": "تنقل {notes} لـ«{project}»؟",
@@ -2020,5 +2028,32 @@
   "productThisDeletesTheConversationAndMessagesWhileKeeping": "ده بيحذف المحادثة ورسائلها وبيحتفظ بالملاحظات.",
   "productDeleteConversation2": "حذف المحادثة",
   "productReviewFailedSave": "مراجعة المسودة لمحاولة حفظ جديدة",
-  "productNewIntentionalSaveExplanation": "المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني."
+  "productNewIntentionalSaveExplanation": "المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.",
+  "uiSignUpEmail": "إنشاء حساب بالبريد الإلكتروني",
+  "uiLogIn": "تسجيل الدخول",
+  "uiContinueGoogle": "المتابعة باستخدام Google",
+  "uiCreateAccount": "إنشاء حسابك",
+  "uiWelcomeBack": "مرحبًا بعودتك",
+  "uiShowPassword": "إظهار كلمة المرور",
+  "uiHidePassword": "إخفاء كلمة المرور",
+  "uiNewIdea": "فكرة جديدة",
+  "uiVoice": "صوت",
+  "uiFile": "ملف",
+  "uiProfile": "الملف الشخصي",
+  "uiSettings": "الإعدادات",
+  "uiIdeas": "الأفكار",
+  "uiAll": "الكل",
+  "uiToday": "اليوم",
+  "uiEarlier": "سابقًا",
+  "uiIdeaMap": "خريطة الأفكار",
+  "uiSearchIdeas": "ابحث في أفكارك",
+  "uiMapHint": "اسحب الأفكار، وكبّر بإصبعين، واضغط للفتح",
+  "uiZoomOut": "تصغير",
+  "uiFitIdeas": "إظهار كل الأفكار",
+  "uiOpenNote": "فتح الملاحظة",
+  "uiConnectedIdeas": "أفكار مرتبطة",
+  "uiUnavailable": "غير متاح بعد",
+  "uiPreviewNotice": "معاينة تطوير · بيانات مؤقتة",
+  "uiGoogleUnavailable": "تسجيل الدخول عبر Google غير متاح في هذه المعاينة.",
+  "uiWelcomeSubtitle": "أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء."
 }

@@ -2,7 +2,8 @@
 
 Pearl is the app's near-neutral colour system. Typography uses bundled Inter
 for Latin text, NotoSansArabic for Arabic glyphs and Roboto as the final fallback.
-Zero letter spacing, existing sizes, weights, radii, spacing and motion remain.
+Zero letter spacing is retained. The shared hierarchy uses Regular reading text,
+Medium metadata and SemiBold headings/actions; see the typography feature record.
 See `docs/features/inter-typography/font-usage.md` for sources and licensing.
 
 `buildFikraTheme(Brightness)` installs `FikraPalette.light/dark` as a
@@ -52,5 +53,13 @@ Run `flutter analyze` and the tests outside the socket-restricted sandbox.
 - `FikraPalette` adds brand fill/ink/foreground/tint tokens: `brandLime`, `brandBlue`, `brandPurple`, `brandSlate`, plus `on*`, `*Fg`, and `*Tint` variants in constructor, `copyWith` and `lerp`.
 - Neutral surfaces/text align to the dark (`#0E1013`/`#171A20`/`#22262F`/`#2E3440`, `#F3F5F7`/`#A1AAB8`) and light (`#F5F5F2`/`#FFFFFF`/`#ECEEEB`/`#DCDFE4`, `#14181F`/`#525B68`) concept palettes; `bloomCoolAlpha` and `bloomWarmAlpha` are zeroed.
 - Semantic tokens remap to the brand (`accent` = `brandLimeFg`, `onAccent` = `#111214` dark / `#FFFFFF` light, `selected` = `#242B1A` dark / `#EEF6D4` light; Material `secondary` = `brandBlue`, `tertiary` = `brandPurple`).
-- `FikraRadius` updates to `sm: 16`, `md: 18`, `lg: 20`, `xl: 24`, `xxl: 28`, `full: 999`. `FikraText` uses Inter with NotoSansArabic fallback and zero `letterSpacing`, raises `meta` to `12.5` sp, and bolds headings (`title` 28/w800, `cardTitleSmall` 17/w700, `body` 16/1.55, `caption` 14/1.5, `chip` 13/w600).
+- `FikraRadius` updates to `sm: 16`, `md: 18`, `lg: 20`, `xl: 24`, `xxl: 28`, `full: 999`. `FikraText` uses Inter with NotoSansArabic fallback and zero `letterSpacing`, raises `meta` to `12.5` sp, and uses a lighter hierarchy (`title` 26/w600/1.2, `cardTitleSmall` 16/w600/1.35, `body` 16/1.5, `caption` 14/1.4, `chip` 13/w500).
 - `test/pearl_contrast_test.dart` asserts WCAG AA (`>= 4.5:1` text, `>= 3:1` large/icons) for every brand fill/ink, foreground-on-surface, and composited tinted badge pair in both themes plus typography bounds (`>= 12.5` sp).
+
+## Reference mobile UI refresh
+
+`buildProductTheme` supplies the HTML reference's neutral surfaces and saturated
+blue/purple/lime colors to the default product journey. It shares typography
+with the separate legacy demo, which retains its own palette. Input/card radii
+and opaque navigation surfaces follow the reference; no data or API behavior
+is encoded in theme tokens. See `docs/features/mobile-ui-refresh/`.

@@ -4369,6 +4369,168 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.'**
   String get productNewIntentionalSaveExplanation;
+
+  /// No description provided for @uiSignUpEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء حساب بالبريد الإلكتروني'**
+  String get uiSignUpEmail;
+
+  /// No description provided for @uiLogIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول'**
+  String get uiLogIn;
+
+  /// No description provided for @uiContinueGoogle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابعة باستخدام Google'**
+  String get uiContinueGoogle;
+
+  /// No description provided for @uiCreateAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء حسابك'**
+  String get uiCreateAccount;
+
+  /// No description provided for @uiWelcomeBack.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرحبًا بعودتك'**
+  String get uiWelcomeBack;
+
+  /// No description provided for @uiShowPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'إظهار كلمة المرور'**
+  String get uiShowPassword;
+
+  /// No description provided for @uiHidePassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'إخفاء كلمة المرور'**
+  String get uiHidePassword;
+
+  /// No description provided for @uiNewIdea.
+  ///
+  /// In ar, this message translates to:
+  /// **'فكرة جديدة'**
+  String get uiNewIdea;
+
+  /// No description provided for @uiVoice.
+  ///
+  /// In ar, this message translates to:
+  /// **'صوت'**
+  String get uiVoice;
+
+  /// No description provided for @uiFile.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملف'**
+  String get uiFile;
+
+  /// No description provided for @uiProfile.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف الشخصي'**
+  String get uiProfile;
+
+  /// No description provided for @uiSettings.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعدادات'**
+  String get uiSettings;
+
+  /// No description provided for @uiIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأفكار'**
+  String get uiIdeas;
+
+  /// No description provided for @uiAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get uiAll;
+
+  /// No description provided for @uiToday.
+  ///
+  /// In ar, this message translates to:
+  /// **'اليوم'**
+  String get uiToday;
+
+  /// No description provided for @uiEarlier.
+  ///
+  /// In ar, this message translates to:
+  /// **'سابقًا'**
+  String get uiEarlier;
+
+  /// No description provided for @uiIdeaMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'خريطة الأفكار'**
+  String get uiIdeaMap;
+
+  /// No description provided for @uiSearchIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث في أفكارك'**
+  String get uiSearchIdeas;
+
+  /// No description provided for @uiMapHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسحب الأفكار، وكبّر بإصبعين، واضغط للفتح'**
+  String get uiMapHint;
+
+  /// No description provided for @uiZoomOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصغير'**
+  String get uiZoomOut;
+
+  /// No description provided for @uiFitIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'إظهار كل الأفكار'**
+  String get uiFitIdeas;
+
+  /// No description provided for @uiOpenNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح الملاحظة'**
+  String get uiOpenNote;
+
+  /// No description provided for @uiConnectedIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكار مرتبطة'**
+  String get uiConnectedIdeas;
+
+  /// No description provided for @uiUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير متاح بعد'**
+  String get uiUnavailable;
+
+  /// No description provided for @uiPreviewNotice.
+  ///
+  /// In ar, this message translates to:
+  /// **'معاينة تطوير · بيانات مؤقتة'**
+  String get uiPreviewNotice;
+
+  /// No description provided for @uiGoogleUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول عبر Google غير متاح في هذه المعاينة.'**
+  String get uiGoogleUnavailable;
+
+  /// No description provided for @uiWelcomeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.'**
+  String get uiWelcomeSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -2538,4 +2538,85 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productNewIntentionalSaveExplanation =>
       'The previous attempt was rejected or refers to a deleted note. Keep the draft and start a new intentional save only when you choose Save again.';
+
+  @override
+  String get uiSignUpEmail => 'Sign up with email';
+
+  @override
+  String get uiLogIn => 'Log in';
+
+  @override
+  String get uiContinueGoogle => 'Continue with Google';
+
+  @override
+  String get uiCreateAccount => 'Create your account';
+
+  @override
+  String get uiWelcomeBack => 'Welcome back';
+
+  @override
+  String get uiShowPassword => 'Show password';
+
+  @override
+  String get uiHidePassword => 'Hide password';
+
+  @override
+  String get uiNewIdea => 'New idea';
+
+  @override
+  String get uiVoice => 'Voice';
+
+  @override
+  String get uiFile => 'File';
+
+  @override
+  String get uiProfile => 'Profile';
+
+  @override
+  String get uiSettings => 'Settings';
+
+  @override
+  String get uiIdeas => 'Ideas';
+
+  @override
+  String get uiAll => 'All';
+
+  @override
+  String get uiToday => 'Today';
+
+  @override
+  String get uiEarlier => 'Earlier';
+
+  @override
+  String get uiIdeaMap => 'Idea map';
+
+  @override
+  String get uiSearchIdeas => 'Search your ideas';
+
+  @override
+  String get uiMapHint => 'Drag ideas, pinch to zoom, tap to open';
+
+  @override
+  String get uiZoomOut => 'Zoom out';
+
+  @override
+  String get uiFitIdeas => 'Fit all ideas';
+
+  @override
+  String get uiOpenNote => 'Open note';
+
+  @override
+  String get uiConnectedIdeas => 'Connected ideas';
+
+  @override
+  String get uiUnavailable => 'Not available yet';
+
+  @override
+  String get uiPreviewNotice => 'Development preview · temporary data';
+
+  @override
+  String get uiGoogleUnavailable => 'Google sign-in is not available in this preview.';
+
+  @override
+  String get uiWelcomeSubtitle => 'Your ideas, connected. Ask your notes anything.';
 }

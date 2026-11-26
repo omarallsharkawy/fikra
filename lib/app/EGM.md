@@ -274,3 +274,16 @@ modelDiscoveryProvider supplies fakeable transport plus database-backed availabi
 - `shell.dart`: `AppShell` (`ConsumerStatefulWidget`) tracks top-to-bottom vertical scroll deltas (`AxisDirection.down`, ignoring horizontal and reversed scrollables) into a `ValueNotifier<double>` (`0..1` over `FikraMotion.barShrinkDistance`, reset on branch change) only when `!kReleaseMode && ref.watch(navBarShrinkEnabledProvider)` and Reduce Motion is off, passing it to `FloatingNavigation` without rebuilding branch children. Mounts `ActivityCapsule` via `FloatingNavigation.aboveBar`; `NavigationInset` stays constant so capsule appearance never jumps scroll insets or rebuilds tabs. Shell toasts use their own ungrouped `BackdropFilter` (not shared with `FloatingNavigation`) and get bottom clearance from `AppShell`'s `snackBarTheme.insetPadding`.
 
 `/links/note/:id` also accepts `(LibraryNote?, CardOrigin?)`; only a preview whose ID matches the path is displayed. The origin continues through the existing container transform.
+
+## Reference mobile navigation and settings
+
+The default product journey uses `ProductNavigation`: Home, Map, central Add,
+Ask, and Me, preserving existing shell branch indices. The bar is opaque,
+limited to 520 logical pixels and hidden while the keyboard is visible. At
+large text sizes, tooltip/semantic labels remain available while visual labels
+are omitted to prevent clipping. Screen-reader activation invokes the same
+selection callbacks as touch. The legacy demo retains `FloatingNavigation`.
+
+`/settings` is a protected product route reached from Me. It exposes the
+existing language/theme preferences; it does not enable notifications, reset
+private data or invent server-side profile fields.

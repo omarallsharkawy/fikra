@@ -84,7 +84,11 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
             ] else ...[
               Text(context.l10n.productSavedContent, style: context.text.section),
               const SizedBox(height: 8),
-              SelectableText(n.content, style: context.text.bodyLarge),
+              SelectableText(
+                n.content,
+                textDirection: productContentDirection(n.content),
+                style: context.text.bodyLarge,
+              ),
               TextButton.icon(
                 onPressed: w.busy
                     ? null
@@ -104,7 +108,12 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
                 const Divider(height: 32),
                 Text(context.l10n.productRefinementProposal, style: context.text.section),
                 const SizedBox(height: 12),
-                SelectableText(n.proposal!, key: const ValueKey('refinement-proposal'), style: context.text.body),
+                SelectableText(
+                  n.proposal!,
+                  textDirection: productContentDirection(n.proposal!),
+                  key: const ValueKey('refinement-proposal'),
+                  style: context.text.body,
+                ),
                 const SizedBox(height: 16),
                 FikraButton(
                   key: const ValueKey('accept-proposal'),
