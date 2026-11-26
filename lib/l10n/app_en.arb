@@ -2043,5 +2043,13 @@
         "type": "String"
       }
     }
-  }
+  },
+  "authLoginHint": "A little space for your next big idea.",
+  "authSignupHint": "Give your ideas a place to grow.",
+  "authRecoveryHint": "Enter the email you use for your account.",
+  "authRecoverySentHint": "Your reset request has been received.",
+  "authVerifyHint": "Complete email verification to continue to sign in.",
+  "authResetHint": "Enter your reset token and a new password.",
+  "authHaveAccount": "Already have an account? Log in",
+  "authNewAccount": "New here? Create an account"
 }

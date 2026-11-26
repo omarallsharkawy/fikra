@@ -2744,4 +2744,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String uxProjectContext(String name) {
     return 'المشروع: $name';
   }
+
+  @override
+  String get authLoginHint => 'مساحة صغيرة لفكرتك الكبيرة الجاية.';
+
+  @override
+  String get authSignupHint => 'خلّي لأفكارك مكان تكبر فيه.';
+
+  @override
+  String get authRecoveryHint => 'اكتب البريد الإلكتروني المستخدم لحسابك.';
+
+  @override
+  String get authRecoverySentHint => 'تم استلام طلب استعادة كلمة المرور.';
+
+  @override
+  String get authVerifyHint => 'أكمل تأكيد البريد الإلكتروني للمتابعة إلى تسجيل الدخول.';
+
+  @override
+  String get authResetHint => 'اكتب رمز الاستعادة وكلمة مرور جديدة.';
+
+  @override
+  String get authHaveAccount => 'عندك حساب؟ سجّل الدخول';
+
+  @override
+  String get authNewAccount => 'أول مرة هنا؟ أنشئ حسابًا';
 }

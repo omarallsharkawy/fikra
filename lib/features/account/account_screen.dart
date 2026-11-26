@@ -11,6 +11,7 @@ import '../../core/theme/tokens.dart';
 import '../workspace/product_widgets.dart';
 import 'session_controller.dart';
 import 'product_welcome.dart';
+import 'product_auth_layout.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -35,233 +36,298 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           session.stage == SessionStage.recoveryConfirm;
       final resetForm = session.stage == SessionStage.recoveryConfirm;
       final welcome = !signedIn && !verifying && !recovery && !_loginForm && !_register;
-      return ProductScaffold(
-        title: signedIn
-            ? context.l10n.uiProfile
-            : welcome
-            ? 'FIKRAH'
-            : verifying
-            ? context.l10n.uxVerifyTitle
-            : resetForm
-            ? context.l10n.uxResetTitle
-            : session.stage == SessionStage.recoverySent
-            ? context.l10n.uxRecoverySentTitle
-            : recovery
-            ? context.l10n.uxRecoveryTitle
-            : _register
-            ? context.l10n.uiCreateAccount
-            : context.l10n.uiWelcomeBack,
-        trailing: signedIn
-            ? IconButton(
-                tooltip: context.l10n.uiSettings,
-                onPressed: () => context.push('/settings'),
-                icon: const Icon(Icons.settings_outlined),
-              )
-            : null,
-        previewDetails: [
-          context.l10n.productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery,
-          context.l10n.productThisIsAVolatileDevelopmentWorkspaceExistingLocal,
-          context.l10n.productGoogleSignInWaitingForApprovedPlatformConfiguration,
-          if (verifying) context.l10n.productAwaitingVerificationUseFixtureVerifyToPreviewSuccess,
-          if (resetForm) context.l10n.productUseFixtureResetTheRealPasswordPolicyIs,
-        ],
-        children: [
-          if (signedIn) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 84,
-                    height: 84,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: context.colors.brandPurple,
-                      border: Border.all(color: context.colors.brandLime, width: 4),
-                    ),
-                    child: Text(
-                      session.account!.email.isEmpty ? 'F' : session.account!.email.characters.first.toUpperCase(),
-                      style: context.text.title.copyWith(color: context.colors.onBrandPurple),
-                    ),
+      final title = signedIn
+          ? context.l10n.uiProfile
+          : welcome
+          ? 'FIKRAH'
+          : verifying
+          ? context.l10n.uxVerifyTitle
+          : resetForm
+          ? context.l10n.uxResetTitle
+          : session.stage == SessionStage.recoverySent
+          ? context.l10n.uxRecoverySentTitle
+          : recovery
+          ? context.l10n.uxRecoveryTitle
+          : _register
+          ? context.l10n.uiCreateAccount
+          : context.l10n.uiWelcomeBack;
+      final trailing = signedIn
+          ? IconButton(
+              tooltip: context.l10n.uiSettings,
+              onPressed: () => context.push('/settings'),
+              icon: const Icon(Icons.settings_outlined),
+            )
+          : null;
+      final previewDetails = [
+        context.l10n.productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery,
+        context.l10n.productThisIsAVolatileDevelopmentWorkspaceExistingLocal,
+        context.l10n.productGoogleSignInWaitingForApprovedPlatformConfiguration,
+        if (verifying) context.l10n.productAwaitingVerificationUseFixtureVerifyToPreviewSuccess,
+        if (resetForm) context.l10n.productUseFixtureResetTheRealPasswordPolicyIs,
+      ];
+      final children = <Widget>[
+        if (signedIn) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 84,
+                  height: 84,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: context.colors.brandPurple,
+                    border: Border.all(color: context.colors.brandLime, width: 4),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(child: Text(session.account!.email, style: context.text.section)),
-                ],
-              ),
+                  child: Text(
+                    session.account!.email.isEmpty ? 'F' : session.account!.email.characters.first.toUpperCase(),
+                    style: context.text.title.copyWith(color: context.colors.onBrandPurple),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(child: Text(session.account!.email, style: context.text.section)),
+              ],
             ),
-            const SizedBox(height: 12),
+          ),
+          const SizedBox(height: 12),
 
-            Card(
-              child: ListTile(
-                title: Text(context.l10n.uiSettings),
-                leading: const Icon(Icons.settings_outlined),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/settings'),
+          Card(
+            child: ListTile(
+              title: Text(context.l10n.uiSettings),
+              leading: const Icon(Icons.settings_outlined),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings'),
+            ),
+          ),
+          const SizedBox(height: 24),
+          FikraButton.secondary(
+            label: context.l10n.productSignOutLocally,
+            onPressed: session.signOut,
+            growForText: true,
+          ),
+        ] else if (welcome) ...[
+          if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
+          ProductWelcome(
+            busy: session.busy,
+            onSignup: session.busy ? null : () => setState(() => _register = true),
+            onLogin: session.busy ? null : () => setState(() => _loginForm = true),
+            onSample: session.busy || session.coolingDown
+                ? null
+                : () => session.login('reader@example.invalid', 'fixture-only'),
+            onEmpty: session.busy || session.coolingDown
+                ? null
+                : () => session.login('other@example.invalid', 'fixture-only'),
+          ),
+        ] else ...[
+          if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
+
+          if (!verifying && !resetForm && session.stage != SessionStage.recoverySent)
+            ProductTextInput(
+              key: const ValueKey('account-email'),
+              value: _email,
+              onChanged: (v) => setState(() => _email = v),
+              enabled: !session.busy,
+              label: context.l10n.productEmail,
+              keyboardType: TextInputType.emailAddress,
+              textDirection: TextDirection.ltr,
+              textInputAction: recovery ? TextInputAction.done : TextInputAction.next,
+              autofillHints: const [AutofillHints.email],
+            ),
+          if (verifying || resetForm)
+            ProductTextInput(
+              key: const ValueKey('account-token'),
+              value: _token,
+              onChanged: (v) => setState(() => _token = v),
+              enabled: !session.busy,
+              label: context.l10n.productFixtureActionToken,
+              textDirection: TextDirection.ltr,
+              textInputAction: resetForm ? TextInputAction.next : TextInputAction.done,
+            ),
+          if ((!verifying && !recovery) || resetForm)
+            ProductTextInput(
+              key: const ValueKey('account-password'),
+              value: _password,
+              onChanged: (v) => setState(() => _password = v),
+              obscure: true,
+              textDirection: TextDirection.ltr,
+              textInputAction: TextInputAction.done,
+              autofillHints: [resetForm || _register ? AutofillHints.newPassword : AutofillHints.password],
+              enabled: !session.busy,
+              label: resetForm ? context.l10n.productNewPasswordPreview : context.l10n.productPassword,
+            ),
+          if (!verifying && !recovery && !_register)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton(
+                onPressed: session.busy
+                    ? null
+                    : () {
+                        FocusScope.of(context).unfocus();
+                        setState(() {
+                          _password = '';
+                          _token = '';
+                        });
+                        session.show(SessionStage.recoveryRequest);
+                      },
+                child: Text(context.l10n.productForgotPassword),
               ),
             ),
-            const SizedBox(height: 24),
-            FikraButton.secondary(
-              label: context.l10n.productSignOutLocally,
-              onPressed: session.signOut,
+          const SizedBox(height: 12),
+          if (verifying) ...[
+            FikraButton(
+              key: const ValueKey('verify-email'),
+              label: context.l10n.productPreviewVerification,
+              loading: session.busy,
               growForText: true,
-            ),
-          ] else if (welcome) ...[
-            if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
-            ProductWelcome(
-              busy: session.busy,
-              onSignup: session.busy ? null : () => setState(() => _register = true),
-              onLogin: session.busy ? null : () => setState(() => _loginForm = true),
-              onSample: session.busy || session.coolingDown
+              onPressed: session.coolingDown || _token.isEmpty
                   ? null
-                  : () => session.login('reader@example.invalid', 'fixture-only'),
-              onEmpty: session.busy || session.coolingDown
-                  ? null
-                  : () => session.login('other@example.invalid', 'fixture-only'),
+                  : () async {
+                      await session.verify(_token);
+                      if (mounted && session.stage == SessionStage.unauthenticated) {
+                        setState(() {
+                          _register = false;
+                          _loginForm = true;
+                          _password = '';
+                          _token = '';
+                        });
+                      }
+                    },
             ),
-          ] else ...[
-            if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
-
-            if (!verifying && !resetForm)
-              ProductTextInput(
-                key: const ValueKey('account-email'),
-                value: _email,
-                onChanged: (v) => setState(() => _email = v),
-                enabled: !session.busy,
-                label: context.l10n.productEmail,
-                keyboardType: TextInputType.emailAddress,
+            TextButton(
+              onPressed: (session.busy || session.coolingDown) ? null : session.resend,
+              child: Text(context.l10n.productPreviewResendRequest),
+            ),
+          ] else if (recovery) ...[
+            if (session.stage == SessionStage.recoverySent) ...[
+              Text(context.l10n.productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed),
+              TextButton(
+                onPressed: () => session.show(SessionStage.recoveryConfirm),
+                child: Text(context.l10n.productPreviewResetForm),
               ),
-            if ((!verifying && !recovery) || resetForm)
-              ProductTextInput(
-                key: const ValueKey('account-password'),
-                value: _password,
-                onChanged: (v) => setState(() => _password = v),
-                obscure: true,
-                enabled: !session.busy,
-                label: resetForm ? context.l10n.productNewPasswordPreview : context.l10n.productPassword,
-              ),
-            if (verifying || resetForm)
-              ProductTextInput(
-                key: const ValueKey('account-token'),
-                value: _token,
-                onChanged: (v) => setState(() => _token = v),
-                enabled: !session.busy,
-                label: context.l10n.productFixtureActionToken,
-              ),
-            if (verifying) ...[
+            ] else if (resetForm) ...[
               FikraButton(
-                key: const ValueKey('verify-email'),
-                label: context.l10n.productPreviewVerification,
+                label: context.l10n.uxResetPassword,
                 loading: session.busy,
-                onPressed: session.coolingDown || _token.isEmpty
+                growForText: true,
+                onPressed: session.coolingDown || _token.isEmpty || _password.isEmpty
                     ? null
                     : () async {
-                        await session.verify(_token);
+                        await session.confirmRecovery(_token, _password);
                         if (mounted && session.stage == SessionStage.unauthenticated) {
                           setState(() {
-                            _register = false;
-                            _loginForm = true;
                             _password = '';
                             _token = '';
+                            _register = false;
+                            _loginForm = true;
                           });
                         }
                       },
               ),
-              TextButton(
-                onPressed: (session.busy || session.coolingDown) ? null : session.resend,
-                child: Text(context.l10n.productPreviewResendRequest),
-              ),
-            ] else if (recovery) ...[
-              if (session.stage == SessionStage.recoverySent) ...[
-                Text(context.l10n.productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed),
-                TextButton(
-                  onPressed: () => session.show(SessionStage.recoveryConfirm),
-                  child: Text(context.l10n.productPreviewResetForm),
-                ),
-              ] else if (resetForm) ...[
-                FikraButton(
-                  label: context.l10n.uxResetPassword,
-                  loading: session.busy,
-                  onPressed: session.coolingDown || _token.isEmpty || _password.isEmpty
-                      ? null
-                      : () async {
-                          await session.confirmRecovery(_token, _password);
-                          if (mounted && session.stage == SessionStage.unauthenticated) {
-                            setState(() {
-                              _password = '';
-                              _token = '';
-                              _register = false;
-                              _loginForm = true;
-                            });
-                          }
-                        },
-                ),
-              ] else
-                FikraButton(
-                  label: context.l10n.uxRequestReset,
-                  loading: session.busy,
-                  onPressed: session.coolingDown || _email.trim().isEmpty ? null : () => session.recover(_email),
-                ),
-            ] else ...[
+            ] else
               FikraButton(
-                key: const ValueKey('account-submit'),
+                label: context.l10n.uxRequestReset,
                 loading: session.busy,
-                label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
-                onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty
-                    ? null
-                    : () => _register ? session.register(_email, _password) : session.login(_email, _password),
+                growForText: true,
+                onPressed: session.coolingDown || _email.trim().isEmpty ? null : () => session.recover(_email),
               ),
-              TextButton(
-                onPressed: session.busy
-                    ? null
-                    : () => setState(() {
+          ] else ...[
+            FikraButton(
+              key: const ValueKey('account-submit'),
+              loading: session.busy,
+              growForText: true,
+              label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
+              onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty
+                  ? null
+                  : () => _register ? session.register(_email, _password) : session.login(_email, _password),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: session.busy
+                  ? null
+                  : () {
+                      FocusScope.of(context).unfocus();
+                      setState(() {
                         _register = !_register;
                         _loginForm = !_register;
-                      }),
-                child: Text(_register ? context.l10n.productBackToSignIn : context.l10n.productPreviewNewAccount),
-              ),
-              TextButton(
-                onPressed: session.busy ? null : () => session.show(SessionStage.recoveryRequest),
-                child: Text(context.l10n.productForgotPassword),
-              ),
-              TextButton(
-                onPressed: session.busy
-                    ? null
-                    : () => setState(() {
-                        _register = false;
-                        _loginForm = false;
                         _password = '';
                         _token = '';
-                      }),
-                child: Text(context.l10n.productBack),
-              ),
-            ],
-            if (verifying || recovery)
-              TextButton(
-                onPressed: session.busy
-                    ? null
-                    : () {
-                        setState(() {
-                          _register = false;
-                          _loginForm = true;
-                        });
-                        session.show(SessionStage.unauthenticated);
-                      },
-                child: Text(context.l10n.productBackToSignIn),
-              ),
-          ],
-          if (session.notice != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Text(switch (session.notice!) {
-                'verified' => context.l10n.productVerificationPreviewCompleteSignInSeparately,
-                'reset' => context.l10n.productResetPreviewCompleteSignInAgain,
-                'localLogout' => context.l10n.productLocalPrivateStateClearedServerRevocationIsNot,
-                _ => context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount,
-              }),
+                      });
+                      session.show(session.stage);
+                    },
+              child: Text(_register ? context.l10n.authHaveAccount : context.l10n.authNewAccount),
             ),
-          if (session.failure != null) ProductFailureView(session.failure!),
+          ],
+          if (verifying || recovery)
+            TextButton(
+              onPressed: session.busy
+                  ? null
+                  : () {
+                      FocusScope.of(context).unfocus();
+                      setState(() {
+                        _register = false;
+                        _loginForm = true;
+                        _password = '';
+                        _token = '';
+                      });
+                      session.show(SessionStage.unauthenticated);
+                    },
+              child: Text(context.l10n.productBackToSignIn),
+            ),
         ],
+        if (session.notice != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(switch (session.notice!) {
+              'verified' => context.l10n.productVerificationPreviewCompleteSignInSeparately,
+              'reset' => context.l10n.productResetPreviewCompleteSignInAgain,
+              'localLogout' => context.l10n.productLocalPrivateStateClearedServerRevocationIsNot,
+              _ => context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount,
+            }),
+          ),
+        if (session.failure != null) ProductFailureView(session.failure!),
+      ];
+      if (signedIn) {
+        return ProductScaffold(title: title, trailing: trailing, previewDetails: previewDetails, children: children);
+      }
+      return ProductAuthLayout(
+        key: ValueKey(title),
+        title: title,
+        welcome: welcome,
+        subtitle: welcome
+            ? null
+            : verifying
+            ? context.l10n.authVerifyHint
+            : resetForm
+            ? context.l10n.authResetHint
+            : session.stage == SessionStage.recoverySent
+            ? context.l10n.authRecoverySentHint
+            : recovery
+            ? context.l10n.authRecoveryHint
+            : _register
+            ? context.l10n.authSignupHint
+            : context.l10n.authLoginHint,
+        icon: verifying || session.stage == SessionStage.recoverySent
+            ? Icons.mark_email_unread_outlined
+            : recovery
+            ? Icons.lock_reset_rounded
+            : _register
+            ? Icons.person_add_alt_1_rounded
+            : Icons.login_rounded,
+        onBack: welcome || session.busy
+            ? null
+            : () {
+                FocusScope.of(context).unfocus();
+                setState(() {
+                  _register = false;
+                  _loginForm = verifying || recovery;
+                  _password = '';
+                  _token = '';
+                });
+                if (verifying || recovery) session.show(SessionStage.unauthenticated);
+              },
+        previewDetails: previewDetails,
+        children: children,
       );
     },
   );

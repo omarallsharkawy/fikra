@@ -4633,6 +4633,54 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المشروع: {name}'**
   String uxProjectContext(String name);
+
+  /// No description provided for @authLoginHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساحة صغيرة لفكرتك الكبيرة الجاية.'**
+  String get authLoginHint;
+
+  /// No description provided for @authSignupHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'خلّي لأفكارك مكان تكبر فيه.'**
+  String get authSignupHint;
+
+  /// No description provided for @authRecoveryHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب البريد الإلكتروني المستخدم لحسابك.'**
+  String get authRecoveryHint;
+
+  /// No description provided for @authRecoverySentHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم استلام طلب استعادة كلمة المرور.'**
+  String get authRecoverySentHint;
+
+  /// No description provided for @authVerifyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكمل تأكيد البريد الإلكتروني للمتابعة إلى تسجيل الدخول.'**
+  String get authVerifyHint;
+
+  /// No description provided for @authResetHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب رمز الاستعادة وكلمة مرور جديدة.'**
+  String get authResetHint;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'عندك حساب؟ سجّل الدخول'**
+  String get authHaveAccount;
+
+  /// No description provided for @authNewAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'أول مرة هنا؟ أنشئ حسابًا'**
+  String get authNewAccount;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

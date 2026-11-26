@@ -238,6 +238,9 @@ class ProductTextInput extends StatefulWidget {
     this.onSubmitted,
     this.keyboardType,
     this.suffix,
+    this.textInputAction,
+    this.autofillHints,
+    this.textDirection,
   });
   final String value, label;
   final ValueChanged<String> onChanged;
@@ -247,6 +250,9 @@ class ProductTextInput extends StatefulWidget {
   final bool obscure, enabled;
   final TextInputType? keyboardType;
   final Widget? suffix;
+  final TextInputAction? textInputAction;
+  final Iterable<String>? autofillHints;
+  final TextDirection? textDirection;
   @override
   State<ProductTextInput> createState() => _ProductTextInputState();
 }
@@ -280,7 +286,10 @@ class _ProductTextInputState extends State<ProductTextInput> {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
-      textInputAction: widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null,
+      textInputAction:
+          widget.textInputAction ?? (widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null),
+      autofillHints: widget.autofillHints,
+      textDirection: widget.textDirection,
       obscureText: widget.obscure && !_revealed,
       enableSuggestions: !widget.obscure,
       autocorrect: !widget.obscure,
