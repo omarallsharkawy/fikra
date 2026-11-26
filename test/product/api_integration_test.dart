@@ -178,6 +178,21 @@ void main() {
     expect(t.calls.last.uri.path, '/v1/auth/me');
     expect(t.calls.length, 3);
   });
+  test('session login normalizes only email and preserves password case, Unicode and whitespace', () async {
+    const password = '  CaseSensitive-é-فكرة-42  ';
+    final transport = ScriptTransport(
+      (call) => call.uri.path.endsWith('/me') ? jsonReply(user) : jsonReply(pair('new')),
+    );
+    final api = client(transport);
+    final session = SessionController(ApiAuthRepository(api), MemorySessionVault());
+    addTearDown(session.dispose);
+    await session.login('  Test@EXAMPLE.com  ', password);
+    expect(session.stage, SessionStage.authenticated);
+    expect(transport.calls.first.uri.path, '/v1/auth/login');
+    expect(transport.calls.first.json, {'email': 'test@example.com', 'password': password});
+    expect(transport.calls.first.headers.containsKey('Authorization'), isFalse);
+  });
+
   test('parallel protected 401s share one refresh, persist pair before retry, and retry only once', () async {
     final refresh = Completer<ApiResponse>(), vault = MemorySessionVault();
     final t = ScriptTransport((c) {

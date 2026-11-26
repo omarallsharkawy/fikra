@@ -53,3 +53,5 @@ The deployment does not expose profile editing, stars/streak/achievements or fle
 ### Account failure presentation
 
 Authentication uses account-specific feedback rather than note/draft reconciliation messages. Transport failures retain a safe connection/timeout/TLS category and HTTP failures retain their status internally. Feedback is announced, automatically revealed, and shown before form fields; submission dismisses the keyboard without discarding entered values. These are presentation and diagnostic changes only: no automatic registration/login retries, SMTP guarantees, or new backend rules are introduced.
+
+The real-device 401 and missing OTP recovery email follow-up is recorded in [backend authentication triage](backend-authentication-triage.md). A generic recovery acknowledgment must not be treated as successful email delivery.
