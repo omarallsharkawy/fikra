@@ -40,6 +40,14 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             ? context.l10n.uiProfile
             : welcome
             ? 'FIKRAH'
+            : verifying
+            ? context.l10n.uxVerifyTitle
+            : resetForm
+            ? context.l10n.uxResetTitle
+            : session.stage == SessionStage.recoverySent
+            ? context.l10n.uxRecoverySentTitle
+            : recovery
+            ? context.l10n.uxRecoveryTitle
             : _register
             ? context.l10n.uiCreateAccount
             : context.l10n.uiWelcomeBack,
@@ -50,6 +58,13 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 icon: const Icon(Icons.settings_outlined),
               )
             : null,
+        previewDetails: [
+          context.l10n.productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery,
+          context.l10n.productThisIsAVolatileDevelopmentWorkspaceExistingLocal,
+          context.l10n.productGoogleSignInWaitingForApprovedPlatformConfiguration,
+          if (verifying) context.l10n.productAwaitingVerificationUseFixtureVerifyToPreviewSuccess,
+          if (resetForm) context.l10n.productUseFixtureResetTheRealPasswordPolicyIs,
+        ],
         children: [
           if (signedIn) ...[
             Padding(
@@ -66,7 +81,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                       border: Border.all(color: context.colors.brandLime, width: 4),
                     ),
                     child: Text(
-                      session.account!.email.substring(0, 1).toUpperCase(),
+                      session.account!.email.isEmpty ? 'F' : session.account!.email.characters.first.toUpperCase(),
                       style: context.text.title.copyWith(color: context.colors.onBrandPurple),
                     ),
                   ),
@@ -76,10 +91,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(context.l10n.productThisIsAVolatileDevelopmentWorkspaceExistingLocal),
-            const SizedBox(height: 16),
-            FikraButton.secondary(label: context.l10n.productSignOutLocally, onPressed: session.signOut),
-            const SizedBox(height: 20),
+
             Card(
               child: ListTile(
                 title: Text(context.l10n.uiSettings),
@@ -87,6 +99,12 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings'),
               ),
+            ),
+            const SizedBox(height: 24),
+            FikraButton.secondary(
+              label: context.l10n.productSignOutLocally,
+              onPressed: session.signOut,
+              growForText: true,
             ),
           ] else if (welcome) ...[
             if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
@@ -103,10 +121,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             ),
           ] else ...[
             if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
-            Text(context.l10n.productPreviewAccountJourneys, style: context.text.title),
-            const SizedBox(height: 12),
-            Text(context.l10n.productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery),
-            const SizedBox(height: 20),
+
             if (!verifying && !resetForm)
               ProductTextInput(
                 key: const ValueKey('account-email'),
@@ -134,8 +149,6 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 label: context.l10n.productFixtureActionToken,
               ),
             if (verifying) ...[
-              Text(context.l10n.productAwaitingVerificationUseFixtureVerifyToPreviewSuccess),
-              const SizedBox(height: 12),
               FikraButton(
                 key: const ValueKey('verify-email'),
                 label: context.l10n.productPreviewVerification,
@@ -166,17 +179,26 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                   child: Text(context.l10n.productPreviewResetForm),
                 ),
               ] else if (resetForm) ...[
-                Text(context.l10n.productUseFixtureResetTheRealPasswordPolicyIs),
                 FikraButton(
-                  label: context.l10n.productPreviewPasswordReset,
+                  label: context.l10n.uxResetPassword,
                   loading: session.busy,
                   onPressed: session.coolingDown || _token.isEmpty || _password.isEmpty
                       ? null
-                      : () => session.confirmRecovery(_token, _password),
+                      : () async {
+                          await session.confirmRecovery(_token, _password);
+                          if (mounted && session.stage == SessionStage.unauthenticated) {
+                            setState(() {
+                              _password = '';
+                              _token = '';
+                              _register = false;
+                              _loginForm = true;
+                            });
+                          }
+                        },
                 ),
               ] else
                 FikraButton(
-                  label: context.l10n.productPreviewRecoveryRequest,
+                  label: context.l10n.uxRequestReset,
                   loading: session.busy,
                   onPressed: session.coolingDown || _email.trim().isEmpty ? null : () => session.recover(_email),
                 ),
@@ -184,7 +206,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               FikraButton(
                 key: const ValueKey('account-submit'),
                 loading: session.busy,
-                label: _register ? context.l10n.productPreviewRegistration : context.l10n.productOpenFixtureSession,
+                label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
                 onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty
                     ? null
                     : () => _register ? session.register(_email, _password) : session.login(_email, _password),
@@ -202,22 +224,16 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                 onPressed: session.busy ? null : () => session.show(SessionStage.recoveryRequest),
                 child: Text(context.l10n.productForgotPassword),
               ),
-              Text(context.l10n.productGoogleSignInWaitingForApprovedPlatformConfiguration),
-              const SizedBox(height: 20),
-              FikraButton.secondary(
-                key: const ValueKey('fixture-reader'),
-                label: context.l10n.productPreviewSampleWorkspace,
-                onPressed: (session.busy || session.coolingDown)
+              TextButton(
+                onPressed: session.busy
                     ? null
-                    : () => session.login('reader@example.invalid', 'fixture-only'),
-              ),
-              const SizedBox(height: 10),
-              FikraButton.secondary(
-                key: const ValueKey('fixture-other'),
-                label: context.l10n.productPreviewSeparateEmptyAccount,
-                onPressed: (session.busy || session.coolingDown)
-                    ? null
-                    : () => session.login('other@example.invalid', 'fixture-only'),
+                    : () => setState(() {
+                        _register = false;
+                        _loginForm = false;
+                        _password = '';
+                        _token = '';
+                      }),
+                child: Text(context.l10n.productBack),
               ),
             ],
             if (verifying || recovery)

@@ -287,3 +287,13 @@ selection callbacks as touch. The legacy demo retains `FloatingNavigation`.
 `/settings` is a protected product route reached from Me. It exposes the
 existing language/theme preferences; it does not enable notifications, reset
 private data or invent server-side profile fields.
+
+## Mobile UX flow routes
+
+`/settings/projects` and `/conversations` are protected product routes on the root
+navigator. Project CRUD/selection is reached from Settings, while conversation
+history is reached from Ask. Both use the existing product runtime/controllers.
+The global account redirect applies to these routes. ProductScaffold pins its
+header/information action, supports a footer above keyboard/nav clearance and
+an optional bounded content viewport used by the map. The legacy demo shell and
+its data are unchanged.

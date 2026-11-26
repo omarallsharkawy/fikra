@@ -60,11 +60,7 @@ void main() {
           GoRouter.of(tester.element(find.byKey(const ValueKey('save-product-note')))).go('/links');
           await tester.pumpAndSettle();
           final graph = find.byType(ProductNoteGraph);
-          await tester.scrollUntilVisible(
-            graph,
-            250,
-            scrollable: find.descendant(of: find.byType(ProductScaffold), matching: find.byType(Scrollable)).first,
-          );
+          await tester.ensureVisible(graph);
           await tester.pumpAndSettle();
           final viewer = find.descendant(of: graph, matching: find.byType(InteractiveViewer));
           final transform = tester.widget<InteractiveViewer>(viewer).transformationController!;

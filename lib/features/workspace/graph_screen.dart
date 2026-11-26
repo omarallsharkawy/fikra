@@ -59,25 +59,28 @@ class _ProductGraphScreenState extends ConsumerState<ProductGraphScreen> {
         onPressed: r.workspace.graphLoading ? null : r.workspace.loadGraph,
         icon: const Icon(Icons.refresh),
       ),
-      children: [
-        if (r.workspace.failure != null) ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
-        Text(context.l10n.uiMapHint, style: context.text.caption),
-        const SizedBox(height: 12),
-        if (r.workspace.graphLoading)
-          const Padding(
-            padding: EdgeInsets.all(24),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        if (r.workspace.graphFailure != null)
-          ProductFailureView(r.workspace.graphFailure!, onRetry: r.workspace.loadGraph),
-        if (!r.workspace.graphLoading && r.workspace.graph.nodes.isEmpty && r.workspace.graphFailure == null)
-          Padding(padding: const EdgeInsets.all(24), child: Text(context.l10n.productNoCompletedNotesInThisProjectYet)),
-        if (r.workspace.graph.nodes.isNotEmpty)
-          SizedBox(
-            height: 420,
-            child: ProductNoteGraph(key: ValueKey(r.workspace.selectedProjectId), graph: r.workspace.graph),
-          ),
-      ],
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(context.l10n.uiMapHint, style: context.text.caption),
+          const SizedBox(height: 12),
+          if (r.workspace.failure != null)
+            ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
+          if (r.workspace.graphLoading) const LinearProgressIndicator(),
+          if (r.workspace.graphFailure != null)
+            ProductFailureView(r.workspace.graphFailure!, onRetry: r.workspace.loadGraph),
+          if (!r.workspace.graphLoading && r.workspace.graph.nodes.isEmpty && r.workspace.graphFailure == null)
+            Expanded(
+              child: Center(
+                child: Text(context.l10n.productNoCompletedNotesInThisProjectYet, textAlign: TextAlign.center),
+              ),
+            ),
+          if (r.workspace.graph.nodes.isNotEmpty)
+            Expanded(
+              child: ProductNoteGraph(key: ValueKey(r.workspace.selectedProjectId), graph: r.workspace.graph),
+            ),
+        ],
+      ),
     ),
   );
 }

@@ -115,3 +115,12 @@ the existing General workspace remains selected internally. Creating a custom
 project exposes the selector with both General and custom projects. Deleting
 the last custom project returns to the implicit General state. No note moves,
 new defaulting policy, backend contract or persistence changes are introduced.
+
+## Subsequent UX refinement
+
+Project management has since moved to Settings -> Projects at the user's
+explicit request. Main journeys have no project selector or New project control;
+they show a read-only scope caption when custom projects exist. General remains
+implicit before any custom project and selectable in Settings afterwards. See
+[the UX interaction design](../mobile-ux-flow/interaction-design.md) for current
+navigation, fixed save actions, preview information and conversation history.

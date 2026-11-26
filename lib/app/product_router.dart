@@ -56,6 +56,7 @@ final productRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/settings', builder: (_, _) => const ProductSettingsScreen()),
       GoRoute(path: '/settings/projects', builder: (_, _) => const ProductProjectsScreen()),
+      GoRoute(path: '/conversations', builder: (_, _) => const ProductConversationHistoryScreen()),
       GoRoute(
         path: '/note/:id',
         pageBuilder: (_, state) => MaterialPage(

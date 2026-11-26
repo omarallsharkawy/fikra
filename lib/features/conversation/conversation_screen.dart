@@ -66,7 +66,9 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
                 key: ValueKey('chat-draft-${c.current!.conversation.id}'),
                 value: c.draft,
                 onChanged: c.updateDraft,
-                lines: 2,
+                lines: 1,
+                maxLines: 5,
+                keyboardType: TextInputType.multiline,
                 label: context.l10n.productAskThisProject,
                 suffix: IconButton.filled(
                   key: const ValueKey('send-chat'),
@@ -77,59 +79,47 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
                       : const Icon(Icons.arrow_upward),
                 ),
               ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              key: const ValueKey('conversation-history'),
+              tooltip: context.l10n.uxConversationList,
+              onPressed: () => context.push('/conversations'),
+              icon: const Icon(Icons.history),
+            ),
+            IconButton(
+              key: const ValueKey('new-conversation'),
+              tooltip: context.l10n.productNewConversation,
+              onPressed: c.loading || c.sendState == SendState.sending ? null : c.create,
+              icon: const Icon(Icons.add_comment_outlined),
+            ),
+          ],
+        ),
         children: [
           if (r.workspace.failure != null)
             ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
-          Wrap(
-            spacing: 12,
-            children: [
-              TextButton.icon(
-                key: const ValueKey('new-conversation'),
-                onPressed: c.loading || c.sendState == SendState.sending ? null : c.create,
-                icon: const Icon(Icons.add_comment_outlined),
-                label: Text(context.l10n.productNewConversation),
-              ),
-              TextButton(
-                onPressed: c.loading ? null : c.reloadList,
-                child: Text(context.l10n.productReloadHistoryList),
-              ),
-            ],
-          ),
-          if (c.conversations.isNotEmpty)
-            DropdownButtonFormField<String>(
-              key: ValueKey('conversation-${c.current?.conversation.id}-${c.conversations.length}'),
-              initialValue: c.current?.conversation.id,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: context.l10n.productConversationHistory),
-              items: [
-                for (final conversation in c.conversations)
-                  DropdownMenuItem(
-                    value: conversation.id,
-                    child: Text(
-                      conversation.title ?? context.l10n.productNewConversation,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-              ],
-              onChanged: c.loading || c.sendState == SendState.sending
-                  ? null
-                  : (id) {
-                      if (id != null) c.open(id);
-                    },
-            ),
           if (c.failure != null) ProductFailureView(c.failure!),
           if (c.loading || c.sendState == SendState.reconciling)
             const Padding(
               padding: EdgeInsets.all(20),
               child: Center(child: CircularProgressIndicator()),
             ),
-          if (!c.loading && c.current == null)
+          if (!c.loading && (c.current == null || c.current!.messages.isEmpty))
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 28),
-              child: Text(
-                context.l10n.productStartAConversationOrOpenItsHistoryConversations,
-                style: context.text.bodyLarge,
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Column(
+                children: [
+                  Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.colors.textSecondary),
+                  const SizedBox(height: 16),
+                  Text(context.l10n.uxEmptyChat, style: context.text.section),
+                  const SizedBox(height: 8),
+                  Text(context.l10n.uxChatIntro, style: context.text.caption, textAlign: TextAlign.center),
+                  if (c.current == null) ...[
+                    const SizedBox(height: 20),
+                    FikraButton(label: context.l10n.productNewConversation, onPressed: c.create, growForText: true),
+                  ],
+                ],
               ),
             ),
           if (c.current != null) ...[
@@ -156,21 +146,6 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
               ),
             if (c.sendState == SendState.reviewed)
               Text(context.l10n.productHistoryReloadedReviewItBeforeDeliberatelySendingYour),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: c.loading || c.sendState == SendState.sending
-                  ? null
-                  : () async {
-                      final yes = await confirmDestructive(
-                        context,
-                        title: context.l10n.productDeleteConversation,
-                        message: context.l10n.productThisDeletesTheConversationAndMessagesWhileKeeping,
-                        confirmLabel: context.l10n.productDelete,
-                      );
-                      if (yes && context.mounted) await c.deleteCurrent();
-                    },
-              child: Text(context.l10n.productDeleteConversation2),
-            ),
           ],
         ],
       );
@@ -226,4 +201,85 @@ class _MessageBubble extends StatelessWidget {
       ),
     );
   }
+}
+
+class ProductConversationHistoryScreen extends StatelessWidget {
+  const ProductConversationHistoryScreen({super.key});
+  @override
+  Widget build(BuildContext context) => ProductView(
+    listenTo: (r) => [r.workspace, r.chat],
+    builder: (context, r) {
+      final c = r.chat;
+      final locked = c.loading || c.sendState == SendState.sending;
+      return ProductScaffold(
+        title: context.l10n.uxConversationList,
+        subtitle: r.workspace.projects.any((p) => !p.isGeneral)
+            ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
+            : null,
+        back: true,
+        trailing: IconButton(
+          tooltip: context.l10n.productReloadHistoryList,
+          onPressed: locked ? null : c.reloadList,
+          icon: const Icon(Icons.refresh),
+        ),
+        children: [
+          FikraButton.secondary(
+            key: const ValueKey('new-from-history'),
+            label: context.l10n.productNewConversation,
+            growForText: true,
+            onPressed: locked
+                ? null
+                : () async {
+                    final previous = c.current?.conversation.id;
+                    await c.create();
+                    if (context.mounted && c.current != null && c.current!.conversation.id != previous) context.pop();
+                  },
+          ),
+          const SizedBox(height: 16),
+          if (c.failure != null) ProductFailureView(c.failure!),
+          if (c.loading) const Center(child: CircularProgressIndicator()),
+          if (!c.loading && c.conversations.isEmpty) Text(context.l10n.uxNoConversations, style: context.text.caption),
+          for (final conversation in c.conversations)
+            Card(
+              child: ListTile(
+                key: ValueKey('open-conversation-${conversation.id}'),
+                enabled: !locked,
+                selected: c.current?.conversation.id == conversation.id,
+                leading: Icon(
+                  c.current?.conversation.id == conversation.id
+                      ? Icons.check_circle_outline
+                      : Icons.chat_bubble_outline,
+                ),
+                title: Text(conversation.title ?? context.l10n.productNewConversation),
+                onTap: () async {
+                  await c.open(conversation.id);
+                  if (context.mounted && c.failure == null && c.current?.conversation.id == conversation.id) {
+                    context.pop();
+                  }
+                },
+              ),
+            ),
+          if (c.current != null) ...[
+            const SizedBox(height: 24),
+            TextButton.icon(
+              icon: const Icon(Icons.delete_outline),
+              label: Text(context.l10n.productDeleteConversation2),
+              onPressed: locked
+                  ? null
+                  : () async {
+                      final id = c.current!.conversation.id;
+                      final yes = await confirmDestructive(
+                        context,
+                        title: context.l10n.productDeleteConversation,
+                        message: context.l10n.productThisDeletesTheConversationAndMessagesWhileKeeping,
+                        confirmLabel: context.l10n.productDelete,
+                      );
+                      if (yes && context.mounted && c.current?.conversation.id == id) await c.deleteCurrent();
+                    },
+            ),
+          ],
+        ],
+      );
+    },
+  );
 }
