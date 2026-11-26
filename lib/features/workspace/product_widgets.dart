@@ -49,32 +49,32 @@ class ProductView extends ConsumerWidget {
 }
 
 class DevelopmentBanner extends StatelessWidget {
-  const DevelopmentBanner({super.key});
+  const DevelopmentBanner({super.key, this.details = const []});
+  final List<String> details;
   @override
-  Widget build(BuildContext context) => Container(
-    key: const ValueKey('development-banner'),
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    decoration: BoxDecoration(
-      color: context.colors.brandLime.withValues(alpha: .12),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      children: [
-        Expanded(child: Text(context.l10n.uiPreviewNotice, style: context.text.meta)),
-        IconButton(
-          tooltip: context.l10n.uiPreviewNotice,
-          onPressed: () => showDialog<void>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(context.l10n.uiPreviewNotice),
-              content: Text(context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend),
-              actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productBack))],
+  Widget build(BuildContext context) => Align(
+    alignment: AlignmentDirectional.centerStart,
+    child: TextButton.icon(
+      key: const ValueKey('development-banner'),
+      style: TextButton.styleFrom(foregroundColor: context.colors.textSecondary),
+      icon: const Icon(Icons.info_outline, size: 18),
+      label: Text(context.l10n.uiPreviewNotice, style: context.text.meta),
+      onPressed: () => showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.l10n.uxPreviewInfo),
+          content: SingleChildScrollView(
+            child: Text(
+              [
+                context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend,
+                context.l10n.productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic,
+                ...details,
+              ].join('\n\n'),
             ),
           ),
-          icon: const Icon(Icons.info_outline, size: 18),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productBack))],
         ),
-      ],
+      ),
     ),
   );
 }
@@ -119,20 +119,24 @@ class ProductScaffold extends StatelessWidget {
   const ProductScaffold({
     super.key,
     required this.title,
-    required this.children,
+    this.children = const [],
     this.back = false,
     this.trailing,
     this.header,
     this.footer,
     this.controller,
+    this.content,
+    this.toolbar,
+    this.previewDetails = const [],
+    this.subtitle,
   });
   final String title;
+  final String? subtitle;
   final List<Widget> children;
   final bool back;
-  final Widget? trailing;
-  final Widget? header;
-  final Widget? footer;
+  final Widget? trailing, header, footer, content, toolbar;
   final ScrollController? controller;
+  final List<String> previewDetails;
   @override
   Widget build(BuildContext context) => PearlCanvas(
     child: Scaffold(
@@ -144,11 +148,9 @@ class ProductScaffold extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 520),
             child: Column(
               children: [
-                Expanded(
-                  child: ListView(
-                    controller: controller,
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: EdgeInsets.fromLTRB(16, 12, 16, 24 + (footer == null ? NavigationInset.of(context) : 0)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Column(
                     children: [
                       header ??
                           Row(
@@ -161,16 +163,56 @@ class ProductScaffold extends StatelessWidget {
                                 ),
                               const FikraBrandMark(),
                               const SizedBox(width: 12),
-                              Expanded(child: Text(title, style: context.text.title)),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title,
+                                      style: context.text.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (subtitle != null)
+                                      Text(
+                                        subtitle!,
+                                        style: context.text.caption,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ],
+                                ),
+                              ),
                               ?trailing,
                             ],
                           ),
-                      const SizedBox(height: 16),
-                      const DevelopmentBanner(),
-                      const SizedBox(height: 20),
-                      ...children,
+                      DevelopmentBanner(details: previewDetails),
+                      ?toolbar,
                     ],
                   ),
+                ),
+                Expanded(
+                  child: content != null
+                      ? Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            4,
+                            16,
+                            12 + (footer == null ? NavigationInset.of(context) : 0),
+                          ),
+                          child: content,
+                        )
+                      : ListView(
+                          controller: controller,
+                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            8,
+                            16,
+                            24 + (footer == null ? NavigationInset.of(context) : 0),
+                          ),
+                          children: children,
+                        ),
                 ),
                 if (footer != null)
                   Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + NavigationInset.of(context)), child: footer),
@@ -190,6 +232,7 @@ class ProductTextInput extends StatefulWidget {
     required this.onChanged,
     required this.label,
     this.lines = 1,
+    this.maxLines,
     this.obscure = false,
     this.enabled = true,
     this.onSubmitted,
@@ -200,6 +243,7 @@ class ProductTextInput extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final ValueChanged<String>? onSubmitted;
   final int lines;
+  final int? maxLines;
   final bool obscure, enabled;
   final TextInputType? keyboardType;
   final Widget? suffix;
@@ -241,7 +285,7 @@ class _ProductTextInputState extends State<ProductTextInput> {
       enableSuggestions: !widget.obscure,
       autocorrect: !widget.obscure,
       minLines: widget.lines,
-      maxLines: widget.lines == 1 ? 1 : null,
+      maxLines: widget.maxLines ?? (widget.lines == 1 ? 1 : null),
       decoration: InputDecoration(
         labelText: widget.label,
         alignLabelWithHint: true,

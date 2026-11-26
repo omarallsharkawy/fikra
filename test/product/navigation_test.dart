@@ -146,7 +146,7 @@ void main() {
     await tapVisible(tester, find.byKey(const ValueKey('nav-2')));
     await tapVisible(tester, find.byKey(const ValueKey('new-conversation')));
     expect(r.chat.current, isNotNull);
-    expect(find.text('Conversation history'), findsOneWidget);
+    expect(find.byKey(const ValueKey('conversation-history')), findsOneWidget);
     r.chat.updateDraft('Hello');
     await tester.pumpAndSettle();
     await tapVisible(tester, find.byKey(const ValueKey('send-chat')));

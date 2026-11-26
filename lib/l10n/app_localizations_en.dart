@@ -2619,4 +2619,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uiWelcomeSubtitle => 'Your ideas, connected. Ask your notes anything.';
+
+  @override
+  String get uxPreviewInfo => 'Preview information';
+
+  @override
+  String get uxCaptureDetails => 'About voice and files';
+
+  @override
+  String get uxCaptureHint => 'Review voice text before saving. PDFs stay on this device.';
+
+  @override
+  String get uxLocalPdf => 'Local PDF';
+
+  @override
+  String get uxChatIntro => 'Ask a question about the ideas in this project.';
+
+  @override
+  String get uxConversationList => 'Conversations';
+
+  @override
+  String get uxVerifyTitle => 'Verify your email';
+
+  @override
+  String get uxRecoveryTitle => 'Reset your password';
+
+  @override
+  String get uxRecoverySentTitle => 'Reset requested';
+
+  @override
+  String get uxResetTitle => 'Choose a new password';
+
+  @override
+  String get uxRequestReset => 'Request reset';
+
+  @override
+  String get uxResetPassword => 'Reset password';
+
+  @override
+  String get uxEmptyChat => 'Ask your ideas';
+
+  @override
+  String get uxSearchHint => 'Search ideas in this project';
+
+  @override
+  String get uxNoConversations => 'No conversations yet';
+
+  @override
+  String get uxProjectsHelp => 'Choose the workspace for your ideas. You can create a project whenever you need one.';
+
+  @override
+  String uxProjectContext(String name) {
+    return 'Project: $name';
+  }
 }

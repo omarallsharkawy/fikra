@@ -35,6 +35,22 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
       return ProductScaffold(
         title: context.l10n.productNote,
         back: true,
+        footer: _editing && n != null && n.id == widget.id && !w.detailLoading
+            ? FikraButton(
+                label: context.l10n.productSaveEdit,
+                loading: w.busy,
+                onPressed: () async {
+                  final ok = await w.edit(
+                    NotePatch(
+                      content: _content.trim(),
+                      title: _title.trim().isEmpty ? null : _title.trim(),
+                      includesTitle: true,
+                    ),
+                  );
+                  if (ok && mounted) setState(() => _editing = false);
+                },
+              )
+            : null,
         children: [
           if (w.detailLoading) const Center(child: CircularProgressIndicator()),
           if (w.detailFailure != null) ProductFailureView(w.detailFailure!, onRetry: () => w.openNote(widget.id)),
@@ -62,20 +78,6 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
                 lines: 6,
                 enabled: !w.busy,
                 label: context.l10n.productSavedContent,
-              ),
-              FikraButton(
-                label: context.l10n.productSaveEdit,
-                loading: w.busy,
-                onPressed: () async {
-                  final ok = await w.edit(
-                    NotePatch(
-                      content: _content.trim(),
-                      title: _title.trim().isEmpty ? null : _title.trim(),
-                      includesTitle: true,
-                    ),
-                  );
-                  if (ok && mounted) setState(() => _editing = false);
-                },
               ),
               TextButton(
                 onPressed: w.busy ? null : () => setState(() => _editing = false),

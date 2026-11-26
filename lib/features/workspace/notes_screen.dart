@@ -7,7 +7,6 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import 'idea_card.dart';
 import 'product_widgets.dart';
-import 'project_controls.dart';
 
 class ProductNotesScreen extends StatelessWidget {
   const ProductNotesScreen({super.key});
@@ -38,7 +37,12 @@ class ProductNotesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(context.l10n.productNotes, style: context.text.title),
-                  Text(context.l10n.productCaptureAThought, style: context.text.caption),
+                  Text(
+                    w.projects.any((p) => !p.isGeneral)
+                        ? context.l10n.uxProjectContext(w.selected?.name ?? '')
+                        : context.l10n.productCaptureAThought,
+                    style: context.text.caption,
+                  ),
                 ],
               ),
             ),
@@ -50,7 +54,8 @@ class ProductNotesScreen extends StatelessWidget {
           ],
         ),
         children: [
-          ProductProjectControls(runtime: r),
+          if (r.workspace.failure != null)
+            ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
           ProductTextInput(
             key: ValueKey('search-${w.selectedProjectId}'),
             value: w.query,
@@ -65,7 +70,7 @@ class ProductNotesScreen extends StatelessWidget {
               icon: const Icon(Icons.search),
             ),
           ),
-          Text(context.l10n.productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic, style: context.text.meta),
+
           if (w.searchFailure != null) ProductFailureView(w.searchFailure!, onRetry: () => w.search(w.query)),
           if (w.loading || w.searching)
             const Padding(
