@@ -4513,6 +4513,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'غير متاح بعد'**
   String get uiUnavailable;
+
+  /// No description provided for @uiPreviewNotice.
+  ///
+  /// In ar, this message translates to:
+  /// **'معاينة تطوير · بيانات مؤقتة'**
+  String get uiPreviewNotice;
+
+  /// No description provided for @uiGoogleUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول عبر Google غير متاح في هذه المعاينة.'**
+  String get uiGoogleUnavailable;
+
+  /// No description provided for @uiWelcomeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.'**
+  String get uiWelcomeSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

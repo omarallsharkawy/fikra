@@ -19,6 +19,7 @@ class ProductNavigation extends StatelessWidget {
       child: Semantics(
         selected: branch == id,
         button: true,
+        onTap: () => onSelect(id, branch == id),
         label: label,
         excludeSemantics: true,
         child: Tooltip(
@@ -39,7 +40,7 @@ class ProductNavigation extends StatelessWidget {
                       label,
                       maxLines: 1,
                       style: context.text.nav.copyWith(
-                        fontSize: 11,
+                        fontSize: 12.5,
                         color: branch == id ? c.textPrimary : c.textSecondary,
                       ),
                     ),

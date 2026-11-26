@@ -2052,5 +2052,8 @@
   "uiFitIdeas": "إظهار كل الأفكار",
   "uiOpenNote": "فتح الملاحظة",
   "uiConnectedIdeas": "أفكار مرتبطة",
-  "uiUnavailable": "غير متاح بعد"
+  "uiUnavailable": "غير متاح بعد",
+  "uiPreviewNotice": "معاينة تطوير · بيانات مؤقتة",
+  "uiGoogleUnavailable": "تسجيل الدخول عبر Google غير متاح في هذه المعاينة.",
+  "uiWelcomeSubtitle": "أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء."
 }

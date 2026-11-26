@@ -2682,4 +2682,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get uiUnavailable => 'غير متاح بعد';
+
+  @override
+  String get uiPreviewNotice => 'معاينة تطوير · بيانات مؤقتة';
+
+  @override
+  String get uiGoogleUnavailable => 'تسجيل الدخول عبر Google غير متاح في هذه المعاينة.';
+
+  @override
+  String get uiWelcomeSubtitle => 'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.';
 }

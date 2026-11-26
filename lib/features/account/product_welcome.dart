@@ -24,7 +24,7 @@ class ProductWelcome extends StatelessWidget {
       const SizedBox(height: 16),
       Text(context.l10n.welcomeTagline, style: context.text.title.copyWith(fontSize: 24)),
       const SizedBox(height: 8),
-      Text(context.l10n.welcomeSubtitle, style: context.text.body.copyWith(color: context.colors.textSecondary)),
+      Text(context.l10n.uiWelcomeSubtitle, style: context.text.body.copyWith(color: context.colors.textSecondary)),
       const SizedBox(height: 24),
       FikraButton(label: context.l10n.uiSignUpEmail, onPressed: onSignup, growForText: true),
       const SizedBox(height: 12),
@@ -35,7 +35,7 @@ class ProductWelcome extends StatelessWidget {
         growForText: true,
       ),
       const SizedBox(height: 8),
-      Text(context.l10n.productGoogleSignInWaitingForApprovedPlatformConfiguration, style: context.text.meta),
+      Text(context.l10n.uiGoogleUnavailable, style: context.text.meta),
       TextButton(onPressed: onLogin, child: Text(context.l10n.uiLogIn)),
       const Divider(height: 28),
       FikraButton.secondary(

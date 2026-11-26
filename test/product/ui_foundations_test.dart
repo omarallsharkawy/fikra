@@ -11,6 +11,10 @@ import '../support/app_harness.dart' show loadAppFonts;
 
 void main() {
   setUpAll(loadAppFonts);
+  test('saved content uses its writing direction independently of UI language', () {
+    expect(productContentDirection('An English note.'), TextDirection.ltr);
+    expect(productContentDirection('هذه ملاحظة عربية.'), TextDirection.rtl);
+  });
   for (final brightness in Brightness.values) {
     test('reference $brightness reading and colored surfaces meet AA', () {
       final c = buildProductTheme(brightness).extension<FikraPalette>()!;

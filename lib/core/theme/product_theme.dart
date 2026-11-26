@@ -30,6 +30,7 @@ ThemeData buildProductTheme(Brightness brightness) {
     borderSide: BorderSide(color: color, width: width),
   );
   return theme.copyWith(
+    dividerTheme: DividerThemeData(color: colors.line, thickness: 1, space: 24),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: colors.surface,

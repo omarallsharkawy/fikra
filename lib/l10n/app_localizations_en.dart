@@ -2610,4 +2610,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uiUnavailable => 'Not available yet';
+
+  @override
+  String get uiPreviewNotice => 'Development preview · temporary data';
+
+  @override
+  String get uiGoogleUnavailable => 'Google sign-in is not available in this preview.';
+
+  @override
+  String get uiWelcomeSubtitle => 'Your ideas, connected. Ask your notes anything.';
 }

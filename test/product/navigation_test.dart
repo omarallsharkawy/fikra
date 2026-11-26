@@ -34,9 +34,15 @@ class DocumentsStub implements LocalDocuments {
   Future<void> open(LocalDocument document) async {}
 }
 
-Future<ProductRuntime> boot(WidgetTester tester, {Locale locale = const Locale('en'), double scale = 1}) async {
+Future<ProductRuntime> boot(
+  WidgetTester tester, {
+  Locale locale = const Locale('en'),
+  double scale = 1,
+  Size size = const Size(430, 932),
+  AppTheme theme = AppTheme.dark,
+}) async {
   await initializeDateFormatting();
-  tester.view.physicalSize = const Size(430, 932);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   tester.platformDispatcher.localeTestValue = locale;
   tester.platformDispatcher.textScaleFactorTestValue = scale;
@@ -44,7 +50,7 @@ Future<ProductRuntime> boot(WidgetTester tester, {Locale locale = const Locale('
     ProviderScope(
       overrides: [
         appModeProvider.overrideWithValue(AppMode.development),
-        appThemeProvider.overrideWith((ref) => Stream.value(AppTheme.dark)),
+        appThemeProvider.overrideWith((ref) => Stream.value(theme)),
         appLanguageProvider.overrideWith(
           (ref) => Stream.value(locale.languageCode == 'ar' ? AppLanguage.ar : AppLanguage.en),
         ),
@@ -54,7 +60,7 @@ Future<ProductRuntime> boot(WidgetTester tester, {Locale locale = const Locale('
           DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
         ),
       ],
-      child: const FikraApp(),
+      child: const RepaintBoundary(key: ValueKey('product-capture'), child: FikraApp()),
     ),
   );
   await tester.pumpAndSettle();

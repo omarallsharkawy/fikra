@@ -2016,5 +2016,8 @@
   "uiFitIdeas": "Fit all ideas",
   "uiOpenNote": "Open note",
   "uiConnectedIdeas": "Connected ideas",
-  "uiUnavailable": "Not available yet"
+  "uiUnavailable": "Not available yet",
+  "uiPreviewNotice": "Development preview · temporary data",
+  "uiGoogleUnavailable": "Google sign-in is not available in this preview.",
+  "uiWelcomeSubtitle": "Your ideas, connected. Ask your notes anything."
 }
