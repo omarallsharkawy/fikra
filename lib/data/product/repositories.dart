@@ -2,14 +2,14 @@ import 'models.dart';
 
 abstract interface class AuthRepository {
   bool get isDevelopment;
-  Future<SessionGrant?> restore();
+  Future<Account> currentAccount(TokenPair tokens);
   Future<void> register(String email, String password);
-  Future<void> verifyEmail(String token);
+  Future<void> verifyEmail(String token, {required String email});
   Future<void> resendVerification(String email);
   Future<SessionGrant> login(String email, String password);
   Future<SessionGrant> exchangeGoogleIdToken(String idToken);
   Future<void> requestRecovery(String email);
-  Future<void> confirmRecovery(String token, String password);
+  Future<void> confirmRecovery(String token, String password, {required String email});
   Future<TokenPair> refresh(TokenPair current);
 
   /// false means local sign-out only; do not claim server revocation.

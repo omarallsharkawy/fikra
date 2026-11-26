@@ -150,7 +150,9 @@ void main() {
       addTearDown(c.dispose);
       await c.login('user', 'secret');
       final a = c.refreshAfterUnauthorized('old-access'), b = c.refreshAfterUnauthorized('old-access');
+      await Future<void>.delayed(Duration.zero); // Protected storage is cleared before rotation.
       expect(auth.refreshCalls, 1);
+      expect(vault.value, isNull);
       final pair = TokenPair(access: 'new-access', refresh: 'new-refresh', expiresAt: DateTime(2030));
       auth.refreshResult.complete(pair);
       await Future.wait([a, b]);
@@ -165,6 +167,8 @@ void main() {
       await c.login('user', 'secret');
       final refreshing = c.refreshAfterUnauthorized('old-access');
       final rejected = expectLater(refreshing, throwsA(isA<ProductFailure>()));
+      await Future<void>.delayed(Duration.zero);
+      expect(auth.refreshCalls, 1);
       await c.signOut();
       auth.refreshResult.complete(TokenPair(access: 'late', refresh: 'late', expiresAt: DateTime(2030)));
       await rejected;
@@ -179,6 +183,7 @@ void main() {
       await c.login('user', 'secret');
       final job = c.refreshAfterUnauthorized('old-access');
       final rejected = expectLater(job, throwsA(isA<ProductFailure>()));
+      await Future<void>.delayed(Duration.zero);
       auth.refreshResult.completeError(const ProductFailure(FailureKind.uncertain));
       await rejected;
       expect(c.stage, SessionStage.expired);

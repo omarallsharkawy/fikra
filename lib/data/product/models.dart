@@ -53,7 +53,9 @@ class KnowledgeNote {
     required this.processing,
     required this.createdAt,
     required this.updatedAt,
+    this.isFavorite = false,
   });
+  final bool isFavorite;
   final String id, projectId, content;
   final String? title, proposal;
   final List<String> concepts;
@@ -83,6 +85,7 @@ class KnowledgeNote {
     generation: generation ?? this.generation,
     processing: processing ?? this.processing,
     createdAt: createdAt,
+    isFavorite: isFavorite,
     updatedAt: updatedAt ?? this.updatedAt,
   );
 }

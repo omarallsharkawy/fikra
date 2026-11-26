@@ -48,17 +48,37 @@ class SessionController extends ChangeNotifier {
   Future<void> restore() async {
     final ticket = epoch;
     try {
-      final grant = await repository.restore();
+      var pair = await vault.read();
       if (_disposed || ticket != epoch) return;
-      if (grant == null) {
+      if (pair == null) {
         stage = SessionStage.unauthenticated;
       } else {
-        await _install(grant, ticket);
+        var rotated = false;
+        if (!pair.expiresAt.isAfter(clock().add(const Duration(seconds: 30)))) {
+          pair = await _rotate(pair, ticket);
+          rotated = true;
+        }
+        Account account;
+        try {
+          account = await repository.currentAccount(pair);
+        } on ProductFailure catch (error) {
+          if (error.kind != FailureKind.unauthorized || rotated) rethrow;
+          pair = await _rotate(pair, ticket);
+          account = await repository.currentAccount(pair);
+        }
+        await _install(SessionGrant(account, tokens: pair), ticket);
       }
     } catch (error) {
       if (_disposed || ticket != epoch) return;
       failure = ProductFailure.from(error);
       stage = SessionStage.expired;
+      try {
+        await _store(() async {
+          if (ticket == epoch && !_disposed) await vault.clear();
+        });
+      } catch (_) {
+        failure = const ProductFailure(FailureKind.unavailable);
+      }
     }
     _emit();
   }
@@ -110,7 +130,7 @@ class SessionController extends ChangeNotifier {
     if (ticket == epoch && !_disposed) notice = 'verificationRequested';
   });
   Future<void> verify(String token) => _action((ticket) async {
-    await repository.verifyEmail(token);
+    await repository.verifyEmail(token, email: email);
     if (ticket != epoch || _disposed) return;
     stage = SessionStage.unauthenticated;
     notice = 'verified';
@@ -146,7 +166,7 @@ class SessionController extends ChangeNotifier {
   });
   Future<void> confirmRecovery(String token, String password) async {
     await _action((ticket) async {
-      await repository.confirmRecovery(token, password);
+      await repository.confirmRecovery(token, password, email: email);
       if (ticket != epoch || _disposed) return;
       // Reset succeeds without creating a replacement session.
       await signOut();
@@ -155,7 +175,7 @@ class SessionController extends ChangeNotifier {
     });
   }
 
-  /// Used by a future protected transport: callers pass the access token used
+  /// Used by the protected transport: callers pass the access token used
   /// by the failed request and may retry the original operation only once.
   Future<TokenPair> refreshAfterUnauthorized(String failedAccess) {
     final current = tokens;
@@ -180,14 +200,25 @@ class SessionController extends ChangeNotifier {
     return job;
   }
 
+  Future<TokenPair> _rotate(TokenPair current, int ticket) async {
+    // Remove the old rotating pair BEFORE sending: a killed process must not
+    // replay a refresh token whose server-side rotation may have committed.
+    await _store(() async {
+      if (ticket == epoch && !_disposed) await vault.clear();
+    });
+    if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+    final replacement = await repository.refresh(current);
+    if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+    await _store(() async {
+      if (ticket == epoch && !_disposed) await vault.replace(replacement);
+    });
+    if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+    return replacement;
+  }
+
   Future<TokenPair> _refresh(TokenPair current, int ticket) async {
     try {
-      final replacement = await repository.refresh(current);
-      if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
-      await _store(() async {
-        if (ticket == epoch && !_disposed) await vault.replace(replacement);
-      });
-      if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+      final replacement = await _rotate(current, ticket);
       tokens = replacement;
       _emit();
       return replacement;
@@ -208,7 +239,12 @@ class SessionController extends ChangeNotifier {
     stage = SessionStage.expired;
     _refreshing = null;
     _emit();
-    await _store(vault.clear);
+    try {
+      await _store(vault.clear);
+    } catch (_) {
+      failure = const ProductFailure(FailureKind.unavailable);
+      _emit();
+    }
   }
 
   Future<void> signOut() async {
@@ -225,11 +261,25 @@ class SessionController extends ChangeNotifier {
     _refreshing = null;
     _emit();
     final ticket = epoch;
-    await _store(vault.clear);
+    var cleared = true;
+    try {
+      await _store(vault.clear);
+    } catch (_) {
+      cleared = false;
+    }
+    if (!cleared && ticket == epoch && !_disposed) {
+      notice = null;
+      failure = const ProductFailure(FailureKind.unavailable);
+      _emit();
+    }
     try {
       final revoked = await repository.logout(old);
       if (ticket == epoch && !_disposed) {
-        notice = revoked ? 'logout' : 'localLogout';
+        notice = revoked
+            ? 'logout'
+            : cleared
+            ? 'localLogout'
+            : null;
         _emit();
       }
     } catch (_) {
