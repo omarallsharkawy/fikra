@@ -1,6 +1,6 @@
 # Mobile UI refresh: scope and decisions
 
-Status: visual foundations in progress; new backend capabilities require the handoff below.
+Status: supported mobile journeys refreshed; new backend capabilities require the handoff below.
 
 ## Reference and confirmed decisions
 
@@ -81,3 +81,37 @@ feature branches from updated dev. Each completed feature includes behavioral
 regression tests, UI checks in Arabic/English and light/dark, and updated feature
 and phase documentation. Use merge-commit PRs to dev. Keep local AGENTS ignored
 and preserve existing user documentation moves.
+
+## Implemented presentation and fixes
+
+- Recreated neutral light/dark surfaces, colored cards, abstract welcome shapes,
+  centered capture navigation, compact project controls, capture actions,
+  selectable graph nodes, message bubbles and a persistent chat composer.
+- User requested cleaner, iPhone-like typography after reviewing the first
+  version. Retained approved Inter/Noto faces, reduced headings/actions to
+  SemiBold, and used Regular reading text with quieter sizes and line heights.
+- Refreshed existing profile/settings presentation using available account data.
+  No fabricated counts, achievements, categories or working reminder toggle.
+- Kept explicit note saving, real graph relationships, local-only PDFs, native
+  capture/review and authoritative conversation history/reconciliation.
+- Fixed verification returning to sign-in with cleared password, bounded graph
+  zoom and fit controls, enlarged graph labels, content direction independent
+  of UI locale, and screen-reader activation of navigation/graph controls.
+- Kept the development workspace notice concise, with full fixture limitations
+  available through its information button. No live API is implied.
+
+Six-digit authentication, stars, categories, profile fields, activity summaries
+and reminders are separate backend-dependent capabilities. The handoff records
+what the backend needs to define before mobile integrations can be finalized.
+The current token-based development verification remains available; it is not
+silently converted to the requested code contract.
+
+## Implicit General workspace
+
+The user requested hiding the General project choice until they create a
+project, and confirmed that General must remain selectable afterwards to reach
+earlier ideas. With no custom projects, the UI shows only a New project action;
+the existing General workspace remains selected internally. Creating a custom
+project exposes the selector with both General and custom projects. Deleting
+the last custom project returns to the implicit General state. No note moves,
+new defaulting policy, backend contract or persistence changes are introduced.
