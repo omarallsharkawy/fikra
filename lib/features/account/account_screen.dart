@@ -4,6 +4,7 @@ import '../../app/providers.dart';
 import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/widgets/fikra_widgets.dart';
@@ -28,6 +29,9 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
     listenTo: (r) => [r.session],
     builder: (context, runtime) {
       final session = runtime.session;
+      final preview = session.repository.isDevelopment;
+      final validPassword = preview || (_password.runes.length >= 5 && _password.runes.length <= 128);
+      final validCode = preview ? _token.isNotEmpty : RegExp(r'^[0-9]{6}$').hasMatch(_token);
       final signedIn = session.stage == SessionStage.authenticated;
       final verifying = session.stage == SessionStage.awaitingVerification;
       final recovery =
@@ -102,7 +106,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           ),
           const SizedBox(height: 24),
           FikraButton.secondary(
-            label: context.l10n.productSignOutLocally,
+            label: preview ? context.l10n.productSignOutLocally : context.l10n.apiSignOut,
             onPressed: session.signOut,
             growForText: true,
           ),
@@ -110,6 +114,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
           ProductWelcome(
             busy: session.busy,
+            preview: preview,
             onSignup: session.busy ? null : () => setState(() => _register = true),
             onLogin: session.busy ? null : () => setState(() => _loginForm = true),
             onSample: session.busy || session.coolingDown
@@ -134,13 +139,22 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               textInputAction: recovery ? TextInputAction.done : TextInputAction.next,
               autofillHints: const [AutofillHints.email],
             ),
+          if ((verifying || resetForm) && !preview) ...[
+            Text(session.email, textDirection: TextDirection.ltr, style: context.text.caption),
+            const SizedBox(height: 16),
+          ],
           if (verifying || resetForm)
             ProductTextInput(
               key: const ValueKey('account-token'),
               value: _token,
               onChanged: (v) => setState(() => _token = v),
               enabled: !session.busy,
-              label: context.l10n.productFixtureActionToken,
+              label: preview ? context.l10n.productFixtureActionToken : context.l10n.apiSixDigitCode,
+              keyboardType: preview ? null : TextInputType.number,
+              autofillHints: preview ? null : const [AutofillHints.oneTimeCode],
+              inputFormatters: preview
+                  ? null
+                  : [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
               textDirection: TextDirection.ltr,
               textInputAction: resetForm ? TextInputAction.next : TextInputAction.done,
             ),
@@ -154,7 +168,14 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               textInputAction: TextInputAction.done,
               autofillHints: [resetForm || _register ? AutofillHints.newPassword : AutofillHints.password],
               enabled: !session.busy,
-              label: resetForm ? context.l10n.productNewPasswordPreview : context.l10n.productPassword,
+              label: resetForm
+                  ? (preview ? context.l10n.productNewPasswordPreview : context.l10n.apiNewPassword)
+                  : context.l10n.productPassword,
+            ),
+          if (!preview && (_register || resetForm))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(context.l10n.apiPasswordHint, style: context.text.meta),
             ),
           if (!verifying && !recovery && !_register)
             Align(
@@ -177,10 +198,10 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           if (verifying) ...[
             FikraButton(
               key: const ValueKey('verify-email'),
-              label: context.l10n.productPreviewVerification,
+              label: preview ? context.l10n.productPreviewVerification : context.l10n.apiVerifyEmail,
               loading: session.busy,
               growForText: true,
-              onPressed: session.coolingDown || _token.isEmpty
+              onPressed: session.coolingDown || !validCode
                   ? null
                   : () async {
                       await session.verify(_token);
@@ -196,21 +217,25 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             ),
             TextButton(
               onPressed: (session.busy || session.coolingDown) ? null : session.resend,
-              child: Text(context.l10n.productPreviewResendRequest),
+              child: Text(preview ? context.l10n.productPreviewResendRequest : context.l10n.apiResendCode),
             ),
           ] else if (recovery) ...[
             if (session.stage == SessionStage.recoverySent) ...[
-              Text(context.l10n.productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed),
+              Text(
+                preview
+                    ? context.l10n.productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed
+                    : context.l10n.apiRecoveryAcknowledgment,
+              ),
               TextButton(
                 onPressed: () => session.show(SessionStage.recoveryConfirm),
-                child: Text(context.l10n.productPreviewResetForm),
+                child: Text(preview ? context.l10n.productPreviewResetForm : context.l10n.apiHaveCode),
               ),
             ] else if (resetForm) ...[
               FikraButton(
                 label: context.l10n.uxResetPassword,
                 loading: session.busy,
                 growForText: true,
-                onPressed: session.coolingDown || _token.isEmpty || _password.isEmpty
+                onPressed: session.coolingDown || !validCode || _password.isEmpty || !validPassword
                     ? null
                     : () async {
                         await session.confirmRecovery(_token, _password);
@@ -224,6 +249,11 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                         }
                       },
               ),
+              if (!preview)
+                TextButton(
+                  onPressed: session.busy || session.coolingDown ? null : () => session.recover(session.email),
+                  child: Text(context.l10n.apiResendCode),
+                ),
             ] else
               FikraButton(
                 label: context.l10n.uxRequestReset,
@@ -237,7 +267,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               loading: session.busy,
               growForText: true,
               label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
-              onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty
+              onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty || !validPassword
                   ? null
                   : () => _register ? session.register(_email, _password) : session.login(_email, _password),
             ),
@@ -279,10 +309,15 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(switch (session.notice!) {
-              'verified' => context.l10n.productVerificationPreviewCompleteSignInSeparately,
-              'reset' => context.l10n.productResetPreviewCompleteSignInAgain,
+              'verified' =>
+                preview ? context.l10n.productVerificationPreviewCompleteSignInSeparately : context.l10n.apiVerified,
+              'reset' => preview ? context.l10n.productResetPreviewCompleteSignInAgain : context.l10n.apiResetComplete,
               'localLogout' => context.l10n.productLocalPrivateStateClearedServerRevocationIsNot,
-              _ => context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount,
+              'logout' => context.l10n.apiSignedOut,
+              _ =>
+                preview
+                    ? context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount
+                    : context.l10n.apiCodeAcknowledgment,
             }),
           ),
         if (session.failure != null) ProductFailureView(session.failure!),
@@ -297,9 +332,9 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
         subtitle: welcome
             ? null
             : verifying
-            ? context.l10n.authVerifyHint
+            ? (preview ? context.l10n.authVerifyHint : context.l10n.apiVerifyHint)
             : resetForm
-            ? context.l10n.authResetHint
+            ? (preview ? context.l10n.authResetHint : context.l10n.apiResetHint)
             : session.stage == SessionStage.recoverySent
             ? context.l10n.authRecoverySentHint
             : recovery

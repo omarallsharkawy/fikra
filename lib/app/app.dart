@@ -11,14 +11,16 @@ import 'providers.dart';
 import 'router.dart';
 import 'product_router.dart';
 import 'product_runtime.dart';
+import '../features/workspace/product_widgets.dart' show ProductEnvironment;
 
 class FikraApp extends ConsumerWidget {
   const FikraApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final development = ref.watch(appModeProvider) == AppMode.development;
-    if (!development) ref.watch(startupMaintenanceProvider);
+    final mode = ref.watch(appModeProvider);
+    final product = mode != AppMode.demo;
+    if (!product) ref.watch(startupMaintenanceProvider);
     // Wait for the saved theme (one quick DB read) so a restart never flashes
     // the wrong appearance. A read error falls back to the system setting.
     final savedTheme = ref.watch(appThemeProvider);
@@ -29,8 +31,8 @@ class FikraApp extends ConsumerWidget {
     return MaterialApp.router(
       onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
-      theme: development ? buildProductTheme(Brightness.light) : buildFikraTheme(Brightness.light),
-      darkTheme: development ? buildProductTheme(Brightness.dark) : buildFikraTheme(Brightness.dark),
+      theme: product ? buildProductTheme(Brightness.light) : buildFikraTheme(Brightness.light),
+      darkTheme: product ? buildProductTheme(Brightness.dark) : buildFikraTheme(Brightness.dark),
       themeMode: switch (savedTheme.value ?? AppTheme.system) {
         AppTheme.system => ThemeMode.system,
         AppTheme.light => ThemeMode.light,
@@ -47,14 +49,19 @@ class FikraApp extends ConsumerWidget {
             systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
           ),
           child: GlassDebugOverlay(
-            child: development ? ProductBoundary(runtime: ref.watch(productRuntimeProvider), child: child!) : child!,
+            child: product
+                ? ProductEnvironment(
+                    development: mode == AppMode.development,
+                    child: ProductBoundary(runtime: ref.watch(productRuntimeProvider), child: child!),
+                  )
+                : child!,
           ),
         );
       },
       locale: ref.watch(appLocaleProvider),
       supportedLocales: const [Locale('en'), Locale('ar')],
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      routerConfig: development ? ref.watch(productRouterProvider) : ref.watch(routerProvider),
+      routerConfig: product ? ref.watch(productRouterProvider) : ref.watch(routerProvider),
     );
   }
 }

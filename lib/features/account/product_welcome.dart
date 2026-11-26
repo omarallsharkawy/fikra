@@ -12,9 +12,11 @@ class ProductWelcome extends StatelessWidget {
     required this.onSample,
     required this.onEmpty,
     required this.busy,
+    this.preview = true,
   });
   final VoidCallback? onSignup, onLogin, onSample, onEmpty;
   final bool busy;
+  final bool preview;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -49,22 +51,28 @@ class ProductWelcome extends StatelessWidget {
         growForText: true,
       ),
       const SizedBox(height: 8),
-      Text(context.l10n.uiGoogleUnavailable, textAlign: TextAlign.center, style: context.text.meta),
+      Text(
+        preview ? context.l10n.uiGoogleUnavailable : context.l10n.apiGoogleUnavailable,
+        textAlign: TextAlign.center,
+        style: context.text.meta,
+      ),
       TextButton(onPressed: onLogin, child: Text(context.l10n.uiLogIn)),
-      const Divider(height: 28),
-      FikraButton.secondary(
-        key: const ValueKey('fixture-reader'),
-        label: context.l10n.productPreviewSampleWorkspace,
-        onPressed: onSample,
-        loading: busy,
-        growForText: true,
-      ),
-      const SizedBox(height: 12),
-      TextButton(
-        key: const ValueKey('fixture-other'),
-        onPressed: onEmpty,
-        child: Text(context.l10n.productPreviewSeparateEmptyAccount, textAlign: TextAlign.center),
-      ),
+      if (preview) ...[
+        const Divider(height: 28),
+        FikraButton.secondary(
+          key: const ValueKey('fixture-reader'),
+          label: context.l10n.productPreviewSampleWorkspace,
+          onPressed: onSample,
+          loading: busy,
+          growForText: true,
+        ),
+        const SizedBox(height: 12),
+        TextButton(
+          key: const ValueKey('fixture-other'),
+          onPressed: onEmpty,
+          child: Text(context.l10n.productPreviewSeparateEmptyAccount, textAlign: TextAlign.center),
+        ),
+      ],
     ],
   );
 }

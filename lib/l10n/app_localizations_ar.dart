@@ -2768,4 +2768,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authNewAccount => 'أول مرة هنا؟ أنشئ حسابًا';
+
+  @override
+  String get apiGoogleUnavailable => 'تسجيل الدخول بجوجل غير مُعدّ بعد.';
+
+  @override
+  String get apiSignOut => 'تسجيل الخروج';
+
+  @override
+  String get apiSixDigitCode => 'كود من ٦ أرقام';
+
+  @override
+  String get apiNewPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get apiPasswordHint => 'استخدم من ٥ إلى ١٢٨ حرفًا.';
+
+  @override
+  String get apiVerifyEmail => 'تأكيد البريد الإلكتروني';
+
+  @override
+  String get apiResendCode => 'إعادة إرسال الكود';
+
+  @override
+  String get apiHaveCode => 'معايا الكود';
+
+  @override
+  String get apiVerifyHint => 'اكتب كود تأكيد البريد المكوّن من ٦ أرقام.';
+
+  @override
+  String get apiResetHint => 'اكتب كود الاستعادة المكوّن من ٦ أرقام وكلمة مرور جديدة.';
+
+  @override
+  String get apiRecoveryAcknowledgment => 'لو الحساب مؤهل للاستعادة، راجع بريدك للحصول على كود من ٦ أرقام.';
+
+  @override
+  String get apiCodeAcknowledgment => 'تم استلام الطلب. راجع بريدك للحصول على كود من ٦ أرقام إذا كان الحساب مؤهلًا.';
+
+  @override
+  String get apiVerified => 'تم تأكيد البريد. تقدر تسجّل الدخول دلوقتي.';
+
+  @override
+  String get apiResetComplete => 'تم تغيير كلمة المرور. سجّل الدخول بالكلمة الجديدة.';
+
+  @override
+  String get apiSignedOut => 'تم تسجيل الخروج.';
+
+  @override
+  String get apiTranscribe => 'تحويل التسجيل لنص';
+
+  @override
+  String get apiInvalidCode => 'الكود غير صحيح أو لم يعد صالحًا. راجعه أو اطلب كودًا جديدًا.';
+
+  @override
+  String get apiInvalidEmail => 'راجع عنوان البريد الإلكتروني.';
 }

@@ -2696,4 +2696,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authNewAccount => 'New here? Create an account';
+
+  @override
+  String get apiGoogleUnavailable => 'Google sign-in is not configured yet.';
+
+  @override
+  String get apiSignOut => 'Sign out';
+
+  @override
+  String get apiSixDigitCode => '6-digit code';
+
+  @override
+  String get apiNewPassword => 'New password';
+
+  @override
+  String get apiPasswordHint => 'Use 5–128 characters.';
+
+  @override
+  String get apiVerifyEmail => 'Verify email';
+
+  @override
+  String get apiResendCode => 'Resend code';
+
+  @override
+  String get apiHaveCode => 'I have a code';
+
+  @override
+  String get apiVerifyHint => 'Enter the six-digit code for your email.';
+
+  @override
+  String get apiResetHint => 'Enter your six-digit reset code and a new password.';
+
+  @override
+  String get apiRecoveryAcknowledgment => 'If this account is eligible, check your email for a six-digit reset code.';
+
+  @override
+  String get apiCodeAcknowledgment => 'Request received. If eligible, check your email for a six-digit code.';
+
+  @override
+  String get apiVerified => 'Email verified. You can log in now.';
+
+  @override
+  String get apiResetComplete => 'Password reset. Log in with your new password.';
+
+  @override
+  String get apiSignedOut => 'Signed out.';
+
+  @override
+  String get apiTranscribe => 'Transcribe recording';
+
+  @override
+  String get apiInvalidCode => 'This code is invalid or no longer usable. Check it or request a new code.';
+
+  @override
+  String get apiInvalidEmail => 'Check your email address.';
 }

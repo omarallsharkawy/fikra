@@ -2,6 +2,8 @@ import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/app/product_runtime.dart';
+import 'package:fikra/data/product/api/api_client.dart';
+import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:fikra/features/account/session_controller.dart';
 import 'package:fikra/features/capture/local_documents.dart';
 import 'package:fikra/data/product/models.dart';
@@ -40,6 +42,7 @@ Future<ProductRuntime> boot(
   double scale = 1,
   Size size = const Size(430, 932),
   AppTheme theme = AppTheme.dark,
+  ApiClient? api,
 }) async {
   await initializeDateFormatting();
   tester.view.physicalSize = size;
@@ -49,16 +52,20 @@ Future<ProductRuntime> boot(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        appModeProvider.overrideWithValue(AppMode.development),
+        appModeProvider.overrideWithValue(api == null ? AppMode.development : AppMode.connected),
+        if (api != null) productApiClientProvider.overrideWithValue(api),
+        if (api != null) productVaultProvider.overrideWithValue(MemorySessionVault()),
+        if (api != null) productAttemptsProvider.overrideWithValue(MemoryAttemptStore()),
         appThemeProvider.overrideWith((ref) => Stream.value(theme)),
         appLanguageProvider.overrideWith(
           (ref) => Stream.value(locale.languageCode == 'ar' ? AppLanguage.ar : AppLanguage.en),
         ),
         productCaptureDeviceProvider.overrideWithValue(DeviceStub()),
         productDocumentsProvider.overrideWithValue(DocumentsStub()),
-        productKnowledgeProvider.overrideWithValue(
-          DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
-        ),
+        if (api == null)
+          productKnowledgeProvider.overrideWithValue(
+            DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
+          ),
       ],
       child: const RepaintBoundary(key: ValueKey('product-capture'), child: FikraApp()),
     ),
