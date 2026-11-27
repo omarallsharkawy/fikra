@@ -7,6 +7,7 @@ import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:fikra/features/account/session_controller.dart';
 import 'package:fikra/features/capture/local_documents.dart';
 import 'package:fikra/data/product/models.dart';
+import 'package:fikra/data/product/local_ui_store.dart';
 import 'package:fikra/data/product/repositories.dart';
 import 'package:fikra/data/product/development/development_knowledge.dart';
 import 'package:fikra/features/workspace/graph_screen.dart';
@@ -57,6 +58,7 @@ Future<ProductRuntime> boot(
       overrides: [
         appModeProvider.overrideWithValue(api == null ? AppMode.development : AppMode.connected),
         if (api != null) productApiClientProvider.overrideWithValue(api),
+        productLocalUiProvider.overrideWithValue(MemoryLocalUiStore()),
         if (api != null) productVaultProvider.overrideWithValue(MemorySessionVault()),
         if (api != null) productAttemptsProvider.overrideWithValue(MemoryAttemptStore()),
         if (auth != null) productAuthProvider.overrideWithValue(auth),
