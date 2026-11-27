@@ -3222,4 +3222,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rdReviewConversation => 'المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.';
+
+  @override
+  String get rdDraftFailed => 'تعذّر حفظ المسودة على جهازك. أعد المحاولة قبل الإغلاق.';
+
+  @override
+  String get rdOnDevice => 'على هذا الجهاز';
 }

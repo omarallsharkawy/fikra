@@ -35,6 +35,8 @@ void main() {
         'ask-empty',
         'ask-answered',
         'capture',
+        'capture-filled',
+        'capture-recording',
         'me',
       ]) {
         testWidgets('HTML comparison $screen $lang ${dark ? 'dark' : 'light'}', (tester) async {
@@ -76,12 +78,17 @@ void main() {
               'note-detail' => '/note/${r.workspace.notes.first.id}',
               'map' => '/links',
               'ask-empty' || 'ask-answered' => '/ask',
-              'capture' => '/add',
+              'capture' || 'capture-filled' || 'capture-recording' => '/add',
               'me' => '/me',
               _ => '/notes',
             };
             container.read(productRouterProvider).go(route);
             await tester.pumpAndSettle();
+            if (screen == 'capture-filled' || screen == 'capture-recording') {
+              r.workspace.updateDraft(content: 'Review data science notes tomorrow', titleVisible: true);
+              if (screen == 'capture-recording') await r.capture.start();
+              await tester.pumpAndSettle();
+            }
             if (screen == 'ask-answered') {
               final prompt = (HtmlReferenceRepository.fixture['chat'] as Map)[lang]['prompt'] as String;
               await tapVisible(tester, find.text(prompt));

@@ -5569,6 +5569,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.'**
   String get rdReviewConversation;
+
+  /// No description provided for @rdDraftFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر حفظ المسودة على جهازك. أعد المحاولة قبل الإغلاق.'**
+  String get rdDraftFailed;
+
+  /// No description provided for @rdOnDevice.
+  ///
+  /// In ar, this message translates to:
+  /// **'على هذا الجهاز'**
+  String get rdOnDevice;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

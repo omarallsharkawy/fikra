@@ -2237,5 +2237,7 @@
   "rdNoteActions": "Note actions",
   "rdReplying": "Replying…",
   "rdCheckConversation": "Check conversation",
-  "rdReviewConversation": "Conversation refreshed. Review the messages before sending again."
+  "rdReviewConversation": "Conversation refreshed. Review the messages before sending again.",
+  "rdDraftFailed": "Couldn’t save this draft on your device. Retry before closing.",
+  "rdOnDevice": "On this device"
 }

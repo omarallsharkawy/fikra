@@ -3151,4 +3151,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rdReviewConversation => 'Conversation refreshed. Review the messages before sending again.';
+
+  @override
+  String get rdDraftFailed => 'Couldn’t save this draft on your device. Retry before closing.';
+
+  @override
+  String get rdOnDevice => 'On this device';
 }
