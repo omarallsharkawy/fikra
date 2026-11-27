@@ -4837,6 +4837,612 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'راجع البيانات وحاول مرة أخرى.'**
   String get authCheckDetails;
+
+  /// No description provided for @rdGreet.
+  ///
+  /// In ar, this message translates to:
+  /// **'أهلاً يا {name} 👋'**
+  String rdGreet(String name);
+
+  /// No description provided for @rdNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} نوتات'**
+  String rdNotes(int count);
+
+  /// No description provided for @rdSearch.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوّر في نوتاتك'**
+  String get rdSearch;
+
+  /// No description provided for @rdAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get rdAll;
+
+  /// No description provided for @rdToday.
+  ///
+  /// In ar, this message translates to:
+  /// **'النهارده'**
+  String get rdToday;
+
+  /// No description provided for @rdEarlier.
+  ///
+  /// In ar, this message translates to:
+  /// **'قبل كده'**
+  String get rdEarlier;
+
+  /// No description provided for @rdHome.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرئيسية'**
+  String get rdHome;
+
+  /// No description provided for @rdMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخريطة'**
+  String get rdMap;
+
+  /// No description provided for @rdAsk.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل'**
+  String get rdAsk;
+
+  /// No description provided for @rdMe.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنا'**
+  String get rdMe;
+
+  /// No description provided for @rdProc.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيتحلل…'**
+  String get rdProc;
+
+  /// No description provided for @rdNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش نتايج. جرّب كلمة تانية.'**
+  String get rdNone;
+
+  /// No description provided for @rdRel.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوتات مرتبطة'**
+  String get rdRel;
+
+  /// No description provided for @rdShared.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاج مشترك: '**
+  String get rdShared;
+
+  /// No description provided for @rdAisug.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراح الذكاء الاصطناعي'**
+  String get rdAisug;
+
+  /// No description provided for @rdApply.
+  ///
+  /// In ar, this message translates to:
+  /// **'تطبيق'**
+  String get rdApply;
+
+  /// No description provided for @rdDismiss.
+  ///
+  /// In ar, this message translates to:
+  /// **'تجاهل'**
+  String get rdDismiss;
+
+  /// No description provided for @rdAnother.
+  ///
+  /// In ar, this message translates to:
+  /// **'جرّب اقتراح تاني'**
+  String get rdAnother;
+
+  /// No description provided for @rdBefore.
+  ///
+  /// In ar, this message translates to:
+  /// **'قبل'**
+  String get rdBefore;
+
+  /// No description provided for @rdAfter.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد'**
+  String get rdAfter;
+
+  /// No description provided for @rdChg.
+  ///
+  /// In ar, this message translates to:
+  /// **'التغييرات'**
+  String get rdChg;
+
+  /// No description provided for @rdNudge.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضيف تفاصيل أكتر؟'**
+  String get rdNudge;
+
+  /// No description provided for @rdNudgeb.
+  ///
+  /// In ar, this message translates to:
+  /// **'النوتة قصيرة. جرّب تجاوب: مين؟ فين؟ ليه مهمة؟'**
+  String get rdNudgeb;
+
+  /// No description provided for @rdReana.
+  ///
+  /// In ar, this message translates to:
+  /// **'حلّل تاني'**
+  String get rdReana;
+
+  /// No description provided for @rdPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'تثبيت'**
+  String get rdPin;
+
+  /// No description provided for @rdShare.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة كصورة'**
+  String get rdShare;
+
+  /// No description provided for @rdDel.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسح النوتة'**
+  String get rdDel;
+
+  /// No description provided for @rdDelq.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمسح النوتة دي؟'**
+  String get rdDelq;
+
+  /// No description provided for @rdDelb.
+  ///
+  /// In ar, this message translates to:
+  /// **'هتقدر تتراجع لثواني بعد المسح.'**
+  String get rdDelb;
+
+  /// No description provided for @rdCancel.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء'**
+  String get rdCancel;
+
+  /// No description provided for @rdDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتمسحت'**
+  String get rdDeleted;
+
+  /// No description provided for @rdUndo.
+  ///
+  /// In ar, this message translates to:
+  /// **'تراجع'**
+  String get rdUndo;
+
+  /// No description provided for @rdApplied.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتطبّق'**
+  String get rdApplied;
+
+  /// No description provided for @rdHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسحب وقرّب بصباعين عشان تستكشف'**
+  String get rdHint;
+
+  /// No description provided for @rdOk.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمام'**
+  String get rdOk;
+
+  /// No description provided for @rdLinks.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} نوتات · {links} روابط'**
+  String rdLinks(int count, int links);
+
+  /// No description provided for @rdOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح'**
+  String get rdOpen;
+
+  /// No description provided for @rdAsktt.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل نوتاتك'**
+  String get rdAsktt;
+
+  /// No description provided for @rdScope.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل النوتات'**
+  String get rdScope;
+
+  /// No description provided for @rdPh.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب سؤالك…'**
+  String get rdPh;
+
+  /// No description provided for @rdBased.
+  ///
+  /// In ar, this message translates to:
+  /// **'مبني على {count} نوتات'**
+  String rdBased(int count);
+
+  /// No description provided for @rdHello.
+  ///
+  /// In ar, this message translates to:
+  /// **'عندك {count} نوتات. عايز تعرف إيه؟'**
+  String rdHello(int count);
+
+  /// No description provided for @rdCph.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب أي فكرة جت في بالك…'**
+  String get rdCph;
+
+  /// No description provided for @rdAddt.
+  ///
+  /// In ar, this message translates to:
+  /// **'+ عنوان'**
+  String get rdAddt;
+
+  /// No description provided for @rdTph.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان'**
+  String get rdTph;
+
+  /// No description provided for @rdSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ'**
+  String get rdSave;
+
+  /// No description provided for @rdSh.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب حاجة الأول عشان تحفظ'**
+  String get rdSh;
+
+  /// No description provided for @rdVoice.
+  ///
+  /// In ar, this message translates to:
+  /// **'صوت'**
+  String get rdVoice;
+
+  /// No description provided for @rdPdf.
+  ///
+  /// In ar, this message translates to:
+  /// **'PDF'**
+  String get rdPdf;
+
+  /// No description provided for @rdTag.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاج'**
+  String get rdTag;
+
+  /// No description provided for @rdLis.
+  ///
+  /// In ar, this message translates to:
+  /// **'بسمعك…'**
+  String get rdLis;
+
+  /// No description provided for @rdStop.
+  ///
+  /// In ar, this message translates to:
+  /// **'وقّف وحوّل لنص'**
+  String get rdStop;
+
+  /// No description provided for @rdSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتحفظت ✓'**
+  String get rdSaved;
+
+  /// No description provided for @rdLang.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللغة'**
+  String get rdLang;
+
+  /// No description provided for @rdTheme.
+  ///
+  /// In ar, this message translates to:
+  /// **'الشكل'**
+  String get rdTheme;
+
+  /// No description provided for @rdLight.
+  ///
+  /// In ar, this message translates to:
+  /// **'فاتح'**
+  String get rdLight;
+
+  /// No description provided for @rdDark.
+  ///
+  /// In ar, this message translates to:
+  /// **'داكن'**
+  String get rdDark;
+
+  /// No description provided for @rdSys.
+  ///
+  /// In ar, this message translates to:
+  /// **'تلقائي'**
+  String get rdSys;
+
+  /// No description provided for @rdAuto.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاج تلقائي'**
+  String get rdAuto;
+
+  /// No description provided for @rdExp.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير نوتاتك'**
+  String get rdExp;
+
+  /// No description provided for @rdOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل خروج'**
+  String get rdOut;
+
+  /// No description provided for @rdOutq.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل خروج؟'**
+  String get rdOutq;
+
+  /// No description provided for @rdOutb.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوتاتك محفوظة وهتلاقيها لما ترجع.'**
+  String get rdOutb;
+
+  /// No description provided for @rdStat1.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوتة'**
+  String get rdStat1;
+
+  /// No description provided for @rdStat2.
+  ///
+  /// In ar, this message translates to:
+  /// **'رابط'**
+  String get rdStat2;
+
+  /// No description provided for @rdNewc.
+  ///
+  /// In ar, this message translates to:
+  /// **'محادثة جديدة'**
+  String get rdNewc;
+
+  /// No description provided for @rdHist.
+  ///
+  /// In ar, this message translates to:
+  /// **'السجل'**
+  String get rdHist;
+
+  /// No description provided for @rdStart.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ بكتابة أول فكرة'**
+  String get rdStart;
+
+  /// No description provided for @rdFirst.
+  ///
+  /// In ar, this message translates to:
+  /// **'لسه مفيش نوتات'**
+  String get rdFirst;
+
+  /// No description provided for @rdFl.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضيف كام نوتة وشوف الروابط بتظهر'**
+  String get rdFl;
+
+  /// No description provided for @rdUntitled.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدون عنوان'**
+  String get rdUntitled;
+
+  /// No description provided for @rdChips0.
+  ///
+  /// In ar, this message translates to:
+  /// **'لخّصلي نوتاتي'**
+  String get rdChips0;
+
+  /// No description provided for @rdChips1.
+  ///
+  /// In ar, this message translates to:
+  /// **'بكتب عن إيه أكتر؟'**
+  String get rdChips1;
+
+  /// No description provided for @rdChips2.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيه اللي بيربط أفكاري؟'**
+  String get rdChips2;
+
+  /// No description provided for @rdWr.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب'**
+  String get rdWr;
+
+  /// No description provided for @rdLk.
+  ///
+  /// In ar, this message translates to:
+  /// **'اربط'**
+  String get rdLk;
+
+  /// No description provided for @rdAs.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل'**
+  String get rdAs;
+
+  /// No description provided for @rdTagl.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتبها. اربطها. اسألها.'**
+  String get rdTagl;
+
+  /// No description provided for @rdTag1.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكارك متوصّلة ببعض، واسأل نوتاتك أي حاجة.'**
+  String get rdTag1;
+
+  /// No description provided for @rdGs.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ دلوقتي'**
+  String get rdGs;
+
+  /// No description provided for @rdHave.
+  ///
+  /// In ar, this message translates to:
+  /// **'عندي حساب'**
+  String get rdHave;
+
+  /// No description provided for @rdMk.
+  ///
+  /// In ar, this message translates to:
+  /// **'اعمل حسابك'**
+  String get rdMk;
+
+  /// No description provided for @rdMks.
+  ///
+  /// In ar, this message translates to:
+  /// **'خلّي أفكارك تلاقي مكان تكبر فيه.'**
+  String get rdMks;
+
+  /// No description provided for @rdWb.
+  ///
+  /// In ar, this message translates to:
+  /// **'أهلاً بيك تاني'**
+  String get rdWb;
+
+  /// No description provided for @rdWbs.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساحة صغيرة لفكرتك الجاية.'**
+  String get rdWbs;
+
+  /// No description provided for @rdEm.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإيميل'**
+  String get rdEm;
+
+  /// No description provided for @rdPw.
+  ///
+  /// In ar, this message translates to:
+  /// **'الباسورد'**
+  String get rdPw;
+
+  /// No description provided for @rdShow.
+  ///
+  /// In ar, this message translates to:
+  /// **'إظهار'**
+  String get rdShow;
+
+  /// No description provided for @rdFg.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسيت الباسورد؟'**
+  String get rdFg;
+
+  /// No description provided for @rdLi.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول'**
+  String get rdLi;
+
+  /// No description provided for @rdNw.
+  ///
+  /// In ar, this message translates to:
+  /// **'جديد هنا؟ اعمل حساب'**
+  String get rdNw;
+
+  /// No description provided for @rdAh.
+  ///
+  /// In ar, this message translates to:
+  /// **'عندك حساب؟ سجّل دخول'**
+  String get rdAh;
+
+  /// No description provided for @rdTerms.
+  ///
+  /// In ar, this message translates to:
+  /// **'بالتسجيل انت موافق على الشروط وسياسة الخصوصية.'**
+  String get rdTerms;
+
+  /// No description provided for @rdS1.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضعيفة'**
+  String get rdS1;
+
+  /// No description provided for @rdS2.
+  ///
+  /// In ar, this message translates to:
+  /// **'مقبولة، ضيف رقم'**
+  String get rdS2;
+
+  /// No description provided for @rdS3.
+  ///
+  /// In ar, this message translates to:
+  /// **'قوية'**
+  String get rdS3;
+
+  /// No description provided for @rdEmerr.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإيميل مش مكتوب صح'**
+  String get rdEmerr;
+
+  /// No description provided for @rdPwh.
+  ///
+  /// In ar, this message translates to:
+  /// **'٨ حروف أو أكتر أحسن'**
+  String get rdPwh;
+
+  /// No description provided for @rdErr.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإيميل أو الباسورد غلط. جرّب تاني.'**
+  String get rdErr;
+
+  /// No description provided for @rdBack.
+  ///
+  /// In ar, this message translates to:
+  /// **'رجوع'**
+  String get rdBack;
+
+  /// No description provided for @rdNm.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسمك'**
+  String get rdNm;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

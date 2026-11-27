@@ -254,6 +254,15 @@ Future<T> pumpFuture<T>(
 
 /// Loads the bundled Latin/Arabic fonts and Material icons for real text metrics.
 Future<void> loadAppFonts() async {
+  final plex = FontLoader('IBMPlexSansArabic');
+  for (final weight in ['Regular', 'Medium', 'SemiBold']) {
+    plex.addFont(
+      Future.value(
+        ByteData.sublistView(File('assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-$weight.ttf').readAsBytesSync()),
+      ),
+    );
+  }
+  await plex.load();
   // Plugins without a test implementation: answer their channels with null.
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
     const MethodChannel('com.llfbandit.record/messages'),

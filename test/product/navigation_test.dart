@@ -45,6 +45,7 @@ Future<ProductRuntime> boot(
   AppTheme theme = AppTheme.dark,
   ApiClient? api,
   KnowledgeRepository? knowledge,
+  AuthRepository? auth,
 }) async {
   await initializeDateFormatting();
   tester.view.physicalSize = size;
@@ -58,13 +59,14 @@ Future<ProductRuntime> boot(
         if (api != null) productApiClientProvider.overrideWithValue(api),
         if (api != null) productVaultProvider.overrideWithValue(MemorySessionVault()),
         if (api != null) productAttemptsProvider.overrideWithValue(MemoryAttemptStore()),
+        if (auth != null) productAuthProvider.overrideWithValue(auth),
         appThemeProvider.overrideWith((ref) => Stream.value(theme)),
         appLanguageProvider.overrideWith(
           (ref) => Stream.value(locale.languageCode == 'ar' ? AppLanguage.ar : AppLanguage.en),
         ),
         productCaptureDeviceProvider.overrideWithValue(DeviceStub()),
         productDocumentsProvider.overrideWithValue(DocumentsStub()),
-        if (api == null)
+        if (api == null || knowledge != null)
           productKnowledgeProvider.overrideWithValue(
             knowledge ?? DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
           ),

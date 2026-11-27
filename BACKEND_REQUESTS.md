@@ -1,0 +1,16 @@
+# Mobile redesign integration gaps
+
+These are requests for backend review, not implemented contract changes. Existing endpoints and responses remain authoritative.
+
+| Feature | Screen | Field/endpoint needed | Expected shape | Client fallback |
+| --- | --- | --- | --- | --- |
+| Display name | Sign up, Home, Me | Registration/profile name field and profile update; current registration accepts email/password and UserView exposes id/email/email_verified | `display_name: string|null`, trimmed, 1–40 Unicode characters; authenticated profile update | Store/edit on device per API origin and account; temporarily stage by normalized registration email until first verified login. Neutral greeting and one-time add-name prompt for existing accounts. Never send an unsupported field. |
+| User tags | Home, detail, Capture, Map | Account tag catalog, note tag assignments, CRUD and suggested tag override | `tags:[{id,name,color?}]`, note `tag_ids`, optional `suggested_tag_ids` | Device-local user-created tags and assignments, scoped to origin/account. No sample categories; concepts remain separate. |
+| Auto-tag preference | Me | Persisted account preference and backend category suggestion behavior | `auto_tag_enabled: boolean`; tag proposals with source | Hide the switch until supported; do not imply the device controls backend processing. |
+| Connection explanation/score | Note detail | Structured related-note reason and calibrated score | `{note_id,title,shared_concepts,reason?:string,score?:number}` with score semantics | Display actual shared concepts from the graph if present. Hide explanation/score bars otherwise; never assume 80%. |
+| Reversible deletion | Note detail | Soft-delete/restore and expiry contract | Delete receipt `{deleted_id,undo_token,expires_at}`; authenticated restore | Persist a short client undo window, conceal locally, and defer the existing DELETE until expiry. Undo cancels the pending deletion; failures remain recoverable and localized. No fabricated restore endpoint. |
+| Proposal undo | Note detail | Atomic undo of accepted refinement with revision/generation preconditions | Receipt with prior revision plus bounded undo endpoint | Delay acceptance during the short undo window; cancel locally on Undo. Commit through existing generation-checked acceptance, reconcile failures. Do not overwrite a newer note with an old body. |
+| Conversation feedback | Ask | Authenticated message feedback endpoint | `{message_id,rating,reason?}` | Hide feedback actions. |
+| Account-wide counts/export | Home, Ask, Me | Account-wide pagination, graph/counts and export if scope extends beyond selected project | Explicit counts and paginated notes/relationships or export payload | Show selected-project data with truthful scope; export only fetched real notes. No inferred account-wide totals. |
+
+Already supported: refinement proposals and generation-checked accept/reject/regenerate; graph edges/shared concepts; note references in authoritative chat messages; SSE deltas/completion; native multipart transcription; six-digit registration/recovery. Render these from existing repositories rather than prototype strings. Favorite/pin has an existing PUT endpoint and will use it without altering its public schema.
