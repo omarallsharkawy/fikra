@@ -112,5 +112,15 @@
       "food": "Cooking",
       "career": "Career"
     }
+  },
+  "chat": {
+    "ar": {
+      "answer": "عندك ٥ نوتات، أغلبها عن الجامعة والذكاء الاصطناعي، ونوتة عن الأكل.",
+      "prompt": "لخّصلي نوتاتي"
+    },
+    "en": {
+      "answer": "You have 5 notes, mostly about university and AI, plus one about cooking.",
+      "prompt": "Summarize my notes"
+    }
   }
 }

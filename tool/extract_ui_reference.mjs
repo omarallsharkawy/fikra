@@ -27,6 +27,6 @@ fs.writeFileSync('docs/features/html-ui-redesign/reference-values.json',JSON.str
 // Matching visual-test data is deliberately outside Flutter asset bundles.
 const fixtureContext = vm.createContext({});
 vm.runInContext(html.split('<script>')[1].split('const POS=')[0], fixtureContext);
-const samples = vm.runInContext('({notes:N,edges:E,tags:{ar:T.ar.tags,en:T.en.tags}})',fixtureContext);
+const samples = vm.runInContext('({notes:N,edges:E,tags:{ar:T.ar.tags,en:T.en.tags},chat:{ar:{answer:T.ar.ans,prompt:T.ar.chips[0]},en:{answer:T.en.ans,prompt:T.en.chips[0]}}})',fixtureContext);
 fs.mkdirSync('test/support/fixtures',{recursive:true});
 fs.writeFileSync('test/support/fixtures/html-reference.json',JSON.stringify(samples,null,2)+'\n');

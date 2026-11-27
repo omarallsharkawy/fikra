@@ -25,7 +25,18 @@ void main() {
   const phase = String.fromEnvironment('REDESIGN_CAPTURE', defaultValue: 'after');
   for (final lang in ['ar', 'en']) {
     for (final dark in [false, true]) {
-      for (final screen in ['landing', 'signup', 'login', 'home', 'note-detail', 'map', 'ask-empty', 'capture', 'me']) {
+      for (final screen in [
+        'landing',
+        'signup',
+        'login',
+        'home',
+        'note-detail',
+        'map',
+        'ask-empty',
+        'ask-answered',
+        'capture',
+        'me',
+      ]) {
         testWidgets('HTML comparison $screen $lang ${dark ? 'dark' : 'light'}', (tester) async {
           debugDisableShadows = false;
           addTearDown(() => debugDisableShadows = true);
@@ -64,13 +75,17 @@ void main() {
             final route = switch (screen) {
               'note-detail' => '/note/${r.workspace.notes.first.id}',
               'map' => '/links',
-              'ask-empty' => '/ask',
+              'ask-empty' || 'ask-answered' => '/ask',
               'capture' => '/add',
               'me' => '/me',
               _ => '/notes',
             };
             container.read(productRouterProvider).go(route);
             await tester.pumpAndSettle();
+            if (screen == 'ask-answered') {
+              final prompt = (HtmlReferenceRepository.fixture['chat'] as Map)[lang]['prompt'] as String;
+              await tapVisible(tester, find.text(prompt));
+            }
           }
           expect(tester.takeException(), isNull);
           final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('product-capture')));

@@ -3213,4 +3213,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rdNoteActions => 'اختيارات النوتة';
+
+  @override
+  String get rdReplying => 'بنجهّز الرد…';
+
+  @override
+  String get rdCheckConversation => 'راجع المحادثة';
+
+  @override
+  String get rdReviewConversation => 'المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.';
 }

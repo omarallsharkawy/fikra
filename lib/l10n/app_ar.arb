@@ -2270,5 +2270,8 @@
   "rdShareFailed": "المشاركة ما كملتش. جرّب تاني.",
   "rdUndoFailed": "التراجع ما كملش. جرّب تاني.",
   "rdPendingChange": "بنكمل التعديل…",
-  "rdNoteActions": "اختيارات النوتة"
+  "rdNoteActions": "اختيارات النوتة",
+  "rdReplying": "بنجهّز الرد…",
+  "rdCheckConversation": "راجع المحادثة",
+  "rdReviewConversation": "المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني."
 }

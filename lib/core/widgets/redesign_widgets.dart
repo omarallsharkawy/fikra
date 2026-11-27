@@ -470,9 +470,13 @@ Future<bool> rdConfirm(
           const SizedBox(height: 8),
           RdText(message, color: context.rd.muted),
           const SizedBox(height: 14),
-          RdButton(confirm, danger: danger, onPressed: () => Navigator.pop(context, true)),
+          RdButton(confirm, danger: danger, onPressed: () => Navigator.of(context, rootNavigator: true).pop(true)),
           const SizedBox(height: 8),
-          RdButton(context.l10n.rdCancel, primary: false, onPressed: () => Navigator.pop(context, false)),
+          RdButton(
+            context.l10n.rdCancel,
+            primary: false,
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
+          ),
         ],
       ),
     ) ??

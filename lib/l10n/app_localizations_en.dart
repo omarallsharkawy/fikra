@@ -3142,4 +3142,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rdNoteActions => 'Note actions';
+
+  @override
+  String get rdReplying => 'Replying…';
+
+  @override
+  String get rdCheckConversation => 'Check conversation';
+
+  @override
+  String get rdReviewConversation => 'Conversation refreshed. Review the messages before sending again.';
 }

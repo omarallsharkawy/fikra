@@ -5551,6 +5551,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اختيارات النوتة'**
   String get rdNoteActions;
+
+  /// No description provided for @rdReplying.
+  ///
+  /// In ar, this message translates to:
+  /// **'بنجهّز الرد…'**
+  String get rdReplying;
+
+  /// No description provided for @rdCheckConversation.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع المحادثة'**
+  String get rdCheckConversation;
+
+  /// No description provided for @rdReviewConversation.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.'**
+  String get rdReviewConversation;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

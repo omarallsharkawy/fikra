@@ -2234,5 +2234,8 @@
   "rdShareFailed": "Couldn’t share this note. Try again.",
   "rdUndoFailed": "Couldn’t undo this change. Please try again.",
   "rdPendingChange": "Finishing your change…",
-  "rdNoteActions": "Note actions"
+  "rdNoteActions": "Note actions",
+  "rdReplying": "Replying…",
+  "rdCheckConversation": "Check conversation",
+  "rdReviewConversation": "Conversation refreshed. Review the messages before sending again."
 }

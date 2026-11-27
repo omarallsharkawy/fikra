@@ -14,6 +14,49 @@ class HtmlReferenceRepository extends DevelopmentKnowledgeRepository {
   static const projectId = 'reference-general';
   static final project = KnowledgeProject(id: projectId, name: 'General', isGeneral: true, createdAt: DateTime(2026));
   List<Map<String, dynamic>> get rows => (fixture['notes'] as List).cast<Map<String, dynamic>>();
+  final _chats = <String, ConversationHistory>{};
+  @override
+  Future<List<Conversation>> conversations(String accountId, String projectId) async =>
+      _chats.values.map((h) => h.conversation).toList();
+  @override
+  Future<Conversation> createConversation(String accountId, String projectId) async {
+    final value = Conversation(
+      id: 'reference-chat-${_chats.length}',
+      projectId: projectId,
+      title: null,
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+    );
+    _chats[value.id] = ConversationHistory(value, const []);
+    return value;
+  }
+
+  @override
+  Future<ConversationHistory> history(String accountId, String conversationId) async => _chats[conversationId]!;
+  @override
+  Stream<ChatEvent> send(String accountId, String conversationId, String content) async* {
+    final old = _chats[conversationId]!, values = await notes(accountId, projectId);
+    final answer = (fixture['chat'] as Map)[language]['answer'] as String;
+    final user = KnowledgeMessage(
+      id: 'reference-user',
+      role: 'user',
+      content: content,
+      supported: null,
+      createdAt: DateTime(2026),
+    );
+    final assistant = KnowledgeMessage(
+      id: 'reference-answer',
+      role: 'assistant',
+      content: answer,
+      supported: true,
+      createdAt: DateTime(2026),
+      sources: values.take(3).map((n) => NoteSourceReference(n.id, n.title)).toList(),
+    );
+    _chats[conversationId] = ConversationHistory(old.conversation, [user, assistant]);
+    yield ChatDelta(answer);
+    yield ChatComplete(old.conversation, user, assistant);
+  }
+
   @override
   Future<List<KnowledgeProject>> projects(String accountId) async => [project];
   @override
