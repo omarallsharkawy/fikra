@@ -50,6 +50,7 @@ abstract final class RdTokens {
     fontFamily: family,
     fontFamilyFallback: fallbacks,
     fontSize: size,
+    letterSpacing: 0,
     fontWeight: weight,
     height: height,
     color: color ?? c.rd.text,

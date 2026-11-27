@@ -3159,4 +3159,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rdNm => 'اسمك';
+
+  @override
+  String get rdHide => 'إخفاء';
+
+  @override
+  String get rdNamePrompt => 'تحب نناديك بإيه؟';
+
+  @override
+  String get rdNeutralGreeting => 'أهلاً بيك 👋';
+
+  @override
+  String get rdAddName => 'ضيف اسمك';
+
+  @override
+  String get rdEditName => 'تعديل الاسم';
+
+  @override
+  String get rdNameDevice => 'محفوظ على الجهاز ده';
+
+  @override
+  String get rdNameInvalid => 'اكتب اسم لحد ٤٠ حرف';
+
+  @override
+  String get rdLater => 'بعدين';
 }

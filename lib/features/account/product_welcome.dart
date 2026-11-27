@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../../core/theme/tokens.dart';
-import '../../core/widgets/fikra_widgets.dart';
+import '../../core/theme/redesign_tokens.dart';
+import '../../core/widgets/redesign_widgets.dart';
 import '../../l10n/localizations.dart';
 
 class ProductWelcome extends StatelessWidget {
@@ -15,108 +17,105 @@ class ProductWelcome extends StatelessWidget {
     this.preview = true,
   });
   final VoidCallback? onSignup, onLogin, onSample, onEmpty;
-  final bool busy;
-  final bool preview;
+  final bool busy, preview;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: const ExcludeSemantics(child: _WelcomeShapes()),
-      ),
-      const SizedBox(height: 16),
-      Semantics(
-        header: true,
-        child: Text(
-          context.l10n.welcomeTagline,
-          textAlign: TextAlign.center,
-          style: context.text.title.copyWith(fontSize: 30, height: 1.2),
-        ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        context.l10n.uiWelcomeSubtitle,
-        textAlign: TextAlign.center,
-        style: context.text.body.copyWith(color: context.colors.textSecondary),
-      ),
-      const SizedBox(height: 24),
-      FikraButton(label: context.l10n.uiSignUpEmail, onPressed: onSignup, growForText: true),
-      const SizedBox(height: 12),
-      FikraButton.secondary(
-        label: context.l10n.uiContinueGoogle,
-        onPressed: null,
-        icon: Icons.account_circle_outlined,
-        growForText: true,
-      ),
-      const SizedBox(height: 8),
-      Text(
-        preview ? context.l10n.uiGoogleUnavailable : context.l10n.apiGoogleUnavailable,
-        textAlign: TextAlign.center,
-        style: context.text.meta,
-      ),
-      TextButton(onPressed: onLogin, child: Text(context.l10n.uiLogIn)),
+      const _WelcomeSteps(),
+      const SizedBox(height: 22),
+      Semantics(header: true, child: RdText(context.l10n.rdTagl, size: 28, height: 1.3, weight: FontWeight.w700)),
+      const SizedBox(height: 14),
+      RdText(context.l10n.rdTag1, color: context.rd.muted),
+      const SizedBox(height: 34),
+      RdButton(context.l10n.rdGs, key: const ValueKey('auth-start-signup'), onPressed: onSignup),
+      const SizedBox(height: 10),
+      RdButton(context.l10n.rdHave, key: const ValueKey('auth-start-login'), primary: false, onPressed: onLogin),
       if (preview) ...[
-        const Divider(height: 28),
-        FikraButton.secondary(
+        const SizedBox(height: 24),
+        RdButton(
+          context.l10n.productPreviewSampleWorkspace,
           key: const ValueKey('fixture-reader'),
-          label: context.l10n.productPreviewSampleWorkspace,
+          primary: false,
           onPressed: onSample,
           loading: busy,
-          growForText: true,
         ),
-        const SizedBox(height: 12),
         TextButton(
           key: const ValueKey('fixture-other'),
           onPressed: onEmpty,
-          child: Text(context.l10n.productPreviewSeparateEmptyAccount, textAlign: TextAlign.center),
+          child: Text(context.l10n.productPreviewSeparateEmptyAccount),
         ),
       ],
     ],
   );
 }
 
-class _WelcomeShapes extends StatelessWidget {
-  const _WelcomeShapes();
+class _WelcomeSteps extends StatefulWidget {
+  const _WelcomeSteps();
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 150,
-    child: ClipRect(
-      child: Stack(
-        children: [
-          PositionedDirectional(
-            end: -30,
-            top: -80,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(color: context.colors.brandPurple, shape: BoxShape.circle),
-            ),
-          ),
-          PositionedDirectional(
-            start: -44,
-            bottom: 0,
-            child: Container(
-              width: 130,
-              height: 130,
-              decoration: BoxDecoration(color: context.colors.brandLime, shape: BoxShape.circle),
-            ),
-          ),
-          PositionedDirectional(
-            end: 46,
-            bottom: 0,
-            child: Transform.rotate(
-              angle: .3,
-              child: Container(
-                width: 94,
-                height: 94,
-                decoration: BoxDecoration(color: context.colors.brandBlue, borderRadius: BorderRadius.circular(28)),
+  State<_WelcomeSteps> createState() => _WelcomeStepsState();
+}
+
+class _WelcomeStepsState extends State<_WelcomeSteps> {
+  Timer? _timer;
+  int _tick = 0, _active = 0;
+  bool? _reduce;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    if (_reduce == reduce) return;
+    _reduce = reduce;
+    _timer?.cancel();
+    _active = reduce ? -1 : 0;
+    _tick = 0;
+    if (!reduce) {
+      _timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+        _tick = (_tick + 1) % 30;
+        final active = _tick % 10 >= 9 ? -1 : _tick ~/ 10;
+        if (active != _active && mounted) setState(() => _active = active);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = [context.l10n.rdWr, context.l10n.rdLk, context.l10n.rdAs];
+    return Row(
+      spacing: 8,
+      children: [
+        for (var i = 0; i < 3; i++)
+          Expanded(
+            child: AnimatedContainer(
+              duration: _reduce == true ? Duration.zero : const Duration(milliseconds: 120),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
+              decoration: BoxDecoration(
+                color: _active == i ? context.rd.lime : context.rd.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: context.rd.line),
+              ),
+              child: Column(
+                children: [
+                  RdIcon(['file', 'map', 'ask'][i], color: _active == i ? context.rd.onLime : context.rd.text),
+                  const SizedBox(height: 11.87),
+                  RdText(
+                    labels[i],
+                    weight: FontWeight.w600,
+                    align: TextAlign.center,
+                    color: _active == i ? context.rd.onLime : context.rd.text,
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    ),
-  );
+      ],
+    );
+  }
 }

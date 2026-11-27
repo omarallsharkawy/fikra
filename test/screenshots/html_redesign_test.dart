@@ -6,7 +6,6 @@ import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/product/api/api_client.dart';
 import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:fikra/data/product/development/development_knowledge.dart';
-import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,9 +39,8 @@ void main() {
             auth: CaptureAuth(),
             knowledge: DevelopmentKnowledgeRepository(stepDelay: Duration.zero),
           );
-          final l = tester.element(find.byType(Scaffold).first).l10n;
-          if (screen == 'signup') await tapVisible(tester, find.text(l.uiSignUpEmail));
-          if (screen == 'login') await tapVisible(tester, find.text(l.uiLogIn));
+          if (screen == 'signup') await tapVisible(tester, find.byKey(const ValueKey('auth-start-signup')));
+          if (screen == 'login') await tapVisible(tester, find.byKey(const ValueKey('auth-start-login')));
           if (!['landing', 'signup', 'login'].contains(screen)) {
             await r.session.login('reader@example.invalid', 'fixture-only');
             await tester.pumpAndSettle();

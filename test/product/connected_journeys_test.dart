@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:fikra/core/widgets/buttons.dart';
+import 'package:fikra/core/widgets/redesign_widgets.dart';
 import 'package:fikra/data/product/api/api_client.dart';
 import 'package:fikra/data/product/models.dart';
 import 'package:fikra/features/account/session_controller.dart';
@@ -110,10 +110,11 @@ void main() {
         expect(runtime.session.repository.isDevelopment, isFalse);
         expect(find.byKey(const ValueKey('fixture-reader')), findsNothing);
         expect(find.byKey(const ValueKey('development-banner')), findsNothing);
-        await tapConnected(tester, find.text(l.uiSignUpEmail));
+        await tapConnected(tester, find.byKey(const ValueKey('auth-start-signup')));
+        await fill(tester, 'account-name', '  علاء  ');
         await fill(tester, 'account-email', 'TEST@example.invalid ');
         await fill(tester, 'account-password', '1234');
-        expect(tester.widget<FikraButton>(find.byKey(const ValueKey('account-submit'))).onPressed, isNull);
+        expect(tester.widget<RdButton>(find.byKey(const ValueKey('account-submit'))).onPressed, isNull);
         await fill(tester, 'account-password', 'abcde');
         tester.testTextInput.hide();
         await tester.pumpAndSettle();
@@ -135,7 +136,7 @@ void main() {
         await tapConnected(tester, find.byKey(const ValueKey('verify-email')));
         expect(runtime.session.stage, SessionStage.unauthenticated);
         expect(tester.widget<TextField>(input('account-password')).controller!.text, isEmpty);
-        await tapConnected(tester, find.text(l.productForgotPassword));
+        await tapConnected(tester, find.text(l.rdFg));
         await tapConnected(tester, find.text(l.uxRequestReset));
         expect(find.text(l.apiRecoveryAcknowledgment), findsOneWidget);
         await tapConnected(tester, find.text(l.apiHaveCode));
@@ -151,6 +152,7 @@ void main() {
         await tester.pumpAndSettle();
         await tapConnected(tester, find.byKey(const ValueKey('account-submit')));
         expect(runtime.session.account!.id, 'user-a');
+        expect(runtime.profile.name, 'علاء');
         expect(runtime.workspace.selected!.isGeneral, isTrue);
         expect(find.byKey(const ValueKey('development-banner')), findsNothing);
         await tapConnected(tester, find.byKey(const ValueKey('nav-add')));
@@ -181,7 +183,7 @@ void main() {
         expect(runtime.chat.current!.messages.last.content, 'Final answer');
         expect(runtime.chat.current!.messages.last.sources.single.noteId, 'note-a');
         await tapConnected(tester, find.byKey(const ValueKey('nav-3')));
-        await tapConnected(tester, find.text(l.apiSignOut));
+        await tapConnected(tester, find.text(l.rdOut));
         expect(runtime.session.stage, SessionStage.unauthenticated);
         expect(runtime.workspace.notes, isEmpty);
         expect(runtime.chat.current, isNull);

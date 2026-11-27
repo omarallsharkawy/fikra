@@ -218,6 +218,7 @@ class RdIconButton extends StatelessWidget {
   final bool flip;
   @override
   Widget build(BuildContext context) => IconButton(
+    style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap, minimumSize: const Size(44, 44)),
     tooltip: label,
     onPressed: onPressed,
     constraints: const BoxConstraints(minWidth: 44, minHeight: 44),

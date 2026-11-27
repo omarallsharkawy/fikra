@@ -2216,5 +2216,13 @@
   "rdPwh": "8+ characters is better",
   "rdErr": "Wrong email or password. Try again.",
   "rdBack": "Back",
-  "rdNm": "Your name"
+  "rdNm": "Your name",
+  "rdHide": "Hide",
+  "rdNamePrompt": "What should we call you?",
+  "rdNeutralGreeting": "Hey there 👋",
+  "rdAddName": "Add your name",
+  "rdEditName": "Edit name",
+  "rdNameDevice": "Saved on this device",
+  "rdNameInvalid": "Enter a name up to 40 characters",
+  "rdLater": "Later"
 }

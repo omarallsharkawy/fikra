@@ -3088,4 +3088,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rdNm => 'Your name';
+
+  @override
+  String get rdHide => 'Hide';
+
+  @override
+  String get rdNamePrompt => 'What should we call you?';
+
+  @override
+  String get rdNeutralGreeting => 'Hey there 👋';
+
+  @override
+  String get rdAddName => 'Add your name';
+
+  @override
+  String get rdEditName => 'Edit name';
+
+  @override
+  String get rdNameDevice => 'Saved on this device';
+
+  @override
+  String get rdNameInvalid => 'Enter a name up to 40 characters';
+
+  @override
+  String get rdLater => 'Later';
 }

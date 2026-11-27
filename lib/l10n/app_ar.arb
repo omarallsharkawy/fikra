@@ -2252,5 +2252,13 @@
   "rdPwh": "٨ حروف أو أكتر أحسن",
   "rdErr": "الإيميل أو الباسورد غلط. جرّب تاني.",
   "rdBack": "رجوع",
-  "rdNm": "اسمك"
+  "rdNm": "اسمك",
+  "rdHide": "إخفاء",
+  "rdNamePrompt": "تحب نناديك بإيه؟",
+  "rdNeutralGreeting": "أهلاً بيك 👋",
+  "rdAddName": "ضيف اسمك",
+  "rdEditName": "تعديل الاسم",
+  "rdNameDevice": "محفوظ على الجهاز ده",
+  "rdNameInvalid": "اكتب اسم لحد ٤٠ حرف",
+  "rdLater": "بعدين"
 }

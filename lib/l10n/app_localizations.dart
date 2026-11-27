@@ -5443,6 +5443,54 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اسمك'**
   String get rdNm;
+
+  /// No description provided for @rdHide.
+  ///
+  /// In ar, this message translates to:
+  /// **'إخفاء'**
+  String get rdHide;
+
+  /// No description provided for @rdNamePrompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحب نناديك بإيه؟'**
+  String get rdNamePrompt;
+
+  /// No description provided for @rdNeutralGreeting.
+  ///
+  /// In ar, this message translates to:
+  /// **'أهلاً بيك 👋'**
+  String get rdNeutralGreeting;
+
+  /// No description provided for @rdAddName.
+  ///
+  /// In ar, this message translates to:
+  /// **'ضيف اسمك'**
+  String get rdAddName;
+
+  /// No description provided for @rdEditName.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الاسم'**
+  String get rdEditName;
+
+  /// No description provided for @rdNameDevice.
+  ///
+  /// In ar, this message translates to:
+  /// **'محفوظ على الجهاز ده'**
+  String get rdNameDevice;
+
+  /// No description provided for @rdNameInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب اسم لحد ٤٠ حرف'**
+  String get rdNameInvalid;
+
+  /// No description provided for @rdLater.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعدين'**
+  String get rdLater;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
