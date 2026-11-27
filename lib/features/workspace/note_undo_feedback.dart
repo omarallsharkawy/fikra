@@ -50,17 +50,30 @@ class NoteUndoFeedback extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ProductFailureView(undo.failure!),
+        ProductFailureView(
+          undo.failure!,
+          onRetry: undo.actions.isEmpty && undo.accountId != null ? () => undo.bind(undo.accountId) : null,
+        ),
         for (final a in undo.actions.where(undo.retryable))
           Row(
             children: [
               Expanded(child: RdButton(context.l10n.retry, primary: false, onPressed: () => undo.retry(a.id))),
-              TextButton(
-                onPressed: () async {
-                  if (await undo.discardFailed(a.id)) await runtime.workspace.retryWorkspace();
-                },
-                child: Text(context.l10n.rdDismiss),
-              ),
+              if (undo.canDiscard(a))
+                TextButton(
+                  onPressed: () async {
+                    final w = runtime.workspace, account = undo.accountId, detail = runtime.workspace.detail?.id;
+                    if (await undo.discardFailed(a.id) && w.accountId == account) {
+                      await w.retryWorkspace();
+                      if (w.accountId == account &&
+                          w.selectedProjectId == a.projectId &&
+                          detail == a.noteId &&
+                          w.detail?.id == detail) {
+                        await w.openNote(a.noteId);
+                      }
+                    }
+                  },
+                  child: Text(context.l10n.rdDismiss),
+                ),
             ],
           ),
       ],

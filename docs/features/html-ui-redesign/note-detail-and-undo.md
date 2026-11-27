@@ -26,6 +26,13 @@ Errors remain localized and expose retry/dismiss controls. Re-reading before
 DELETE is best effort because the existing endpoint has no atomic revision
 precondition; this remaining race is recorded in `BACKEND_REQUESTS.md`.
 
+If persisting a cancellation fails, its Retry action retries cancellation rather
+than committing the original mutation, even after the displayed window expires
+while this process is running. Pending operations remain blocked until storage
+recovers. Dismissal of an uncommitted blocked operation cancels it, and dismissing
+a failed operation refreshes the visible note from the repository. A storage
+failure never produces a successful Undo message.
+
 The note menu keeps existing editing and reprocessing. Pin calls the deployed
 PUT `/v1/notes/{id}/favorite` with an explicit desired boolean and account-bound
 selection guards. Categories are device-only assignments, never backend concepts.

@@ -45,7 +45,52 @@ class UndoRepository extends DevelopmentKnowledgeRepository {
   }
 }
 
+class FailingUiStore extends MemoryLocalUiStore {
+  bool failWrite = false;
+  @override
+  Future<void> writeValue(String key, String value) async {
+    if (failWrite) throw StateError('test storage failure');
+    await super.writeValue(key, value);
+  }
+}
+
 void main() {
+  test('failed dismissal of an uncommitted blocked action retains cancellation intent', () async {
+    final repo = UndoRepository(), store = FailingUiStore();
+    var now = DateTime(2026);
+    final undo = NoteUndoController(repo, store, clock: () => now, window: const Duration(hours: 1));
+    addTearDown(undo.dispose);
+    await undo.bind('owner');
+    final action = await undo.queue(repo.current!, UndoNoteKind.delete);
+    store.failWrite = true;
+    now = now.add(const Duration(hours: 2));
+    await undo.flushDue();
+    expect(repo.deletes, 0);
+    expect(undo.canDiscard(undo.actions.single), isTrue);
+    expect(await undo.discardFailed(action!.id), isFalse);
+    store.failWrite = false;
+    await undo.retry(action.id);
+    expect(undo.actions, isEmpty);
+    expect(repo.deletes, 0);
+  });
+  test('retry after a failed Undo write retries cancellation, never the mutation', () async {
+    final repo = UndoRepository(), store = FailingUiStore();
+    var now = DateTime(2026);
+    final undo = NoteUndoController(repo, store, clock: () => now, window: const Duration(hours: 1));
+    addTearDown(undo.dispose);
+    await undo.bind('owner');
+    final action = await undo.queue(repo.current!, UndoNoteKind.delete);
+    store.failWrite = true;
+    expect(await undo.undo(action!.id), isFalse);
+    now = now.add(const Duration(hours: 2));
+    await undo.flushDue();
+    expect(repo.deletes, 0);
+    store.failWrite = false;
+    await undo.retry(action.id);
+    expect(undo.actions, isEmpty);
+    expect(repo.deletes, 0);
+    expect(repo.current, isNotNull);
+  });
   test('Undo cancels before any delete or acceptance request and survives restart', () async {
     final repo = UndoRepository(), store = MemoryLocalUiStore();
     var now = DateTime(2026);

@@ -93,7 +93,7 @@ class NoteUndoController extends ChangeNotifier {
   bool _disposed = false;
   Timer? _timer;
   Future<void> _writes = Future.value();
-  final _executing = <String>{}, _blocked = <String>{}, _cancelling = <String>{};
+  final _executing = <String>{}, _blocked = <String>{}, _cancelling = <String>{}, _cancelRetries = <String>{};
   Set<String> get hiddenIds => actions
       .where((a) => a.kind == UndoNoteKind.delete && a.state != UndoNoteState.failed)
       .map((a) => a.noteId)
@@ -101,6 +101,9 @@ class NoteUndoController extends ChangeNotifier {
   UndoNoteAction? forNote(String id) =>
       actions.where((a) => a.noteId == id && a.state != UndoNoteState.failed).firstOrNull;
   bool retryable(UndoNoteAction action) => action.state == UndoNoteState.failed || _blocked.contains(action.id);
+  bool canDiscard(UndoNoteAction action) =>
+      !_executing.contains(action.id) &&
+      (action.state == UndoNoteState.failed || (action.state == UndoNoteState.queued && _blocked.contains(action.id)));
   bool canUndo(UndoNoteAction action) =>
       action.state == UndoNoteState.queued &&
       !_executing.contains(action.id) &&
@@ -117,6 +120,7 @@ class NoteUndoController extends ChangeNotifier {
     _executing.clear();
     _blocked.clear();
     _cancelling.clear();
+    _cancelRetries.clear();
     accountId = id;
     actions = const [];
     failure = null;
@@ -193,7 +197,13 @@ class NoteUndoController extends ChangeNotifier {
 
   Future<bool> undo(String id) async {
     final action = actions.where((a) => a.id == id).firstOrNull, ticket = _epoch;
-    if (action == null || !canUndo(action)) return false;
+    if (action == null ||
+        action.state != UndoNoteState.queued ||
+        _executing.contains(id) ||
+        _cancelling.contains(id) ||
+        (!canUndo(action) && !_cancelRetries.contains(id))) {
+      return false;
+    }
     _cancelling.add(id);
     _schedule();
     final ok = await _replace(
@@ -203,20 +213,31 @@ class NoteUndoController extends ChangeNotifier {
     );
     if (_valid(ticket)) {
       _cancelling.remove(id);
-      if (!ok) _blocked.add(id);
+      if (!ok) {
+        _blocked.add(id);
+        _cancelRetries.add(id);
+      } else {
+        _blocked.remove(id);
+        _cancelRetries.remove(id);
+      }
+      _emit();
       _schedule();
     }
     return ok;
   }
 
   Future<bool> discardFailed(String id) async {
+    final action = actions.where((a) => a.id == id).firstOrNull;
+    if (action != null && action.state == UndoNoteState.queued && canDiscard(action)) {
+      _cancelRetries.add(id);
+      return undo(id);
+    }
     final ok = await _replace(
-      (current) => current.any((a) => a.id == id && a.state == UndoNoteState.failed)
-          ? current.where((a) => a.id != id).toList()
-          : null,
+      (current) => current.any((a) => a.id == id && canDiscard(a)) ? current.where((a) => a.id != id).toList() : null,
     );
     if (ok) {
       _blocked.remove(id);
+      _cancelRetries.remove(id);
       if (!actions.any(retryable)) {
         failure = null;
         _emit();
@@ -228,6 +249,10 @@ class NoteUndoController extends ChangeNotifier {
   Future<void> retry(String id) async {
     final action = actions.where((a) => a.id == id).firstOrNull;
     if (action == null) return;
+    if (_cancelRetries.contains(id)) {
+      await undo(id);
+      return;
+    }
     _blocked.remove(id);
     failure = null;
     await _commit(action);
