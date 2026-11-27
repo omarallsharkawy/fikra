@@ -2162,10 +2162,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productResetPreviewCompleteSignInAgain => 'Reset preview complete. Sign in again.';
 
   @override
-  String get productLocalPrivateStateClearedServerRevocationIsNot =>
-      'Local private state cleared. Server revocation is not confirmed.';
-
-  @override
   String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount =>
       'Development acknowledgment only; no real delivery or account operation occurred.';
 
@@ -2696,9 +2692,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authNewAccount => 'New here? Create an account';
-
-  @override
-  String get apiGoogleUnavailable => 'Google sign-in is not configured yet.';
 
   @override
   String get apiSignOut => 'Sign out';

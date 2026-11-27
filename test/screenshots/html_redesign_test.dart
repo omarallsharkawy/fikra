@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:fikra/app/product_router.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/product/api/api_client.dart';
+import 'package:fikra/data/product/models.dart';
 import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -18,6 +19,14 @@ import '../support/html_reference_repository.dart';
 class CaptureAuth extends DevelopmentAuthRepository {
   @override
   bool get isDevelopment => false;
+  @override
+  Future<SessionGrant> login(String email, String password) async {
+    final grant = await super.login(email, password);
+    return SessionGrant(
+      Account(id: grant.account.id, email: 'alaa@example.com', emailVerified: true),
+      tokens: grant.tokens,
+    );
+  }
 }
 
 void main() {
@@ -58,7 +67,7 @@ void main() {
             await r.session.login('reader@example.invalid', 'fixture-only');
             await tester.pumpAndSettle();
             await tester.runAsync(() async {
-              await r.profile.setName('Alaa');
+              await r.profile.setName(lang == 'ar' ? 'علاء' : 'Alaa');
               final labels = (HtmlReferenceRepository.fixture['tags'] as Map)[lang] as Map;
               final tags = <String, String>{};
               for (final key in labels.keys) {

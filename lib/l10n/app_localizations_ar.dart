@@ -2233,10 +2233,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get productResetPreviewCompleteSignInAgain => 'اكتملت تجربة إعادة التعيين. سجّل دخول تاني.';
 
   @override
-  String get productLocalPrivateStateClearedServerRevocationIsNot =>
-      'تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.';
-
-  @override
   String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount =>
       'تأكيد تجريبي فقط؛ لم يتم إرسال بريد أو تنفيذ إجراء على حساب حقيقي.';
 
@@ -2768,9 +2764,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authNewAccount => 'أول مرة هنا؟ أنشئ حسابًا';
-
-  @override
-  String get apiGoogleUnavailable => 'تسجيل الدخول بجوجل غير مُعدّ بعد.';
 
   @override
   String get apiSignOut => 'تسجيل الخروج';

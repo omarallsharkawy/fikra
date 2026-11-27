@@ -3698,12 +3698,6 @@ abstract class AppLocalizations {
   /// **'اكتملت تجربة إعادة التعيين. سجّل دخول تاني.'**
   String get productResetPreviewCompleteSignInAgain;
 
-  /// No description provided for @productLocalPrivateStateClearedServerRevocationIsNot.
-  ///
-  /// In ar, this message translates to:
-  /// **'تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.'**
-  String get productLocalPrivateStateClearedServerRevocationIsNot;
-
   /// No description provided for @productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount.
   ///
   /// In ar, this message translates to:
@@ -4681,12 +4675,6 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'أول مرة هنا؟ أنشئ حسابًا'**
   String get authNewAccount;
-
-  /// No description provided for @apiGoogleUnavailable.
-  ///
-  /// In ar, this message translates to:
-  /// **'تسجيل الدخول بجوجل غير مُعدّ بعد.'**
-  String get apiGoogleUnavailable;
 
   /// No description provided for @apiSignOut.
   ///

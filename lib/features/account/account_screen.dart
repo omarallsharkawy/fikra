@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
-import '../../app/product_runtime.dart';
 import '../../l10n/localizations.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../core/widgets/redesign_widgets.dart';
@@ -16,6 +15,7 @@ import 'product_welcome.dart';
 import 'product_auth_layout.dart';
 import 'product_auth_feedback.dart';
 import 'redesign_auth_field.dart';
+import 'redesign_me_screen.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -47,7 +47,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
     listenTo: (r) => [r.session, r.profile],
     builder: (context, r) {
       final s = r.session, l = context.l10n;
-      if (s.stage == SessionStage.authenticated) return _SignedInMe(runtime: r);
+      if (s.stage == SessionStage.authenticated) return ProductMeScreen(runtime: r);
       final preview = s.repository.isDevelopment;
       final verifying = s.stage == SessionStage.awaitingVerification;
       final recovery = [
@@ -334,61 +334,6 @@ class _PasswordStrength extends StatelessWidget {
       ],
     );
   }
-}
-
-class _SignedInMe extends StatelessWidget {
-  const _SignedInMe({required this.runtime});
-  final ProductRuntime runtime;
-  @override
-  Widget build(BuildContext context) => ProductScaffold(
-    title: context.l10n.uiProfile,
-    trailing: IconButton(
-      tooltip: context.l10n.uiSettings,
-      onPressed: () => context.push('/settings'),
-      icon: const Icon(Icons.settings_outlined),
-    ),
-    children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          children: [
-            Container(
-              width: 84,
-              height: 84,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: context.rd.purple,
-                border: Border.all(color: context.rd.lime, width: 4),
-              ),
-              child: RdText(runtime.profile.initial, size: 28, color: Colors.white, weight: FontWeight.w600),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (runtime.profile.name != null) RdText(runtime.profile.name!, weight: FontWeight.w600),
-                  RdText(runtime.session.account!.email, direction: TextDirection.ltr),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 12),
-      Card(
-        child: ListTile(
-          title: Text(context.l10n.uiSettings),
-          leading: const Icon(Icons.settings_outlined),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => context.push('/settings'),
-        ),
-      ),
-      const SizedBox(height: 24),
-      RdButton(context.l10n.rdOut, danger: true, onPressed: runtime.session.signOut),
-    ],
-  );
 }
 
 class _ProductPreferences extends ConsumerWidget {

@@ -7,6 +7,8 @@ import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:fikra/features/account/session_controller.dart';
 import 'package:fikra/features/capture/local_documents.dart';
 import 'package:fikra/data/product/models.dart';
+import 'package:fikra/features/workspace/note_share.dart';
+import 'package:fikra/data/settings_repository.dart' show SettingsRepository;
 import 'package:fikra/data/product/local_ui_store.dart';
 import 'package:fikra/data/product/repositories.dart';
 import 'package:fikra/data/product/development/development_knowledge.dart';
@@ -48,6 +50,8 @@ Future<ProductRuntime> boot(
   KnowledgeRepository? knowledge,
   AuthRepository? auth,
   bool reducedMotion = true,
+  SettingsRepository? settings,
+  NoteSharing? sharing,
 }) async {
   await initializeDateFormatting();
   tester.platformDispatcher.accessibilityFeaturesTestValue = FakeAccessibilityFeatures(
@@ -66,10 +70,13 @@ Future<ProductRuntime> boot(
         if (api != null) productVaultProvider.overrideWithValue(MemorySessionVault()),
         if (api != null) productAttemptsProvider.overrideWithValue(MemoryAttemptStore()),
         if (auth != null) productAuthProvider.overrideWithValue(auth),
-        appThemeProvider.overrideWith((ref) => Stream.value(theme)),
-        appLanguageProvider.overrideWith(
-          (ref) => Stream.value(locale.languageCode == 'ar' ? AppLanguage.ar : AppLanguage.en),
-        ),
+        if (settings != null) settingsRepoProvider.overrideWithValue(settings),
+        if (sharing != null) noteSharingProvider.overrideWithValue(sharing),
+        if (settings == null) appThemeProvider.overrideWith((ref) => Stream.value(theme)),
+        if (settings == null)
+          appLanguageProvider.overrideWith(
+            (ref) => Stream.value(locale.languageCode == 'ar' ? AppLanguage.ar : AppLanguage.en),
+          ),
         productCaptureDeviceProvider.overrideWithValue(DeviceStub()),
         productDocumentsProvider.overrideWithValue(DocumentsStub()),
         if (api == null || knowledge != null)
