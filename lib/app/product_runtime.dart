@@ -8,6 +8,7 @@ import '../data/product/development/development_knowledge.dart';
 import '../data/product/repositories.dart';
 import '../data/product/local_ui_store.dart';
 import '../features/account/profile_controller.dart';
+import '../features/workspace/local_tags_controller.dart';
 import '../features/account/session_controller.dart';
 import '../features/workspace/workspace_controller.dart';
 import '../features/conversation/conversation_controller.dart';
@@ -93,7 +94,9 @@ class ProductRuntime {
     LocalUiStore? localUi,
   }) {
     session = SessionController(auth, vault);
-    profile = ProfileController(localUi ?? MemoryLocalUiStore());
+    final uiStore = localUi ?? MemoryLocalUiStore();
+    profile = ProfileController(uiStore);
+    tags = LocalTagsController(uiStore);
     workspace = WorkspaceController(repository, attempts, onUnauthorized: () => unawaited(session.expire()));
     chat = ConversationController(repository, onUnauthorized: () => unawaited(session.expire()));
     capture = CaptureController(
@@ -109,6 +112,7 @@ class ProductRuntime {
   final AttemptStore attempts;
   late final SessionController session;
   late final ProfileController profile;
+  late final LocalTagsController tags;
   late final WorkspaceController workspace;
   late final ConversationController chat;
   late final CaptureController capture;
@@ -124,6 +128,7 @@ class ProductRuntime {
     chat.reset();
     capture.setAccount(id);
     unawaited(profile.bind(id, session.account?.email ?? ''));
+    unawaited(tags.bind(id));
     if (old != null) {
       repository.clearAccount(old);
       unawaited(attempts.clear(old));
@@ -161,6 +166,7 @@ class ProductRuntime {
     workspace.removeListener(_projectChanged);
     session.dispose();
     profile.dispose();
+    tags.dispose();
     workspace.dispose();
     chat.dispose();
     capture.dispose();
