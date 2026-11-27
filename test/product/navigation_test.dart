@@ -2,9 +2,12 @@ import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/app/app.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/app/product_runtime.dart';
+import 'package:fikra/data/product/api/api_client.dart';
+import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:fikra/features/account/session_controller.dart';
 import 'package:fikra/features/capture/local_documents.dart';
 import 'package:fikra/data/product/models.dart';
+import 'package:fikra/data/product/repositories.dart';
 import 'package:fikra/data/product/development/development_knowledge.dart';
 import 'package:fikra/features/workspace/graph_screen.dart';
 import 'package:fikra/features/workspace/product_widgets.dart';
@@ -40,6 +43,8 @@ Future<ProductRuntime> boot(
   double scale = 1,
   Size size = const Size(430, 932),
   AppTheme theme = AppTheme.dark,
+  ApiClient? api,
+  KnowledgeRepository? knowledge,
 }) async {
   await initializeDateFormatting();
   tester.view.physicalSize = size;
@@ -49,16 +54,20 @@ Future<ProductRuntime> boot(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        appModeProvider.overrideWithValue(AppMode.development),
+        appModeProvider.overrideWithValue(api == null ? AppMode.development : AppMode.connected),
+        if (api != null) productApiClientProvider.overrideWithValue(api),
+        if (api != null) productVaultProvider.overrideWithValue(MemorySessionVault()),
+        if (api != null) productAttemptsProvider.overrideWithValue(MemoryAttemptStore()),
         appThemeProvider.overrideWith((ref) => Stream.value(theme)),
         appLanguageProvider.overrideWith(
           (ref) => Stream.value(locale.languageCode == 'ar' ? AppLanguage.ar : AppLanguage.en),
         ),
         productCaptureDeviceProvider.overrideWithValue(DeviceStub()),
         productDocumentsProvider.overrideWithValue(DocumentsStub()),
-        productKnowledgeProvider.overrideWithValue(
-          DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
-        ),
+        if (api == null)
+          productKnowledgeProvider.overrideWithValue(
+            knowledge ?? DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
+          ),
       ],
       child: const RepaintBoundary(key: ValueKey('product-capture'), child: FikraApp()),
     ),
@@ -133,6 +142,24 @@ void main() {
     await tapVisible(tester, find.byKey(ValueKey('product-note-${r.workspace.notes.single.id}')));
     expect(find.text('Saved content'), findsOneWidget);
     expect(find.byKey(const ValueKey('note-processing-state')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await cleanup(tester);
+  });
+  testWidgets('Arabic note headings keep RTL direction inside the English interface', (tester) async {
+    final r = await boot(tester);
+    await r.session.login('other@example.invalid', 'fixture-only');
+    await tester.pumpAndSettle();
+    r.workspace.updateDraft(title: 'فكرة عربية', content: 'A saved thought');
+    final saved = await r.workspace.save();
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byKey(ValueKey('product-note-${saved!.id}')));
+    expect(tester.widget<Text>(find.text('فكرة عربية')).textDirection, TextDirection.rtl);
+    expect(
+      tester
+          .widget<SelectableText>(find.byWidgetPredicate((w) => w is SelectableText && w.data == 'A saved thought'))
+          .textDirection,
+      TextDirection.ltr,
+    );
     expect(tester.takeException(), isNull);
     await cleanup(tester);
   });

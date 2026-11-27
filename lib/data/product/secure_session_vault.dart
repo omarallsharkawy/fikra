@@ -8,12 +8,12 @@ import 'repositories.dart';
 /// One protected record keeps the replacement pair together. Not used to
 /// manufacture credentials for development sessions.
 class SecureSessionVault implements SessionVault {
-  const SecureSessionVault({this.storage = const FlutterSecureStorage()});
+  const SecureSessionVault({this.storage = const FlutterSecureStorage(), this.key = 'fikrah_product_session'});
   final FlutterSecureStorage storage;
-  static const _key = 'fikrah_product_session';
+  final String key;
   @override
   Future<TokenPair?> read() async {
-    final raw = await storage.read(key: _key);
+    final raw = await storage.read(key: key);
     if (raw == null) return null;
     final json = jsonDecode(raw) as Map<String, dynamic>;
     return TokenPair(
@@ -25,7 +25,7 @@ class SecureSessionVault implements SessionVault {
 
   @override
   Future<void> replace(TokenPair tokens) => storage.write(
-    key: _key,
+    key: key,
     value: jsonEncode({
       'access': tokens.access,
       'refresh': tokens.refresh,
@@ -33,5 +33,5 @@ class SecureSessionVault implements SessionVault {
     }),
   );
   @override
-  Future<void> clear() => storage.delete(key: _key);
+  Future<void> clear() => storage.delete(key: key);
 }

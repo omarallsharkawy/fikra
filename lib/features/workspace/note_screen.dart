@@ -58,7 +58,11 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
           if (!w.detailLoading && (n == null || n.id != widget.id) && w.detailFailure == null)
             Text(context.l10n.productThisNoteIsUnavailableInTheSelectedProject),
           if (n != null && n.id == widget.id) ...[
-            Text(productTitle(context, n.title), style: context.text.title),
+            Text(
+              productTitle(context, n.title),
+              textDirection: productContentDirection(productTitle(context, n.title)),
+              style: context.text.title,
+            ),
             Text(productTimestamp(context, n.createdAt), style: context.text.meta),
             const SizedBox(height: 8),
             Text(processingText(context, n.processing), key: const ValueKey('note-processing-state')),

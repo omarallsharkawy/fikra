@@ -13,11 +13,35 @@ import '../features/capture/capture_controller.dart';
 import '../features/capture/native_capture_device.dart';
 import '../features/capture/local_documents.dart';
 import 'providers.dart';
+import 'app_config.dart' show apiOrigin;
+import '../data/product/api/api_client.dart';
+import '../data/product/api/api_auth.dart';
+import '../data/product/api/api_knowledge.dart';
+import '../data/product/secure_session_vault.dart';
+import '../data/product/secure_attempt_store.dart';
 
-final productAuthProvider = Provider<AuthRepository>((ref) => DevelopmentAuthRepository());
-final productKnowledgeProvider = Provider<KnowledgeRepository>((ref) => DevelopmentKnowledgeRepository());
-final productVaultProvider = Provider<SessionVault>((ref) => MemorySessionVault());
-final productAttemptsProvider = Provider<AttemptStore>((ref) => MemoryAttemptStore());
+final productApiOriginProvider = Provider<Uri>((ref) => Uri.parse(apiOrigin));
+final productApiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(productApiOriginProvider)));
+final productAuthProvider = Provider<AuthRepository>(
+  (ref) => ref.watch(appModeProvider) == AppMode.connected
+      ? ApiAuthRepository(ref.watch(productApiClientProvider))
+      : DevelopmentAuthRepository(),
+);
+final productKnowledgeProvider = Provider<KnowledgeRepository>(
+  (ref) => ref.watch(appModeProvider) == AppMode.connected
+      ? ApiKnowledgeRepository(ref.watch(productApiClientProvider))
+      : DevelopmentKnowledgeRepository(),
+);
+final productVaultProvider = Provider<SessionVault>(
+  (ref) => ref.watch(appModeProvider) == AppMode.connected
+      ? SecureSessionVault(key: 'fikrah_session:${ref.watch(productApiOriginProvider).origin}')
+      : MemorySessionVault(),
+);
+final productAttemptsProvider = Provider<AttemptStore>(
+  (ref) => ref.watch(appModeProvider) == AppMode.connected
+      ? SecureAttemptStore(namespace: ref.watch(productApiOriginProvider).origin)
+      : MemoryAttemptStore(),
+);
 final productCaptureDeviceProvider = Provider<CaptureDevice>(
   (ref) => NativeCaptureDevice(
     ref.read(audioRecorderFactoryProvider)(),
@@ -37,6 +61,13 @@ final productRuntimeProvider = Provider<ProductRuntime>((ref) {
     ref.watch(productCaptureDeviceProvider),
     documents: ref.watch(productDocumentsProvider),
   );
+  if (ref.watch(appModeProvider) == AppMode.connected) {
+    final api = ref.watch(productApiClientProvider);
+    api.session = runtime.session;
+    ref.onDispose(() {
+      if (identical(api.session, runtime.session)) api.session = null;
+    });
+  }
   ref.onDispose(runtime.dispose);
   unawaited(runtime.session.restore());
   return runtime;

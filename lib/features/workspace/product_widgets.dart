@@ -7,6 +7,7 @@ import 'dart:async';
 import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,35 +49,47 @@ class ProductView extends ConsumerWidget {
   }
 }
 
+/// UI disclosures follow the selected runtime, including protected root pages.
+class ProductEnvironment extends InheritedWidget {
+  const ProductEnvironment({super.key, required this.development, required super.child});
+  final bool development;
+  static bool previewOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ProductEnvironment>()?.development ?? true;
+  @override
+  bool updateShouldNotify(ProductEnvironment old) => development != old.development;
+}
+
 class DevelopmentBanner extends StatelessWidget {
   const DevelopmentBanner({super.key, this.details = const []});
   final List<String> details;
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: AlignmentDirectional.centerStart,
-    child: TextButton.icon(
-      key: const ValueKey('development-banner'),
-      style: TextButton.styleFrom(foregroundColor: context.colors.textSecondary),
-      icon: const Icon(Icons.info_outline, size: 18),
-      label: Text(context.l10n.uiPreviewNotice, style: context.text.meta),
-      onPressed: () => showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(context.l10n.uxPreviewInfo),
-          content: SingleChildScrollView(
-            child: Text(
-              [
-                context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend,
-                context.l10n.productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic,
-                ...details,
-              ].join('\n\n'),
+  Widget build(BuildContext context) => !ProductEnvironment.previewOf(context)
+      ? const SizedBox.shrink()
+      : Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const ValueKey('development-banner'),
+            style: TextButton.styleFrom(foregroundColor: context.colors.textSecondary),
+            icon: const Icon(Icons.info_outline, size: 18),
+            label: Text(context.l10n.uiPreviewNotice, style: context.text.meta),
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(context.l10n.uxPreviewInfo),
+                content: SingleChildScrollView(
+                  child: Text(
+                    [
+                      context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend,
+                      context.l10n.productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic,
+                      ...details,
+                    ].join('\n\n'),
+                  ),
+                ),
+                actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productBack))],
+              ),
             ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productBack))],
-        ),
-      ),
-    ),
-  );
+        );
 }
 
 class ProductFailureView extends StatelessWidget {
@@ -86,10 +99,13 @@ class ProductFailureView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = switch (failure.kind) {
-      FailureKind.validation =>
-        failure.field == 'microphone'
-            ? context.l10n.productMicrophonePermissionIsRequiredEnableItInDevice
-            : context.l10n.productCheckTheInputYourDraftHasBeenKept,
+      FailureKind.validation => switch (failure.field) {
+        'microphone' => context.l10n.productMicrophonePermissionIsRequiredEnableItInDevice,
+        'code' => context.l10n.apiInvalidCode,
+        'password' || 'new_password' => context.l10n.apiPasswordHint,
+        'email' => context.l10n.apiInvalidEmail,
+        _ => context.l10n.productCheckTheInputYourDraftHasBeenKept,
+      },
       FailureKind.unauthorized => context.l10n.productSignInAgainOrCheckYourCredentials,
       FailureKind.unverified => context.l10n.productVerifyYourEmailBeforeSigningIn,
       FailureKind.notFound => context.l10n.productThisItemIsNoLongerAvailableReloadThe,
@@ -241,6 +257,7 @@ class ProductTextInput extends StatefulWidget {
     this.textInputAction,
     this.autofillHints,
     this.textDirection,
+    this.inputFormatters,
   });
   final String value, label;
   final ValueChanged<String> onChanged;
@@ -253,6 +270,7 @@ class ProductTextInput extends StatefulWidget {
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
   final TextDirection? textDirection;
+  final List<TextInputFormatter>? inputFormatters;
   @override
   State<ProductTextInput> createState() => _ProductTextInputState();
 }
@@ -283,13 +301,21 @@ class _ProductTextInputState extends State<ProductTextInput> {
     child: TextField(
       controller: _controller,
       enabled: widget.enabled,
-      onChanged: widget.onChanged,
+      onChanged: (value) {
+        widget.onChanged(value);
+        // Editing state can live outside a notifier (for example note edits).
+        // Rebuild direction from the live controller without moving the caret.
+        if (widget.textDirection == null) setState(() {});
+      },
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
       textInputAction:
           widget.textInputAction ?? (widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null),
       autofillHints: widget.autofillHints,
-      textDirection: widget.textDirection,
+      inputFormatters: widget.inputFormatters,
+      textDirection:
+          widget.textDirection ??
+          (_controller.text.isEmpty ? Directionality.of(context) : productContentDirection(_controller.text)),
       obscureText: widget.obscure && !_revealed,
       enableSuggestions: !widget.obscure,
       autocorrect: !widget.obscure,

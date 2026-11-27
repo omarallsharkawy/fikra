@@ -1,8 +1,10 @@
 # lib/app
 
+Current runtime: default `connected` uses the product UI and native API repositories with protected session/attempt storage. `development` explicitly uses fixtures and `demo` retains legacy local processing. See [mobile API integration](../../docs/features/mobile-api-integration/connection-and-contracts.md). The historical architecture notes below describe the preserved legacy implementation; earlier statements that connected mode is unavailable are superseded by this runtime.
+
 ## Backend-aligned default composition
 
-The default `development` mode now uses `data/product`, `product_runtime.dart`, `product_router.dart` and account/workspace/conversation/capture controllers. See `docs/features/backend-aligned-journeys/implementation.md` for boundaries, fixtures and validation. The existing local-first implementation documented below is preserved under explicit `FIKRA_MODE=demo`; it is not the default production-client contract. Connected mode remains unavailable.
+Connected and development modes use `data/product`, `product_runtime.dart`, `product_router.dart` and account/workspace/conversation/capture controllers. Native HTTP repositories and secure records are selected only in connected mode; development selects volatile fixtures. The existing local-first implementation below is preserved under explicit `FIKRA_MODE=demo` and its maintenance is not run in product modes.
 
 ## Overview
 
@@ -16,16 +18,14 @@ here as route targets; the local transcription adapter is also wired here behind
 
 ### `app_config.dart`: build mode
 
-- `enum AppMode { demo, connected }`
-- `final AppMode appMode`: parsed from `--dart-define=FIKRA_MODE`, default `demo`.
-- `bool get isDemo`: true when `appMode == AppMode.demo`. Drives the demo labels
-  in the UI.
+- `enum AppMode { development, demo, connected }`
+- `final AppMode appMode`: parsed from `--dart-define=FIKRA_MODE`, default `connected`.
+- `apiOrigin`: supplied HTTPS origin, overridable through `FIKRA_API_URL`.
+- Preview badges follow `appModeProvider`, including explicit test overrides. The compatibility `isDemo` getter describes the build-time mode only.
 
 ### `app.dart`: root widget
 
-- `class FikraApp extends ConsumerWidget`: builds `MaterialApp.router` with
-  `routerProvider`, the light and dark themes from `buildFikraTheme`, and the
-  saved theme mode and language. Watches `startupMaintenanceProvider`.
+- `class FikraApp extends ConsumerWidget`: uses `productRouterProvider` and product themes for connected/development, or the preserved `routerProvider`/legacy themes for demo. Appearance and language are saved preferences. Watches `startupMaintenanceProvider` only in demo; product modes use `ProductBoundary` and mode-aware preview disclosure.
 
 ### `providers.dart`: dependency wiring
 
@@ -100,12 +100,8 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 
 ### Build mode
 
-- `FIKRA_MODE` accepts only `demo` or `connected`. Any other value makes
-  `_parse` throw `ArgumentError` on the first read of `appMode`.
-- `connected` must not run on demo services. `lib/main.dart` throws
-  `UnsupportedError` before `runApp`, and `aiServiceProvider` throws
-  `UnimplementedError` in that mode. Wiring a real backend has to change both
-  (see `docs/backend-integration.md`).
+- `FIKRA_MODE` accepts only `development`, `demo` or `connected`; unknown values fail configuration parsing.
+- Connected product repositories never fall back to fixtures. `main.dart` starts the configured app; product routes own backend capabilities. The old `aiServiceProvider` remains unavailable in connected mode because that service belongs to the preserved legacy pipeline and must not run there.
 
 ### Providers
 

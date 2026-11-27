@@ -4681,6 +4681,162 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'أول مرة هنا؟ أنشئ حسابًا'**
   String get authNewAccount;
+
+  /// No description provided for @apiGoogleUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول بجوجل غير مُعدّ بعد.'**
+  String get apiGoogleUnavailable;
+
+  /// No description provided for @apiSignOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الخروج'**
+  String get apiSignOut;
+
+  /// No description provided for @apiSixDigitCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'كود من ٦ أرقام'**
+  String get apiSixDigitCode;
+
+  /// No description provided for @apiNewPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الجديدة'**
+  String get apiNewPassword;
+
+  /// No description provided for @apiPasswordHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدم من ٥ إلى ١٢٨ حرفًا.'**
+  String get apiPasswordHint;
+
+  /// No description provided for @apiVerifyEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد البريد الإلكتروني'**
+  String get apiVerifyEmail;
+
+  /// No description provided for @apiResendCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة إرسال الكود'**
+  String get apiResendCode;
+
+  /// No description provided for @apiHaveCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'معايا الكود'**
+  String get apiHaveCode;
+
+  /// No description provided for @apiVerifyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب كود تأكيد البريد المكوّن من ٦ أرقام.'**
+  String get apiVerifyHint;
+
+  /// No description provided for @apiResetHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب كود الاستعادة المكوّن من ٦ أرقام وكلمة مرور جديدة.'**
+  String get apiResetHint;
+
+  /// No description provided for @apiRecoveryAcknowledgment.
+  ///
+  /// In ar, this message translates to:
+  /// **'لو الحساب مؤهل للاستعادة، راجع بريدك للحصول على كود من ٦ أرقام.'**
+  String get apiRecoveryAcknowledgment;
+
+  /// No description provided for @apiCodeAcknowledgment.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم استلام الطلب. راجع بريدك للحصول على كود من ٦ أرقام إذا كان الحساب مؤهلًا.'**
+  String get apiCodeAcknowledgment;
+
+  /// No description provided for @apiVerified.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد البريد. تقدر تسجّل الدخول دلوقتي.'**
+  String get apiVerified;
+
+  /// No description provided for @apiResetComplete.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تغيير كلمة المرور. سجّل الدخول بالكلمة الجديدة.'**
+  String get apiResetComplete;
+
+  /// No description provided for @apiSignedOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تسجيل الخروج.'**
+  String get apiSignedOut;
+
+  /// No description provided for @apiTranscribe.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحويل التسجيل لنص'**
+  String get apiTranscribe;
+
+  /// No description provided for @apiInvalidCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكود غير صحيح أو لم يعد صالحًا. راجعه أو اطلب كودًا جديدًا.'**
+  String get apiInvalidCode;
+
+  /// No description provided for @apiInvalidEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع عنوان البريد الإلكتروني.'**
+  String get apiInvalidEmail;
+
+  /// No description provided for @authConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر الاتصال. راجع اتصال الإنترنت وحاول مرة أخرى.'**
+  String get authConnectionError;
+
+  /// No description provided for @authTimeoutError.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخادم استغرق وقتًا طويلًا للرد. حاول بعد قليل.'**
+  String get authTimeoutError;
+
+  /// No description provided for @authSecureConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إنشاء اتصال آمن. راجع اتصالك وتاريخ الجهاز.'**
+  String get authSecureConnectionError;
+
+  /// No description provided for @authServiceError.
+  ///
+  /// In ar, this message translates to:
+  /// **'خدمة الحسابات غير متاحة مؤقتًا. حاول بعد قليل.'**
+  String get authServiceError;
+
+  /// No description provided for @authResponseError.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصل رد غير متوقع من الخادم. حاول لاحقًا.'**
+  String get authResponseError;
+
+  /// No description provided for @authCredentialsError.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني أو كلمة المرور غير صحيحة. راجع بياناتك وحاول مرة أخرى.'**
+  String get authCredentialsError;
+
+  /// No description provided for @authRequestError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إكمال الطلب. حاول مرة أخرى.'**
+  String get authRequestError;
+
+  /// No description provided for @authCheckDetails.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع البيانات وحاول مرة أخرى.'**
+  String get authCheckDetails;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

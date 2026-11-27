@@ -161,7 +161,8 @@ class SettingsScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
+                      if (ref.watch(appModeProvider) != AppMode.connected)
+                        FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
                     ],
                   ),
                 ),

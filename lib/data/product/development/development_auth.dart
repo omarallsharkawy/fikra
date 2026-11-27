@@ -7,13 +7,13 @@ class DevelopmentAuthRepository implements AuthRepository {
   @override
   bool get isDevelopment => true;
   @override
-  Future<SessionGrant?> restore() async => null;
+  Future<Account> currentAccount(TokenPair tokens) async => throw const ProductFailure(FailureKind.unavailable);
   @override
   Future<void> register(String email, String password) async {}
   @override
   Future<void> resendVerification(String email) async {}
   @override
-  Future<void> verifyEmail(String token) async {
+  Future<void> verifyEmail(String token, {required String email}) async {
     if (token != 'fixture-verify') throw const ProductFailure(FailureKind.validation, field: 'token');
   }
 
@@ -35,7 +35,7 @@ class DevelopmentAuthRepository implements AuthRepository {
   @override
   Future<void> requestRecovery(String email) async {}
   @override
-  Future<void> confirmRecovery(String token, String password) async {
+  Future<void> confirmRecovery(String token, String password, {required String email}) async {
     if (token != 'fixture-reset') throw const ProductFailure(FailureKind.validation, field: 'token');
   }
 

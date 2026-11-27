@@ -62,29 +62,29 @@ class ProductAuthLayout extends StatelessWidget {
                       ],
                     ),
                     if (!welcome) ...[
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                       Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: Container(
-                          width: 56,
-                          height: 56,
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
                             color: context.colors.brandPurple.withValues(alpha: .15),
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: ExcludeSemantics(child: Icon(icon, color: context.colors.brandPurpleFg, size: 28)),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       Semantics(
                         header: true,
-                        child: Text(title, style: context.text.title.copyWith(fontSize: 30, height: 1.2)),
+                        child: Text(title, style: context.text.title.copyWith(fontSize: 28, height: 1.2)),
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 10),
                         Text(subtitle!, style: context.text.body.copyWith(color: context.colors.textSecondary)),
                       ],
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                     ] else
                       const SizedBox(height: 24),
                     ...children,

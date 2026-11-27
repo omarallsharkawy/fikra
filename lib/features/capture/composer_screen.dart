@@ -20,6 +20,7 @@ class ProductComposerScreen extends StatelessWidget {
       final w = r.workspace, capture = r.capture;
       final locked = w.busy || w.pendingAttempt != null;
       return ProductScaffold(
+        key: ObjectKey(w.draft),
         title: context.l10n.uiNewIdea,
         subtitle: r.workspace.projects.any((p) => !p.isGeneral)
             ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
@@ -44,7 +45,10 @@ class ProductComposerScreen extends StatelessWidget {
               ? null
               : () async {
                   final saved = await w.save();
-                  if (saved != null && context.mounted) context.go('/notes');
+                  if (saved != null) {
+                    capture.clearAfterSave();
+                    if (context.mounted) context.go('/notes');
+                  }
                 },
         ),
         children: [
@@ -131,7 +135,9 @@ class ProductComposerScreen extends StatelessWidget {
             const SizedBox(height: 12),
             FikraButton.secondary(
               key: const ValueKey('transcribe-product-voice'),
-              label: context.l10n.productPreviewTranscription,
+              label: r.session.repository.isDevelopment
+                  ? context.l10n.productPreviewTranscription
+                  : context.l10n.apiTranscribe,
               onPressed: capture.coolingDown ? null : capture.transcribe,
             ),
           ],

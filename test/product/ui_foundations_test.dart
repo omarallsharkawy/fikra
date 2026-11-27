@@ -68,6 +68,35 @@ void main() {
       expect(find.byKey(const ValueKey('nav-0')), findsNothing);
     });
   }
+  for (final locale in [const Locale('en'), const Locale('ar')]) {
+    testWidgets('editing direction follows live content and explicit direction stays fixed ($locale)', (tester) async {
+      Widget host({TextDirection? direction}) => MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: buildProductTheme(Brightness.dark),
+        home: Scaffold(
+          body: ProductTextInput(value: '', onChanged: (_) {}, label: 'Content', textDirection: direction),
+        ),
+      );
+      await tester.pumpWidget(host());
+      await tester.enterText(find.byType(TextField), 'فكرة عربية');
+      await tester.pump();
+      var field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.textDirection, TextDirection.rtl);
+      expect(field.controller!.selection.baseOffset, 'فكرة عربية'.length);
+      await tester.enterText(find.byType(TextField), 'English thought');
+      await tester.pump();
+      field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.textDirection, TextDirection.ltr);
+      expect(field.controller!.text, 'English thought');
+      await tester.pumpWidget(host(direction: TextDirection.ltr));
+      await tester.enterText(find.byType(TextField), 'نص');
+      await tester.pump();
+      expect(tester.widget<TextField>(find.byType(TextField)).textDirection, TextDirection.ltr);
+      expect(tester.takeException(), isNull);
+    });
+  }
   testWidgets('password visibility preserves entered value and controller updates', (tester) async {
     var password = 'fixture-only';
     await tester.pumpWidget(

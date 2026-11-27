@@ -160,7 +160,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                     onTap: _clear,
                   ),
           ),
-          if (isDemo)
+          if (ref.watch(appModeProvider) != AppMode.connected)
             Padding(
               padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
               child: Align(
