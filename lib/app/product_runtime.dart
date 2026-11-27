@@ -98,7 +98,12 @@ class ProductRuntime {
     final uiStore = localUi ?? MemoryLocalUiStore();
     profile = ProfileController(uiStore);
     tags = LocalTagsController(uiStore);
-    workspace = WorkspaceController(repository, attempts, onUnauthorized: () => unawaited(session.expire()));
+    workspace = WorkspaceController(
+      repository,
+      attempts,
+      localUi: uiStore,
+      onUnauthorized: () => unawaited(session.expire()),
+    );
     undo = NoteUndoController(
       repository,
       uiStore,
@@ -153,6 +158,7 @@ class ProductRuntime {
     final project = workspace.selectedProjectId;
     if (project == _project) return;
     _project = project;
+    capture.setProject(project);
     if (project == null || _account == null) {
       chat.reset();
     } else {
@@ -162,6 +168,7 @@ class ProductRuntime {
 
   void foreground(bool value) {
     workspace.setForeground(value);
+    if (!value) unawaited(workspace.flushDraft());
     if (value) unawaited(undo.flushDue());
     if (!value) {
       capture.background();

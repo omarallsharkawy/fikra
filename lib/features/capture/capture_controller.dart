@@ -28,7 +28,7 @@ class CaptureController extends ChangeNotifier {
   final KnowledgeRepository repository;
   final DateTime Function() clock;
   static const maximum = Duration(seconds: 60);
-  String? accountId;
+  String? accountId, projectId;
   CaptureState state = CaptureState.idle;
   Duration elapsed = Duration.zero;
   RecordedClip? clip;
@@ -49,7 +49,22 @@ class CaptureController extends ChangeNotifier {
       state == CaptureState.recording ||
       state == CaptureState.stopping ||
       state == CaptureState.transcribing;
-  void setAccount(String? id) => _reset(id, clearDocuments: true);
+  void setAccount(String? id) {
+    projectId = null;
+    _reset(id, clearDocuments: true);
+  }
+
+  void setProject(String? id) {
+    if (projectId == id) return;
+    projectId = id;
+    _reset(accountId, clearDocuments: false);
+  }
+
+  /// Closing Capture stops the microphone without consuming the text draft.
+  Future<void> close() async {
+    _reset(accountId, clearDocuments: false);
+    await _cleanup;
+  }
 
   void _reset(String? id, {required bool clearDocuments}) {
     if (id != accountId) {
