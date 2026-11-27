@@ -159,17 +159,10 @@ class ProductComposerScreen extends StatelessWidget {
           ],
           if (capture.clip != null || capture.active)
             TextButton(onPressed: capture.cancel, child: Text(context.l10n.productDiscardRecording)),
-          const SizedBox(height: 12),
-          ExpansionTile(
-            title: Text(context.l10n.uxCaptureDetails, style: context.text.caption),
-            childrenPadding: const EdgeInsets.only(bottom: 12),
-            children: [
-              Text(context.l10n.productAutomaticStopAt60SecondsTranscriptionDoesNot),
-              Text(context.l10n.productPDFsStayOnThisDeviceTheyAreNot),
-              Text(context.l10n.productSavingAndProcessingAreSeparateAMissingTitle),
-            ],
-          ),
-          if (capture.localPdfs.isNotEmpty) Text(context.l10n.productLocalPDFs, style: context.text.section),
+          if (capture.localPdfs.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(context.l10n.productLocalPDFs, style: context.text.section),
+          ],
           for (final pdf in capture.localPdfs)
             ListTile(title: Text(pdf.name), trailing: const Icon(Icons.open_in_new), onTap: () => capture.openPdf(pdf)),
           const SizedBox(height: 24),

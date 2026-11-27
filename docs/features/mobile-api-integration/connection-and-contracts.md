@@ -64,3 +64,5 @@ Note headings and editable text follow the content script independently of inter
 ### Voice review after a confirmed save
 
 A confirmed note save consumes the current audio clip and transcript review, resets the next composer view and scroll position, and queues native temporary-audio cleanup before another recording may start. Separate local PDFs remain accessible. Failed or uncertain saves retain the draft, audio clip, transcript, and original creation attempt for deliberate reconciliation; no additional note or transcription is submitted automatically. Late transcription results cannot repopulate a completed composer session. Leaving an unsaved composer does not discard its draft.
+
+At the owner's request, the composer no longer displays the expandable “About voice and files” section or its explanatory paragraphs. The compact capture hint, explicit save, voice controls, and separate local PDF actions remain available. No recording, upload, or persistence contract changes accompany this layout simplification.

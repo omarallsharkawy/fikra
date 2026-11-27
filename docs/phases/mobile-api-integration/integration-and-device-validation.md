@@ -38,6 +38,8 @@ Debug/profile diagnostics contain only fixed authentication route names and stat
 
 The owner found that a saved voice note left its audio/transcript review visible when opening the next idea. The save handler now clears capture state only after the workspace confirms a saved result, and a new draft gets a fresh composer scroll/view state. Native cleanup is serialized before the next recording; late voice results are ignored. Uncertain/failed saves preserve all review input and the stable creation key. Separate local documents are retained. Regression tests cover both English/Arabic success and lost-response reconciliation, a new blank composer, late transcription, and account-boundary document cleanup.
 
+The first reported retest still used the older authentication APK, confirmed by comparing its installed SHA-256 with the voice-fix artifact. After the owner installed `FIKRAH-voice-save-9b1bb44.apk`, the installed package matched the fix artifact. The new app process restored the existing session and received HTTP 200 from `/v1/auth/me`; the new-idea screen showed an empty draft with no transcript review. A fresh recording/save/reopen cycle on that build remains pending owner confirmation. No app data was cleared. The owner subsequently requested removal of the expandable “About voice and files” explanation, which is now omitted while retaining capture actions and the compact hint.
+
 ## Automated verification
 
 The final full regression run passed **172 tests** with one opt-in live smoke test skipped by default. Static analysis reported no issues.

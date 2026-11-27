@@ -18,6 +18,13 @@ void main() {
         await r.session.login('other@example.invalid', 'fixture-only');
         await tester.pumpAndSettle();
         await tapVisible(tester, find.byKey(const ValueKey('nav-add')));
+        final l10n = tester.element(find.byKey(const ValueKey('save-product-note'))).l10n;
+        expect(find.text(l10n.uxCaptureDetails), findsNothing);
+        expect(find.text(l10n.productAutomaticStopAt60SecondsTranscriptionDoesNot), findsNothing);
+        expect(find.text(l10n.productPDFsStayOnThisDeviceTheyAreNot), findsNothing);
+        expect(find.text(l10n.productSavingAndProcessingAreSeparateAMissingTitle), findsNothing);
+        expect(find.byKey(const ValueKey('record-product-voice')), findsOneWidget);
+        expect(find.text(l10n.uxLocalPdf), findsOneWidget);
         final field = find.descendant(
           of: find.byKey(ValueKey('capture-content-${r.workspace.selectedProjectId}')),
           matching: find.byType(TextField),
