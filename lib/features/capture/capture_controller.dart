@@ -49,7 +49,9 @@ class CaptureController extends ChangeNotifier {
       state == CaptureState.recording ||
       state == CaptureState.stopping ||
       state == CaptureState.transcribing;
-  void setAccount(String? id) {
+  void setAccount(String? id) => _reset(id, clearDocuments: true);
+
+  void _reset(String? id, {required bool clearDocuments}) {
     if (id != accountId) {
       _retryWake?.cancel();
       retryAt = null;
@@ -57,7 +59,7 @@ class CaptureController extends ChangeNotifier {
     _epoch++;
     _timersOff();
     _cleanup = _cleanup.then((_) => device.cancel()).catchError((_) {});
-    localPdfs = const [];
+    if (clearDocuments) localPdfs = const [];
     pickingPdf = false;
     accountId = id;
     clip = null;
@@ -138,6 +140,12 @@ class CaptureController extends ChangeNotifier {
     final account = accountId;
     setAccount(account);
     await _cleanup;
+  }
+
+  /// A confirmed save consumes the voice review for this composer session.
+  /// Local documents are independent of the saved text and remain accessible.
+  void clearAfterSave() {
+    _reset(accountId, clearDocuments: false);
   }
 
   Future<void> transcribe() async {

@@ -7,6 +7,7 @@ import 'package:fikra/data/product/development/development_auth.dart';
 import 'package:fikra/features/account/session_controller.dart';
 import 'package:fikra/features/capture/local_documents.dart';
 import 'package:fikra/data/product/models.dart';
+import 'package:fikra/data/product/repositories.dart';
 import 'package:fikra/data/product/development/development_knowledge.dart';
 import 'package:fikra/features/workspace/graph_screen.dart';
 import 'package:fikra/features/workspace/product_widgets.dart';
@@ -43,6 +44,7 @@ Future<ProductRuntime> boot(
   Size size = const Size(430, 932),
   AppTheme theme = AppTheme.dark,
   ApiClient? api,
+  KnowledgeRepository? knowledge,
 }) async {
   await initializeDateFormatting();
   tester.view.physicalSize = size;
@@ -64,7 +66,7 @@ Future<ProductRuntime> boot(
         productDocumentsProvider.overrideWithValue(DocumentsStub()),
         if (api == null)
           productKnowledgeProvider.overrideWithValue(
-            DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
+            knowledge ?? DevelopmentKnowledgeRepository(stepDelay: const Duration(milliseconds: 10)),
           ),
       ],
       child: const RepaintBoundary(key: ValueKey('product-capture'), child: FikraApp()),

@@ -24,7 +24,7 @@ The owner initially tried credentials from the pre-API development preview. Thos
 | Account lookup, `/v1/auth/me` | 200 |
 | Owner-created note | Saved content and completed backend processing visible in the actual detail screen |
 
-The agent did not request or read the owner's password or OTP, create an account on their behalf, or publish their account/note contents. The original preview workspace remains separate. The repaired authentication APK was installed manually after Android refused USB installation; its copied checksum matched the built artifact. No app data was cleared.
+The owner also exercised real voice transcription and reported the stale voice-review UI described below. The agent did not request or read the owner's password or OTP, create an account on their behalf, or publish their account/note contents. The original preview workspace remains separate. The repaired authentication APK was installed manually after Android refused USB installation; its copied checksum matched the built artifact. No app data was cleared.
 
 The earlier recovery request received a generic 202 while the owner was using preview credentials, and no recovery email arrived. This does not establish a mail-delivery defect for an eligible real account. Live password-reset confirmation has not been exercised; conditional backend checks remain documented in `docs/features/mobile-api-integration/backend-authentication-triage.md`.
 
@@ -34,12 +34,16 @@ Some device requests failed at the connection stage after approximately 15 secon
 
 Debug/profile diagnostics contain only fixed authentication route names and status/category values. Bodies, headers, account addresses, token values, codes, passwords, and exception text are excluded. Release builds do not emit these diagnostics. Temporary socket-metadata profiling was used without HTTP-body profiling, then its debugging connection was removed.
 
+## Voice-review regression
+
+The owner found that a saved voice note left its audio/transcript review visible when opening the next idea. The save handler now clears capture state only after the workspace confirms a saved result, and a new draft gets a fresh composer scroll/view state. Native cleanup is serialized before the next recording; late voice results are ignored. Uncertain/failed saves preserve all review input and the stable creation key. Separate local documents are retained. Regression tests cover both English/Arabic success and lost-response reconciliation, a new blank composer, late transcription, and account-boundary document cleanup.
+
 ## Automated verification
 
-The final full regression run passed **167 tests** with one opt-in live smoke test skipped by default. Static analysis reported no issues.
+The final full regression run passed **172 tests** with one opt-in live smoke test skipped by default. Static analysis reported no issues.
 
 The product regression suite covers connected English/Arabic journeys at 360dp and 1x/2x text, account errors and keyboard behavior, RTL headings/live editing, exact password preservation, secure session restoration/rotation, account isolation, idempotent creation attempts, note polling/refinement, multipart upload, graph/search, and SSE finality/cancellation. Test accounts and HTTP responses are synthetic; actual native loopback tests exercise transport bytes and redirect refusal.
 
 The opt-in read-only live smoke test separately passed HTTPS certificate validation, health/readiness, deployed six-digit/five-character schema constraints, and the unauthenticated account route's 401. It creates no account, sends no email, and performs no AI operation. The owner performed the real account/note validation above.
 
-Native Google sign-in still needs approved platform configuration. Live chat, transcription, password-reset confirmation, and restoration after killing the phone process remain outside the manually verified results. Automated tests cover these adapters and session/storage behavior where applicable. Backend source/deployment, platform identifiers, legacy data, local AGENTS.md, and the owner's unrelated documentation moves are excluded from this change.
+Native Google sign-in still needs approved platform configuration. Live chat, password-reset confirmation, and restoration after killing the phone process remain outside the manually verified results. Automated tests cover these adapters and session/storage behavior where applicable. Backend source/deployment, platform identifiers, legacy data, local AGENTS.md, and the owner's unrelated documentation moves are excluded from this change.

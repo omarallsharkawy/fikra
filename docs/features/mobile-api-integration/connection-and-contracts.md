@@ -45,7 +45,7 @@ Repositories implement project listing/create/rename/delete; note listing/read/c
 
 ## Remaining coordination
 
-The account owner completed real registration, six-digit email verification, login, and account lookup on the physical Android device. The note detail screen also showed a saved note with completed backend processing. Automated tests use synthetic accounts and injected HTTP responses plus a real loopback transport; a separate read-only live smoke check covers TLS, readiness, schema and unauthenticated protection. Live password-reset confirmation, streamed chat, transcription, and session restoration after process death have not been verified manually. Native Google client IDs/configuration were not supplied, so Android/iOS Google sign-in remains unavailable. Do not create unsolicited real accounts, bypass email verification, infer platform IDs or change backend requirements.
+The account owner completed real registration, six-digit email verification, login, and account lookup on the physical Android device. The note detail screen also showed a saved note with completed backend processing. Automated tests use synthetic accounts and injected HTTP responses plus a real loopback transport; a separate read-only live smoke check covers TLS, readiness, schema and unauthenticated protection. The owner also exercised voice transcription in the connected composer. Live password-reset confirmation, streamed chat, and session restoration after process death have not been verified manually. Native Google client IDs/configuration were not supplied, so Android/iOS Google sign-in remains unavailable. Do not create unsolicited real accounts, bypass email verification, infer platform IDs or change backend requirements.
 
 The deployment does not expose profile editing, stars/streak/achievements or flexible category contracts. Those previously discussed features still need explicit backend contracts. No fake connected results are substituted.
 
@@ -59,3 +59,8 @@ The real-device 401 and missing OTP recovery email follow-up is recorded in [bac
 ### Writing direction
 
 Note headings and editable text follow the content script independently of interface language. Live editing recalculates the text direction without replacing the controller or moving the caret. Explicit direction for account emails, passwords, and six-digit codes remains LTR. English remains the default interface language; Inter and the existing Arabic font are retained.
+
+
+### Voice review after a confirmed save
+
+A confirmed note save consumes the current audio clip and transcript review, resets the next composer view and scroll position, and queues native temporary-audio cleanup before another recording may start. Separate local PDFs remain accessible. Failed or uncertain saves retain the draft, audio clip, transcript, and original creation attempt for deliberate reconciliation; no additional note or transcription is submitted automatically. Late transcription results cannot repopulate a completed composer session. Leaving an unsaved composer does not discard its draft.
