@@ -301,14 +301,21 @@ class _ProductTextInputState extends State<ProductTextInput> {
     child: TextField(
       controller: _controller,
       enabled: widget.enabled,
-      onChanged: widget.onChanged,
+      onChanged: (value) {
+        widget.onChanged(value);
+        // Editing state can live outside a notifier (for example note edits).
+        // Rebuild direction from the live controller without moving the caret.
+        if (widget.textDirection == null) setState(() {});
+      },
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
       textInputAction:
           widget.textInputAction ?? (widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null),
       autofillHints: widget.autofillHints,
       inputFormatters: widget.inputFormatters,
-      textDirection: widget.textDirection,
+      textDirection:
+          widget.textDirection ??
+          (_controller.text.isEmpty ? Directionality.of(context) : productContentDirection(_controller.text)),
       obscureText: widget.obscure && !_revealed,
       enableSuggestions: !widget.obscure,
       autocorrect: !widget.obscure,

@@ -143,6 +143,24 @@ void main() {
     expect(tester.takeException(), isNull);
     await cleanup(tester);
   });
+  testWidgets('Arabic note headings keep RTL direction inside the English interface', (tester) async {
+    final r = await boot(tester);
+    await r.session.login('other@example.invalid', 'fixture-only');
+    await tester.pumpAndSettle();
+    r.workspace.updateDraft(title: 'فكرة عربية', content: 'A saved thought');
+    final saved = await r.workspace.save();
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byKey(ValueKey('product-note-${saved!.id}')));
+    expect(tester.widget<Text>(find.text('فكرة عربية')).textDirection, TextDirection.rtl);
+    expect(
+      tester
+          .widget<SelectableText>(find.byWidgetPredicate((w) => w is SelectableText && w.data == 'A saved thought'))
+          .textDirection,
+      TextDirection.ltr,
+    );
+    expect(tester.takeException(), isNull);
+    await cleanup(tester);
+  });
   testWidgets('navigation exposes note graph and conversation history without legacy actions', (tester) async {
     final r = await boot(tester);
     await r.session.login('reader@example.invalid', 'fixture-only');
