@@ -48,6 +48,7 @@ class _ProductAuthFeedbackState extends State<ProductAuthFeedback> {
         FailureKind.uncertain => l.authRequestError,
         FailureKind.validation => switch (failure.field) {
           'email' => l.apiInvalidEmail,
+          'name' => l.rdNameInvalid,
           'password' || 'new_password' => l.apiPasswordHint,
           'code' => l.apiInvalidCode,
           _ => l.authCheckDetails,

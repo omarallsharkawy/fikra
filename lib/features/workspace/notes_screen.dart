@@ -99,7 +99,11 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
         if (r.profile.failure != null)
           ProductFailureView(
             r.profile.failure!,
-            onRetry: () => r.profile.bind(r.session.account?.id, r.session.account?.email ?? ''),
+            onRetry: () => r.profile.bind(
+              r.session.account?.id,
+              r.session.account?.email ?? '',
+              serverName: r.session.account?.name,
+            ),
           ),
         if (w.failure != null) ProductFailureView(w.failure!, onRetry: w.retryWorkspace),
         if (w.loading)

@@ -13,8 +13,12 @@ class ApiAuthRepository implements AuthRepository {
   Future<Account> currentAccount(TokenPair tokens) async =>
       accountFromJson(await api.request('GET', '/v1/auth/me', accessToken: tokens.access));
   @override
-  Future<void> register(String email, String password) async {
-    await api.request('POST', '/v1/auth/register/otp', json: {'email': email, 'password': password});
+  Future<void> register(String email, String password, {required String name}) async {
+    await api.request(
+      'POST',
+      '/v1/auth/register/otp',
+      json: {'email': email, 'password': password, 'name': name.trim()},
+    );
   }
 
   @override

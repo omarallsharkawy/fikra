@@ -3,6 +3,20 @@ import 'package:fikra/features/account/profile_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('server names hydrate fresh-device profiles and local edits retain precedence', () async {
+    final profile = ProfileController(MemoryLocalUiStore());
+    addTearDown(profile.dispose);
+    await profile.bind('owner', 'owner@example.invalid', serverName: '  علاء  ');
+    expect(profile.name, 'علاء');
+    expect(profile.initial, 'ع');
+    expect(profile.needsNamePrompt, isFalse);
+    expect(await profile.setName('Alice'), isTrue);
+    await profile.bind('owner', 'owner@example.invalid', serverName: 'علاء');
+    expect(profile.name, 'Alice');
+    await profile.bind('other', 'other@example.invalid', serverName: null);
+    expect(profile.name, isNull);
+    expect(profile.needsNamePrompt, isTrue);
+  });
   test('local name survives verified login and is isolated from other accounts', () async {
     final store = MemoryLocalUiStore();
     final first = ProfileController(store);

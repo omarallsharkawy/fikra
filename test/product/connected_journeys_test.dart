@@ -120,7 +120,7 @@ void main() {
         await tester.pumpAndSettle();
         await tapConnected(tester, find.byKey(const ValueKey('account-submit')));
         expect(runtime.session.stage, SessionStage.awaitingVerification);
-        expect(transport.calls.first.json, {'email': 'test@example.invalid', 'password': 'abcde'});
+        expect(transport.calls.first.json, {'email': 'test@example.invalid', 'password': 'abcde', 'name': 'علاء'});
         expect(find.text(l.apiSixDigitCode), findsOneWidget);
         await fill(tester, 'account-token', '12a34567');
         expect(tester.widget<TextField>(input('account-token')).controller!.text, '123456');
@@ -183,7 +183,11 @@ void main() {
         expect(runtime.chat.current!.messages.last.content, 'Final answer');
         expect(runtime.chat.current!.messages.last.sources.single.noteId, 'note-a');
         await tapConnected(tester, find.byKey(const ValueKey('nav-3')));
+        // Scroll the Me list above the floating navigation at large text sizes.
+        await tester.drag(find.byType(ListView).last, const Offset(0, -360));
+        await tester.pumpAndSettle();
         await tapConnected(tester, find.text(l.rdOut));
+        await tapConnected(tester, find.text(l.rdOut).last);
         expect(runtime.session.stage, SessionStage.unauthenticated);
         expect(runtime.workspace.notes, isEmpty);
         expect(runtime.chat.current, isNull);

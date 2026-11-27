@@ -92,10 +92,10 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
       };
       Future<void> authenticate() => _submit(() async {
         if (_register) {
-          // The public registration schema remains email/password. A successful
-          // registration stages the device-owned name until verified sign-in.
+          // The deployed registration schema requires name. Keep a device copy
+          // for local profile edits until a profile update endpoint is available.
           final address = _email, name = _name;
-          await s.register(address, _password);
+          await s.register(address, _password, name: name);
           if (s.stage == SessionStage.awaitingVerification && s.failure == null) {
             await r.profile.stageRegistration(address, name);
           }

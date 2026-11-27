@@ -1,9 +1,10 @@
 /// Backend-owned values. These are separate from the legacy local database.
 class Account {
-  const Account({required this.id, required this.email, required this.emailVerified});
+  const Account({required this.id, required this.email, required this.emailVerified, this.name});
   final String id;
   final String email;
   final bool emailVerified;
+  final String? name;
 }
 
 class TokenPair {

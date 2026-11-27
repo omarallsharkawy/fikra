@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../../data/product/local_ui_store.dart';
 import '../../data/product/models.dart';
 
-/// Unsupported profile fields stay explicitly on this device, per account.
+/// Local profile edits override the server name until profile updates exist.
 class ProfileController extends ChangeNotifier {
   ProfileController(this.store);
   final LocalUiStore store;
@@ -22,7 +22,7 @@ class ProfileController extends ChangeNotifier {
 
   bool _valid(int ticket) => !_disposed && ticket == _epoch;
 
-  Future<void> bind(String? id, String email) async {
+  Future<void> bind(String? id, String email, {String? serverName}) async {
     final ticket = ++_epoch;
     accountId = id;
     name = null;
@@ -38,6 +38,7 @@ class ProfileController extends ChangeNotifier {
       if (!_valid(ticket)) return;
       final saved = record['display_name'], staged = pending['display_name'];
       var resolved = saved is String && validName(saved) ? saved.trim() : null;
+      resolved ??= serverName != null && validName(serverName) ? serverName.trim() : null;
       if (resolved == null && staged is String && validName(staged)) {
         resolved = staged.trim();
         await store.update('account:$id', (r) => r['display_name'] = resolved);

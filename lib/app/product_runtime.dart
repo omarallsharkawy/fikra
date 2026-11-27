@@ -140,7 +140,7 @@ class ProductRuntime {
     workspace.clear();
     chat.reset();
     capture.setAccount(id);
-    unawaited(profile.bind(id, session.account?.email ?? ''));
+    unawaited(profile.bind(id, session.account?.email ?? '', serverName: session.account?.name));
     unawaited(tags.bind(id));
     unawaited(undo.bind(id));
     if (old != null) {
