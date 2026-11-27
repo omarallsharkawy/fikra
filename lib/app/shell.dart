@@ -71,8 +71,54 @@ class _AppShellState extends ConsumerState<AppShell> {
     return false;
   }
 
+  Widget _productShell(BuildContext context) {
+    final shell = widget.shell;
+    if (shell.currentIndex == 0 && _lastBranch != null && _lastBranch != 0) _composerReturn = _lastBranch!;
+    _lastBranch = shell.currentIndex;
+    final hidden = MediaQuery.viewInsetsOf(context).bottom > 0 || shell.currentIndex == 0;
+    final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
+    final inset = hidden ? 0.0 : ProductNavigation.barHeight(context) + 38 + safeBottom;
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeBottom: !hidden,
+              child: NavigationInset(
+                bottom: inset,
+                child: ComposerNavigation(
+                  close: _closeComposer,
+                  child: PopScope(
+                    canPop: shell.currentIndex != 0,
+                    onPopInvokedWithResult: (didPop, _) {
+                      if (!didPop && shell.currentIndex == 0) _closeComposer();
+                    },
+                    child: shell,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (!hidden)
+            Positioned(
+              left: 14,
+              right: 14,
+              bottom: 22 + safeBottom,
+              child: ProductNavigation(
+                branch: shell.currentIndex,
+                onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!widget.showLegacyActivity) return _productShell(context);
     final shell = widget.shell;
     final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
     final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
