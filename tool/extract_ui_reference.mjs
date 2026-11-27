@@ -23,3 +23,10 @@ for (const language of ['ar','en']) {
 const css = html.split('<style>')[1].split('</style>')[0];
 const tokens = [...css.matchAll(/--([a-z]+):([^;}]+)/g)].map(m=>({name:m[1],value:m[2]}));
 fs.writeFileSync('docs/features/html-ui-redesign/reference-values.json',JSON.stringify({tokens,css},null,2)+'\n');
+
+// Matching visual-test data is deliberately outside Flutter asset bundles.
+const fixtureContext = vm.createContext({});
+vm.runInContext(html.split('<script>')[1].split('const POS=')[0], fixtureContext);
+const samples = vm.runInContext('({notes:N,edges:E,tags:{ar:T.ar.tags,en:T.en.tags}})',fixtureContext);
+fs.mkdirSync('test/support/fixtures',{recursive:true});
+fs.writeFileSync('test/support/fixtures/html-reference.json',JSON.stringify(samples,null,2)+'\n');

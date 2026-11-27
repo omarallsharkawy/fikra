@@ -39,7 +39,7 @@ abstract final class RdTokens {
   static const undoWindow = Duration(seconds: 5);
   // Preserve the HTML's font stack; the logo explicitly uses Inter.
   static const family = 'IBMPlexSansArabic';
-  static const fallbacks = ['Inter'];
+  static const fallbacks = ['Inter', 'Noto Color Emoji'];
   static TextStyle style(
     BuildContext c, {
     double size = 15,

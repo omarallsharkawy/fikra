@@ -5,7 +5,6 @@ import 'package:fikra/app/product_router.dart';
 import 'package:fikra/app/providers.dart';
 import 'package:fikra/data/product/api/api_client.dart';
 import 'package:fikra/data/product/development/development_auth.dart';
-import 'package:fikra/data/product/development/development_knowledge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../product/navigation_test.dart' show boot, cleanup, tapVisible;
 import '../support/app_harness.dart' show loadAppFonts;
+import '../support/html_reference_repository.dart';
 
 // Synthetic accounts are injected only into this test, never app fallbacks.
 class CaptureAuth extends DevelopmentAuthRepository {
@@ -37,12 +37,28 @@ void main() {
             theme: dark ? AppTheme.dark : AppTheme.light,
             api: api,
             auth: CaptureAuth(),
-            knowledge: DevelopmentKnowledgeRepository(stepDelay: Duration.zero),
+            knowledge: HtmlReferenceRepository(lang),
           );
           if (screen == 'signup') await tapVisible(tester, find.byKey(const ValueKey('auth-start-signup')));
           if (screen == 'login') await tapVisible(tester, find.byKey(const ValueKey('auth-start-login')));
           if (!['landing', 'signup', 'login'].contains(screen)) {
             await r.session.login('reader@example.invalid', 'fixture-only');
+            await tester.pumpAndSettle();
+            await tester.runAsync(() async {
+              await r.profile.setName('Alaa');
+              final labels = (HtmlReferenceRepository.fixture['tags'] as Map)[lang] as Map;
+              final tags = <String, String>{};
+              for (final key in labels.keys) {
+                final tag = await r.tags.create(
+                  labels[key] as String,
+                  color: {'uni': 1, 'ai': 0, 'food': 2, 'career': 1}[key] ?? 0,
+                );
+                tags[key as String] = tag!.id;
+              }
+              for (final row in (r.repository as HtmlReferenceRepository).rows) {
+                await r.tags.assign(row['id'] as String, (row['tags'] as List).map((v) => tags[v]!).toSet());
+              }
+            });
             await tester.pumpAndSettle();
             final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
             final route = switch (screen) {

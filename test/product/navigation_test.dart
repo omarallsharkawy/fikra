@@ -47,8 +47,12 @@ Future<ProductRuntime> boot(
   ApiClient? api,
   KnowledgeRepository? knowledge,
   AuthRepository? auth,
+  bool reducedMotion = true,
 }) async {
   await initializeDateFormatting();
+  tester.platformDispatcher.accessibilityFeaturesTestValue = FakeAccessibilityFeatures(
+    disableAnimations: reducedMotion,
+  );
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   tester.platformDispatcher.localeTestValue = locale;
@@ -83,6 +87,7 @@ Future<ProductRuntime> boot(
 Future<void> cleanup(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
   await tester.pump(const Duration(milliseconds: 1));
+  tester.platformDispatcher.clearAccessibilityFeaturesTestValue();
   tester.view.resetPhysicalSize();
   tester.view.resetDevicePixelRatio();
   tester.platformDispatcher.clearLocaleTestValue();

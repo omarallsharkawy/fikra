@@ -340,7 +340,7 @@ class RdChip extends StatelessWidget {
               borderRadius: BorderRadius.circular(99),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-                child: Center(child: child),
+                child: Align(alignment: Alignment.topCenter, widthFactor: 1, heightFactor: 1, child: child),
               ),
             ),
           );
@@ -365,7 +365,7 @@ class RdCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Padding(padding: EdgeInsets.all(padding), child: child),
+        child: Padding(padding: EdgeInsets.all(padding + 1), child: child),
       ),
     ),
   );
@@ -434,6 +434,7 @@ class RdPage extends StatelessWidget {
 Future<T?> rdSheet<T>(BuildContext context, {required Widget child}) => showModalBottomSheet<T>(
   context: context,
   isScrollControlled: true,
+  useRootNavigator: true,
   useSafeArea: true,
   showDragHandle: false,
   sheetAnimationStyle: AnimationStyle(

@@ -254,6 +254,12 @@ Future<T> pumpFuture<T>(
 
 /// Loads the bundled Latin/Arabic fonts and Material icons for real text metrics.
 Future<void> loadAppFonts() async {
+  // Use the host's platform emoji face for visual captures when available.
+  // It is not bundled into production; Android uses its own platform face.
+  final emoji = File('/usr/share/fonts/google-noto-color-emoji-fonts/Noto-COLRv1.ttf');
+  if (emoji.existsSync()) {
+    await (FontLoader('Noto Color Emoji')..addFont(Future.value(ByteData.sublistView(emoji.readAsBytesSync())))).load();
+  }
   final plex = FontLoader('IBMPlexSansArabic');
   for (final weight in ['Regular', 'Medium', 'SemiBold']) {
     plex.addFont(
