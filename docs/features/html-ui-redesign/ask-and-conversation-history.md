@@ -47,3 +47,9 @@ The visible composer and working history have no interactive equivalent in the
 prototype. Navigation follows the approved glass variant. Native text rasterization
 differs slightly from browser text; other compared empty/answered geometry derives
 from the supplied CSS and copy.
+
+On 2026-11-28 the owner removed the redundant All notes scope strip from Ask. The
+general workspace no longer renders it; when multiple projects exist, the actual
+selected-project context remains visible. Repository scoping and API requests are
+unchanged. The AR/EN conversation tests assert the default strip is absent, the
+selected-project context remains available, and chat retains its selected scope.

@@ -92,11 +92,13 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
           c.sendState == SendState.uncertain ||
           c.sendState == SendState.reconciling;
       final empty = c.current == null || c.current!.messages.isEmpty;
-      final scope = w.projects.any((p) => !p.isGeneral)
-          ? l.uxProjectContext(rdIsolate(w.selected?.name ?? ''))
-          : l.rdScope;
+      final scopedProject = w.projects.any((p) => !p.isGeneral);
       final children = <Widget>[
-        Padding(padding: const EdgeInsets.only(bottom: 12), child: RdChip(scope, small: true)),
+        if (scopedProject)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: RdChip(l.uxProjectContext(rdIsolate(w.selected?.name ?? '')), small: true),
+          ),
         if (w.failure != null) ProductFailureView(w.failure!, onRetry: w.retryWorkspace),
         if (c.failure != null)
           ProductFailureView(c.failure!, onRetry: c.sendState == SendState.uncertain ? c.reconcile : c.reloadList),

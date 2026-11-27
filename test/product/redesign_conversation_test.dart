@@ -68,14 +68,15 @@ void main() {
       tester,
     ) async {
       final repo = StreamingRepository(), r = await boot(tester, knowledge: repo, locale: Locale(lang));
-      addTearDown(repo.stream.close);
+      addTearDown(() {
+        unawaited(repo.stream.close());
+      });
       await r.session.login('reader@example.invalid', 'fixture-only');
       await tester.pumpAndSettle();
       await tapVisible(tester, find.byKey(const ValueKey('nav-2')));
       final l = tester.element(find.byType(Scaffold).first).l10n;
       expect(repo.creates, 0);
-      expect(find.text(l.rdScope), findsOneWidget);
-      expect(tester.getTopLeft(find.text(l.rdScope)).dy, greaterThan(0));
+      expect(find.text(l.rdScope), findsNothing);
       await tapVisible(tester, find.text(l.rdChips0));
       expect(repo.creates, 1);
       expect(repo.sent, [l.rdChips0]);
@@ -117,6 +118,17 @@ void main() {
       expect(repo.deletes, 1);
       expect(r.chat.current, isNull);
       expect(r.workspace.notes, hasLength(2));
+      await tapVisible(tester, find.byTooltip(l.rdBack));
+      expect(await r.workspace.saveProject('Focused project'), isTrue);
+      await tester.pumpAndSettle();
+      expect(find.text(l.rdScope), findsNothing);
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is RdChip && widget.label == l.uxProjectContext(rdIsolate('Focused project')),
+        ),
+        findsOneWidget,
+      );
+      expect(r.chat.projectId, r.workspace.selectedProjectId);
       expect(tester.takeException(), isNull);
       await cleanup(tester);
     });
