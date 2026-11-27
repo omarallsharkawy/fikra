@@ -2,45 +2,44 @@
 
 ## Phase 1 — Contract audit
 
-Read the supplied deployment OpenAPI and compare it to the existing integration handbook. Adopt the deployed OTP routes and 5–128 password bounds; preserve JSON/Bearer, idempotency, note polling, proposal generation and SSE completion contracts. Keep all backend work outside this mobile change.
+Use the supplied deployment OpenAPI and compare it with the earlier integration handbook. Adopt the deployed OTP routes and 5–128 password bounds. Preserve JSON/Bearer, Google ID-token exchange, note idempotency, polling, generation checks, and authoritative SSE completion. Keep backend implementation and platform identifiers outside this mobile change.
 
-## Phase 2 — Native repositories and state
+## Phase 2 — Native repositories and presentation
 
-Implement the native transport, typed repositories, protected session/attempt storage and connected-mode dependency wiring. Replace preview-only labels/shortcuts in connected UI. Preserve explicit development fixtures and isolated legacy mode. Test authentication/refresh/account boundaries and uncertain writes before device delivery.
+Implement the native transport, typed repositories, protected session/attempt storage, and connected-mode wiring. Keep explicit development fixtures and legacy local data isolated. Replace preview-only connected labels and tokens with the real six-digit flows. Present account errors above the form, preserve entered values, dismiss the keyboard on submission, and maintain consistent authentication spacing. Respect the content's writing direction in note headings and live editors while retaining explicit LTR account fields, the English interface default, Inter, and the existing Arabic font.
 
-## Phase 3 — Validation and delivery
+## Phase 3 — Verification and delivery
 
-Run relevant controller, contract, connected-interface, localization/accessibility and product regressions. Perform read-only live TLS/connectivity checks. Build an ARM64 profile APK with two CPU cores, one Gradle worker and 1 GiB heap, then install on the physical phone without clearing app data. Publish the completed feature branch and merge its PR into dev using a merge commit after checks pass.
+Run contract, controller, connected-interface, localization, accessibility, and product regressions. Run read-only live TLS/connectivity checks. Build an ARM64 profile APK using two CPU cores, one Gradle worker, and a 1 GiB heap. Validate the actual account journey on the physical device. Publish the completed feature branch, open its PR through the browser, and merge into `dev` with a merge commit after checks pass.
 
-## Verified results — 27 November 2026
+## Verified physical-device results — 27 November 2026
 
-- 158 relevant automated tests pass; the live smoke test is skipped by default and passed separately with `FIKRA_LIVE_SMOKE=1`.
-- Nineteen transport/repository/session/storage cases cover OTP payloads, native multipart bytes, redirects, safe error mapping, DTOs, PATCH presence, stable note keys, shared refresh, restart restoration, revoked/uncertain refresh, logout races, cleanup failures and SSE finality/cancellation. Existing controller regressions remain passing.
-- Four connected UI journeys at 360 x 800 dp cover English/Arabic and 1x/2x text through registration, incorrect/correct code, recovery, separate login, note save/poll/search, graph, streamed chat sources and logout. These use real API adapters with injected synthetic HTTP responses; they are not live-account tests.
-- Live read-only checks through the native Dart transport passed normal HTTPS certificate validation, `/health`, dependency readiness, deployed six-digit/five-character schema constraints and the account route's unauthenticated 401. No account, email or provider-funded operation was invoked by these checks.
-- Static analysis reports no issues; diff whitespace checks pass.
-- ARM64 profile APK built successfully (129.8 MB, Gradle assembly 103.6 seconds) using two CPU cores, one Gradle worker and 1 GiB heap. Installed with `adb install -r` on the connected Xiaomi M2010J19SG; cold launch returned Status ok. No app data was cleared.
-- The connected sign-in screen was visually checked on the awake physical phone with the email keyboard open. Fixture disclosures/shortcuts are absent. The user was asked to exercise account/email-code login themselves; a verified live-user session and provider-dependent features are not claimed as tested until that result is available.
-- Backend source/deployment, platform identifiers, Google registration and legacy local data were not changed. Local AGENTS.md and the user's unrelated backend-documentation moves are excluded.
+The owner initially tried credentials from the pre-API development preview. Those identities and passwords had never been provisioned by the Flutter fixtures on the deployed backend. The owner then completed the following on the connected Xiaomi phone:
 
+| Operation | Observed response |
+| --- | --- |
+| Real registration, `/v1/auth/register/otp` | 202 |
+| Six-digit mailbox verification, `/v1/auth/verify-email/otp` | 200 |
+| Separate password login, `/v1/auth/login` | 200 |
+| Account lookup, `/v1/auth/me` | 200 |
+| Owner-created note | Saved content and completed backend processing visible in the actual detail screen |
 
-## Authentication failure follow-up
+The agent did not request or read the owner's password or OTP, create an account on their behalf, or publish their account/note contents. The original preview workspace remains separate. The repaired authentication APK was installed manually after Android refused USB installation; its copied checksum matched the built artifact. No app data was cleared.
 
-The user reported failures in both login and registration after the first connected APK. Do not treat the successful scripted journeys as proof that a real account can sign in, and do not merge until the real failure is understood.
+The earlier recovery request received a generic 202 while the owner was using preview credentials, and no recovery email arrived. This does not establish a mail-delivery defect for an eligible real account. Live password-reset confirmation has not been exercised; conditional backend checks remain documented in `docs/features/mobile-api-integration/backend-authentication-triage.md`.
 
-The phone process remained alive and the inspected Android runtime/Flutter error logs contained no crash. Public health and deliberately invalid authentication requests were checked from the physical Android device without creating accounts or sending email: health returned 200, an incorrect reserved-example login returned 401, and malformed registration email returned 422. HTTP/1.1 with the Dart user agent also returned the expected 401. These checks establish reachability only; they do not validate the user's credentials, email delivery, or a complete account journey.
+## Connection diagnosis and limitations
 
-Account failures now appear in a live-region panel above the fields and scroll into view, preserve entered input, and distinguish connection, timeout, TLS, server availability, and rejected credentials. Submitting dismisses the keyboard. Auth headings, icon sizes, and spacing are consistent across login, signup, verification, and reset. Profile/debug builds emit only fixed auth route names and status/category diagnostics; bodies, headers, token values, email addresses, exception text, and passwords are excluded. Release builds do not emit these diagnostics. No server contracts, account data, or backend source were changed.
+Some device requests failed at the connection stage after approximately 15 seconds, without an HTTP response; later manual attempts succeeded quickly. Android reported no UID network-policy restriction. Public health requests under the app's own UID succeeded, but curl is not the Dart transport. AdGuard filtering was active initially; later network state changed to cellular without the previous Wi-Fi/VPN indicators. The evidence does not isolate the cause of intermittent connectivity. The agent did not disable filtering, change network policy, bypass TLS verification, or automatically replay authentication requests.
 
-Validation: 163 offline regression tests passed (one opt-in live smoke test skipped), including new English/Arabic login/signup failure journeys at 360dp and 1x/2x text scaling. The analyzer reported no issues. Real-font failure screenshots were reviewed. A new physical-device attempt is still required to classify the original report.
+Debug/profile diagnostics contain only fixed authentication route names and status/category values. Bodies, headers, account addresses, token values, codes, passwords, and exception text are excluded. Release builds do not emit these diagnostics. Temporary socket-metadata profiling was used without HTTP-body profiling, then its debugging connection was removed.
 
+## Automated verification
 
-### Physical-device connection report
+The final full regression run passed **167 tests** with one opt-in live smoke test skipped by default. Static analysis reported no issues.
 
-The repaired APK was manually installed after Android rejected USB installation (`INSTALL_FAILED_USER_RESTRICTED`); the copied APK checksum matched the built artifact. The user's new message was the specific connection failure. Profile diagnostics confirmed two login connection failures after approximately 15 seconds, without any HTTP response. Android reported no UID network-policy restriction. A public health request executed under the application's own Android UID succeeded; this did not exercise Dart's transport.
+The product regression suite covers connected English/Arabic journeys at 360dp and 1x/2x text, account errors and keyboard behavior, RTL headings/live editing, exact password preservation, secure session restoration/rotation, account isolation, idempotent creation attempts, note polling/refinement, multipart upload, graph/search, and SSE finality/cancellation. Test accounts and HTTP responses are synthetic; actual native loopback tests exercise transport bytes and redirect refusal.
 
-AdGuard VPN filtering was active during the initial report. A temporary per-app filtering comparison was requested. Later device observations showed a changed network state (cellular, without the previous Wi-Fi/VPN indicators): the actual Flutter API transport then received HTTP 401 for rejected credentials and HTTP 202 for the OTP recovery request. Therefore current application reachability is demonstrated, but the evidence does not isolate AdGuard from the simultaneous underlying network change. Do not claim that a server-side account, email delivery, successful reset, or authenticated login has been verified by these responses. No TLS checks were bypassed and no device filtering/settings were changed by the agent.
+The opt-in read-only live smoke test separately passed HTTPS certificate validation, health/readiness, deployed six-digit/five-character schema constraints, and the unauthenticated account route's 401. It creates no account, sends no email, and performs no AI operation. The owner performed the real account/note validation above.
 
-The user subsequently confirmed that the current message is rejected credentials and that the recovery code has not arrived. Backend diagnostic steps are documented in `docs/features/mobile-api-integration/backend-authentication-triage.md`; no backend changes were made. An additional regression verifies exact login password preservation (case, Unicode, leading/trailing spaces) through the session controller and API repository; all 21 API integration tests passed in the focused rerun. Real account recovery and authenticated login remain unverified.
-
-The account owner confirmed that the attempted credentials originated before API integration. Real registration, mailbox verification, and separate login are now the pending manual validation steps; preview identities/passwords are not automatically migrated or provisioned remotely.
+Native Google sign-in still needs approved platform configuration. Live chat, transcription, password-reset confirmation, and restoration after killing the phone process remain outside the manually verified results. Automated tests cover these adapters and session/storage behavior where applicable. Backend source/deployment, platform identifiers, legacy data, local AGENTS.md, and the owner's unrelated documentation moves are excluded from this change.
