@@ -80,6 +80,40 @@ class _ComposerState extends State<ProductComposerScreen> {
           if (mounted) _consume(r);
         });
       }
+      final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
+      final available =
+          MediaQuery.sizeOf(context).height -
+          MediaQuery.viewInsetsOf(context).bottom -
+          MediaQuery.paddingOf(context).vertical;
+      final compact = keyboard && available < 260;
+      final save = RdButton(
+        w.pendingAttempt == null
+            ? l.rdSave
+            : keyboard
+            ? l.actionStripRetry
+            : l.productReconcileTheSameSaveAttempt,
+        key: const ValueKey('save-product-note'),
+        loading: w.busy,
+        onPressed:
+            c.active ||
+                w.selected == null ||
+                !w.draftsReady ||
+                w.coolingDown ||
+                (w.pendingAttempt == null && w.draft.content.trim().isEmpty)
+            ? null
+            : () async {
+                final account = w.accountId, project = w.selectedProjectId;
+                final saved = await w.save();
+                if (saved == null || account != w.accountId || project != w.selectedProjectId) return;
+                c.clearAfterSave();
+                unawaited(r.tags.bind(account));
+                if (context.mounted) {
+                  context.go('/notes');
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(l.rdSaved), behavior: SnackBarBehavior.floating));
+                }
+              },
+      );
       return PopScope(
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) {
@@ -92,25 +126,27 @@ class _ComposerState extends State<ProductComposerScreen> {
           body: SafeArea(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                  child: Row(
-                    children: [
-                      RdIconButton('x', label: l.rdCancel, onPressed: () => _close(r)),
-                      const Spacer(),
-                      if (!w.draft.titleVisible)
-                        Semantics(
-                          button: true,
-                          child: InkWell(
-                            onTap: locked ? null : () => w.updateDraft(titleVisible: true),
-                            borderRadius: BorderRadius.circular(99),
-                            child: SizedBox(height: 44, child: Center(child: RdChip(l.rdAddt))),
+                if (!compact)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                    child: Row(
+                      children: [
+                        RdIconButton('x', label: l.rdCancel, onPressed: () => _close(r)),
+                        const Spacer(),
+                        if (!w.draft.titleVisible)
+                          Semantics(
+                            button: true,
+                            child: InkWell(
+                              onTap: locked ? null : () => w.updateDraft(titleVisible: true),
+                              borderRadius: BorderRadius.circular(99),
+                              child: SizedBox(height: 44, child: Center(child: RdChip(l.rdAddt))),
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
                 Expanded(
+                  key: const ValueKey('capture-editor-viewport'),
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -235,87 +271,99 @@ class _ComposerState extends State<ProductComposerScreen> {
                     ],
                   ),
                 ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: context.rd.line)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 9, 16, 8),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final tools = <Widget>[
-                          _CaptureTool(
-                            l.rdVoice,
-                            icon: 'mic',
-                            key: const ValueKey('record-product-voice'),
-                            onPressed: locked || c.active || c.pickingPdf ? null : c.start,
-                          ),
-                          _CaptureTool(l.rdPdf, icon: 'file', onPressed: c.pickingPdf || c.active ? null : c.pickPdf),
-                          _CaptureTool(
-                            l.rdTag,
-                            icon: 'tag',
-                            onPressed: locked || r.tags.loading
-                                ? null
-                                : () async {
-                                    final account = w.accountId, project = w.selectedProjectId;
-                                    final selected = await pickNoteTags(context, r.tags, w.draft.tagIds);
-                                    if (mounted &&
-                                        selected != null &&
-                                        account == w.accountId &&
-                                        project == w.selectedProjectId) {
-                                      w.updateDraft(tagIds: selected);
-                                    }
-                                  },
-                          ),
-                        ];
-                        final count = RdText('${w.draft.content.length}', size: 12, color: context.rd.muted);
-                        return MediaQuery.textScalerOf(context).scale(13) > 18 || constraints.maxWidth < 288
-                            ? Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [...tools, count],
-                              )
-                            : Row(spacing: 8, children: [...tools, const Spacer(), count]);
-                      },
+                if (!keyboard)
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: context.rd.line)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 9, 16, 8),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final tools = <Widget>[
+                            _CaptureTool(
+                              l.rdVoice,
+                              icon: 'mic',
+                              key: const ValueKey('record-product-voice'),
+                              onPressed: locked || c.active || c.pickingPdf ? null : c.start,
+                            ),
+                            _CaptureTool(l.rdPdf, icon: 'file', onPressed: c.pickingPdf || c.active ? null : c.pickPdf),
+                            _CaptureTool(
+                              l.rdTag,
+                              icon: 'tag',
+                              onPressed: locked || r.tags.loading
+                                  ? null
+                                  : () async {
+                                      final account = w.accountId, project = w.selectedProjectId;
+                                      final selected = await pickNoteTags(context, r.tags, w.draft.tagIds);
+                                      if (mounted &&
+                                          selected != null &&
+                                          account == w.accountId &&
+                                          project == w.selectedProjectId) {
+                                        w.updateDraft(tagIds: selected);
+                                      }
+                                    },
+                            ),
+                          ];
+                          final count = RdText('${w.draft.content.length}', size: 12, color: context.rd.muted);
+                          return MediaQuery.textScalerOf(context).scale(13) > 18 || constraints.maxWidth < 288
+                              ? Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [...tools, count],
+                                )
+                              : Row(spacing: 8, children: [...tools, const Spacer(), count]);
+                        },
+                      ),
                     ),
                   ),
-                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (w.draft.content.trim().isEmpty)
+                      if (!keyboard && w.draft.content.trim().isEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: RdText(l.rdSh, size: 13, color: context.rd.muted),
                         ),
-                      RdButton(
-                        w.pendingAttempt == null ? l.rdSave : l.productReconcileTheSameSaveAttempt,
-                        key: const ValueKey('save-product-note'),
-                        loading: w.busy,
-                        onPressed:
-                            c.active ||
-                                w.selected == null ||
-                                !w.draftsReady ||
-                                w.coolingDown ||
-                                (w.pendingAttempt == null && w.draft.content.trim().isEmpty)
-                            ? null
-                            : () async {
-                                final account = w.accountId, project = w.selectedProjectId;
-                                final saved = await w.save();
-                                if (saved == null || account != w.accountId || project != w.selectedProjectId) return;
-                                c.clearAfterSave();
-                                unawaited(r.tags.bind(account));
-                                if (context.mounted) {
-                                  context.go('/notes');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(l.rdSaved), behavior: SnackBarBehavior.floating),
-                                  );
-                                }
-                              },
-                      ),
+                      if (keyboard)
+                        Row(
+                          spacing: 4,
+                          children: [
+                            if (compact) RdIconButton('x', label: l.rdCancel, onPressed: () => _close(r)),
+                            RdIconButton(
+                              'mic',
+                              label: l.rdVoice,
+                              onPressed: locked || c.active || c.pickingPdf ? null : c.start,
+                            ),
+                            RdIconButton(
+                              'file',
+                              label: l.rdPdf,
+                              onPressed: c.pickingPdf || c.active ? null : c.pickPdf,
+                            ),
+                            RdIconButton(
+                              'tag',
+                              label: l.rdTag,
+                              onPressed: locked || r.tags.loading
+                                  ? null
+                                  : () async {
+                                      final account = w.accountId, project = w.selectedProjectId;
+                                      final selected = await pickNoteTags(context, r.tags, w.draft.tagIds);
+                                      if (mounted &&
+                                          selected != null &&
+                                          account == w.accountId &&
+                                          project == w.selectedProjectId) {
+                                        w.updateDraft(tagIds: selected);
+                                      }
+                                    },
+                            ),
+                            Expanded(child: save),
+                          ],
+                        )
+                      else
+                        save,
                     ],
                   ),
                 ),

@@ -1,7 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../../app/product_runtime.dart';
 import '../../core/theme/redesign_tokens.dart';
@@ -18,6 +20,7 @@ import 'notes_screen.dart' show rdNoteTitle;
 import 'product_widgets.dart';
 import 'tag_picker.dart';
 import 'word_diff.dart';
+import '../account/redesign_auth_field.dart';
 
 String rdNoteTimestamp(BuildContext context, DateTime timestamp) {
   final date = timestamp.toLocal(), now = DateTime.now(), l = context.l10n;
@@ -463,47 +466,108 @@ class _NoteEditForm extends StatefulWidget {
 
 class _NoteEditFormState extends State<_NoteEditForm> {
   late String _title = widget.note.title ?? '', _content = widget.note.content;
+  late final _body = TextEditingController(text: _content);
+  @override
+  void dispose() {
+    _body.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.runtime.workspace,
-    builder: (context, _) => Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 14,
-      children: [
-        RdText(context.l10n.productEditNote, size: 18, weight: FontWeight.w600),
-        ProductTextInput(
-          key: const ValueKey('edit-title'),
-          value: _title,
-          onChanged: (v) => setState(() => _title = v),
-          label: context.l10n.rdTph,
-        ),
-        ProductTextInput(
-          key: const ValueKey('edit-content'),
-          value: _content,
-          onChanged: (v) => setState(() => _content = v),
-          lines: 6,
-          label: context.l10n.productSavedContent,
-        ),
-        if (widget.runtime.workspace.detailFailure != null) ProductFailureView(widget.runtime.workspace.detailFailure!),
-        RdButton(
-          context.l10n.productSaveEdit,
-          loading: widget.runtime.workspace.busy,
-          onPressed: _content.trim().isEmpty
-              ? null
-              : () async {
-                  if (widget.runtime.workspace.detail?.id != widget.note.id) return;
-                  final ok = await widget.runtime.workspace.edit(
-                    NotePatch(
-                      content: _content.trim(),
-                      title: _title.trim().isEmpty ? null : _title.trim(),
-                      includesTitle: true,
+    builder: (context, _) {
+      final l = context.l10n;
+      final available =
+          MediaQuery.sizeOf(context).height -
+          MediaQuery.viewInsetsOf(context).bottom -
+          MediaQuery.paddingOf(context).vertical;
+      final compact = available < 260;
+      return SizedBox(
+        height: math.max(100, math.min(560, available - 38)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (!compact)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: RdText(l.productEditNote, size: 18, weight: FontWeight.w600),
+              ),
+            Expanded(
+              key: const ValueKey('note-edit-viewport'),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  RedesignAuthField(
+                    key: const ValueKey('edit-title'),
+                    value: _title,
+                    label: l.rdTph,
+                    enabled: !widget.runtime.workspace.busy,
+                    onChanged: (v) => setState(() => _title = v),
+                  ),
+                  const SizedBox(height: 12),
+                  KeyedSubtree(
+                    key: const ValueKey('edit-content'),
+                    child: TextField(
+                      controller: _body,
+                      enabled: !widget.runtime.workspace.busy,
+                      onChanged: (v) => setState(() => _content = v),
+                      minLines: 5,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      textDirection: rdDirection(_content, Directionality.of(context)),
+                      textAlign: rdDirection(_content, Directionality.of(context)) == TextDirection.rtl
+                          ? TextAlign.right
+                          : TextAlign.left,
+                      style: RdTokens.style(context, size: 17),
+                      decoration: InputDecoration(
+                        hintText: l.rdCph,
+                        hintStyle: RdTokens.style(context, size: 17, color: context.rd.muted),
+                        filled: true,
+                        fillColor: context.rd.bg,
+                        contentPadding: const EdgeInsets.all(12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(color: context.rd.line),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(color: context.rd.line),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(color: context.rd.blue),
+                        ),
+                      ),
                     ),
-                  );
-                  if (ok && context.mounted) Navigator.pop(context);
-                },
+                  ),
+                  if (widget.runtime.workspace.detailFailure != null)
+                    ProductFailureView(widget.runtime.workspace.detailFailure!),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            RdButton(
+              l.productSaveEdit,
+              key: const ValueKey('save-note-edit'),
+              loading: widget.runtime.workspace.busy,
+              onPressed: _content.trim().isEmpty
+                  ? null
+                  : () async {
+                      if (widget.runtime.workspace.detail?.id != widget.note.id) return;
+                      final ok = await widget.runtime.workspace.edit(
+                        NotePatch(
+                          content: _content.trim(),
+                          title: _title.trim().isEmpty ? null : _title.trim(),
+                          includesTitle: true,
+                        ),
+                      );
+                      if (ok && context.mounted) Navigator.pop(context);
+                    },
+            ),
+          ],
         ),
-      ],
-    ),
+      );
+    },
   );
 }

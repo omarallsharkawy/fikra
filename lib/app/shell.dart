@@ -79,7 +79,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
     final inset = hidden ? 0.0 : ProductNavigation.barHeight(context) + 38 + safeBottom;
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      // The active page owns keyboard resizing. Restoring MediaQuery below
+      // this shell and resizing both scaffolds subtracts the IME twice.
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(

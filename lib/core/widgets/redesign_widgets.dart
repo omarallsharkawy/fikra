@@ -415,7 +415,7 @@ class RdPage extends StatelessWidget {
                       else
                         const RdLogo(),
                       const SizedBox(width: 8),
-                      Expanded(child: RdText(title, size: 22, weight: FontWeight.w600)),
+                      Expanded(child: RdText(title, size: 22, weight: FontWeight.w600, lines: 1)),
                       ?trailing,
                     ],
                   ),

@@ -160,6 +160,12 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
           if (c.sendState == SendState.reviewed) RdText(l.rdReviewConversation, size: 13, color: context.rd.muted),
         ],
       ];
+      final visibleHeight =
+          MediaQuery.sizeOf(context).height -
+          MediaQuery.viewInsetsOf(context).bottom -
+          MediaQuery.paddingOf(context).vertical;
+      final lineHeight = MediaQuery.textScalerOf(context).scale(15) * 1.6;
+      final composerLines = ((visibleHeight - 68 - 46 - 80) / lineHeight).floor().clamp(1, 5);
       return RdPage(
         title: l.rdAsktt,
         trailing: Row(
@@ -189,7 +195,11 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
         footer: c.current == null
             ? null
             : NavigationInsetPadding(
-                child: _ChatComposer(key: ValueKey('chat-draft-${c.current!.conversation.id}'), controller: c),
+                child: _ChatComposer(
+                  key: ValueKey('chat-draft-${c.current!.conversation.id}'),
+                  controller: c,
+                  maxLines: composerLines,
+                ),
               ),
       );
     },
@@ -342,7 +352,8 @@ class _AssistantBorder extends ShapeBorder {
 }
 
 class _ChatComposer extends StatefulWidget {
-  const _ChatComposer({super.key, required this.controller});
+  const _ChatComposer({super.key, required this.controller, required this.maxLines});
+  final int maxLines;
   final ConversationController controller;
   @override
   State<_ChatComposer> createState() => _ChatComposerState();
@@ -392,7 +403,7 @@ class _ChatComposerState extends State<_ChatComposer> {
               style: RdTokens.style(context),
               keyboardType: TextInputType.multiline,
               minLines: 1,
-              maxLines: 5,
+              maxLines: widget.maxLines,
               decoration: InputDecoration(
                 hintText: context.l10n.rdPh,
                 hintStyle: RdTokens.style(context, color: context.rd.muted),
