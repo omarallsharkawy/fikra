@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/redesign_tokens.dart';
 import '../../core/widgets/redesign_widgets.dart';
+import '../../core/text_direction.dart';
 import '../../data/product/models.dart';
 
 abstract interface class NoteSharing {
@@ -43,7 +44,7 @@ Future<Uint8List> noteCardPng(
   final colors = context.rd;
   TextPainter text(String value, double size, FontWeight weight, {int? maxLines}) => TextPainter(
     text: TextSpan(
-      text: value,
+      text: isolateMixedText(value, contentDirection(value, Directionality.of(context))),
       style: RdTokens.style(context, size: size, weight: weight),
     ),
     textDirection: rdDirection(value, Directionality.of(context)),
@@ -53,7 +54,7 @@ Future<Uint8List> noteCardPng(
   final heading = text(title, 48, FontWeight.w600, maxLines: 3),
       body = text(content, 34, FontWeight.w400, maxLines: 30);
   final meta = text(timestamp, 26, FontWeight.w400, maxLines: 2),
-      category = text(tags.join(' · '), 24, FontWeight.w400, maxLines: 2);
+      category = text(tags.map(bidiIsolate).join(' · '), 24, FontWeight.w400, maxLines: 2);
   final height = (164 + heading.height + 24 + body.height + 32 + category.height + 20 + meta.height + 40).ceil();
   final recorder = ui.PictureRecorder(), canvas = Canvas(recorder);
   canvas.drawRect(Rect.fromLTWH(0, 0, 760, height.toDouble()), Paint()..color = colors.bg);

@@ -39,7 +39,7 @@ class VoiceTextAuto extends StatelessWidget {
             ),
           ),
         ),
-        Text(
+        SmartText(
           c.isRemote
               ? context.l10n.vsRemoteAutoHint(Fmt.isolate(c.remoteService?.name ?? context.l10n.vsRemovedService))
               : c.usedBytes > 0

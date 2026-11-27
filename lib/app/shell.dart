@@ -104,9 +104,9 @@ class _AppShellState extends ConsumerState<AppShell> {
             ),
           ),
           if (!hidden)
-            Positioned(
-              left: 14,
-              right: 14,
+            PositionedDirectional(
+              start: 14,
+              end: 14,
               bottom: 22 + safeBottom,
               child: ProductNavigation(
                 branch: shell.currentIndex,
@@ -150,7 +150,10 @@ class _AppShellState extends ConsumerState<AppShell> {
       child: Theme(
         // Keep existing toasts/Undo reachable above the same floating controls.
         data: theme.copyWith(
-          snackBarTheme: theme.snackBarTheme.copyWith(insetPadding: EdgeInsets.fromLTRB(16, 5, 16, bottomInset + 10)),
+          snackBarTheme: theme.snackBarTheme.copyWith(
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 16) + EdgeInsets.only(top: 5, bottom: bottomInset + 10),
+          ),
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -180,9 +183,9 @@ class _AppShellState extends ConsumerState<AppShell> {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 12,
-                  right: 12,
+                PositionedDirectional(
+                  start: 12,
+                  end: 12,
                   bottom: FloatingNavigation.gap + safeBottom,
                   child: Align(
                     alignment: Alignment.bottomCenter,

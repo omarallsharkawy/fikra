@@ -185,7 +185,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.title ?? context.l10n.voiceRecording, style: context.text.body),
+                SmartText(widget.title ?? context.l10n.voiceRecording, style: context.text.body),
                 const SizedBox(height: 6),
                 StreamBuilder<Duration>(
                   stream: _player?.positionStream,
@@ -206,7 +206,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        Text(
+                        SmartText(
                           _error ? context.l10n.fileUnavailable : Fmt.duration(widget.durationMs),
                           style: context.text.meta.copyWith(color: context.colors.textSecondary),
                         ),

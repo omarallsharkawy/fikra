@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -29,14 +31,14 @@ Future<bool> confirmDestructive(
         insetPadding: const EdgeInsets.symmetric(horizontal: 35),
         child: SolidSurface(
           radius: FikraRadius.xl,
-          padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+          padding: const EdgeInsetsDirectional.fromSTEB(22, 24, 22, 22),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Semantics(namesRoute: true, header: true, child: Text(title, style: context.text.cardTitle)),
+              Semantics(namesRoute: true, header: true, child: SmartText(title, style: context.text.cardTitle)),
               const SizedBox(height: 8),
-              Text(message, style: context.text.body.copyWith(color: context.colors.textSecondary)),
+              SmartText(message, style: context.text.body.copyWith(color: context.colors.textSecondary)),
               const SizedBox(height: 20),
               Row(
                 children: [

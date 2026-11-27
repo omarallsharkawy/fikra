@@ -20,10 +20,10 @@ class _PdfChip extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text(
+                SmartText(name, style: context.text.body, maxLines: 1, overflow: TextOverflow.ellipsis),
+                SmartText(
                   Fmt.bytes(context.l10n, bytes),
-                  textDirection: TextDirection.ltr,
+                  content: ReadOnlyContent.identifier,
                   style: context.text.meta.copyWith(color: context.colors.textSecondary),
                 ),
               ],

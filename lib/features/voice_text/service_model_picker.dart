@@ -120,7 +120,7 @@ class _ServiceModelPickerState extends ConsumerState<ServiceModelPicker> {
           ),
         ),
         if (qwen)
-          Text(l.v2DiscoveryQwen, style: context.text.caption)
+          SmartText(l.v2DiscoveryQwen, content: ReadOnlyContent.chrome, style: context.text.caption)
         else ...[
           FikraButton.secondary(
             key: const ValueKey('v2-refresh'),
@@ -130,9 +130,9 @@ class _ServiceModelPickerState extends ConsumerState<ServiceModelPicker> {
             onPressed: widget.enabled && !_busy ? _refresh : null,
           ),
           const SizedBox(height: FikraSpace.s8),
-          Text(l.v2DiscoveryHint, style: context.text.caption),
+          SmartText(l.v2DiscoveryHint, content: ReadOnlyContent.chrome, style: context.text.caption),
           if (_cache != null)
-            Text(l.v2Checked(Fmt.isolate(Fmt.relative(l, _cache!.checkedAt.toLocal()))), style: context.text.meta),
+            SmartText(l.v2Checked(Fmt.isolate(Fmt.relative(l, _cache!.checkedAt.toLocal()))), style: context.text.meta),
         ],
         if (_error != null) StatusBanner(kind: BannerKind.error, message: _error!),
       ],
@@ -168,7 +168,7 @@ class _CatalogSheetState extends State<_CatalogSheet> {
           if (models.any((m) => m.status == status && m.supported)) ...[
             Semantics(
               header: true,
-              child: Text(switch (status) {
+              child: SmartText(switch (status) {
                 ModelStatus.recommended => l.v2Recommended,
                 ModelStatus.other => l.v2Other,
                 ModelStatus.legacy => l.v2Legacy,
@@ -182,13 +182,14 @@ class _CatalogSheetState extends State<_CatalogSheet> {
                 selected: model.id == widget.service.batchModel,
                 onTap: () => Navigator.pop(context, model.id),
               ),
-              Text(
+              SmartText(
                 model.arabic == ArabicSuitability.generative ? l.v2Generative : l.v2Arabic,
                 style: context.text.caption,
               ),
-              if (widget.available.contains(model.id)) Text(l.v2Available, style: context.text.meta),
+              if (widget.available.contains(model.id))
+                SmartText(l.v2Available, content: ReadOnlyContent.chrome, style: context.text.meta),
               if (status == ModelStatus.legacy)
-                Text(
+                SmartText(
                   model.shutdown == null
                       ? l.v2LegacyUnknown
                       : l.v2Shutdown(Fmt.isolate(Fmt.date(l, DateTime.parse(model.shutdown!)))),
@@ -198,7 +199,7 @@ class _CatalogSheetState extends State<_CatalogSheet> {
             ],
           ],
         for (final model in models.where((m) => !m.supported))
-          Text('${model.label} · ${l.v2Unsupported}', style: context.text.caption),
+          SmartText('${model.label} · ${l.v2Unsupported}', style: context.text.caption),
         Semantics(
           expanded: _expanded,
           child: SheetOption(
@@ -209,9 +210,11 @@ class _CatalogSheetState extends State<_CatalogSheet> {
           ),
         ),
         if (_expanded) ...[
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: FikraField(key: const ValueKey('v2-custom-id'), controller: _custom, hint: l.vsModel),
+          FikraField(
+            key: const ValueKey('v2-custom-id'),
+            controller: _custom,
+            hint: l.vsModel,
+            content: InputContent.identifier,
           ),
           const SizedBox(height: FikraSpace.s12),
           FikraButton(

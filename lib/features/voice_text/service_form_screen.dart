@@ -15,7 +15,6 @@ import '../../l10n/localizations.dart';
 import 'service_consent.dart';
 import 'service_copy.dart';
 import 'service_form_fields.dart';
-import 'whisper_metrics.dart';
 
 class ServiceFormScreen extends ConsumerStatefulWidget {
   const ServiceFormScreen({super.key, this.serviceId});
@@ -167,12 +166,12 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
             ),
             Expanded(
               child: !_initialized || missing
-                  ? Center(child: Text(state.hasError || missing ? l.vsLoadError : l.vtWait))
+                  ? Center(child: SmartText(state.hasError || missing ? l.vsLoadError : l.vtWait))
                   : ListView(
                       key: const ValueKey('vs-form-scroll'),
                       padding: const EdgeInsets.all(FikraSpace.screen),
                       children: [
-                        Text(
+                        SmartText(
                           widget.serviceId == null ? l.vsAdd : l.vsEdit,
                           style: context.text.title.copyWith(fontWeight: FontWeight.w700),
                         ),
@@ -228,12 +227,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
                             kind: BannerKind.info,
                             message: l.vsConnected,
                           ),
-                          if (_testText!.isNotEmpty)
-                            SelectableText(
-                              _testText!,
-                              style: context.text.body,
-                              textDirection: containsArabic(_testText!) ? TextDirection.rtl : TextDirection.ltr,
-                            ),
+                          if (_testText!.isNotEmpty) SmartText(_testText!, selectable: true, style: context.text.body),
                           const SizedBox(height: FikraSpace.s12),
                         ],
                         FikraButton.secondary(

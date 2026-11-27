@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +26,7 @@ class FikraBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(FikraRadius.full)),
-      child: Text(
+      child: SmartText(
         label ?? text,
         style: context.text.meta.copyWith(color: fg, fontWeight: FontWeight.w600),
       ),
@@ -54,7 +56,7 @@ class StatusBanner extends StatelessWidget {
         children: [
           Icon(icon, color: fg, size: 18),
           const SizedBox(width: 10),
-          Expanded(child: Text(message, style: context.text.chip)),
+          Expanded(child: SmartText(message, style: context.text.chip)),
         ],
       ),
     );

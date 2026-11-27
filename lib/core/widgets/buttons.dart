@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'package:flutter/material.dart';
 
 import '../motion/pressable.dart';
@@ -75,7 +77,7 @@ class FikraButton extends StatelessWidget {
           Icon(icon, color: fg, size: 20),
         if (loading || icon != null) const SizedBox(width: 8),
         Flexible(
-          child: Text(
+          child: SmartText(
             label,
             style: text.copyWith(color: fg),
             overflow: growForText ? TextOverflow.visible : TextOverflow.ellipsis,

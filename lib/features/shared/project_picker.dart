@@ -45,7 +45,7 @@ Future<Project?> showProjectPicker(
             if (p.project.id != excludeProjectId) p,
         ];
         if (projects.isEmpty) {
-          return Text(
+          return SmartText(
             empty,
             key: const ValueKey('project-picker-empty'),
             style: sheet.text.body.copyWith(color: sheet.colors.textSecondary),
@@ -111,7 +111,7 @@ class ProjectRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  SmartText(
                     project.name,
                     style: context.text.section.copyWith(
                       fontWeight: FontWeight.w600,

@@ -108,7 +108,7 @@ class _AddScreenState extends ConsumerState<AddScreen>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 20, 12),
+          padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 20, 12),
           child: Row(
             children: [
               FikraIconButton(
@@ -119,14 +119,22 @@ class _AddScreenState extends ConsumerState<AddScreen>
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Semantics(header: true, child: Text(context.l10n.newIdea, style: context.text.title)),
+                child: Semantics(
+                  header: true,
+                  child: SmartText(context.l10n.newIdea, content: ReadOnlyContent.chrome, style: context.text.title),
+                ),
               ),
             ],
           ),
         ),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 24 + NavigationInset.of(context)),
+            padding: EdgeInsetsDirectional.fromSTEB(
+              FikraSpace.screen,
+              0,
+              FikraSpace.screen,
+              24 + NavigationInset.of(context),
+            ),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
               permissionCard(),
@@ -149,7 +157,7 @@ class _AddScreenState extends ConsumerState<AddScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextField(
+                    SmartInput(
                       controller: _title,
                       readOnly: saving,
                       focusNode: _titleFocus,
@@ -171,7 +179,7 @@ class _AddScreenState extends ConsumerState<AddScreen>
                       animateSize: true,
                       child: recording
                           ? recordingPreview()
-                          : TextField(
+                          : SmartInput(
                               key: const ValueKey('text'),
                               controller: _text,
                               readOnly: saving,
@@ -203,8 +211,9 @@ class _AddScreenState extends ConsumerState<AddScreen>
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
+              SmartText(
                 context.l10n.addFooter,
+                content: ReadOnlyContent.chrome,
                 textAlign: TextAlign.center,
                 style: context.text.meta.copyWith(fontSize: 12),
               ),

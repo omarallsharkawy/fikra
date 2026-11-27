@@ -52,7 +52,7 @@ class SettingsScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 10),
       child: Semantics(
         header: true,
-        child: Text(title, style: t.section.copyWith(fontWeight: FontWeight.w600)),
+        child: SmartText(title, style: t.section.copyWith(fontWeight: FontWeight.w600)),
       ),
     );
 
@@ -64,11 +64,20 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: ListView(
-              padding: EdgeInsets.fromLTRB(FikraSpace.screen, 16, FikraSpace.screen, 32 + NavigationInset.of(context)),
+              padding: EdgeInsetsDirectional.fromSTEB(
+                FikraSpace.screen,
+                16,
+                FikraSpace.screen,
+                32 + NavigationInset.of(context),
+              ),
               children: [
                 Semantics(
                   header: true,
-                  child: Text(context.l10n.navMe, style: t.title.copyWith(fontWeight: FontWeight.w700)),
+                  child: SmartText(
+                    context.l10n.navMe,
+                    content: ReadOnlyContent.chrome,
+                    style: t.title.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 const MeStatsTiles(),
@@ -80,7 +89,7 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => showProjectSwitcher(context, ref),
                 ),
                 section(context.l10n.meAppearanceLanguage),
-                Text(context.l10n.appearance, style: t.caption),
+                SmartText(context.l10n.appearance, content: ReadOnlyContent.chrome, style: t.caption),
                 const SizedBox(height: 8),
                 SegmentedPill(
                   options: [context.l10n.themeSystem, context.l10n.themeLight, context.l10n.themeDark],
@@ -88,7 +97,11 @@ class SettingsScreen extends ConsumerWidget {
                   onChanged: (i) => runAction(context, () => ref.read(settingsRepoProvider).setTheme(_themes[i])),
                 ),
                 const SizedBox(height: 8),
-                Text(context.l10n.themeHint, style: t.meta.copyWith(fontSize: 12)),
+                SmartText(
+                  context.l10n.themeHint,
+                  content: ReadOnlyContent.chrome,
+                  style: t.meta.copyWith(fontSize: 12),
+                ),
                 section(context.l10n.languageSection),
                 SegmentedPill(
                   options: [context.l10n.languageSystem, context.l10n.languageArabic, context.l10n.languageEnglish],
@@ -125,7 +138,7 @@ class SettingsScreen extends ConsumerWidget {
                       Icon(Icons.phone_android_rounded, size: 20, color: c.accent),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
+                        child: SmartText(
                           services.hasError
                               ? context.l10n.vsLoadError
                               : !services.hasValue
@@ -156,8 +169,12 @@ class SettingsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(context.l10n.appTitle, style: t.cardTitleSmall),
-                            Text(context.l10n.tagline, style: t.meta.copyWith(fontSize: 12)),
+                            SmartText(context.l10n.appTitle, content: ReadOnlyContent.chrome, style: t.cardTitleSmall),
+                            SmartText(
+                              context.l10n.tagline,
+                              content: ReadOnlyContent.chrome,
+                              style: t.meta.copyWith(fontSize: 12),
+                            ),
                           ],
                         ),
                       ),

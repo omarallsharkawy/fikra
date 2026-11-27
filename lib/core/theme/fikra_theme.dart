@@ -54,7 +54,7 @@ ThemeData buildFikraTheme(Brightness brightness, {FikraPalette? palette}) {
       behavior: SnackBarBehavior.floating,
       backgroundColor: colors.surface,
       contentTextStyle: text.body,
-      insetPadding: const EdgeInsets.fromLTRB(16, 5, 16, 12),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16) + const EdgeInsets.only(top: 5, bottom: 12),
       shape: const StadiumBorder(),
     ),
     dialogTheme: const DialogThemeData(backgroundColor: Colors.transparent, elevation: 0),

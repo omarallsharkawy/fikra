@@ -1,3 +1,5 @@
+import 'smart_input.dart';
+
 import 'package:flutter/material.dart';
 
 import '../theme/redesign_tokens.dart';
@@ -50,10 +52,9 @@ class _RdSearchState extends State<RdSearch> {
       children: [
         ExcludeSemantics(child: RdIcon('search', color: context.rd.muted)),
         Expanded(
-          child: TextField(
+          child: SmartInput(
             controller: _controller,
             style: RdTokens.style(context),
-            textDirection: rdDirection(_controller.text, Directionality.of(context)),
             textInputAction: TextInputAction.search,
             textAlignVertical: TextAlignVertical.center,
             onChanged: (v) {

@@ -135,7 +135,7 @@ class GroupTag extends StatelessWidget {
             Icon(Icons.folder_copy_outlined, size: 13, color: context.colors.textSecondary),
             const SizedBox(width: 4),
             Flexible(
-              child: Text(
+              child: SmartText(
                 group.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

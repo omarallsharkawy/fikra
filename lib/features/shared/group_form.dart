@@ -57,7 +57,11 @@ Future<NewGroup?> showNewGroupForm(BuildContext context, {required String projec
                 GroupColorPicker(selected: color, onChanged: (c) => setState(() => color = c)),
                 if (parents.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  Text(context.l10n.groupParentLabel, style: context.text.section),
+                  SmartText(
+                    context.l10n.groupParentLabel,
+                    content: ReadOnlyContent.chrome,
+                    style: context.text.section,
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -151,7 +155,7 @@ class GroupColorPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        SmartText(
           context.l10n.groupColorLabel(groupColorName(context.l10n, selected)),
           key: const ValueKey('group-color-label'),
           style: context.text.section,

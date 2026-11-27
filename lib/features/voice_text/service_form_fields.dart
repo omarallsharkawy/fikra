@@ -34,19 +34,17 @@ class ServiceFormFields extends StatelessWidget {
     final l = context.l10n;
     Widget label(String text) => Padding(
       padding: const EdgeInsets.only(top: FikraSpace.s16, bottom: FikraSpace.s8),
-      child: Text(text, style: context.text.section),
+      child: SmartText(text, style: context.text.section),
     );
     Widget field(String key, TextEditingController controller, String hint, {bool ltr = true}) => Semantics(
       label: hint,
-      child: Directionality(
-        textDirection: ltr ? TextDirection.ltr : Directionality.of(context),
-        child: FikraField(
-          key: ValueKey(key),
-          controller: controller,
-          hint: hint,
-          textInputAction: TextInputAction.next,
-          onChanged: (_) => onChanged(),
-        ),
+      child: FikraField(
+        content: ltr ? InputContent.identifier : InputContent.text,
+        key: ValueKey(key),
+        controller: controller,
+        hint: hint,
+        textInputAction: TextInputAction.next,
+        onChanged: (_) => onChanged(),
       ),
     );
     final editableUrl = type == TranscriptionServiceType.openAi || type == TranscriptionServiceType.qwen;
@@ -76,12 +74,12 @@ class ServiceFormFields extends StatelessWidget {
             ),
           ),
         ),
-        Text(serviceKeyHint(l, type), style: context.text.caption),
+        SmartText(serviceKeyHint(l, type), style: context.text.caption),
         label(l.vsName),
         field('vs-name', name, l.vsName, ltr: false),
         label(l.vsBaseUrl),
         if (type == TranscriptionServiceType.qwen) ...[
-          Text(l.vsRegion, style: context.text.caption),
+          SmartText(l.vsRegion, content: ReadOnlyContent.chrome, style: context.text.caption),
           const SizedBox(height: FikraSpace.s8),
           Wrap(
             spacing: FikraSpace.s8,
@@ -104,7 +102,7 @@ class ServiceFormFields extends StatelessWidget {
         if (editableUrl)
           field('vs-url', url, l.vsBaseUrl)
         else
-          SelectableText(url.text, textDirection: TextDirection.ltr, style: context.text.caption),
+          SmartText(url.text, selectable: true, content: ReadOnlyContent.identifier, style: context.text.caption),
         if (url.text.trim().toLowerCase().startsWith('http:')) ...[
           const SizedBox(height: FikraSpace.s8),
           StatusBanner(kind: BannerKind.info, message: l.vsHttpWarning),
@@ -117,17 +115,15 @@ class ServiceFormFields extends StatelessWidget {
             Expanded(
               child: Semantics(
                 label: l.vsKey,
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: FikraField(
-                    key: const ValueKey('vs-key'),
-                    controller: keyText,
-                    hint: l.vsKey,
-                    obscure: obscured,
-                    keyboardType: TextInputType.visiblePassword,
-                    textInputAction: TextInputAction.next,
-                    onChanged: (_) => onChanged(),
-                  ),
+                child: FikraField(
+                  content: InputContent.identifier,
+                  key: const ValueKey('vs-key'),
+                  controller: keyText,
+                  hint: l.vsKey,
+                  obscure: obscured,
+                  keyboardType: TextInputType.visiblePassword,
+                  textInputAction: TextInputAction.next,
+                  onChanged: (_) => onChanged(),
                 ),
               ),
             ),
@@ -139,11 +135,11 @@ class ServiceFormFields extends StatelessWidget {
             ),
           ],
         ),
-        if (keepKey) Text(l.vsKeyKeep, style: context.text.caption),
+        if (keepKey) SmartText(l.vsKeyKeep, content: ReadOnlyContent.chrome, style: context.text.caption),
         label(l.vsLanguageHint),
         field('vs-language-hint', language, l.vsLanguageHint),
         const SizedBox(height: FikraSpace.s8),
-        Text(l.vsLanguageHelp, style: context.text.caption),
+        SmartText(l.vsLanguageHelp, content: ReadOnlyContent.chrome, style: context.text.caption),
       ],
     );
   }

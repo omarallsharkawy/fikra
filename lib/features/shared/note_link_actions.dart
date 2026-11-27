@@ -101,7 +101,7 @@ Future<void> showLinkOptions(
     builder: (sheet) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        SmartText(
           source == null
               ? noteTitle(sheet, entry.other)
               : '${noteTitle(sheet, source)} · ${noteTitle(sheet, entry.other)}',

@@ -59,7 +59,7 @@ class NoteCard extends ConsumerWidget {
         pressedScale: 0.98,
         child: SolidSurface(
           radius: FikraRadius.lg,
-          padding: EdgeInsets.fromLTRB(18 - inset, 16 - inset, 18 - inset, 16 - inset),
+          padding: EdgeInsetsDirectional.fromSTEB(18 - inset, 16 - inset, 18 - inset, 16 - inset),
           borderColor: on ? context.colors.accent : null,
           borderWidth: on ? 2 : FikraSpace.hairline,
           child: Column(
@@ -84,11 +84,11 @@ class NoteCard extends ConsumerWidget {
                           : Wrap(spacing: 6, runSpacing: 4, children: kindBadges),
                     ),
                     const SizedBox(width: 8),
-                    Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
+                    SmartText(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
+                SmartText(
                   noteTitle(context, note),
                   style: context.text.cardTitleSmall,
                   maxLines: 1,
@@ -99,7 +99,7 @@ class NoteCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Text(
+                      child: SmartText(
                         noteTitle(context, note),
                         style: context.text.cardTitleSmall,
                         maxLines: 1,
@@ -107,12 +107,12 @@ class NoteCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
+                    SmartText(Fmt.time(context.l10n, note.createdAt), style: context.text.meta),
                   ],
                 ),
               if (note.displayText.isNotEmpty) ...[
                 const SizedBox(height: 6),
-                Text(note.displayText, style: context.text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
+                SmartText(note.displayText, style: context.text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
               const SizedBox(height: 10),
               if (group != null || linkCount > 0) ...[
@@ -219,7 +219,7 @@ class _TypeBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: fg),
           const SizedBox(width: 4),
-          Text(
+          SmartText(
             label,
             style: context.text.meta.copyWith(color: fg, fontWeight: FontWeight.w600),
           ),
@@ -249,7 +249,7 @@ class _LinkCountPill extends StatelessWidget {
           children: [
             Icon(Icons.link_rounded, size: 14, color: c.brandLimeFg),
             const SizedBox(width: 4),
-            Text(
+            SmartText(
               '$count',
               style: context.text.meta.copyWith(color: c.brandLimeFg, fontWeight: FontWeight.w700),
             ),
@@ -273,7 +273,7 @@ class _ConceptTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(FikraRadius.full),
         border: Border.all(color: context.colors.line, width: FikraSpace.hairline),
       ),
-      child: Text(label, style: context.text.meta),
+      child: SmartText(label, style: context.text.meta),
     );
   }
 }

@@ -1,3 +1,6 @@
+import '../../l10n/localizations.dart';
+import 'smart_text.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,10 +26,10 @@ class GlassDebugOverlay extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         child,
-        Positioned(
+        PositionedDirectional(
           top: MediaQuery.paddingOf(context).top + 8,
-          left: 24,
-          right: 24,
+          start: 24,
+          end: 24,
           child: Align(
             alignment: AlignmentDirectional.topEnd,
             child: Material(
@@ -40,7 +43,7 @@ class GlassDebugOverlay extends ConsumerWidget {
             ),
           ),
         ),
-        const Positioned(left: 24, right: 24, bottom: 130, child: IgnorePointer(child: GlassReviewPanel())),
+        const PositionedDirectional(start: 24, end: 24, bottom: 130, child: IgnorePointer(child: GlassReviewPanel())),
       ],
     );
   }
@@ -66,18 +69,18 @@ class GlassReviewPanel extends ConsumerWidget {
               padding: const EdgeInsets.all(12),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: Text(tier.name, style: context.text.meta),
+                child: SmartText(tier.name, style: context.text.meta),
               ),
             ),
           ),
           if (tier == GlassTier.optical)
-            Positioned(
+            PositionedDirectional(
               top: 6,
               bottom: 6,
-              left: 72,
-              right: 12,
+              start: 72,
+              end: 12,
               child: GlassLens(
-                child: Center(child: Text('فكرة', style: context.text.section)),
+                child: Center(child: SmartText(context.l10n.appTitle, style: context.text.section)),
               ),
             ),
         ],

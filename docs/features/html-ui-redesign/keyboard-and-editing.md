@@ -22,10 +22,12 @@ with explicit Save fixed below it. Long notes can be reviewed and edited
 without scrolling the save action off-screen. No mutation or API contracts
 change; opening/closing the keyboard never saves or sends content.
 
-Verification: `keyboard_layout_test.dart` exercises 18 scenarios across Capture,
-Ask and note editing: AR/EN, 360×640 with a 340dp IME at 1×/2× text, and
+Verification: `keyboard_layout_test.dart` exercises 36 scenarios across Capture,
+Ask and note editing: AR/EN UI × AR/EN content, 360×640 with a 340dp IME at 1×/2× text, and
 640×360 with a 180dp IME. It checks caret bounds, editor clipping, focus,
 keyboard reopening, retained text, hit-testable actions and actual Save/Send.
-Combined with Capture/Ask/note-detail regression tests, 27 tests pass.
+The shared component and complete host regression suite pass (1,065 tests,
+16 conditionally skipped on 2026-11-28). Capture reserves an additional 44dp
+above its keyboard action row so native selection handles cannot cover Save.
 Screenshots are synthetic widget renders under `build/validation/redesign/keyboard/`;
 they do not claim to be physical Android keyboard screenshots.

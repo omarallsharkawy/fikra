@@ -37,9 +37,9 @@ abstract final class RdTokens {
   static const buttonHeight = 48.0, fieldHeight = 52.0, hitTarget = 44.0;
   static const sheetMotion = Duration(milliseconds: 200);
   static const undoWindow = Duration(seconds: 5);
-  // Preserve the HTML's font stack; the logo explicitly uses Inter.
-  static const family = 'IBMPlexSansArabic';
-  static const fallbacks = ['Inter', 'Noto Color Emoji'];
+  // Use Inter for Latin and IBM Plex Sans Arabic for Arabic glyphs.
+  static const family = 'Inter';
+  static const fallbacks = ['IBMPlexSansArabic', 'Noto Color Emoji'];
   static TextStyle style(
     BuildContext c, {
     double size = 15,

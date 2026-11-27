@@ -133,7 +133,7 @@ void main() {
     expect(find.byKey(const ValueKey('development-banner')), findsOneWidget);
     await tapVisible(tester, find.byKey(const ValueKey('fixture-reader')));
     expect(r.session.stage, SessionStage.authenticated);
-    expect(find.text('Notes'), findsOneWidget);
+    expect(find.text(tester.element(find.byType(Scaffold).first).l10n.rdNeutralGreeting), findsOneWidget);
     expect(find.byKey(const ValueKey('nav-0')), findsOneWidget);
     expect(r.workspace.selected!.isGeneral, isTrue);
     expect(find.text('Fixture: neural networks'), findsOneWidget);
@@ -153,11 +153,11 @@ void main() {
     tester.testTextInput.hide();
     await tester.pumpAndSettle();
     await tapVisible(tester, find.byKey(const ValueKey('save-product-note')));
-    expect(find.text('A captured thought'), findsOneWidget);
-    expect(find.text('Saved · queued'), findsOneWidget);
+    expect(find.byKey(ValueKey('product-note-${r.workspace.notes.single.id}')), findsOneWidget);
+    expect(r.workspace.notes.single.processing.pending, isTrue);
     await tapVisible(tester, find.byKey(ValueKey('product-note-${r.workspace.notes.single.id}')));
-    expect(find.text('Saved content'), findsOneWidget);
-    expect(find.byKey(const ValueKey('note-processing-state')), findsOneWidget);
+    expect(find.text('A captured thought'), findsWidgets);
+    expect(find.text(tester.element(find.byType(Scaffold).first).l10n.rdProc), findsOneWidget);
     expect(tester.takeException(), isNull);
     await cleanup(tester);
   });
@@ -169,7 +169,7 @@ void main() {
     final saved = await r.workspace.save();
     await tester.pumpAndSettle();
     await tapVisible(tester, find.byKey(ValueKey('product-note-${saved!.id}')));
-    expect(tester.widget<Text>(find.text('فكرة عربية')).textDirection, TextDirection.rtl);
+    expect(tester.widget<Text>(find.text('فكرة عربية').last).textDirection, TextDirection.rtl);
     expect(
       tester
           .widget<SelectableText>(find.byWidgetPredicate((w) => w is SelectableText && w.data == 'A saved thought'))

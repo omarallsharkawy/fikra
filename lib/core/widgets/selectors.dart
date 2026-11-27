@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -32,7 +34,7 @@ class FikraChip extends StatelessWidget {
         child: Center(
           widthFactor: 1,
           heightFactor: 1,
-          child: Text(
+          child: SmartText(
             label,
             style: context.text.chip.copyWith(
               color: selected ? context.colors.onBrandLime : context.colors.textPrimary,
@@ -103,7 +105,6 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
       child: LayoutBuilder(
         builder: (context, c) {
           final w = c.maxWidth / widget.options.length;
-          final rtl = Directionality.of(context) == TextDirection.rtl;
           final textScaler = MediaQuery.textScalerOf(context);
           final canWrap = fixedHeight == null && textScaler.scale(1.0) > 1.0;
           final horizontalPad = canWrap ? 4.0 : 8.0;
@@ -113,9 +114,8 @@ class _SegmentedPillState extends State<SegmentedPill> with SingleTickerProvider
             children: [
               AnimatedBuilder(
                 animation: _c,
-                builder: (context, _) => Positioned(
-                  left: rtl ? null : _c.value * w,
-                  right: rtl ? _c.value * w : null,
+                builder: (context, _) => PositionedDirectional(
+                  start: _c.value * w,
                   top: 0,
                   bottom: 0,
                   width: w,

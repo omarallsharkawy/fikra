@@ -1,3 +1,6 @@
+import '../../core/widgets/smart_text.dart';
+import '../../core/widgets/smart_input.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -109,7 +112,7 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
       if (!mounted) return;
       await sharing.share(bytes, filename: 'fikrah-note-${newId()}.png', mime: 'image/png');
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.rdShareFailed)));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: SmartText(context.l10n.rdShareFailed)));
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
@@ -198,13 +201,13 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
           if (_mode != _DiffMode.changes)
             RdText(_mode == _DiffMode.before ? n.content : n.proposal!, selectable: true)
           else
-            SelectableText.rich(
+            SmartText.rich(
               TextSpan(
                 style: RdTokens.style(context),
                 children: [
                   for (final change in _changes)
                     TextSpan(
-                      text: rdIsolate(change.text),
+                      text: change.text,
                       style: TextStyle(
                         backgroundColor: change.kind == DiffKind.added
                             ? context.rd.added
@@ -217,7 +220,6 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
                 ],
               ),
               key: const ValueKey('refinement-proposal'),
-              textDirection: rdDirection(n.proposal!),
             ),
           const SizedBox(height: 12),
           Row(
@@ -261,7 +263,7 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
                       reviewedNoteId: n.id,
                       expectedGeneration: n.generation,
                     ),
-              child: Text(l.rdAnother),
+              child: SmartText(l.rdAnother),
             ),
           ),
         ],
@@ -364,7 +366,7 @@ class _ProductNoteScreenState extends ConsumerState<ProductNoteScreen> {
               RdText(l.rdPendingChange, size: 13, color: context.rd.muted),
             if (w.related.where((n) => !r.undo.hiddenIds.contains(n.noteId)).isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(2, 2, 2, 8),
+                padding: const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 8),
                 child: RdText(l.rdRel, size: 13, color: context.rd.muted),
               ),
               for (final related in w.related.where((n) => !r.undo.hiddenIds.contains(n.noteId)))
@@ -508,17 +510,13 @@ class _NoteEditFormState extends State<_NoteEditForm> {
                   const SizedBox(height: 12),
                   KeyedSubtree(
                     key: const ValueKey('edit-content'),
-                    child: TextField(
+                    child: SmartInput(
                       controller: _body,
                       enabled: !widget.runtime.workspace.busy,
                       onChanged: (v) => setState(() => _content = v),
                       minLines: 5,
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
-                      textDirection: rdDirection(_content, Directionality.of(context)),
-                      textAlign: rdDirection(_content, Directionality.of(context)) == TextDirection.rtl
-                          ? TextAlign.right
-                          : TextAlign.left,
                       style: RdTokens.style(context, size: 17),
                       decoration: InputDecoration(
                         hintText: l.rdCph,

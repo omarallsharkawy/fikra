@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:fikra/app/providers.dart';
+import 'package:fikra/l10n/localizations.dart';
 import 'package:fikra/app/app.dart';
-import 'package:fikra/features/workspace/product_widgets.dart';
 import 'package:fikra/features/account/session_controller.dart';
 import 'package:fikra/features/workspace/graph_screen.dart';
 import 'package:flutter/material.dart';
@@ -50,11 +50,7 @@ void main() {
           expect(tester.takeException(), isNull);
           await tapVisible(tester, find.byKey(const ValueKey('nav-add')));
           if (scale == 1) await capture(tester, '$name-capture');
-          await tester.scrollUntilVisible(
-            find.byKey(const ValueKey('save-product-note')),
-            350,
-            scrollable: find.descendant(of: find.byType(ProductScaffold), matching: find.byType(Scrollable)).first,
-          );
+          expect(find.byKey(const ValueKey('save-product-note')).hitTestable(), findsOneWidget);
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           GoRouter.of(tester.element(find.byKey(const ValueKey('save-product-note')))).go('/links');
@@ -62,15 +58,21 @@ void main() {
           final graph = find.byType(ProductNoteGraph);
           await tester.ensureVisible(graph);
           await tester.pumpAndSettle();
-          final viewer = find.descendant(of: graph, matching: find.byType(InteractiveViewer));
-          final transform = tester.widget<InteractiveViewer>(viewer).transformationController!;
+          final l = tester.element(graph).l10n;
+          final first = find.byKey(ValueKey('graph-node-${r.workspace.graph.nodes.first.id}'));
+          final second = find.byKey(ValueKey('graph-node-${r.workspace.graph.nodes.last.id}'));
+          final viewport = find.descendant(of: graph, matching: find.byType(AspectRatio));
+          await tester.longPressAt(tester.getTopLeft(viewport) + const Offset(10, 10));
+          await tester.pumpAndSettle();
           for (var i = 0; i < 20; i++) {
-            await tester.tap(find.byTooltip(locale.languageCode == 'en' ? 'Zoom in' : 'تكبير'));
+            await tester.tap(find.text(l.productZoomIn));
             await tester.pump();
           }
-          expect(transform.value.getMaxScaleOnAxis(), lessThanOrEqualTo(3.00001));
-          // Fit restores the full graph after repeated bounded zooms.
-          await tester.tap(find.byTooltip(locale.languageCode == 'en' ? 'Fit all ideas' : 'إظهار كل الأفكار'));
+          final limit = (tester.getCenter(first) - tester.getCenter(second)).distance;
+          await tester.tap(find.text(l.productZoomIn));
+          await tester.pump();
+          expect((tester.getCenter(first) - tester.getCenter(second)).distance, closeTo(limit, .01));
+          await tester.tap(find.text(l.uiFitIdeas));
           await tester.pumpAndSettle();
           final node = find.byKey(ValueKey('graph-node-${r.workspace.graph.nodes.first.id}'));
           await tester.tap(node);
@@ -111,7 +113,7 @@ void main() {
     await tapVisible(tester, find.byKey(const ValueKey('manage-product-projects')));
     expect(find.byKey(ValueKey('select-project-$generalId')), findsNothing);
     await tapVisible(tester, find.byKey(const ValueKey('new-product-project')));
-    await tester.enterText(find.byType(TextFormField), 'My project');
+    await tester.enterText(find.byType(TextField), 'My project');
     await tester.tap(find.widgetWithText(TextButton, 'Save'));
     await tester.pumpAndSettle();
     final customId = r.workspace.selectedProjectId!;
@@ -135,8 +137,12 @@ void main() {
   });
   testWidgets('registration verification returns to sign-in and clears password input', (tester) async {
     final r = await boot(tester);
-    await tapVisible(tester, find.text('Sign up with email'));
-    for (final (key, text) in [('account-email', 'new@example.invalid'), ('account-password', 'fixture-only')]) {
+    await tapVisible(tester, find.byKey(const ValueKey('auth-start-signup')));
+    for (final (key, text) in [
+      ('account-name', 'Preview user'),
+      ('account-email', 'new@example.invalid'),
+      ('account-password', 'fixture-only'),
+    ]) {
       await tester.enterText(find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(TextField)), text);
     }
     tester.testTextInput.hide();

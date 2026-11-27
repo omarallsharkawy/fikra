@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -87,7 +89,7 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    TextButton(onPressed: () => setState(() => _showPrompt = false), child: Text(l.rdLater)),
+                    TextButton(onPressed: () => setState(() => _showPrompt = false), child: SmartText(l.rdLater)),
                   ],
                 ),
               ],
@@ -179,7 +181,7 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
         body: RefreshIndicator(
           onRefresh: w.retryWorkspace,
           child: ListView(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + NavigationInset.of(context)),
+            padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16 + NavigationInset.of(context)),
             physics: const AlwaysScrollableScrollPhysics(),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: children,
@@ -231,7 +233,7 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
       for (final isToday in [true, false]) ...[
         if (values.any((n) => today(n) == isToday)) ...[
           Padding(
-            padding: EdgeInsets.fromLTRB(2, isToday || !values.any(today) ? 12 : 2, 2, 8),
+            padding: EdgeInsetsDirectional.fromSTEB(2, isToday || !values.any(today) ? 12 : 2, 2, 8),
             child: RdText(isToday ? l.rdToday : l.rdEarlier, size: 13, color: context.rd.muted),
           ),
           for (final n in values.where((n) => today(n) == isToday))

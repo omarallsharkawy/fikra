@@ -5069,13 +5069,13 @@ abstract class AppLocalizations {
   /// No description provided for @rdBased.
   ///
   /// In ar, this message translates to:
-  /// **'مبني على {count} نوتات'**
+  /// **'{count, plural, zero{من غير مصادر} one{مبني على نوتة واحدة} two{مبني على نوتتين} few{مبني على {count} نوتات} many{مبني على {count} نوتة} other{مبني على {count} نوتة}}'**
   String rdBased(int count);
 
   /// No description provided for @rdHello.
   ///
   /// In ar, this message translates to:
-  /// **'عندك {count} نوتات. عايز تعرف إيه؟'**
+  /// **'{count, plural, zero{لسه مفيش نوتات. حابب تعرف إيه؟} one{عندك نوتة واحدة. حابب تعرف إيه؟} two{عندك نوتتين. حابب تعرف إيه؟} few{عندك {count} نوتات. حابب تعرف إيه؟} many{عندك {count} نوتة. حابب تعرف إيه؟} other{عندك {count} نوتة. حابب تعرف إيه؟}}'**
   String rdHello(int count);
 
   /// No description provided for @rdCph.

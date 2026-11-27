@@ -735,7 +735,9 @@ void main() {
         expect(mapSemantics.label, l.linksMap);
         expect(mapSemantics.flagsCollection.isSelected, Tristate.isTrue);
         expect(find.byType(LinksLibraryScreen, skipOffstage: false), findsOneWidget);
-        final search = find.byKey(const ValueKey('links-search')).hitTestable();
+        final search = find
+            .descendant(of: find.byKey(const ValueKey('links-search')), matching: find.byType(TextField))
+            .hitTestable();
         expect(search, findsOneWidget);
         expect(tester.widget<TextField>(search).decoration?.hintText, l.searchLinksHint);
         expect(find.byKey(const ValueKey('header-settings')), findsNothing);

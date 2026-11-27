@@ -41,12 +41,7 @@ class _ProductNavigationState extends State<ProductNavigation> {
           _ => -1,
         };
         double offset(int index) => index < 2 ? index * width : 2 * width + 68 + (index - 3) * width;
-        final rtl = Directionality.of(context) == TextDirection.rtl;
-        final x = selected < 0
-            ? 0.0
-            : rtl
-            ? box.maxWidth - 7 - width - offset(selected)
-            : 7 + offset(selected);
+        final x = selected < 0 ? 0.0 : 7 + offset(selected);
         Widget tab(int id, int index, String label, String icon) => Expanded(
           child: Semantics(
             selected: widget.branch == id,
@@ -100,9 +95,9 @@ class _ProductNavigationState extends State<ProductNavigation> {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Positioned(
-                left: 0,
-                right: 0,
+              PositionedDirectional(
+                start: 0,
+                end: 0,
                 bottom: 0,
                 height: height,
                 child: DecoratedBox(
@@ -129,10 +124,10 @@ class _ProductNavigationState extends State<ProductNavigation> {
                         child: Stack(
                           children: [
                             if (selected >= 0)
-                              AnimatedPositioned(
+                              AnimatedPositionedDirectional(
                                 duration: motion,
                                 curve: const Cubic(.2, .9, .2, 1),
-                                left: x,
+                                start: x,
                                 top: 9,
                                 width: width - 4,
                                 height: height - 20,

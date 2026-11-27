@@ -51,14 +51,14 @@ class _PickRow extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
+                          SmartText(
                             title,
                             style: context.text.body.copyWith(fontWeight: FontWeight.w600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (snippet.isNotEmpty && snippet != title)
-                            Text(
+                            SmartText(
                               snippet,
                               style: context.text.meta.copyWith(color: context.colors.textSecondary),
                               maxLines: 1,
@@ -69,7 +69,7 @@ class _PickRow extends StatelessWidget {
                     ),
                     if (linked) ...[
                       const SizedBox(width: 8),
-                      Text(context.l10n.alreadyLinked, style: context.text.meta),
+                      SmartText(context.l10n.alreadyLinked, content: ReadOnlyContent.chrome, style: context.text.meta),
                     ] else if (origin == LinkOrigin.ai) ...[
                       const SizedBox(width: 8),
                       const LinkSuggestedTag(),
@@ -102,10 +102,10 @@ class _PickerMessage extends StatelessWidget {
           children: [
             if (icon != null) ...[Icon(icon, size: 28, color: context.colors.textSecondary), const SizedBox(height: 8)],
             if (title != null) ...[
-              Text(title!, style: context.text.cardTitleSmall, textAlign: TextAlign.center),
+              SmartText(title!, style: context.text.cardTitleSmall, textAlign: TextAlign.center),
               const SizedBox(height: 4),
             ],
-            Text(
+            SmartText(
               text,
               style: context.text.body.copyWith(color: context.colors.textSecondary),
               textAlign: TextAlign.center,

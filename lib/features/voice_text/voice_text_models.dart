@@ -77,11 +77,11 @@ class VoiceTextModels extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(modelLabel(l, model, bytes: c.sizes[model.modelName]), style: context.text.section),
+                        SmartText(modelLabel(l, model, bytes: c.sizes[model.modelName]), style: context.text.section),
                         const SizedBox(height: FikraSpace.s4),
-                        Text(modelHint(l, model), style: context.text.caption),
+                        SmartText(modelHint(l, model), style: context.text.caption),
                         const SizedBox(height: FikraSpace.s4),
-                        Text(
+                        SmartText(
                           downloading
                               ? l.vtProgress(
                                   Fmt.isolate(Fmt.bytes(l, c.received)),
@@ -137,7 +137,7 @@ class VoiceTextModels extends StatelessWidget {
     children: [
       for (final model in models) _row(context, model),
       if (showStorage)
-        Text(
+        SmartText(
           context.l10n.vtUsed(Fmt.isolate(Fmt.bytes(context.l10n, controller.usedBytes))),
           style: context.text.caption,
         ),

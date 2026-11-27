@@ -55,11 +55,12 @@ void main() {
           tester.getCenter(home).dx,
           language == 'ar' ? greaterThan(tester.getCenter(map).dx) : lessThan(tester.getCenter(map).dx),
         );
-        final before = tester.widget<AnimatedPositioned>(find.byType(AnimatedPositioned)).left!;
+        final before = tester.widget<AnimatedPositionedDirectional>(find.byType(AnimatedPositionedDirectional)).start!;
         await tester.tap(map);
         await tester.pumpAndSettle();
-        final after = tester.widget<AnimatedPositioned>(find.byType(AnimatedPositioned));
-        expect(after.left, language == 'ar' ? lessThan(before) : greaterThan(before));
+        final after = tester.widget<AnimatedPositionedDirectional>(find.byType(AnimatedPositionedDirectional));
+        expect(after.start, greaterThan(before));
+        // Logical start increases in both languages; physical position mirrors.
         expect(after.duration, reduced ? Duration.zero : const Duration(milliseconds: 320));
         await tester.tap(find.byKey(const ValueKey('nav-add')));
         await tester.pumpAndSettle();

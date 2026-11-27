@@ -172,7 +172,15 @@ void main() {
     await tester.tap(find.text(l.keepEditing));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.byType(TranscriptEditorScreen), findsOneWidget);
-    expect(tester.widget<TextField>(find.byKey(const ValueKey('v2-transcript-field'))).controller!.text, 'Unsaved');
+    expect(
+      tester
+          .widget<TextField>(
+            find.descendant(of: find.byKey(const ValueKey('v2-transcript-field')), matching: find.byType(TextField)),
+          )
+          .controller!
+          .text,
+      'Unsaved',
+    );
   });
   final discoveryKeys = MemoryServiceKeys();
   final discoveryHttp = FakeTranscriptionTransport()

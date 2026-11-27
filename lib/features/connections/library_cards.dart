@@ -22,14 +22,14 @@ class LibraryNoteText extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text(
+      SmartText(
         noteTitleText(context, note.title),
         style: context.text.body.copyWith(fontWeight: FontWeight.w600),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       const SizedBox(height: 4),
-      Text(note.text, style: context.text.caption, maxLines: lines, overflow: TextOverflow.ellipsis),
+      SmartText(note.text, style: context.text.caption, maxLines: lines, overflow: TextOverflow.ellipsis),
     ],
   );
 }
@@ -57,9 +57,9 @@ class BrowseNoteCard extends StatelessWidget {
               children: [
                 LibraryNoteText(note: entry.note),
                 const SizedBox(height: 12),
-                Text(Fmt.links(context.l10n, entry.others.length), style: context.text.meta),
+                SmartText(Fmt.links(context.l10n, entry.others.length), style: context.text.meta),
                 const SizedBox(height: 4),
-                Text(
+                SmartText(
                   [
                     // Isolated so a mixed Arabic/English title never reorders the row.
                     for (final n in entry.others.take(2)) Fmt.isolate(noteTitleText(context, n.title)),

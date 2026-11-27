@@ -82,9 +82,9 @@ class VoiceTextRecordings extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: FikraSpace.s16),
-        Text(l.vtClips, style: context.text.section),
+        SmartText(l.vtClips, content: ReadOnlyContent.chrome, style: context.text.section),
         const SizedBox(height: FikraSpace.s8),
-        if (c.clips.isEmpty) Text(l.vtNoRecordings, style: context.text.caption),
+        if (c.clips.isEmpty) SmartText(l.vtNoRecordings, content: ReadOnlyContent.chrome, style: context.text.caption),
         for (var i = 0; i < c.clips.length; i++)
           Padding(
             padding: const EdgeInsets.only(bottom: FikraSpace.s8),

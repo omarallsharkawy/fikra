@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -47,11 +49,15 @@ Future<T?> showFikraSheet<T>(
           ),
         ),
         const SizedBox(height: 16),
-        Semantics(header: true, child: Text(title, style: context.text.cardTitle)),
+        Semantics(header: true, child: SmartText(title, style: context.text.cardTitle)),
         const SizedBox(height: 16),
       ];
       Widget shell(Widget content, {double? height, double safeBottom = 0}) => _SheetKeyboardInset(
-        child: _SheetSurface(height: height, padding: EdgeInsets.fromLTRB(22, 12, 22, 28 + safeBottom), child: content),
+        child: _SheetSurface(
+          height: height,
+          padding: EdgeInsetsDirectional.fromSTEB(22, 12, 22, 28 + safeBottom),
+          child: content,
+        ),
       );
       if (!tall) {
         return shell(
@@ -164,7 +170,7 @@ class SheetOption extends StatelessWidget {
         const SizedBox(width: 12),
         // A long label (or large text) wraps instead of overflowing.
         Flexible(
-          child: Text(label, style: context.text.section.copyWith(color: fg)),
+          child: SmartText(label, style: context.text.section.copyWith(color: fg)),
         ),
       ],
     );

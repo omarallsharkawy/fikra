@@ -36,7 +36,7 @@ class ProductAuthLayout extends StatelessWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 10),
                 child: Row(
                   children: [
                     Visibility(
@@ -61,7 +61,7 @@ class ProductAuthLayout extends StatelessWidget {
                 child: SingleChildScrollView(
                   key: const ValueKey('auth-scroll'),
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                  padding: const EdgeInsetsDirectional.fromSTEB(16, 6, 16, 16),
                   child: AutofillGroup(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,

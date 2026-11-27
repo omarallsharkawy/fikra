@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' show Bidi;
+
+import '../text_direction.dart';
+import 'smart_text.dart';
 
 import '../theme/redesign_tokens.dart';
 import '../../l10n/localizations.dart';
 import 'navigation_inset.dart';
 
-TextDirection rdDirection(String text, [TextDirection fallback = TextDirection.ltr]) {
-  if (text.trim().isEmpty) return fallback;
-  return Bidi.startsWithRtl(text) ? TextDirection.rtl : TextDirection.ltr;
-}
+TextDirection rdDirection(String text, [TextDirection fallback = TextDirection.ltr]) =>
+    contentDirection(text, fallback);
 
-String rdIsolate(String value) => '\u2068$value\u2069';
+String rdIsolate(String value) => bidiIsolate(value);
 
 class RdText extends StatelessWidget {
   const RdText(
@@ -44,17 +44,15 @@ class RdText extends StatelessWidget {
       color: color,
       height: height,
     ).copyWith(decoration: decoration);
-    final dir = direction ?? rdDirection(text, Directionality.of(context));
-    return selectable
-        ? SelectableText(text, style: style, textDirection: dir, textAlign: align, maxLines: lines)
-        : Text(
-            text,
-            style: style,
-            textDirection: dir,
-            textAlign: align,
-            maxLines: lines,
-            overflow: lines == null ? null : TextOverflow.ellipsis,
-          );
+    return SmartText(
+      text,
+      style: style,
+      direction: direction,
+      textAlign: align,
+      selectable: selectable,
+      maxLines: lines,
+      overflow: lines == null ? null : TextOverflow.ellipsis,
+    );
   }
 }
 
@@ -90,7 +88,7 @@ class RdIcon extends StatelessWidget {
   final bool flip;
   @override
   Widget build(BuildContext context) => Transform.flip(
-    flipX: flip && Directionality.of(context) == TextDirection.rtl,
+    flipX: (flip || const {'back', 'chev', 're'}.contains(name)) && Directionality.of(context) == TextDirection.rtl,
     child: CustomPaint(size: Size.square(size), painter: _IconPainter(name, color ?? context.rd.text)),
   );
 }
@@ -426,7 +424,7 @@ class RdPage extends StatelessWidget {
                 body ??
                 ListView(
                   controller: controller,
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + NavigationInset.of(context)),
+                  padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16 + NavigationInset.of(context)),
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   children: children,
                 ),
@@ -448,7 +446,7 @@ Future<T?> rdSheet<T>(BuildContext context, {required Widget child}) => showModa
     duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : RdTokens.sheetMotion,
   ),
   builder: (context) => Padding(
-    padding: EdgeInsets.fromLTRB(16, 18, 16, 20 + MediaQuery.viewInsetsOf(context).bottom),
+    padding: EdgeInsetsDirectional.fromSTEB(16, 18, 16, 20 + MediaQuery.viewInsetsOf(context).bottom),
     child: SingleChildScrollView(child: child),
   ),
 );

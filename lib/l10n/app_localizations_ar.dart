@@ -2968,12 +2968,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String rdBased(int count) {
-    return 'مبني على $count نوتات';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'مبني على $count نوتة',
+      many: 'مبني على $count نوتة',
+      few: 'مبني على $count نوتات',
+      two: 'مبني على نوتتين',
+      one: 'مبني على نوتة واحدة',
+      zero: 'من غير مصادر',
+    );
+    return '$_temp0';
   }
 
   @override
   String rdHello(int count) {
-    return 'عندك $count نوتات. عايز تعرف إيه؟';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'عندك $count نوتة. حابب تعرف إيه؟',
+      many: 'عندك $count نوتة. حابب تعرف إيه؟',
+      few: 'عندك $count نوتات. حابب تعرف إيه؟',
+      two: 'عندك نوتتين. حابب تعرف إيه؟',
+      one: 'عندك نوتة واحدة. حابب تعرف إيه؟',
+      zero: 'لسه مفيش نوتات. حابب تعرف إيه؟',
+    );
+    return '$_temp0';
   }
 
   @override

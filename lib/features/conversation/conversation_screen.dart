@@ -1,3 +1,4 @@
+import '../../core/widgets/smart_text.dart';
 import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
@@ -68,7 +69,7 @@ class ProductConversationHistoryScreen extends StatelessWidget {
             const SizedBox(height: 24),
             TextButton.icon(
               icon: const Icon(Icons.delete_outline),
-              label: Text(context.l10n.productDeleteConversation2),
+              label: SmartText(context.l10n.productDeleteConversation2),
               onPressed: locked
                   ? null
                   : () async {

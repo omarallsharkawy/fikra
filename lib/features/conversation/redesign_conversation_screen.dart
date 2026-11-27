@@ -1,3 +1,6 @@
+import '../../core/widgets/smart_text.dart';
+import '../../core/widgets/smart_input.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -151,7 +154,8 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
         if (c.current != null) ...[
           for (final message in c.current!.messages) _MessageBubble(message),
           if (c.preview.isNotEmpty) _MessageBubble.preview(c.preview),
-          if (c.sendState == SendState.sending) TextButton(onPressed: c.interrupt, child: Text(l.productStopWaiting)),
+          if (c.sendState == SendState.sending)
+            TextButton(onPressed: c.interrupt, child: SmartText(l.productStopWaiting)),
           if (c.sendState == SendState.uncertain)
             RdButton(
               l.rdCheckConversation,
@@ -190,7 +194,12 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
         ),
         body: ListView(
           controller: _scroll,
-          padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + (c.current == null ? NavigationInset.of(context) : 0)),
+          padding: EdgeInsetsDirectional.fromSTEB(
+            16,
+            0,
+            16,
+            16 + (c.current == null ? NavigationInset.of(context) : 0),
+          ),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: children,
         ),
@@ -249,9 +258,7 @@ class _MessageBubble extends StatelessWidget {
       for (final source in message?.sources ?? const <NoteSourceReference>[]) source.noteId: source,
     };
     return Align(
-      alignment: user
-          ? (rdDirection(message!.content) == TextDirection.ltr ? Alignment.centerRight : Alignment.centerLeft)
-          : AlignmentDirectional.centerStart,
+      alignment: user ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
       child: FractionallySizedBox(
         widthFactor: .88,
         child: Container(
@@ -385,7 +392,7 @@ class _ChatComposerState extends State<_ChatComposer> {
   Widget build(BuildContext context) {
     final c = widget.controller;
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+      margin: const EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
       padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 6, 4),
       decoration: BoxDecoration(
         color: context.rd.surface,
@@ -397,11 +404,10 @@ class _ChatComposerState extends State<_ChatComposer> {
         spacing: 8,
         children: [
           Expanded(
-            child: TextField(
+            child: SmartInput(
               key: const ValueKey('chat-question'),
               controller: _text,
               onChanged: c.updateDraft,
-              textDirection: rdDirection(_text.text, Directionality.of(context)),
               style: RdTokens.style(context),
               keyboardType: TextInputType.multiline,
               minLines: 1,

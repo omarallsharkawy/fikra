@@ -133,7 +133,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               label: l.rdEm,
               onChanged: (v) => setState(() => _email = v),
               enabled: !s.busy,
-              textDirection: TextDirection.ltr,
+              content: InputContent.identifier,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
               action: recovery ? TextInputAction.done : TextInputAction.next,
@@ -147,7 +147,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               onChanged: (v) => setState(() => _token = v),
               enabled: !s.busy,
               keyboardType: preview ? null : TextInputType.number,
-              textDirection: TextDirection.ltr,
+              content: InputContent.identifier,
               autofillHints: const [AutofillHints.oneTimeCode],
               inputFormatters: preview
                   ? null
@@ -163,7 +163,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               password: true,
               onChanged: (v) => setState(() => _password = v),
               enabled: !s.busy,
-              textDirection: TextDirection.ltr,
+              content: InputContent.identifier,
               action: TextInputAction.done,
               autofillHints: [reset || _register ? AutofillHints.newPassword : AutofillHints.password],
             ),
@@ -289,7 +289,7 @@ class _AuthLink extends StatelessWidget {
       textStyle: RdTokens.style(context),
     ),
     onPressed: onPressed,
-    child: Text(label, textAlign: TextAlign.center),
+    child: SmartText(label, textAlign: TextAlign.center),
   );
 }
 
@@ -351,9 +351,9 @@ class _ProductPreferences extends ConsumerWidget {
           isExpanded: true,
           decoration: InputDecoration(labelText: context.l10n.appearance),
           items: [
-            DropdownMenuItem(value: AppTheme.system, child: Text(context.l10n.themeSystem)),
-            DropdownMenuItem(value: AppTheme.light, child: Text(context.l10n.themeLight)),
-            DropdownMenuItem(value: AppTheme.dark, child: Text(context.l10n.themeDark)),
+            DropdownMenuItem(value: AppTheme.system, child: SmartText(context.l10n.themeSystem)),
+            DropdownMenuItem(value: AppTheme.light, child: SmartText(context.l10n.themeLight)),
+            DropdownMenuItem(value: AppTheme.dark, child: SmartText(context.l10n.themeDark)),
           ],
           onChanged: (value) {
             if (value != null) runAction(context, () => ref.read(settingsRepoProvider).setTheme(value));
@@ -366,9 +366,9 @@ class _ProductPreferences extends ConsumerWidget {
           isExpanded: true,
           decoration: InputDecoration(labelText: context.l10n.languageSection),
           items: [
-            DropdownMenuItem(value: AppLanguage.system, child: Text(context.l10n.languageSystem)),
-            DropdownMenuItem(value: AppLanguage.ar, child: Text(context.l10n.languageArabic)),
-            DropdownMenuItem(value: AppLanguage.en, child: Text(context.l10n.languageEnglish)),
+            DropdownMenuItem(value: AppLanguage.system, child: SmartText(context.l10n.languageSystem)),
+            DropdownMenuItem(value: AppLanguage.ar, child: SmartText(context.l10n.languageArabic)),
+            DropdownMenuItem(value: AppLanguage.en, child: SmartText(context.l10n.languageEnglish)),
           ],
           onChanged: (value) {
             if (value != null) runAction(context, () => ref.read(settingsRepoProvider).setLanguage(value));
@@ -390,7 +390,7 @@ class ProductSettingsScreen extends StatelessWidget {
         child: ListTile(
           key: const ValueKey('manage-product-projects'),
           leading: const Icon(Icons.folder_outlined),
-          title: Text(context.l10n.projectsTitle),
+          title: SmartText(context.l10n.projectsTitle),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push('/settings/projects'),
         ),

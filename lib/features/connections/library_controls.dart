@@ -81,7 +81,7 @@ class _LibraryControlsState extends State<LibraryControls> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: TextField(
+                      child: SmartInput(
                         key: const ValueKey('links-search'),
                         controller: widget.search,
                         focusNode: _focus,

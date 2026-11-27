@@ -19,8 +19,8 @@ class NavSelection extends StatelessWidget {
   final int count;
 
   @override
-  Widget build(BuildContext context) => Positioned(
-    left: 4,
+  Widget build(BuildContext context) => PositionedDirectional(
+    start: 4,
     top: 4,
     width: width,
     height: height,
@@ -37,10 +37,7 @@ class NavSelection extends StatelessWidget {
         ),
       ),
       builder: (context, child) => Transform.translate(
-        offset: Offset(
-          (Directionality.of(context) == TextDirection.rtl ? count - 1 - position.value : position.value) * width,
-          0,
-        ),
+        offset: Offset((Directionality.of(context) == TextDirection.rtl ? -1 : 1) * position.value * width, 0),
         child: child,
       ),
     ),

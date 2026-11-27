@@ -1,8 +1,10 @@
+import '../../core/widgets/smart_text.dart';
+import '../../core/widgets/smart_input.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/redesign_tokens.dart';
-import '../../core/widgets/redesign_widgets.dart';
 import '../../l10n/localizations.dart';
 
 class RedesignAuthField extends StatefulWidget {
@@ -15,7 +17,7 @@ class RedesignAuthField extends StatefulWidget {
     this.enabled = true,
     this.keyboardType,
     this.autofillHints,
-    this.textDirection,
+    this.content = InputContent.text,
     this.inputFormatters,
     this.action = TextInputAction.next,
     this.onSubmitted,
@@ -25,7 +27,7 @@ class RedesignAuthField extends StatefulWidget {
   final bool password, enabled;
   final TextInputType? keyboardType;
   final Iterable<String>? autofillHints;
-  final TextDirection? textDirection;
+  final InputContent content;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputAction action;
   final ValueChanged<String>? onSubmitted;
@@ -54,22 +56,18 @@ class _RedesignAuthFieldState extends State<RedesignAuthField> {
   }
 
   @override
-  Widget build(BuildContext context) => TextField(
+  Widget build(BuildContext context) => SmartInput(
     controller: _controller,
     enabled: widget.enabled,
     onChanged: (v) {
       widget.onChanged(v);
-      if (widget.textDirection == null) setState(() {});
     },
     onSubmitted: widget.onSubmitted,
     textInputAction: widget.action,
     keyboardType: widget.keyboardType,
     autofillHints: widget.autofillHints,
     inputFormatters: widget.inputFormatters,
-    textDirection: widget.textDirection ?? rdDirection(_controller.text),
-    textAlign: (widget.textDirection ?? rdDirection(_controller.text)) == TextDirection.rtl
-        ? TextAlign.right
-        : TextAlign.left,
+    content: widget.password ? InputContent.identifier : widget.content,
     style: RdTokens.style(context),
     obscureText: widget.password && !_revealed,
     enableSuggestions: !widget.password,
@@ -103,7 +101,7 @@ class _RedesignAuthFieldState extends State<RedesignAuthField> {
                 textStyle: RdTokens.style(context),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
               ),
-              child: Text(_revealed ? context.l10n.rdHide : context.l10n.rdShow),
+              child: SmartText(_revealed ? context.l10n.rdHide : context.l10n.rdShow),
             )
           : null,
     ),

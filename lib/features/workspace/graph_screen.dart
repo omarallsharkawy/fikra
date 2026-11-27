@@ -1,3 +1,4 @@
+import '../../core/widgets/smart_text.dart';
 import '../../l10n/localizations.dart';
 
 import 'dart:async';
@@ -110,7 +111,7 @@ class _ProductGraphScreenState extends ConsumerState<ProductGraphScreen> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: _dismissCoach,
-                    child: Text(l.rdOk),
+                    child: SmartText(l.rdOk),
                   ),
                 ],
               ),

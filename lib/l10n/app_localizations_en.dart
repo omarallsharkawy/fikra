@@ -2897,12 +2897,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String rdBased(int count) {
-    return 'Based on $count notes';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Based on $count notes',
+      one: 'Based on 1 note',
+      zero: 'No sources',
+    );
+    return '$_temp0';
   }
 
   @override
   String rdHello(int count) {
-    return 'You have $count notes. What do you want to know?';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count notes. What do you want to know?',
+      one: 'You have 1 note. What do you want to know?',
+      zero: 'You have no notes yet. What do you want to know?',
+    );
+    return '$_temp0';
   }
 
   @override

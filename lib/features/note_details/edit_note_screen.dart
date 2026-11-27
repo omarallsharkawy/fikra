@@ -183,12 +183,13 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
                     )
                   : const SizedBox.shrink())
             : ListView(
-                padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, 24),
+                padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 14, FikraSpace.screen, 24),
                 children: [
                   Semantics(
                     header: true,
-                    child: Text(
+                    child: SmartText(
                       context.l10n.editNoteTitle,
+                      content: ReadOnlyContent.chrome,
                       style: context.text.title.copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -203,10 +204,10 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
                   const SizedBox(height: 12),
                   SolidSurface(
                     radius: FikraRadius.lg,
-                    padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
+                    padding: const EdgeInsetsDirectional.fromSTEB(18, 6, 18, 6),
                     child: Semantics(
                       label: context.l10n.noteTextA11y,
-                      child: TextField(
+                      child: SmartInput(
                         controller: _text,
                         readOnly: saving,
                         onChanged: (_) => setState(() {}),
@@ -219,7 +220,11 @@ class _EditNoteScreenState extends ConsumerState<EditNoteScreen> with Attachment
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(context.l10n.originalKeptHint, style: context.text.meta.copyWith(fontSize: 12)),
+                  SmartText(
+                    context.l10n.originalKeptHint,
+                    content: ReadOnlyContent.chrome,
+                    style: context.text.meta.copyWith(fontSize: 12),
+                  ),
                   const SizedBox(height: 12),
                   if (files.hasError && !files.hasValue)
                     FikraButton.secondary(

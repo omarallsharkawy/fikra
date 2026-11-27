@@ -2176,7 +2176,7 @@
   "rdAsktt": "اسأل نوتاتك",
   "rdScope": "كل النوتات",
   "rdPh": "اكتب سؤالك…",
-  "rdBased": "مبني على {count} نوتات",
+  "rdBased": "{count, plural, zero{من غير مصادر} one{مبني على نوتة واحدة} two{مبني على نوتتين} few{مبني على {count} نوتات} many{مبني على {count} نوتة} other{مبني على {count} نوتة}}",
   "@rdBased": {
     "placeholders": {
       "count": {
@@ -2184,7 +2184,7 @@
       }
     }
   },
-  "rdHello": "عندك {count} نوتات. عايز تعرف إيه؟",
+  "rdHello": "{count, plural, zero{لسه مفيش نوتات. حابب تعرف إيه؟} one{عندك نوتة واحدة. حابب تعرف إيه؟} two{عندك نوتتين. حابب تعرف إيه؟} few{عندك {count} نوتات. حابب تعرف إيه؟} many{عندك {count} نوتة. حابب تعرف إيه؟} other{عندك {count} نوتة. حابب تعرف إيه؟}}",
   "@rdHello": {
     "placeholders": {
       "count": {

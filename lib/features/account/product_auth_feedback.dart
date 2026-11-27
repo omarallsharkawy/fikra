@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/tokens.dart';
@@ -75,7 +77,7 @@ class _ProductAuthFeedbackState extends State<ProductAuthFeedback> {
             Expanded(
               child: message == null
                   ? ProductFailureView(failure)
-                  : Text(message, style: context.text.caption.copyWith(color: context.colors.danger)),
+                  : SmartText(message, style: context.text.caption.copyWith(color: context.colors.danger)),
             ),
           ],
         ),

@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -44,7 +46,7 @@ class ProductWelcome extends StatelessWidget {
         TextButton(
           key: const ValueKey('fixture-other'),
           onPressed: onEmpty,
-          child: Text(context.l10n.productPreviewSeparateEmptyAccount),
+          child: SmartText(context.l10n.productPreviewSeparateEmptyAccount),
         ),
       ],
     ],

@@ -1,3 +1,5 @@
+import '../../core/text_direction.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -213,7 +215,7 @@ class _MapCanvasState extends State<MapCanvas> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: contentDirection(_title(node), Directionality.of(context)),
             textScaler: scaler,
             locale: key.locale,
             maxLines: 1,
@@ -356,7 +358,7 @@ class LinksMapPainter extends CustomPainter {
             ),
             properties: SemanticsProperties(
               label: labels[i],
-              textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+              textDirection: contentDirection(labels[i], rtl ? TextDirection.rtl : TextDirection.ltr),
               button: true,
               focused: false,
               sortKey: OrdinalSortKey(i.toDouble()),

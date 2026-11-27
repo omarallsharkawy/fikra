@@ -19,14 +19,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadAppFonts);
 
-  test('Arabic glyphs keep the existing Noto shaping at every bundled Arabic weight', () {
+  test('Arabic glyphs use IBM Plex Sans Arabic at every bundled Arabic weight', () {
     for (final weight in [FontWeight.w400, FontWeight.w500, FontWeight.w600, FontWeight.w700]) {
       final style = FikraText(FikraPalette.light).body.copyWith(fontWeight: weight);
       for (final text in ['ملاحظاتي', 'وأفكاري', 'العربية']) {
         final fallback = measure(text, style, TextDirection.rtl);
-        final original = measure(text, style.copyWith(fontFamily: 'NotoSansArabic'), TextDirection.rtl);
+        final original = measure(text, style.copyWith(fontFamily: 'IBMPlexSansArabic'), TextDirection.rtl);
         // Spaces/punctuation and line height may use Inter metrics; the joined
-        // Arabic glyphs must retain Noto's original shaping advances.
+        // Arabic glyphs must use IBM Plex's joining and shaping advances.
         expect(fallback.width, closeTo(original.width, 0.01));
         expect(fallback.width, greaterThan(20));
       }

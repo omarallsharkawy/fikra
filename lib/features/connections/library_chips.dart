@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,15 +35,22 @@ class LibraryChips extends ConsumerWidget {
       ],
       if (index.topicCounts.isNotEmpty) ...[
         Padding(
-          padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 12, FikraSpace.screen, 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 12, FikraSpace.screen, 4),
           child: Wrap(
             spacing: 8,
             runSpacing: 2,
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Semantics(header: true, child: Text(context.l10n.topicsHeader, style: context.text.section)),
-              Text(context.l10n.linksSuggestedForYou, style: context.text.meta),
+              Semantics(
+                header: true,
+                child: SmartText(
+                  context.l10n.topicsHeader,
+                  content: ReadOnlyContent.chrome,
+                  style: context.text.section,
+                ),
+              ),
+              SmartText(context.l10n.linksSuggestedForYou, content: ReadOnlyContent.chrome, style: context.text.meta),
             ],
           ),
         ),
@@ -72,7 +81,7 @@ class LibraryChips extends ConsumerWidget {
   );
 
   Widget _heading(BuildContext context, String title) => Padding(
-    padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 12, FikraSpace.screen, 4),
-    child: Semantics(header: true, child: Text(title, style: context.text.section)),
+    padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 12, FikraSpace.screen, 4),
+    child: Semantics(header: true, child: SmartText(title, style: context.text.section)),
   );
 }

@@ -41,7 +41,7 @@ class _VoiceTextEnginesState extends ConsumerState<VoiceTextEngines> {
     final value = ref.watch(transcriptionServicesStateProvider);
     final state = value.value;
     final l = context.l10n;
-    if (state == null) return Text(value.hasError ? l.vsLoadError : l.vtWait, style: context.text.caption);
+    if (state == null) return SmartText(value.hasError ? l.vsLoadError : l.vtWait, style: context.text.caption);
     final enabled = widget.enabled && !_busy;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

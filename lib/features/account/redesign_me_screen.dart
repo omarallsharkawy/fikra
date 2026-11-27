@@ -1,3 +1,5 @@
+import '../../core/format.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -31,8 +33,12 @@ class _MeState extends ConsumerState<ProductMeScreen> {
   void _loadStats() {
     final w = widget.runtime.workspace;
     final scope = '${w.accountId}:${w.selectedProjectId}';
-    if (!TickerMode.valuesOf(context).enabled || w.accountId == null || w.selectedProjectId == null || scope == _scope)
+    if (!TickerMode.valuesOf(context).enabled ||
+        w.accountId == null ||
+        w.selectedProjectId == null ||
+        scope == _scope) {
       return;
+    }
     _scope = scope;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !TickerMode.valuesOf(context).enabled) {
@@ -150,7 +156,8 @@ class _MeState extends ConsumerState<ProductMeScreen> {
           if (p.failure != null)
             ProductFailureView(
               p.failure!,
-              onRetry: () => p.bind(r.session.account?.id, r.session.account?.email ?? ''),
+              onRetry: () =>
+                  p.bind(r.session.account?.id, r.session.account?.email ?? '', serverName: r.session.account?.name),
             ),
           Padding(
             padding: const EdgeInsets.only(bottom: 18),
@@ -214,12 +221,16 @@ class _MeState extends ConsumerState<ProductMeScreen> {
                 spacing: 8,
                 children: [
                   Expanded(
-                    child: _Stat(l.rdStat1, value: w.failure == null ? '${notes.length}' : '—', loading: w.loading),
+                    child: _Stat(
+                      l.rdStat1,
+                      value: w.failure == null ? Fmt.number(l, notes.length) : '—',
+                      loading: w.loading,
+                    ),
                   ),
                   Expanded(
                     child: _Stat(
                       l.rdStat2,
-                      value: w.graphFailure == null ? '${edges.length}' : '—',
+                      value: w.graphFailure == null ? Fmt.number(l, edges.length) : '—',
                       loading: w.graphLoading,
                     ),
                   ),

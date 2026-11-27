@@ -89,8 +89,9 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
 
     final Widget content;
     if ((linksAsync.hasError && !linksAsync.hasValue) || (notesAsync.hasError && !notesAsync.hasValue)) {
-      content = Text(
+      content = SmartText(
         context.l10n.noteLinksLoadFailed,
+        content: ReadOnlyContent.chrome,
         key: const ValueKey('links-failed'),
         style: context.text.caption,
       );
@@ -100,7 +101,12 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
       final byId = {for (final n in notesAsync.requireValue) n.id: n};
       final entries = linksOfNote(note.id, linksAsync.requireValue, byId);
       content = entries.isEmpty
-          ? Text(context.l10n.noteLinksEmpty, key: const ValueKey('links-empty'), style: context.text.caption)
+          ? SmartText(
+              context.l10n.noteLinksEmpty,
+              content: ReadOnlyContent.chrome,
+              key: const ValueKey('links-empty'),
+              style: context.text.caption,
+            )
           : Column(
               key: const ValueKey('links-list'),
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -124,7 +130,11 @@ class _NoteLinksState extends ConsumerState<_NoteLinks> {
       children: [
         Semantics(
           header: true,
-          child: Text(context.l10n.noteLinksHeader, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+          child: SmartText(
+            context.l10n.noteLinksHeader,
+            content: ReadOnlyContent.chrome,
+            style: context.text.section.copyWith(fontWeight: FontWeight.w600),
+          ),
         ),
         const SizedBox(height: 10),
         FikraButton.secondary(

@@ -50,8 +50,9 @@ Future<GroupPick?> showGroupSheet(BuildContext context, {required String project
             if (groups.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
+                child: SmartText(
                   context.l10n.noGroupsYet,
+                  content: ReadOnlyContent.chrome,
                   key: const ValueKey('group-sheet-empty'),
                   style: context.text.body.copyWith(color: context.colors.textSecondary),
                 ),
@@ -126,8 +127,8 @@ class GroupRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(group.name, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
-                  Text(notes, style: context.text.meta.copyWith(color: context.colors.textSecondary)),
+                  SmartText(group.name, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+                  SmartText(notes, style: context.text.meta.copyWith(color: context.colors.textSecondary)),
                 ],
               ),
             ),

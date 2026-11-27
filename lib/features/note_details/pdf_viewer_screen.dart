@@ -30,7 +30,7 @@ class PdfViewerScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 12, 4),
             child: Row(
               children: [
                 FikraIconButton(
@@ -40,7 +40,7 @@ class PdfViewerScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
+                  child: SmartText(
                     attachment?.name ?? context.l10n.pdfFile,
                     style: context.text.cardTitleSmall,
                     maxLines: 1,
@@ -139,10 +139,10 @@ class _DocumentState extends ConsumerState<_Document> {
             ),
           ),
         ),
-        Positioned(
+        PositionedDirectional(
           bottom: 12,
-          left: 0,
-          right: 0,
+          start: 0,
+          end: 0,
           child: IgnorePointer(
             child: Center(
               child: SolidSurface(
@@ -152,7 +152,7 @@ class _DocumentState extends ConsumerState<_Document> {
                 child: ValueListenableBuilder<int>(
                   valueListenable: _page,
                   builder: (context, page, _) =>
-                      Text(context.l10n.pdfPageOf(page, loaded.pages.length), style: context.text.meta),
+                      SmartText(context.l10n.pdfPageOf(page, loaded.pages.length), style: context.text.meta),
                 ),
               ),
             ),

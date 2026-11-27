@@ -134,8 +134,9 @@ Future<NoteGroup?> _askParent(BuildContext context, NoteGroup group, List<NoteGr
     builder: (sheet) => Consumer(
       builder: (sheet, ref, _) {
         if (candidates.isEmpty) {
-          return Text(
+          return SmartText(
             context.l10n.noParentGroups,
+            content: ReadOnlyContent.chrome,
             key: const ValueKey('group-parent-empty'),
             style: context.text.body.copyWith(color: context.colors.textSecondary),
           );
@@ -180,7 +181,7 @@ class _Disabled extends StatelessWidget {
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 18, 10),
             child: ExcludeSemantics(
-              child: Text(
+              child: SmartText(
                 reason,
                 key: const ValueKey('group-nest-reason'),
                 style: context.text.caption.copyWith(color: context.colors.textSecondary),

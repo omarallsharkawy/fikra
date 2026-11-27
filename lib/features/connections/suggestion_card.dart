@@ -81,7 +81,7 @@ class _SuggestionCardState extends ConsumerState<SuggestionCard> {
                 Icon(Icons.auto_awesome_outlined, size: 16, color: context.colors.textSecondary),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: Text(
+                  child: SmartText(
                     e.link.reason.trim().isEmpty ? l10n.linkNoReason : e.link.reason,
                     style: context.text.meta.copyWith(color: context.colors.textSecondary),
                   ),
@@ -108,7 +108,7 @@ class _SuggestionCardState extends ConsumerState<SuggestionCard> {
                       ),
                       onPressed: busy ? null : () => _act(accept),
                       icon: Icon(accept ? Icons.check_rounded : Icons.close_rounded, size: 18),
-                      label: Text(accept ? l10n.acceptLink : l10n.rejectLink),
+                      label: SmartText(accept ? l10n.acceptLink : l10n.rejectLink),
                     ),
                   ),
               ],

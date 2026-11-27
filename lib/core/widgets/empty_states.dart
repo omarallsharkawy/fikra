@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,9 +43,9 @@ class EmptyState extends StatelessWidget {
             child: Icon(icon, color: context.colors.textSecondary, size: 30),
           ),
           const SizedBox(height: 12),
-          Text(title, style: context.text.cardTitle, textAlign: TextAlign.center),
+          SmartText(title, style: context.text.cardTitle, textAlign: TextAlign.center),
           const SizedBox(height: 6),
-          Text(
+          SmartText(
             description,
             style: context.text.body.copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,

@@ -1,3 +1,6 @@
+import '../../core/widgets/smart_text.dart';
+import '../../core/widgets/smart_input.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -110,7 +113,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                 if (context.mounted) {
                   context.go('/notes');
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(l.rdSaved), behavior: SnackBarBehavior.floating));
+                      .showSnackBar(SnackBar(content: SmartText(l.rdSaved), behavior: SnackBarBehavior.floating));
                 }
               },
       );
@@ -128,7 +131,7 @@ class _ComposerState extends State<ProductComposerScreen> {
               children: [
                 if (!compact)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 10),
                     child: Row(
                       children: [
                         RdIconButton('x', label: l.rdCancel, onPressed: () => _close(r)),
@@ -166,7 +169,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                         if (w.pendingAttempt!.projectId != w.selectedProjectId)
                           TextButton(
                             onPressed: () => w.selectProject(w.pendingAttempt!.projectId),
-                            child: Text(l.productReturnToThePendingAttemptSProject),
+                            child: SmartText(l.productReturnToThePendingAttemptSProject),
                           ),
                       ],
                       if (w.canReviewFailedAttempt)
@@ -180,7 +183,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                             );
                             if (yes && context.mounted) await w.reviewFailedAttempt();
                           },
-                          child: Text(l.productReviewFailedSave),
+                          child: SmartText(l.productReviewFailedSave),
                         ),
                       if (w.draft.titleVisible)
                         Padding(
@@ -251,7 +254,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                           onPressed: c.coolingDown || locked ? null : () => _transcribe(r),
                         ),
                       if (c.clip != null && !c.active)
-                        TextButton(onPressed: c.close, child: Text(l.productDiscardRecording)),
+                        TextButton(onPressed: c.close, child: SmartText(l.productDiscardRecording)),
                       for (final tag in r.tags.tags.where((tag) => w.draft.tagIds.contains(tag.id)))
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
@@ -277,7 +280,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                       border: Border(top: BorderSide(color: context.rd.line)),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 9, 16, 8),
+                      padding: const EdgeInsetsDirectional.fromSTEB(16, 9, 16, 8),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final tools = <Widget>[
@@ -305,7 +308,11 @@ class _ComposerState extends State<ProductComposerScreen> {
                                     },
                             ),
                           ];
-                          final count = RdText('${w.draft.content.length}', size: 12, color: context.rd.muted);
+                          final count = RdText(
+                            Fmt.number(l, w.draft.content.length),
+                            size: 12,
+                            color: context.rd.muted,
+                          );
                           return MediaQuery.textScalerOf(context).scale(13) > 18 || constraints.maxWidth < 288
                               ? Wrap(
                                   spacing: 8,
@@ -319,7 +326,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -328,6 +335,7 @@ class _ComposerState extends State<ProductComposerScreen> {
                           padding: const EdgeInsets.only(bottom: 6),
                           child: RdText(l.rdSh, size: 13, color: context.rd.muted),
                         ),
+                      if (keyboard) const SizedBox(height: 44),
                       if (keyboard)
                         Row(
                           spacing: 4,
@@ -436,19 +444,17 @@ class _DraftFieldState extends State<_DraftField> {
   @override
   Widget build(BuildContext context) => ConstrainedBox(
     constraints: BoxConstraints(minHeight: widget.title ? 44 : 200),
-    child: TextField(
+    child: SmartInput(
       controller: _controller,
       enabled: widget.enabled,
       minLines: widget.title ? 1 : 6,
+      keyboardType: widget.title ? TextInputType.text : TextInputType.multiline,
+      textInputAction: widget.title ? TextInputAction.next : TextInputAction.newline,
       maxLines: null,
       onChanged: (v) {
         widget.onChanged(v);
         setState(() {});
       },
-      textDirection: rdDirection(_controller.text, Directionality.of(context)),
-      textAlign: rdDirection(_controller.text, Directionality.of(context)) == TextDirection.rtl
-          ? TextAlign.right
-          : TextAlign.left,
       style: RdTokens.style(
         context,
         size: widget.title ? 22 : 17,

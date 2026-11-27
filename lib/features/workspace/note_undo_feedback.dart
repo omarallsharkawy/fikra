@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -15,9 +17,9 @@ void showNoteUndo(BuildContext context, ProductRuntime runtime, UndoNoteAction a
   messenger.hideCurrentSnackBar();
   messenger.showSnackBar(
     SnackBar(
-      content: Text(action.kind == UndoNoteKind.delete ? l.rdDeleted : l.rdApplied),
+      content: SmartText(action.kind == UndoNoteKind.delete ? l.rdDeleted : l.rdApplied),
       duration: remaining.isNegative ? const Duration(seconds: 2) : remaining,
-      margin: EdgeInsets.fromLTRB(
+      margin: EdgeInsetsDirectional.fromSTEB(
         16,
         0,
         16,
@@ -31,7 +33,7 @@ void showNoteUndo(BuildContext context, ProductRuntime runtime, UndoNoteAction a
                 final ok = await runtime.undo.undo(action.id);
                 if (!ok && messenger.mounted) {
                   messenger.showSnackBar(
-                    SnackBar(content: Text(runtime.undo.failure == null ? l.rdUndoExpired : l.rdUndoFailed)),
+                    SnackBar(content: SmartText(runtime.undo.failure == null ? l.rdUndoExpired : l.rdUndoFailed)),
                   );
                 }
               },
@@ -72,7 +74,7 @@ class NoteUndoFeedback extends StatelessWidget {
                       }
                     }
                   },
-                  child: Text(context.l10n.rdDismiss),
+                  child: SmartText(context.l10n.rdDismiss),
                 ),
             ],
           ),

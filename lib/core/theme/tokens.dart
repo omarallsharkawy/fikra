@@ -561,7 +561,7 @@ class FikraText {
   const FikraText(this.colors);
   final FikraPalette colors;
   static const family = 'Inter';
-  static const fallbacks = ['NotoSansArabic', 'Roboto'];
+  static const fallbacks = ['IBMPlexSansArabic', 'Noto Color Emoji'];
   static const _base = TextStyle(
     fontFamily: family,
     // Inter supplies Latin; preserve the existing Arabic face for Arabic glyphs.
@@ -572,20 +572,20 @@ class FikraText {
   );
 
   TextStyle get title =>
-      _base.copyWith(color: colors.textPrimary, fontSize: 26, fontWeight: FontWeight.w600, height: 1.2);
+      _base.copyWith(color: colors.textPrimary, fontSize: 26, fontWeight: FontWeight.w600, height: 1.6);
   TextStyle get cardTitle =>
-      _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w600, height: 1.35);
+      _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w600, height: 1.6);
   TextStyle get cardTitleSmall =>
-      _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600, height: 1.35);
+      _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600, height: 1.6);
   TextStyle get section => _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600);
   TextStyle get bodyLarge => _base.copyWith(color: colors.textPrimary, fontSize: 17);
   TextStyle get answer => _base.copyWith(color: colors.textPrimary, fontSize: 16);
   TextStyle get body => _base.copyWith(color: colors.textPrimary, fontSize: 16);
-  TextStyle get field => _base.copyWith(color: colors.textPrimary, fontSize: 16, height: 1.4);
-  TextStyle get caption => _base.copyWith(fontSize: 14, height: 1.4, color: colors.textSecondary);
+  TextStyle get field => _base.copyWith(color: colors.textPrimary, fontSize: 16, height: 1.6);
+  TextStyle get caption => _base.copyWith(fontSize: 14, height: 1.6, color: colors.textSecondary);
   TextStyle get nav => _base.copyWith(color: colors.textPrimary, fontSize: 12.5, fontWeight: FontWeight.w500);
   TextStyle get button =>
-      _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600, height: 1.35);
+      _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600, height: 1.6);
   TextStyle get chip => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w500);
-  TextStyle get meta => _base.copyWith(fontSize: 12.5, height: 1.4, color: colors.textSecondary);
+  TextStyle get meta => _base.copyWith(fontSize: 12.5, height: 1.6, color: colors.textSecondary);
 }

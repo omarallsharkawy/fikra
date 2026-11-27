@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -124,7 +126,7 @@ class _InlineRecorderState extends State<InlineRecorder> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 14, 2, 6),
+      padding: const EdgeInsetsDirectional.fromSTEB(2, 14, 2, 6),
       child: Column(
         children: [
           Row(
@@ -140,9 +142,9 @@ class _InlineRecorderState extends State<InlineRecorder> with SingleTickerProvid
                 ),
               ),
               const SizedBox(width: 8),
-              Text(context.l10n.recordingNow, style: context.text.chip),
+              SmartText(context.l10n.recordingNow, content: ReadOnlyContent.chrome, style: context.text.chip),
               const Spacer(),
-              Text(
+              SmartText(
                 '${Fmt.duration(widget.elapsed.inMilliseconds)} / ${Fmt.duration(widget.max.inMilliseconds)}',
                 style: context.text.meta.copyWith(color: context.colors.textSecondary, fontSize: 12),
               ),

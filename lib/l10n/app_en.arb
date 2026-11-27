@@ -2140,7 +2140,7 @@
   "rdAsktt": "Ask your notes",
   "rdScope": "All notes",
   "rdPh": "Type your question…",
-  "rdBased": "Based on {count} notes",
+  "rdBased": "{count, plural, =0{No sources} one{Based on 1 note} other{Based on {count} notes}}",
   "@rdBased": {
     "placeholders": {
       "count": {
@@ -2148,7 +2148,7 @@
       }
     }
   },
-  "rdHello": "You have {count} notes. What do you want to know?",
+  "rdHello": "{count, plural, =0{You have no notes yet. What do you want to know?} one{You have 1 note. What do you want to know?} other{You have {count} notes. What do you want to know?}}",
   "@rdHello": {
     "placeholders": {
       "count": {

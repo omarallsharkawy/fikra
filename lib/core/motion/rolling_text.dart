@@ -1,3 +1,5 @@
+import '../widgets/smart_text.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
@@ -123,7 +125,7 @@ class _RollingTextState extends State<RollingText> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final roll = _roll;
     if (roll == null || FikraMotion.reduced(context)) {
-      final text = Text(
+      final text = SmartText(
         widget.text,
         style: widget.style,
         textAlign: widget.textAlign,
@@ -142,7 +144,7 @@ class _RollingTextState extends State<RollingText> with SingleTickerProviderStat
         children: [
           if (roll.prefix.isNotEmpty)
             Flexible(
-              child: Text(
+              child: SmartText(
                 roll.prefix,
                 style: widget.style,
                 maxLines: widget.maxLines,
@@ -157,7 +159,7 @@ class _RollingTextState extends State<RollingText> with SingleTickerProviderStat
               children: [
                 for (var i = 0; i < roll.newDigits.length; i++)
                   roll.oldDigits[i] == roll.newDigits[i]
-                      ? Text(roll.newDigits[i], style: widget.style, textScaler: widget.textScaler)
+                      ? SmartText(roll.newDigits[i], style: widget.style, textScaler: widget.textScaler)
                       : RollingDigit(
                           oldChar: roll.oldDigits[i],
                           newChar: roll.newDigits[i],
@@ -171,7 +173,7 @@ class _RollingTextState extends State<RollingText> with SingleTickerProviderStat
           ),
           if (roll.suffix.isNotEmpty)
             Flexible(
-              child: Text(
+              child: SmartText(
                 roll.suffix,
                 style: widget.style,
                 maxLines: widget.maxLines,
@@ -234,14 +236,14 @@ class RollingDigit extends StatelessWidget {
                   translation: Offset(0, -direction * t),
                   child: Opacity(
                     opacity: (1 - t).clamp(0.0, 1.0),
-                    child: Text(oldChar, style: style, textScaler: textScaler),
+                    child: SmartText(oldChar, style: style, textScaler: textScaler),
                   ),
                 ),
               FractionalTranslation(
                 translation: Offset(0, direction * (1 - t)),
                 child: Opacity(
                   opacity: t.clamp(0.0, 1.0),
-                  child: Text(newChar == ' ' ? '' : newChar, style: style, textScaler: textScaler),
+                  child: SmartText(newChar == ' ' ? '' : newChar, style: style, textScaler: textScaler),
                 ),
               ),
             ],

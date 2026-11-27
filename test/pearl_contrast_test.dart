@@ -60,7 +60,7 @@ void main() {
       ];
       for (final s in styles) {
         expect(s.fontFamily, 'Inter');
-        expect(s.fontFamilyFallback, ['NotoSansArabic', 'Roboto']);
+        expect(s.fontFamilyFallback, ['IBMPlexSansArabic', 'Noto Color Emoji']);
         expect(s.letterSpacing ?? 0, 0);
         expect(s.fontSize, greaterThanOrEqualTo(12.5));
       }

@@ -56,6 +56,16 @@ ThemeData buildProductTheme(Brightness brightness) {
       focusedBorder: border(c.blue),
       errorBorder: border(c.red),
       focusedErrorBorder: border(c.red),
+      labelStyle: TextStyle(color: c.muted),
+      floatingLabelStyle: TextStyle(color: c.blue),
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: c.blue,
+      selectionColor: c.purpleSoft,
+      selectionHandleColor: c.blue,
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: c.blue, minimumSize: const Size(44, 44)),
     ),
     cardTheme: CardThemeData(
       color: c.surface,
@@ -79,7 +89,7 @@ ThemeData buildProductTheme(Brightness brightness) {
       contentTextStyle: TextStyle(fontFamily: RdTokens.family, fontSize: 15, color: c.bg, height: 1.6),
       actionTextColor: c.bg,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 84),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16) + const EdgeInsets.only(bottom: 84),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: c.surface,
