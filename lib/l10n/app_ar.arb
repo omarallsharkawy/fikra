@@ -2260,5 +2260,15 @@
   "rdEditName": "تعديل الاسم",
   "rdNameDevice": "محفوظ على الجهاز ده",
   "rdNameInvalid": "اكتب اسم لحد ٤٠ حرف",
-  "rdLater": "بعدين"
+  "rdLater": "بعدين",
+  "rdNewTag": "تاج جديد",
+  "rdTagName": "اسم التاج",
+  "rdEditTag": "تعديل التاج",
+  "rdTagExists": "فيه تاج بالاسم ده بالفعل",
+  "rdUnpin": "إلغاء التثبيت",
+  "rdUndoExpired": "وقت التراجع خلص",
+  "rdShareFailed": "المشاركة ما كملتش. جرّب تاني.",
+  "rdUndoFailed": "التراجع ما كملش. جرّب تاني.",
+  "rdPendingChange": "بنكمل التعديل…",
+  "rdNoteActions": "اختيارات النوتة"
 }

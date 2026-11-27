@@ -3112,4 +3112,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rdLater => 'Later';
+
+  @override
+  String get rdNewTag => 'New tag';
+
+  @override
+  String get rdTagName => 'Tag name';
+
+  @override
+  String get rdEditTag => 'Edit tag';
+
+  @override
+  String get rdTagExists => 'A tag with this name already exists';
+
+  @override
+  String get rdUnpin => 'Unpin';
+
+  @override
+  String get rdUndoExpired => 'That change can no longer be undone';
+
+  @override
+  String get rdShareFailed => 'Couldn’t share this note. Try again.';
+
+  @override
+  String get rdUndoFailed => 'Couldn’t undo this change. Please try again.';
+
+  @override
+  String get rdPendingChange => 'Finishing your change…';
+
+  @override
+  String get rdNoteActions => 'Note actions';
 }

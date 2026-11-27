@@ -1,6 +1,9 @@
 package com.fikra.app
 
 import android.content.BroadcastReceiver
+import android.content.ClipData
+import java.io.File
+import androidx.core.content.FileProvider
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -29,6 +32,35 @@ class MainActivity : FlutterActivity() {
                 else result.notImplemented()
             }
         }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "fikrah/share")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "file") {
+                    result.notImplemented()
+                } else {
+                    try {
+                        val bytes = call.argument<ByteArray>("bytes") ?: error("bytes")
+                        val filename = call.argument<String>("filename") ?: error("filename")
+                        val mime = call.argument<String>("mime") ?: error("mime")
+                        require(filename.matches(Regex("[A-Za-z0-9_-]+\\.(png|json)")))
+                        require(mime == "image/png" || mime == "application/json")
+                        val directory = File(cacheDir, "shared_notes").apply { mkdirs() }
+                        directory.listFiles()?.filter { System.currentTimeMillis() - it.lastModified() > 86400000L }
+                            ?.forEach { it.delete() }
+                        val file = File(directory, filename).apply { writeBytes(bytes) }
+                        val uri = FileProvider.getUriForFile(this, "$packageName.sharing", file)
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = mime
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            clipData = ClipData.newRawUri("", uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(intent, null))
+                        result.success(null)
+                    } catch (_: Exception) {
+                        result.error("share", null, null)
+                    }
+                }
+            }
         val powerFilter = IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             registerReceiver(powerReceiver, powerFilter, Context.RECEIVER_NOT_EXPORTED)

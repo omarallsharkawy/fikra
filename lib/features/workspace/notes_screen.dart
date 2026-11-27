@@ -13,6 +13,7 @@ import '../../l10n/localizations.dart';
 import '../account/profile_name_sheet.dart';
 import 'idea_card.dart';
 import 'product_widgets.dart';
+import 'note_undo_feedback.dart';
 
 String rdNoteTitle(BuildContext context, String? title, String content) {
   final value = title?.trim();
@@ -54,13 +55,17 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
 
   @override
   Widget build(BuildContext context) => ProductView(
-    listenTo: (r) => [r.workspace, r.profile, r.tags],
+    listenTo: (r) => [r.workspace, r.profile, r.tags, r.undo],
     builder: (context, r) {
       final w = r.workspace, l = context.l10n;
       _namePrompt(r);
       if (_tag != null && !r.tags.tags.any((t) => t.id == _tag)) _tag = null;
       final greeting = r.profile.name == null ? l.rdNeutralGreeting : l.rdGreet(rdIsolate(r.profile.name!));
-      final empty = !w.loading && w.failure == null && w.notes.isEmpty && w.results == null;
+      final empty =
+          !w.loading &&
+          w.failure == null &&
+          w.notes.where((n) => !r.undo.hiddenIds.contains(n.id)).isEmpty &&
+          w.results == null;
       final children = <Widget>[
         if (_showPrompt && r.profile.name == null)
           RdCard(
@@ -88,6 +93,7 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
               ],
             ),
           ),
+        NoteUndoFeedback(runtime: r),
         if (r.tags.failure != null)
           ProductFailureView(r.tags.failure!, onRetry: () => r.tags.bind(r.session.account?.id)),
         if (r.profile.failure != null)
@@ -183,6 +189,7 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
     final results = w.results;
     if (results != null) {
       final values = results
+          .where((n) => !r.undo.hiddenIds.contains(n.noteId))
           .where((n) => _tag == null || r.tags.assignments[n.noteId]?.contains(_tag) == true)
           .toList();
       return [
@@ -207,7 +214,10 @@ class _ProductNotesScreenState extends State<ProductNotesScreen> {
       return d.year == now.year && d.month == now.month && d.day == now.day;
     }
 
-    final values = w.notes.where((n) => _tag == null || r.tags.assignments[n.id]?.contains(_tag) == true).toList();
+    final values = w.notes
+        .where((n) => !r.undo.hiddenIds.contains(n.id))
+        .where((n) => _tag == null || r.tags.assignments[n.id]?.contains(_tag) == true)
+        .toList();
     return [
       if (values.isEmpty && !w.loading)
         Padding(

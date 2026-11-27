@@ -325,8 +325,15 @@ class RdChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[RdIcon(icon!, color: selected ? c.onLime : color), const SizedBox(width: 6)],
-          RdText(label, size: small ? 12 : 13, color: selected ? c.onLime : color),
+          if (icon != null) ...[
+            RdIcon(icon!, color: selected ? c.onLime : color),
+            if (label.isNotEmpty) const SizedBox(width: 6),
+          ],
+          if (label.isNotEmpty)
+            LimitedBox(
+              maxWidth: 240,
+              child: RdText(label, size: small ? 12 : 13, color: selected ? c.onLime : color, lines: 1),
+            ),
         ],
       ),
     );

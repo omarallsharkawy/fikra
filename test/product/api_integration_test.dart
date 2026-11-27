@@ -392,6 +392,10 @@ void main() {
     expect((await r.readNote('user-a', 'note-a')).content, 'A thought');
     await r.retryProcessing('user-a', 'note-a');
     expect(t.calls.last.json, isNull);
+    expect((await r.setFavorite('user-a', 'note-a', false)).id, 'note-a');
+    expect(t.calls.last.method, 'PUT');
+    expect(t.calls.last.uri.path, '/v1/notes/note-a/favorite');
+    expect(t.calls.last.json, {'is_favorite': false});
     for (final action in RefinementAction.values) {
       await r.refine('user-a', 'note-a', 2, action);
       expect(t.calls.last.json, {'expected_processing_generation': 2});

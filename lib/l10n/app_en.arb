@@ -2224,5 +2224,15 @@
   "rdEditName": "Edit name",
   "rdNameDevice": "Saved on this device",
   "rdNameInvalid": "Enter a name up to 40 characters",
-  "rdLater": "Later"
+  "rdLater": "Later",
+  "rdNewTag": "New tag",
+  "rdTagName": "Tag name",
+  "rdEditTag": "Edit tag",
+  "rdTagExists": "A tag with this name already exists",
+  "rdUnpin": "Unpin",
+  "rdUndoExpired": "That change can no longer be undone",
+  "rdShareFailed": "Couldn’t share this note. Try again.",
+  "rdUndoFailed": "Couldn’t undo this change. Please try again.",
+  "rdPendingChange": "Finishing your change…",
+  "rdNoteActions": "Note actions"
 }

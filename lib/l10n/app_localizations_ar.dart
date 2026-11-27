@@ -3183,4 +3183,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rdLater => 'بعدين';
+
+  @override
+  String get rdNewTag => 'تاج جديد';
+
+  @override
+  String get rdTagName => 'اسم التاج';
+
+  @override
+  String get rdEditTag => 'تعديل التاج';
+
+  @override
+  String get rdTagExists => 'فيه تاج بالاسم ده بالفعل';
+
+  @override
+  String get rdUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get rdUndoExpired => 'وقت التراجع خلص';
+
+  @override
+  String get rdShareFailed => 'المشاركة ما كملتش. جرّب تاني.';
+
+  @override
+  String get rdUndoFailed => 'التراجع ما كملش. جرّب تاني.';
+
+  @override
+  String get rdPendingChange => 'بنكمل التعديل…';
+
+  @override
+  String get rdNoteActions => 'اختيارات النوتة';
 }

@@ -7,7 +7,7 @@ import '../repositories.dart';
 /// Volatile, isolated story fixtures; no LLM, SMTP, HTTP or durable save.
 /// Processing snapshots and chat replies are scripted, never inferred from
 /// user content. This deliberately does not emulate a general backend.
-class DevelopmentKnowledgeRepository implements KnowledgeRepository {
+class DevelopmentKnowledgeRepository implements KnowledgeRepository, FavoriteNotesRepository {
   DevelopmentKnowledgeRepository({this.stepDelay = const Duration(milliseconds: 180)});
   final Duration stepDelay;
   final _projects = <String, List<KnowledgeProject>>{};
@@ -116,6 +116,13 @@ class DevelopmentKnowledgeRepository implements KnowledgeRepository {
             );
       _notes[accountId]![noteId] = note;
     }
+    return note;
+  }
+
+  @override
+  Future<KnowledgeNote> setFavorite(String accountId, String noteId, bool value) async {
+    final note = _note(accountId, noteId).copyWith(isFavorite: value);
+    _notes[accountId]![noteId] = note;
     return note;
   }
 

@@ -53,3 +53,8 @@ abstract interface class AttemptStore {
   Future<void> write(CreateAttempt attempt);
   Future<void> clear(String accountId);
 }
+
+/// Optional client binding for the already-deployed favorite endpoint.
+abstract interface class FavoriteNotesRepository {
+  Future<KnowledgeNote> setFavorite(String accountId, String noteId, bool value);
+}

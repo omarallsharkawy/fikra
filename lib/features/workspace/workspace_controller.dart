@@ -320,7 +320,10 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<bool> _noteMutation(Future<KnowledgeNote> Function(String account, KnowledgeNote note) action) async {
+  Future<bool> _noteMutation(
+    Future<KnowledgeNote> Function(String account, KnowledgeNote note) action, {
+    bool invalidatesKnowledge = true,
+  }) async {
     final account = accountId, note = detail, ticket = _epoch;
     if (account == null || note == null || busy || coolingDown) return false;
     busy = true;
@@ -332,8 +335,13 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       _upsert(next);
 
-      _invalidateKnowledge();
-      unawaited(_refreshRelated());
+      if (invalidatesKnowledge ||
+          next.content != note.content ||
+          next.generation != note.generation ||
+          !listEquals(next.concepts, note.concepts)) {
+        _invalidateKnowledge();
+        unawaited(_refreshRelated());
+      }
       _pollCount = 0;
       _schedulePoll();
       return true;
@@ -379,6 +387,28 @@ class WorkspaceController extends ChangeNotifier {
         if (reviewedNoteId != null && reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
         return repository.refine(account, note.id, expectedGeneration ?? note.generation, action);
       });
+  bool get supportsFavorite => repository is FavoriteNotesRepository;
+  Future<bool> setFavorite(bool value, {required String reviewedNoteId}) => _noteMutation((account, note) async {
+    if (reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
+    final capability = repository;
+    if (capability is! FavoriteNotesRepository) throw const ProductFailure(FailureKind.unavailable);
+    return (capability as FavoriteNotesRepository).setFavorite(account, note.id, value);
+  }, invalidatesKnowledge: false);
+  void acceptCommittedChange(String id, KnowledgeNote? note) {
+    if (accountId == null) return;
+    if (note == null) {
+      _notesVersion++;
+      notes = List.unmodifiable(notes.where((n) => n.id != id));
+      if (detail?.id == id) detail = null;
+    } else {
+      _upsert(note);
+    }
+    _invalidateKnowledge();
+    if (detail != null) unawaited(_refreshRelated());
+    _schedulePoll();
+    _emit();
+  }
+
   Future<bool> retryProcessing() => _noteMutation((account, note) => repository.retryProcessing(account, note.id));
   void _invalidateKnowledge() {
     knowledgeRevision++;

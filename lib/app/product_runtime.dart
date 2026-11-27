@@ -9,6 +9,7 @@ import '../data/product/repositories.dart';
 import '../data/product/local_ui_store.dart';
 import '../features/account/profile_controller.dart';
 import '../features/workspace/local_tags_controller.dart';
+import '../features/workspace/note_undo_controller.dart';
 import '../features/account/session_controller.dart';
 import '../features/workspace/workspace_controller.dart';
 import '../features/conversation/conversation_controller.dart';
@@ -98,6 +99,12 @@ class ProductRuntime {
     profile = ProfileController(uiStore);
     tags = LocalTagsController(uiStore);
     workspace = WorkspaceController(repository, attempts, onUnauthorized: () => unawaited(session.expire()));
+    undo = NoteUndoController(
+      repository,
+      uiStore,
+      onCommitted: (action, note) => workspace.acceptCommittedChange(action.noteId, note),
+      onUnauthorized: () => unawaited(session.expire()),
+    );
     chat = ConversationController(repository, onUnauthorized: () => unawaited(session.expire()));
     capture = CaptureController(
       device,
@@ -113,6 +120,7 @@ class ProductRuntime {
   late final SessionController session;
   late final ProfileController profile;
   late final LocalTagsController tags;
+  late final NoteUndoController undo;
   late final WorkspaceController workspace;
   late final ConversationController chat;
   late final CaptureController capture;
@@ -129,6 +137,7 @@ class ProductRuntime {
     capture.setAccount(id);
     unawaited(profile.bind(id, session.account?.email ?? ''));
     unawaited(tags.bind(id));
+    unawaited(undo.bind(id));
     if (old != null) {
       repository.clearAccount(old);
       unawaited(attempts.clear(old));
@@ -153,6 +162,7 @@ class ProductRuntime {
 
   void foreground(bool value) {
     workspace.setForeground(value);
+    if (value) unawaited(undo.flushDue());
     if (!value) {
       capture.background();
       chat.interrupt();
@@ -167,6 +177,7 @@ class ProductRuntime {
     session.dispose();
     profile.dispose();
     tags.dispose();
+    undo.dispose();
     workspace.dispose();
     chat.dispose();
     capture.dispose();

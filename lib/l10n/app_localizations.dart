@@ -5491,6 +5491,66 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'بعدين'**
   String get rdLater;
+
+  /// No description provided for @rdNewTag.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاج جديد'**
+  String get rdNewTag;
+
+  /// No description provided for @rdTagName.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم التاج'**
+  String get rdTagName;
+
+  /// No description provided for @rdEditTag.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل التاج'**
+  String get rdEditTag;
+
+  /// No description provided for @rdTagExists.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيه تاج بالاسم ده بالفعل'**
+  String get rdTagExists;
+
+  /// No description provided for @rdUnpin.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء التثبيت'**
+  String get rdUnpin;
+
+  /// No description provided for @rdUndoExpired.
+  ///
+  /// In ar, this message translates to:
+  /// **'وقت التراجع خلص'**
+  String get rdUndoExpired;
+
+  /// No description provided for @rdShareFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشاركة ما كملتش. جرّب تاني.'**
+  String get rdShareFailed;
+
+  /// No description provided for @rdUndoFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'التراجع ما كملش. جرّب تاني.'**
+  String get rdUndoFailed;
+
+  /// No description provided for @rdPendingChange.
+  ///
+  /// In ar, this message translates to:
+  /// **'بنكمل التعديل…'**
+  String get rdPendingChange;
+
+  /// No description provided for @rdNoteActions.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيارات النوتة'**
+  String get rdNoteActions;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
