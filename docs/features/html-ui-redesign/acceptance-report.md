@@ -23,13 +23,13 @@ content tests therefore have no independent equivalent in that prototype.
 | --- | --- | --- |
 | Landing | Previous authentication entry layout | Reference hero/cards, typography, theme and bilingual copy; navigation uses real authentication routes |
 | Sign up | Empty Arabic inputs could align left; existing registration omitted the newly required server name | Required trimmed name first, valid name/email/password gating, UI-aligned empty fields, content-aware filled fields; real six-digit OTP instead of mock password tricks |
-| Login / recovery | Direction handling duplicated by form | Shared empty/identifier rules, localized real errors and six-digit existing recovery flow; unconfigured Google entry stays hidden |
+| Login / recovery | Direction handling duplicated by form | Shared empty/identifier rules, localized real errors, six-digit existing recovery flow and native Android Google sign-in through the existing ID-token exchange |
 | Home | Previous cards/search/projects layout | Reference spacing, real notes/search, separate device tags, account name greeting, contextual empty/error/loading states; project management lives in Settings |
 | Note detail | Previous editing/refinement presentation | Real word diff, generation-aware refinement, related notes, tags, favorite, native share and durable deferred Undo; unsupported scores/reasons are hidden |
 | Map | Previous graph presentation | Real graph data with deterministic force layout, pan/zoom/drag/selection, per-label direction and real note opening; no prototype positions or invented links |
 | Ask | Previous conversation layout and redundant All notes strip | Real SSE, citations, history, stable sender-side bubbles, keyboard-safe composer; default strip removed, genuine project scope preserved |
 | Capture | Previous writing/recording arrangement | Draft autosave, explicit Save, stable cursor/viewport with IME, single-consumption native transcript; local PDFs remain local and no sample transcript is shipped |
-| Me | Previous profile/preferences layout | Real profile name/read, editable device fallback where no update API exists, live AR/EN and Light/Dark/System, actual selected-project counts and export |
+| Me | Previous profile/preferences layout | Real profile name/read, editable device fallback pending client integration of the available profile update endpoint, live AR/EN and Light/Dark/System, actual selected-project counts and export |
 
 Native text rasterization and Arabic line boxes differ from browser rendering.
 The RTL audit also retains an open narrow-line mixed-input issue: parenthesized
@@ -43,7 +43,7 @@ truthful fallback in [BACKEND_REQUESTS.md](../../../BACKEND_REQUESTS.md).
 
 ## Verification completed
 
-- Complete host suite: 1,065 passed, 16 explicitly skipped on 28 November 2026.
+- Pre-merge complete host suite: 1,072 passed, 16 explicitly skipped on 28 November 2026.
   Fifteen legacy screenshot suites are opt-in; one public live HTTPS smoke test is opt-in. The redesign capture suite runs normally.
 - After the final dialog contrast correction, 36 targeted tests passed, including
   shared RTL/LTR goldens, OTP digit/IME handling, failed-processing recovery and
