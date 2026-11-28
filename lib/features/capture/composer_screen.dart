@@ -30,9 +30,9 @@ class ProductComposerScreen extends StatelessWidget {
           onPressed: () => ComposerNavigation.closeOf(context),
           icon: const Icon(Icons.close),
         ),
-        footer: ValueListenableBuilder<int>(
-          valueListenable: w.draftListenable,
-          builder: (context, _, _) => FikraButton(
+        footer: ValueListenableBuilder<bool>(
+          valueListenable: w.draftHasContentListenable,
+          builder: (context, hasContent, _) => FikraButton(
             key: const ValueKey('save-product-note'),
             growForText: true,
             label: w.pendingAttempt != null
@@ -44,7 +44,7 @@ class ProductComposerScreen extends StatelessWidget {
                     w.selected == null ||
                     w.coolingDown ||
                     (w.pendingAttempt != null && w.pendingAttempt!.projectId != w.selectedProjectId) ||
-                    (w.pendingAttempt == null && w.draft.content.trim().isEmpty)
+                    (w.pendingAttempt == null && !hasContent)
                 ? null
                 : () async {
                     final saved = await w.save();
@@ -87,14 +87,14 @@ class ProductComposerScreen extends StatelessWidget {
                 ProductTextInput(
                   key: ValueKey('capture-title-${w.selectedProjectId}'),
                   value: w.draft.title,
-                  onChanged: (v) => w.updateDraft(title: v),
+                  onChanged: (v) => w.updateDraft(title: v, fromInput: true),
                   enabled: !locked,
                   label: context.l10n.productTitleOptional,
                 ),
                 ProductTextInput(
                   key: ValueKey('capture-content-${w.selectedProjectId}'),
                   value: w.draft.content,
-                  onChanged: (v) => w.updateDraft(content: v),
+                  onChanged: (v) => w.updateDraft(content: v, fromInput: true),
                   lines: 6,
                   enabled: !locked,
                   label: context.l10n.productYourThought,

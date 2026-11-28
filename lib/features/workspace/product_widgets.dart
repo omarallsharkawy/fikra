@@ -63,17 +63,67 @@ String processingText(BuildContext c, ProcessingState state) => switch (state) {
   ProcessingState.unknown => c.l10n.productSavedStatusUnavailable,
 };
 
-class ProductView extends ConsumerWidget {
+class ProductView extends ConsumerStatefulWidget {
   const ProductView({super.key, required this.builder, this.listenTo});
   final Widget Function(BuildContext context, ProductRuntime runtime) builder;
   final List<Listenable> Function(ProductRuntime runtime)? listenTo;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProductView> createState() => _ProductViewState();
+}
+
+class _ProductViewState extends ConsumerState<ProductView> {
+  Listenable? _merged;
+  ProductRuntime? _runtime;
+  bool _visible = true;
+  bool _dirtyWhileHidden = false;
+
+  void _attach(ProductRuntime runtime) {
+    final next = Listenable.merge(widget.listenTo?.call(runtime) ?? [runtime.workspace]);
+    _merged?.removeListener(_onNotify);
+    _runtime = runtime;
+    _merged = next;
+    next.addListener(_onNotify);
+  }
+
+  void _onNotify() {
+    if (!mounted) return;
+    if (!_visible) {
+      _dirtyWhileHidden = true;
+      return;
+    }
+    setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible = TickerMode.valuesOf(context).enabled;
+    _visible = visible;
+    if (visible && _dirtyWhileHidden) {
+      _dirtyWhileHidden = false;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ProductView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_runtime != null) _attach(_runtime!);
+  }
+
+  @override
+  void dispose() {
+    _merged?.removeListener(_onNotify);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final runtime = ref.watch(productRuntimeProvider);
-    return ListenableBuilder(
-      listenable: Listenable.merge(listenTo?.call(runtime) ?? [runtime.workspace]),
-      builder: (context, _) => builder(context, runtime),
-    );
+    if (!identical(_runtime, runtime)) {
+      _attach(runtime);
+    }
+    return widget.builder(context, runtime);
   }
 }
 

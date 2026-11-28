@@ -80,7 +80,7 @@ void main() {
     test('ConversationController draft typing and SSE ChatDelta stream do not notify full conversation listeners', () async {
       final chunks = [for (var i = 0; i < 50; i++) 'token-$i '];
       final repo = _StreamingChatRepo(chunks);
-      final c = ConversationController(repo);
+      final c = ConversationController(repo, previewThrottle: Duration.zero);
       addTearDown(c.dispose);
       final project = (await repo.projects('development-other')).first;
       await c.selectProject('development-other', project.id);

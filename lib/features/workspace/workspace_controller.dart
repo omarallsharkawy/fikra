@@ -43,6 +43,7 @@ class WorkspaceController extends ChangeNotifier {
   Timer? _retryWake;
   final _drafts = <String, NoteDraft>{};
   final ValueNotifier<int> draftListenable = ValueNotifier<int>(0);
+  final ValueNotifier<bool> draftHasContentListenable = ValueNotifier<bool>(false);
   final _details = <String, KnowledgeNote>{};
   final _relatedByNote = <String, List<NoteSourceReference>>{};
   final _loadingNotes = <String>{};
@@ -97,7 +98,7 @@ class WorkspaceController extends ChangeNotifier {
     results = null;
     query = '';
     _drafts.clear();
-    if (!_disposed) draftListenable.value++;
+    _syncDraftSignals(external: true);
     _details.clear();
     _relatedByNote.clear();
     _loadingNotes.clear();
@@ -152,7 +153,7 @@ class WorkspaceController extends ChangeNotifier {
         final restoredDraft = _drafts.putIfAbsent(targetId, NoteDraft.new);
         restoredDraft.title = attempt.title ?? '';
         restoredDraft.content = attempt.content;
-        if (!_disposed) draftListenable.value++;
+        _syncDraftSignals(external: true);
       }
       await selectProject(general.id);
     } catch (error) {
@@ -174,7 +175,7 @@ class WorkspaceController extends ChangeNotifier {
     _polling = false;
     _pollCount = 0;
     selectedProjectId = id;
-    if (!_disposed) draftListenable.value++;
+    _syncDraftSignals(external: true);
     notes = const [];
     results = null;
     query = '';
@@ -234,7 +235,16 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  void updateDraft({String? title, String? content}) {
+  void _syncDraftSignals({required bool external}) {
+    if (_disposed) return;
+    final hasContent = draft.content.trim().isNotEmpty;
+    if (draftHasContentListenable.value != hasContent) {
+      draftHasContentListenable.value = hasContent;
+    }
+    if (external) draftListenable.value++;
+  }
+
+  void updateDraft({String? title, String? content, bool fromInput = false}) {
     if (busy || pendingAttempt != null) return;
     var changed = false;
     if (title != null && draft.title != title) {
@@ -245,7 +255,7 @@ class WorkspaceController extends ChangeNotifier {
       draft.content = content;
       changed = true;
     }
-    if (changed && !_disposed) draftListenable.value++;
+    if (changed) _syncDraftSignals(external: !fromInput);
   }
 
   ProductFailure? _validate(String content, String? title) {
@@ -293,7 +303,7 @@ class WorkspaceController extends ChangeNotifier {
       pendingAttempt = null;
       attemptFailure = null;
       _drafts.remove(project);
-      if (!_disposed) draftListenable.value++;
+      _syncDraftSignals(external: true);
       try {
         await attempts.clear(account);
       } catch (_) {
@@ -649,7 +659,7 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       projects = projects.where((p) => p.id != project.id).toList();
       _drafts.remove(project.id);
-      if (!_disposed) draftListenable.value++;
+      _syncDraftSignals(external: true);
       if (pendingAttempt?.projectId == project.id) {
         pendingAttempt = null;
         attemptFailure = null;
@@ -772,6 +782,7 @@ class WorkspaceController extends ChangeNotifier {
     _epoch++;
     _pollTimer?.cancel();
     draftListenable.dispose();
+    draftHasContentListenable.dispose();
     super.dispose();
   }
 }

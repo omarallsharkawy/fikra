@@ -8,9 +8,15 @@ import '../../data/product/repositories.dart';
 enum SendState { idle, sending, uncertain, reconciling, reviewed }
 
 class ConversationController extends ChangeNotifier {
-  ConversationController(this.repository, {this.sendLimit = const Duration(minutes: 3), this.onUnauthorized});
+  ConversationController(
+    this.repository, {
+    this.sendLimit = const Duration(minutes: 3),
+    this.previewThrottle = const Duration(milliseconds: 50),
+    this.onUnauthorized,
+  });
   final KnowledgeRepository repository;
   final Duration sendLimit;
+  final Duration previewThrottle;
   final VoidCallback? onUnauthorized;
   String? accountId, projectId;
   List<Conversation> conversations = const [];
@@ -27,7 +33,7 @@ class ConversationController extends ChangeNotifier {
   int _epoch = 0;
   bool _disposed = false;
   StreamSubscription<ChatEvent>? _subscription;
-  Timer? _deadline, _retryWake;
+  Timer? _deadline, _retryWake, _previewTimer;
   Completer<void>? _sendDone;
   final _uncertain = <String>{};
   void _emit() {
@@ -38,7 +44,28 @@ class ConversationController extends ChangeNotifier {
     if (!_disposed) draftListenable.value++;
   }
 
+  void _flushPreview() {
+    _previewTimer?.cancel();
+    _previewTimer = null;
+    if (_disposed) return;
+    final text = _previewBuffer.toString();
+    if (previewListenable.value != text) previewListenable.value = text;
+  }
+
+  void _appendPreview(String chunk) {
+    if (chunk.isEmpty) return;
+    final wasEmpty = _previewBuffer.isEmpty;
+    _previewBuffer.write(chunk);
+    if (wasEmpty || previewThrottle <= Duration.zero) {
+      _flushPreview();
+    } else {
+      _previewTimer ??= Timer(previewThrottle, _flushPreview);
+    }
+  }
+
   void _clearPreview() {
+    _previewTimer?.cancel();
+    _previewTimer = null;
     _previewBuffer.clear();
     if (!_disposed && previewListenable.value.isNotEmpty) {
       previewListenable.value = '';
@@ -215,10 +242,7 @@ class ConversationController extends ChangeNotifier {
             if (!_valid(ticket) || sendState != SendState.sending) return;
             switch (event) {
               case ChatDelta():
-                if (event.content.isNotEmpty) {
-                  _previewBuffer.write(event.content);
-                  previewListenable.value = _previewBuffer.toString();
-                }
+                _appendPreview(event.content);
                 return;
               case ChatError():
                 uncertain(event.failure);
@@ -357,6 +381,7 @@ class ConversationController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _retryWake?.cancel();
+    _previewTimer?.cancel();
     _epoch++;
     _stop();
     draftListenable.dispose();

@@ -35,7 +35,12 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
     _scrollScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollScheduled = false;
-      if (mounted && _follow && _scroll.hasClients) _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      if (mounted && _follow && _scroll.hasClients) {
+        final maxExtent = _scroll.position.maxScrollExtent;
+        if ((maxExtent - _scroll.position.pixels).abs() > 1.0) {
+          _scroll.jumpTo(maxExtent);
+        }
+      }
     });
   }
 
@@ -78,7 +83,6 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
             ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
             : null,
         controller: _scroll,
-        selectable: true,
         footer: c.current == null
             ? null
             : ValueListenableBuilder<int>(
@@ -154,26 +158,28 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
         itemBuilder: (context, index) => _MessageBubble(messages[index]),
         afterItems: [
           if (c.current != null) ...[
-            RepaintBoundary(
-              child: ValueListenableBuilder<String>(
-                valueListenable: c.previewListenable,
-                builder: (context, preview, _) {
-                  if (preview.isEmpty) return const SizedBox.shrink();
-                  return SolidSurface(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(context.l10n.productProvisionalNotConfirmedSaved, style: context.text.meta),
-                        Text(
-                          preview,
-                          key: const ValueKey('chat-preview'),
-                          textDirection: productContentDirection(preview),
-                          style: context.text.answer,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+            SelectionContainer.disabled(
+              child: RepaintBoundary(
+                child: ValueListenableBuilder<String>(
+                  valueListenable: c.previewListenable,
+                  builder: (context, preview, _) {
+                    if (preview.isEmpty) return const SizedBox.shrink();
+                    return SolidSurface(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(context.l10n.productProvisionalNotConfirmedSaved, style: context.text.meta),
+                          Text(
+                            preview,
+                            key: const ValueKey('chat-preview'),
+                            textDirection: productContentDirection(preview),
+                            style: context.text.answer,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             if (c.sendState == SendState.sending)
@@ -222,11 +228,13 @@ class _MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(user ? context.l10n.productYou : 'FIKRAH', style: context.text.meta.copyWith(color: ink)),
-              Text(
-                message.content,
-                textDirection: productContentDirection(message.content),
-                key: ValueKey('message-${message.id}'),
-                style: context.text.answer.copyWith(color: ink),
+              SelectionArea(
+                child: Text(
+                  message.content,
+                  textDirection: productContentDirection(message.content),
+                  key: ValueKey('message-${message.id}'),
+                  style: context.text.answer.copyWith(color: ink),
+                ),
               ),
               if (message.supported == false)
                 Text(context.l10n.productNotSupportedByThisProjectSKnowledge, style: context.text.meta),
