@@ -28,16 +28,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
           cache: gradle
 
-      - name: Install Android SDK 37, Build Tools 36 & NDK 29
+      - name: Install Android SDK 37.0, Build Tools 36 & NDK 29
         run: |
           SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           SDKMANAGER="$(command -v sdkmanager || find "$SDK_ROOT" -maxdepth 4 -name sdkmanager -type f 2>/dev/null | head -n 1)"
@@ -46,10 +46,11 @@ jobs:
             exit 1
           fi
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" \
-            "platforms;android-37" \
+          "$SDKMANAGER" --channel=1 \
+            "platforms;android-37.0" \
             "build-tools;36.0.0" \
             "ndk;29.0.13113456"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
 
       - name: Set up Flutter 3.47.5
         uses: subosito/flutter-action@v2
