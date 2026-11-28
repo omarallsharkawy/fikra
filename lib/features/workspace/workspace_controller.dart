@@ -42,6 +42,7 @@ class WorkspaceController extends ChangeNotifier {
   String? projectDraftId;
   Timer? _retryWake;
   final _drafts = <String, NoteDraft>{};
+  final ValueNotifier<int> draftListenable = ValueNotifier<int>(0);
   final _details = <String, KnowledgeNote>{};
   final _relatedByNote = <String, List<NoteSourceReference>>{};
   final _loadingNotes = <String>{};
@@ -96,6 +97,7 @@ class WorkspaceController extends ChangeNotifier {
     results = null;
     query = '';
     _drafts.clear();
+    if (!_disposed) draftListenable.value++;
     _details.clear();
     _relatedByNote.clear();
     _loadingNotes.clear();
@@ -150,6 +152,7 @@ class WorkspaceController extends ChangeNotifier {
         final restoredDraft = _drafts.putIfAbsent(targetId, NoteDraft.new);
         restoredDraft.title = attempt.title ?? '';
         restoredDraft.content = attempt.content;
+        if (!_disposed) draftListenable.value++;
       }
       await selectProject(general.id);
     } catch (error) {
@@ -171,6 +174,7 @@ class WorkspaceController extends ChangeNotifier {
     _polling = false;
     _pollCount = 0;
     selectedProjectId = id;
+    if (!_disposed) draftListenable.value++;
     notes = const [];
     results = null;
     query = '';
@@ -232,9 +236,16 @@ class WorkspaceController extends ChangeNotifier {
 
   void updateDraft({String? title, String? content}) {
     if (busy || pendingAttempt != null) return;
-    if (title != null) draft.title = title;
-    if (content != null) draft.content = content;
-    _emit();
+    var changed = false;
+    if (title != null && draft.title != title) {
+      draft.title = title;
+      changed = true;
+    }
+    if (content != null && draft.content != content) {
+      draft.content = content;
+      changed = true;
+    }
+    if (changed && !_disposed) draftListenable.value++;
   }
 
   ProductFailure? _validate(String content, String? title) {
@@ -282,6 +293,7 @@ class WorkspaceController extends ChangeNotifier {
       pendingAttempt = null;
       attemptFailure = null;
       _drafts.remove(project);
+      if (!_disposed) draftListenable.value++;
       try {
         await attempts.clear(account);
       } catch (_) {
@@ -637,6 +649,7 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       projects = projects.where((p) => p.id != project.id).toList();
       _drafts.remove(project.id);
+      if (!_disposed) draftListenable.value++;
       if (pendingAttempt?.projectId == project.id) {
         pendingAttempt = null;
         attemptFailure = null;
@@ -758,6 +771,7 @@ class WorkspaceController extends ChangeNotifier {
     _retryWake?.cancel();
     _epoch++;
     _pollTimer?.cancel();
+    draftListenable.dispose();
     super.dispose();
   }
 }

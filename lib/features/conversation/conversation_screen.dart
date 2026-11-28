@@ -19,6 +19,9 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
   final _scroll = ScrollController();
   String? _conversation, _signature;
   bool _follow = true;
+  bool _scrollScheduled = false;
+  ConversationController? _attachedChat;
+
   @override
   void initState() {
     super.initState();
@@ -27,23 +30,37 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
     });
   }
 
+  void _scheduleScrollToBottom() {
+    if (!_follow || _scrollScheduled) return;
+    _scrollScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollScheduled = false;
+      if (mounted && _follow && _scroll.hasClients) _scroll.jumpTo(_scroll.position.maxScrollExtent);
+    });
+  }
+
+  void _onPreviewChanged() => _scheduleScrollToBottom();
+
   void _observe(ConversationController c) {
+    if (!identical(_attachedChat, c)) {
+      _attachedChat?.previewListenable.removeListener(_onPreviewChanged);
+      _attachedChat = c;
+      c.previewListenable.addListener(_onPreviewChanged);
+    }
     final id = c.current?.conversation.id;
     if (_conversation != id) {
       _conversation = id;
       _follow = true;
     }
-    final signature = '$id:${c.current?.messages.length}:${c.preview.length}:${c.sendState}';
+    final signature = '$id:${c.current?.messages.length}:${c.sendState}';
     if (_signature == signature) return;
     _signature = signature;
-    final follow = _follow;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && follow && _scroll.hasClients) _scroll.jumpTo(_scroll.position.maxScrollExtent);
-    });
+    _scheduleScrollToBottom();
   }
 
   @override
   void dispose() {
+    _attachedChat?.previewListenable.removeListener(_onPreviewChanged);
     _scroll.dispose();
     super.dispose();
   }
@@ -54,30 +71,39 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
     builder: (context, r) {
       final c = r.chat;
       _observe(c);
+      final messages = c.current?.messages ?? const <KnowledgeMessage>[];
       return ProductScaffold(
         title: context.l10n.productAsk,
         subtitle: r.workspace.projects.any((p) => !p.isGeneral)
             ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
             : null,
         controller: _scroll,
+        selectable: true,
         footer: c.current == null
             ? null
-            : ProductTextInput(
-                key: ValueKey('chat-draft-${c.current!.conversation.id}'),
-                value: c.draft,
-                onChanged: c.updateDraft,
-                lines: 1,
-                maxLines: 5,
-                keyboardType: TextInputType.multiline,
-                label: context.l10n.productAskThisProject,
-                suffix: IconButton.filled(
-                  key: const ValueKey('send-chat'),
-                  tooltip: context.l10n.productSend,
-                  onPressed: c.canSend ? c.send : null,
-                  icon: c.sendState == SendState.sending
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.arrow_upward),
-                ),
+            : ValueListenableBuilder<int>(
+                valueListenable: c.draftListenable,
+                builder: (context, _, _) {
+                  final current = c.current;
+                  if (current == null) return const SizedBox.shrink();
+                  return ProductTextInput(
+                    key: ValueKey('chat-draft-${current.conversation.id}'),
+                    value: c.draft,
+                    onChanged: c.updateDraft,
+                    lines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    label: context.l10n.productAskThisProject,
+                    suffix: IconButton.filled(
+                      key: const ValueKey('send-chat'),
+                      tooltip: context.l10n.productSend,
+                      onPressed: c.canSend ? c.send : null,
+                      icon: c.sendState == SendState.sending
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.arrow_upward),
+                    ),
+                  );
+                },
               ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -96,7 +122,7 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
             ),
           ],
         ),
-        children: [
+        beforeItems: [
           if (r.workspace.failure != null)
             ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
           if (c.failure != null) ProductFailureView(c.failure!),
@@ -122,19 +148,34 @@ class _ProductConversationScreenState extends State<ProductConversationScreen> {
                 ],
               ),
             ),
+          if (c.current != null) const SizedBox(height: 20),
+        ],
+        itemCount: c.current != null ? messages.length : 0,
+        itemBuilder: (context, index) => _MessageBubble(messages[index]),
+        afterItems: [
           if (c.current != null) ...[
-            const SizedBox(height: 20),
-            for (final message in c.current!.messages) _MessageBubble(message),
-            if (c.preview.isNotEmpty)
-              SolidSurface(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.l10n.productProvisionalNotConfirmedSaved, style: context.text.meta),
-                    Text(c.preview, key: const ValueKey('chat-preview'), style: context.text.answer),
-                  ],
-                ),
+            RepaintBoundary(
+              child: ValueListenableBuilder<String>(
+                valueListenable: c.previewListenable,
+                builder: (context, preview, _) {
+                  if (preview.isEmpty) return const SizedBox.shrink();
+                  return SolidSurface(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(context.l10n.productProvisionalNotConfirmedSaved, style: context.text.meta),
+                        Text(
+                          preview,
+                          key: const ValueKey('chat-preview'),
+                          textDirection: productContentDirection(preview),
+                          style: context.text.answer,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
+            ),
             if (c.sendState == SendState.sending)
               TextButton(onPressed: c.interrupt, child: Text(context.l10n.productStopWaiting)),
             if (c.sendState == SendState.uncertain)
@@ -181,7 +222,7 @@ class _MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(user ? context.l10n.productYou : 'FIKRAH', style: context.text.meta.copyWith(color: ink)),
-              SelectableText(
+              Text(
                 message.content,
                 textDirection: productContentDirection(message.content),
                 key: ValueKey('message-${message.id}'),
@@ -222,7 +263,7 @@ class ProductConversationHistoryScreen extends StatelessWidget {
           onPressed: locked ? null : c.reloadList,
           icon: const Icon(Icons.refresh),
         ),
-        children: [
+        beforeItems: [
           FikraButton.secondary(
             key: const ValueKey('new-from-history'),
             label: context.l10n.productNewConversation,
@@ -236,29 +277,34 @@ class ProductConversationHistoryScreen extends StatelessWidget {
                   },
           ),
           const SizedBox(height: 16),
-          if (c.failure != null) ProductFailureView(c.failure!),
+          if (c.failure != null) ProductFailureView(c.failure!, onRetry: c.reloadList),
           if (c.loading) const Center(child: CircularProgressIndicator()),
           if (!c.loading && c.conversations.isEmpty) Text(context.l10n.uxNoConversations, style: context.text.caption),
-          for (final conversation in c.conversations)
-            Card(
-              child: ListTile(
-                key: ValueKey('open-conversation-${conversation.id}'),
-                enabled: !locked,
-                selected: c.current?.conversation.id == conversation.id,
-                leading: Icon(
-                  c.current?.conversation.id == conversation.id
-                      ? Icons.check_circle_outline
-                      : Icons.chat_bubble_outline,
-                ),
-                title: Text(conversation.title ?? context.l10n.productNewConversation),
-                onTap: () async {
-                  await c.open(conversation.id);
-                  if (context.mounted && c.failure == null && c.current?.conversation.id == conversation.id) {
-                    context.pop();
-                  }
-                },
+        ],
+        itemCount: c.conversations.length,
+        itemBuilder: (context, index) {
+          final conversation = c.conversations[index];
+          return Card(
+            child: ListTile(
+              key: ValueKey('open-conversation-${conversation.id}'),
+              enabled: !locked,
+              selected: c.current?.conversation.id == conversation.id,
+              leading: Icon(
+                c.current?.conversation.id == conversation.id
+                    ? Icons.check_circle_outline
+                    : Icons.chat_bubble_outline,
               ),
+              title: Text(conversation.title ?? context.l10n.productNewConversation),
+              onTap: () async {
+                await c.open(conversation.id);
+                if (context.mounted && c.failure == null && c.current?.conversation.id == conversation.id) {
+                  context.pop();
+                }
+              },
             ),
+          );
+        },
+        afterItems: [
           if (c.current != null) ...[
             const SizedBox(height: 24),
             TextButton.icon(

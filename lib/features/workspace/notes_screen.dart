@@ -53,7 +53,7 @@ class ProductNotesScreen extends StatelessWidget {
             ),
           ],
         ),
-        children: [
+        beforeItems: [
           if (r.workspace.failure != null)
             ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
           ProductTextInput(
@@ -70,7 +70,6 @@ class ProductNotesScreen extends StatelessWidget {
               icon: const Icon(Icons.search),
             ),
           ),
-
           if (w.searchFailure != null) ProductFailureView(w.searchFailure!, onRetry: () => w.search(w.query)),
           if (w.loading || w.searching)
             const Padding(
@@ -85,41 +84,48 @@ class ProductNotesScreen extends StatelessWidget {
               child: Text(context.l10n.productSearchResults, style: context.text.section),
             ),
             if (w.results!.isEmpty) Text(context.l10n.productNoResultsInThisProject),
-            for (final n in w.results!)
-              ProductIdeaCard(
-                title: productTitle(context, n.title),
-                content: n.content,
-                onOpen: () => context.push('/note/${n.noteId}'),
+          ] else if (!w.loading && w.notes.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Column(
+                children: [
+                  const Icon(Icons.note_add_outlined, size: 52),
+                  const SizedBox(height: 16),
+                  Text(context.l10n.productNoNotesYet, style: context.text.section),
+                  const SizedBox(height: 12),
+                  FikraButton(
+                    label: context.l10n.productCaptureAThought,
+                    onPressed: () => context.go('/add'),
+                    growForText: true,
+                  ),
+                ],
               ),
+            ),
+        ],
+        itemCount: w.results != null ? w.results!.length : w.notes.length,
+        itemBuilder: (context, index) {
+          final results = w.results;
+          if (results != null) {
+            final n = results[index];
+            return ProductIdeaCard(
+              title: productTitle(context, n.title),
+              content: n.content,
+              onOpen: () => context.push('/note/${n.noteId}'),
+            );
+          }
+          final n = w.notes[index];
+          return ProductIdeaCard(
+            key: ValueKey('product-note-${n.id}'),
+            title: productTitle(context, n.title),
+            content: n.content,
+            caption: processingText(context, n.processing),
+            timestamp: productTimestamp(context, n.createdAt),
+            onOpen: () => context.push('/note/${n.id}'),
+          );
+        },
+        afterItems: [
+          if (w.results != null)
             TextButton(onPressed: () => w.search(''), child: Text(context.l10n.productShowAllSavedNotes)),
-          ] else ...[
-            if (!w.loading && w.notes.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: Column(
-                  children: [
-                    const Icon(Icons.note_add_outlined, size: 52),
-                    const SizedBox(height: 16),
-                    Text(context.l10n.productNoNotesYet, style: context.text.section),
-                    const SizedBox(height: 12),
-                    FikraButton(
-                      label: context.l10n.productCaptureAThought,
-                      onPressed: () => context.go('/add'),
-                      growForText: true,
-                    ),
-                  ],
-                ),
-              ),
-            for (final n in w.notes)
-              ProductIdeaCard(
-                key: ValueKey('product-note-${n.id}'),
-                title: productTitle(context, n.title),
-                content: n.content,
-                caption: processingText(context, n.processing),
-                timestamp: productTimestamp(context, n.createdAt),
-                onOpen: () => context.push('/note/${n.id}'),
-              ),
-          ],
         ],
       );
     },

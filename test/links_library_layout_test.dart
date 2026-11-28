@@ -104,7 +104,7 @@ void main() {
           of: find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'ab'),
           matching: find.byType(FadeTransition),
         );
-        final opacity = tester.widget<FadeTransition>(leaving).opacity.value;
+        final opacity = tester.widget<FadeTransition>(leaving.first).opacity.value;
         expect(opacity, greaterThan(0));
         expect(opacity, lessThan(1));
         await tester.pump(const Duration(milliseconds: 120));
@@ -146,7 +146,7 @@ void main() {
     // Parent deliberately retains its pre-write list while the lock releases.
     final leaving = find.byWidgetPredicate((w) => w is SuggestionCard && w.entry.link.id == 'ab');
     final fade = find.ancestor(of: leaving, matching: find.byType(FadeTransition));
-    expect(tester.widget<FadeTransition>(fade).opacity.value, lessThan(1));
+    expect(tester.widget<FadeTransition>(fade.first).opacity.value, lessThan(1));
     await tester.pump(const Duration(milliseconds: 120));
     expect(leaving, findsNothing, reason: 'unlock must not restart or cancel the original collapse');
     await tester.pumpWidget(const SizedBox());
@@ -192,7 +192,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
         final opacity = tester
-            .widget<FadeTransition>(find.ancestor(of: card('$id$id'), matching: find.byType(FadeTransition)))
+            .widget<FadeTransition>(find.ancestor(of: card('$id$id'), matching: find.byType(FadeTransition)).first)
             .opacity
             .value;
         expect(opacity, lessThan(1), reason: 'collapse starts at once');

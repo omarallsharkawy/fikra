@@ -60,11 +60,14 @@ class FikraButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !loading;
-    final (Color color, Color fg, TextStyle text) = switch (style) {
+    final (Color baseColor, Color baseFg, TextStyle text) = switch (style) {
       FikraButtonStyle.primary => (context.colors.brandLime, context.colors.onBrandLime, context.text.button),
       FikraButtonStyle.secondary => (context.colors.surface, context.colors.textPrimary, context.text.section),
       FikraButtonStyle.danger => (context.colors.dangerBg, context.colors.danger, context.text.section),
     };
+    final color = enabled ? baseColor : baseColor.withValues(alpha: baseColor.a * 0.4);
+    final fg = enabled ? baseFg : baseFg.withValues(alpha: baseFg.a * 0.4);
+    final borderColor = enabled ? context.colors.line : context.colors.line.withValues(alpha: context.colors.line.a * 0.4);
     final content = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -85,25 +88,22 @@ class FikraButton extends StatelessWidget {
         ),
       ],
     );
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: Pressable(
-        onTap: enabled ? onPressed : null,
-        semanticLabel: label,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: FikraSpace.button),
-          width: expand ? double.infinity : null,
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 6),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(FikraRadius.md),
-            border: style == FikraButtonStyle.secondary ? Border.all(color: context.colors.line, width: 1) : null,
-          ),
-          // `alignment` would make the container fill the available width,
-          // so compact buttons hug their content instead.
-          alignment: expand ? Alignment.center : null,
-          child: content,
+    return Pressable(
+      onTap: enabled ? onPressed : null,
+      semanticLabel: label,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: FikraSpace.button),
+        width: expand ? double.infinity : null,
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: growForText ? 12 : 6),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(FikraRadius.md),
+          border: style == FikraButtonStyle.secondary ? Border.all(color: borderColor, width: 1) : null,
         ),
+        // `alignment` would make the container fill the available width,
+        // so compact buttons hug their content instead.
+        alignment: expand ? Alignment.center : null,
+        child: content,
       ),
     );
   }

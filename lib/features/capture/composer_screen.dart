@@ -30,27 +30,30 @@ class ProductComposerScreen extends StatelessWidget {
           onPressed: () => ComposerNavigation.closeOf(context),
           icon: const Icon(Icons.close),
         ),
-        footer: FikraButton(
-          key: const ValueKey('save-product-note'),
-          growForText: true,
-          label: w.pendingAttempt != null
-              ? context.l10n.productReconcileTheSameSaveAttempt
-              : context.l10n.productSaveTextNote,
-          loading: w.busy,
-          onPressed:
-              capture.active ||
-                  w.selected == null ||
-                  w.coolingDown ||
-                  (w.pendingAttempt != null && w.pendingAttempt!.projectId != w.selectedProjectId) ||
-                  (w.pendingAttempt == null && w.draft.content.trim().isEmpty)
-              ? null
-              : () async {
-                  final saved = await w.save();
-                  if (saved != null) {
-                    capture.clearAfterSave();
-                    if (context.mounted) context.go('/notes');
-                  }
-                },
+        footer: ValueListenableBuilder<int>(
+          valueListenable: w.draftListenable,
+          builder: (context, _, _) => FikraButton(
+            key: const ValueKey('save-product-note'),
+            growForText: true,
+            label: w.pendingAttempt != null
+                ? context.l10n.productReconcileTheSameSaveAttempt
+                : context.l10n.productSaveTextNote,
+            loading: w.busy,
+            onPressed:
+                capture.active ||
+                    w.selected == null ||
+                    w.coolingDown ||
+                    (w.pendingAttempt != null && w.pendingAttempt!.projectId != w.selectedProjectId) ||
+                    (w.pendingAttempt == null && w.draft.content.trim().isEmpty)
+                ? null
+                : () async {
+                    final saved = await w.save();
+                    if (saved != null) {
+                      capture.clearAfterSave();
+                      if (context.mounted) context.go('/notes');
+                    }
+                  },
+          ),
         ),
         children: [
           if ((w.failure ?? w.attemptFailure) != null)
@@ -77,25 +80,38 @@ class ProductComposerScreen extends StatelessWidget {
               },
               child: Text(context.l10n.productReviewFailedSave),
             ),
-          ProductTextInput(
-            key: ValueKey('capture-title-${w.selectedProjectId}'),
-            value: w.draft.title,
-            onChanged: (v) => w.updateDraft(title: v),
-            enabled: !locked,
-            label: context.l10n.productTitleOptional,
-          ),
-          ProductTextInput(
-            key: ValueKey('capture-content-${w.selectedProjectId}'),
-            value: w.draft.content,
-            onChanged: (v) => w.updateDraft(content: v),
-            lines: 6,
-            enabled: !locked,
-            label: context.l10n.productYourThought,
+          ValueListenableBuilder<int>(
+            valueListenable: w.draftListenable,
+            builder: (context, _, _) => Column(
+              children: [
+                ProductTextInput(
+                  key: ValueKey('capture-title-${w.selectedProjectId}'),
+                  value: w.draft.title,
+                  onChanged: (v) => w.updateDraft(title: v),
+                  enabled: !locked,
+                  label: context.l10n.productTitleOptional,
+                ),
+                ProductTextInput(
+                  key: ValueKey('capture-content-${w.selectedProjectId}'),
+                  value: w.draft.content,
+                  onChanged: (v) => w.updateDraft(content: v),
+                  lines: 6,
+                  enabled: !locked,
+                  label: context.l10n.productYourThought,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 4),
           if (capture.failure != null) ProductFailureView(capture.failure!),
           if (capture.state == CaptureState.recording) ...[
-            Text('${Fmt.duration(capture.elapsed.inMilliseconds)} / 1:00', key: const ValueKey('recording-time')),
+            RepaintBoundary(
+              child: ValueListenableBuilder<Duration>(
+                valueListenable: capture.elapsedListenable,
+                builder: (_, elapsed, _) =>
+                    Text('${Fmt.duration(elapsed.inMilliseconds)} / 1:00', key: const ValueKey('recording-time')),
+              ),
+            ),
             FikraButton(label: context.l10n.productStopRecording, onPressed: capture.stop),
           ] else if (capture.active)
             const Padding(

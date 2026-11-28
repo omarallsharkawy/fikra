@@ -8,15 +8,7 @@ class PearlCanvas extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    fit: StackFit.passthrough,
-    children: [
-      Positioned.fill(
-        child: RepaintBoundary(child: CustomPaint(painter: PearlCanvasPainter(context.colors))),
-      ),
-      child,
-    ],
-  );
+  Widget build(BuildContext context) => ColoredBox(color: context.colors.canvas, child: child);
 }
 
 class PearlCanvasPainter extends CustomPainter {

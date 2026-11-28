@@ -30,7 +30,11 @@ class CaptureController extends ChangeNotifier {
   static const maximum = Duration(seconds: 60);
   String? accountId;
   CaptureState state = CaptureState.idle;
-  Duration elapsed = Duration.zero;
+  final ValueNotifier<Duration> elapsedListenable = ValueNotifier<Duration>(Duration.zero);
+  Duration get elapsed => elapsedListenable.value;
+  set elapsed(Duration value) {
+    if (!_disposed) elapsedListenable.value = value;
+  }
   RecordedClip? clip;
   String transcript = '';
   ProductFailure? failure;
@@ -90,9 +94,9 @@ class CaptureController extends ChangeNotifier {
       elapsed = Duration.zero;
       state = CaptureState.recording;
       _tick = Timer.periodic(const Duration(milliseconds: 200), (_) {
-        elapsed = clock().difference(_started!);
-        if (elapsed > maximum) elapsed = maximum;
-        _emit();
+        var next = clock().difference(_started!);
+        if (next > maximum) next = maximum;
+        if (!_disposed) elapsedListenable.value = next;
       });
       _limit = Timer(maximum, () {
         elapsed = maximum;
@@ -231,6 +235,7 @@ class CaptureController extends ChangeNotifier {
     _retryWake?.cancel();
     _epoch++;
     _timersOff();
+    elapsedListenable.dispose();
     unawaited(_cleanup.then((_) => device.dispose()).catchError((Object _) {}));
     super.dispose();
   }

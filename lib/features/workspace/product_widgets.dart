@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart' show DateFormat, Bidi;
-
 import '../../core/format.dart';
 
 import 'dart:async';
@@ -18,12 +16,42 @@ import '../../core/widgets/pearl_canvas.dart';
 import '../../data/product/models.dart';
 
 /// Content direction follows its script, independently of the interface locale.
-TextDirection productContentDirection(String text) =>
-    Bidi.detectRtlDirectionality(text) ? TextDirection.rtl : TextDirection.ltr;
+/// Uses an O(1) first-strong-character scan (bounded to the first 128 code
+/// units) instead of splitting the entire document with RegExps.
+TextDirection productContentDirection(String text) {
+  final limit = text.length < 128 ? text.length : 128;
+  for (var i = 0; i < limit; i++) {
+    final c = text.codeUnitAt(i);
+    // Skip weak/neutral digits, combining marks, and BOM (0xFEFF).
+    if ((c >= 0x0591 && c <= 0x05BD) ||
+        (c >= 0x064B && c <= 0x0669) ||
+        c == 0x0670 ||
+        (c >= 0x06D6 && c <= 0x06ED) ||
+        (c >= 0x06F0 && c <= 0x06F9) ||
+        c == 0x00D7 ||
+        c == 0x00F7 ||
+        c == 0xFEFF) {
+      continue;
+    }
+    // Strong RTL: Hebrew, Arabic, Syriac, Arabic Supplement, Thaana, NKo,
+    // Arabic Extended, and Arabic Presentation Forms (excluding 0xFEFF BOM).
+    if ((c >= 0x05BE && c <= 0x08FF) || (c >= 0xFB1D && c <= 0xFDFF) || (c >= 0xFE70 && c <= 0xFEFC)) {
+      return TextDirection.rtl;
+    }
+    // Strong LTR: Basic Latin letters, Latin-1/Extended, Greek, Cyrillic, etc.
+    if ((c >= 0x0041 && c <= 0x005A) ||
+        (c >= 0x0061 && c <= 0x007A) ||
+        (c >= 0x00C0 && c <= 0x02AF) ||
+        (c >= 0x0370 && c <= 0x052F)) {
+      return TextDirection.ltr;
+    }
+  }
+  return TextDirection.ltr;
+}
 
 String productTimestamp(BuildContext context, DateTime storedTimestamp) {
   final local = storedTimestamp.toLocal(), l10n = context.l10n;
-  return '${DateFormat.EEEE(l10n.localeName).format(local)} · ${Fmt.date(l10n, local)} · ${Fmt.time(l10n, local)}';
+  return '${Fmt.weekday(l10n, local)} · ${Fmt.date(l10n, local)} · ${Fmt.time(l10n, local)}';
 }
 
 String productTitle(BuildContext context, String? title) => title ?? context.l10n.productUntitledProcessing;
@@ -136,6 +164,11 @@ class ProductScaffold extends StatelessWidget {
     super.key,
     required this.title,
     this.children = const [],
+    this.beforeItems = const [],
+    this.afterItems = const [],
+    this.itemCount,
+    this.itemBuilder,
+    this.selectable = false,
     this.back = false,
     this.trailing,
     this.header,
@@ -149,96 +182,134 @@ class ProductScaffold extends StatelessWidget {
   final String title;
   final String? subtitle;
   final List<Widget> children;
+  final List<Widget> beforeItems;
+  final List<Widget> afterItems;
+  final int? itemCount;
+  final IndexedWidgetBuilder? itemBuilder;
+  final bool selectable;
   final bool back;
   final Widget? trailing, header, footer, content, toolbar;
   final ScrollController? controller;
   final List<String> previewDetails;
-  @override
-  Widget build(BuildContext context) => PearlCanvas(
-    child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: Column(
-              children: [
-                Padding(
+
+  Widget _buildBody(BuildContext context) {
+    if (content != null) {
+      final padded = Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 12), child: content);
+      return footer == null ? NavigationInsetPadding(child: padded) : padded;
+    }
+    final scroll = itemBuilder != null
+        ? CustomScrollView(
+            controller: controller,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            slivers: [
+              if (beforeItems.isNotEmpty)
+                SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: Column(
-                    children: [
-                      header ??
-                          Row(
-                            children: [
-                              if (back)
-                                IconButton(
-                                  tooltip: context.l10n.productBack,
-                                  onPressed: () => context.pop(),
-                                  icon: const Icon(Icons.arrow_back),
-                                ),
-                              const FikraBrandMark(),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      title,
-                                      style: context.text.title,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (subtitle != null)
-                                      Text(
-                                        subtitle!,
-                                        style: context.text.caption,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              ?trailing,
-                            ],
-                          ),
-                      DevelopmentBanner(details: previewDetails),
-                      ?toolbar,
-                    ],
-                  ),
+                  sliver: SliverList.list(children: beforeItems),
                 ),
-                Expanded(
-                  child: content != null
-                      ? Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            16,
-                            4,
-                            16,
-                            12 + (footer == null ? NavigationInset.of(context) : 0),
-                          ),
-                          child: content,
-                        )
-                      : ListView(
-                          controller: controller,
-                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                          padding: EdgeInsets.fromLTRB(
-                            16,
-                            8,
-                            16,
-                            24 + (footer == null ? NavigationInset.of(context) : 0),
-                          ),
-                          children: children,
-                        ),
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(16, beforeItems.isEmpty ? 8 : 0, 16, 0),
+                sliver: SliverList.builder(itemCount: itemCount ?? 0, itemBuilder: itemBuilder!),
+              ),
+              if (afterItems.isNotEmpty)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList.list(children: afterItems),
                 ),
-                if (footer != null)
-                  Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + NavigationInset.of(context)), child: footer),
-              ],
+              SliverToBoxAdapter(
+                child: footer == null ? const NavigationInsetSpacer(extra: 24) : const SizedBox(height: 24),
+              ),
+            ],
+          )
+        : ListView(
+            controller: controller,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            children: [
+              ...children,
+              footer == null ? const NavigationInsetSpacer(extra: 24) : const SizedBox(height: 24),
+            ],
+          );
+    return selectable ? SelectionArea(child: scroll) : scroll;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final inShell = context.getInheritedWidgetOfExactType<NavigationInset>() != null;
+    final body = Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Column(
+                children: [
+                  header ??
+                      Row(
+                        children: [
+                          if (back)
+                            IconButton(
+                              tooltip: context.l10n.productBack,
+                              onPressed: () {
+                                if (context.canPop()) {
+                                  context.pop();
+                                } else {
+                                  context.go('/notes');
+                                }
+                              },
+                              icon: const Icon(Icons.arrow_back),
+                            ),
+                          const FikraBrandMark(),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: context.text.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (subtitle != null)
+                                  Text(
+                                    subtitle!,
+                                    style: context.text.caption,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          ?trailing,
+                        ],
+                      ),
+                  DevelopmentBanner(details: previewDetails),
+                  ?toolbar,
+                ],
+              ),
             ),
-          ),
+            Expanded(child: _buildBody(context)),
+            if (footer != null)
+              NavigationInsetPadding(
+                child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 12), child: footer),
+              ),
+          ],
         ),
       ),
-    ),
-  );
+    );
+    if (inShell) {
+      return SafeArea(top: false, child: body);
+    }
+    return PearlCanvas(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(child: body),
+      ),
+    );
+  }
 }
 
 class ProductTextInput extends StatefulWidget {
@@ -278,6 +349,14 @@ class ProductTextInput extends StatefulWidget {
 class _ProductTextInputState extends State<ProductTextInput> {
   late final _controller = TextEditingController(text: widget.value);
   bool _revealed = false;
+  TextDirection? _detectedDirection;
+
+  @override
+  void initState() {
+    super.initState();
+    _detectedDirection = _controller.text.isEmpty ? null : productContentDirection(_controller.text);
+  }
+
   @override
   void didUpdateWidget(covariant ProductTextInput old) {
     super.didUpdateWidget(old);
@@ -286,6 +365,7 @@ class _ProductTextInputState extends State<ProductTextInput> {
         text: widget.value,
         selection: TextSelection.collapsed(offset: widget.value.length),
       );
+      _detectedDirection = widget.value.isEmpty ? null : productContentDirection(widget.value);
     }
   }
 
@@ -303,9 +383,12 @@ class _ProductTextInputState extends State<ProductTextInput> {
       enabled: widget.enabled,
       onChanged: (value) {
         widget.onChanged(value);
-        // Editing state can live outside a notifier (for example note edits).
-        // Rebuild direction from the live controller without moving the caret.
-        if (widget.textDirection == null) setState(() {});
+        if (widget.textDirection == null) {
+          final nextDirection = value.isEmpty ? null : productContentDirection(value);
+          if (nextDirection != _detectedDirection) {
+            setState(() => _detectedDirection = nextDirection);
+          }
+        }
       },
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
@@ -313,9 +396,7 @@ class _ProductTextInputState extends State<ProductTextInput> {
           widget.textInputAction ?? (widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null),
       autofillHints: widget.autofillHints,
       inputFormatters: widget.inputFormatters,
-      textDirection:
-          widget.textDirection ??
-          (_controller.text.isEmpty ? Directionality.of(context) : productContentDirection(_controller.text)),
+      textDirection: widget.textDirection ?? _detectedDirection ?? Directionality.of(context),
       obscureText: widget.obscure && !_revealed,
       enableSuggestions: !widget.obscure,
       autocorrect: !widget.obscure,
@@ -347,14 +428,32 @@ class _QuotaCountdown extends StatefulWidget {
 class _QuotaCountdownState extends State<_QuotaCountdown> {
   late final DateTime _until = DateTime.now().add(widget.duration);
   Timer? _timer;
+  bool _tickersEnabled = false;
   int get _seconds => (_until.difference(DateTime.now()).inMilliseconds / 1000).ceil().clamp(0, 86400);
+
+  void _syncTimer(bool enabled) {
+    if (enabled && _seconds > 0) {
+      _timer ??= Timer.periodic(const Duration(seconds: 1), (_) {
+        if (_seconds == 0) {
+          _timer?.cancel();
+          _timer = null;
+        }
+        if (mounted) setState(() {});
+      });
+    } else {
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
   @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_seconds == 0) _timer?.cancel();
-      if (mounted) setState(() {});
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final enabled = TickerMode.valuesOf(context).enabled;
+    final resumed = enabled && !_tickersEnabled;
+    _tickersEnabled = enabled;
+    _syncTimer(enabled);
+    if (resumed && mounted) setState(() {});
   }
 
   @override

@@ -32,17 +32,30 @@ class _BranchTransition extends StatefulWidget {
 class _BranchTransitionState extends State<_BranchTransition> with SingleTickerProviderStateMixin {
   late final _opacity = AnimationController(vsync: this, value: widget.active ? 1 : 0);
   late final _scale = _opacity.drive(Tween(begin: .98, end: 1.0));
+  late bool _offstage = !widget.active;
+
+  @override
+  void initState() {
+    super.initState();
+    _opacity.addStatusListener(_onStatusChanged);
+  }
+
+  void _onStatusChanged(AnimationStatus status) {
+    final next = !widget.active && _opacity.value == 0;
+    if (next != _offstage && mounted) setState(() => _offstage = next);
+  }
 
   void _update() {
+    if (widget.active && _offstage) _offstage = false;
     final target = widget.active ? 1.0 : 0.0;
     if (FikraMotion.reduced(context)) {
+      _offstage = !widget.active;
       _opacity.value = target;
+    } else if (widget.active) {
+      _opacity.animateTo(1.0, duration: const Duration(milliseconds: 220), curve: Curves.decelerate);
     } else {
-      _opacity.animateTo(
-        target,
-        duration: Duration(milliseconds: widget.active ? 220 : 110),
-        curve: Curves.decelerate,
-      );
+      if (_opacity.value == 0) _offstage = true;
+      _opacity.animateBack(0.0, duration: const Duration(milliseconds: 110), curve: Curves.decelerate);
     }
   }
 
@@ -55,11 +68,15 @@ class _BranchTransitionState extends State<_BranchTransition> with SingleTickerP
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (FikraMotion.reduced(context)) _opacity.value = widget.active ? 1 : 0;
+    if (FikraMotion.reduced(context)) {
+      _offstage = !widget.active;
+      _opacity.value = widget.active ? 1 : 0;
+    }
   }
 
   @override
   void dispose() {
+    _opacity.removeStatusListener(_onStatusChanged);
     _opacity.dispose();
     super.dispose();
   }
@@ -67,31 +84,27 @@ class _BranchTransitionState extends State<_BranchTransition> with SingleTickerP
   @override
   Widget build(BuildContext context) {
     final reduced = FikraMotion.reduced(context);
-    return AnimatedBuilder(
-      animation: _opacity,
-      child: IgnorePointer(
-        ignoring: !widget.active,
-        child: ExcludeSemantics(
-          excluding: !widget.active,
-          child: ExcludeFocus(
-            excluding: !widget.active,
-            child: TickerMode(
-              enabled: widget.active,
-              child: RepaintBoundary(child: widget.child),
+    return Offstage(
+      offstage: _offstage,
+      child: FadeTransition(
+        key: ValueKey('branch-opacity-${widget.index}'),
+        opacity: _opacity,
+        alwaysIncludeSemantics: widget.active,
+        child: ScaleTransition(
+          key: ValueKey('branch-scale-${widget.index}'),
+          scale: reduced || !widget.active ? const AlwaysStoppedAnimation(1.0) : _scale,
+          child: IgnorePointer(
+            ignoring: !widget.active,
+            child: ExcludeSemantics(
+              excluding: !widget.active,
+              child: ExcludeFocus(
+                excluding: !widget.active,
+                child: TickerMode(
+                  enabled: widget.active,
+                  child: RepaintBoundary(child: widget.child),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
-      builder: (context, child) => Offstage(
-        offstage: !widget.active && _opacity.value == 0,
-        child: FadeTransition(
-          key: ValueKey('branch-opacity-${widget.index}'),
-          opacity: _opacity,
-          alwaysIncludeSemantics: widget.active,
-          child: ScaleTransition(
-            key: ValueKey('branch-scale-${widget.index}'),
-            scale: reduced || !widget.active ? const AlwaysStoppedAnimation(1.0) : _scale,
-            child: child,
           ),
         ),
       ),

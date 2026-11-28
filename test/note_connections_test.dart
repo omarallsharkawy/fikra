@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:fikra/core/widgets/pearl_canvas.dart';
 import 'package:fikra/app/providers.dart';
@@ -7,7 +6,6 @@ import 'package:fikra/data/local/database.dart';
 import 'package:fikra/features/connections/library_session.dart';
 import 'package:fikra/features/connections/connections_placeholder.dart';
 import 'package:fikra/features/connections/links_library_provider.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fikra/data/repositories.dart';
 import 'package:fikra/features/connections/note_connections_screen.dart';
@@ -38,30 +36,14 @@ class _HeldNoteRepository extends LocalNotesRepository {
 }
 
 Future<void> _expectOpaquePearl(WidgetTester tester, Finder screen) async {
-  final paint = find.descendant(
-    of: screen,
-    matching: find.byWidgetPredicate((w) => w is CustomPaint && w.painter is PearlCanvasPainter),
+  final canvasFinder = find.descendant(
+    of: find.descendant(of: screen, matching: find.byType(PearlCanvas)),
+    matching: find.byType(ColoredBox),
   );
-  final render = tester.renderObject<RenderCustomPaint>(paint);
+  final colored = tester.widget<ColoredBox>(canvasFinder.first);
+  final render = tester.renderObject<RenderBox>(canvasFinder.first);
   expect(render.size.height, greaterThan(500));
-  final recorder = ui.PictureRecorder();
-  render.painter!.paint(ui.Canvas(recorder), render.size);
-  final picture = recorder.endRecording();
-  try {
-    await tester.runAsync(() async {
-      final image = await picture.toImage(render.size.width.ceil(), render.size.height.ceil());
-      try {
-        final bytes = (await image.toByteData())!;
-        for (var i = 3; i < bytes.lengthInBytes; i += 4) {
-          expect(bytes.getUint8(i), 255, reason: 'the first frame covers every pixel');
-        }
-      } finally {
-        image.dispose();
-      }
-    });
-  } finally {
-    picture.dispose();
-  }
+  expect((colored.color.a * 255).round(), 255, reason: 'the first frame covers every pixel');
 }
 
 void main() {

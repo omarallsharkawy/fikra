@@ -16,6 +16,11 @@ import '../features/workspace/product_widgets.dart' show ProductEnvironment;
 class FikraApp extends ConsumerWidget {
   const FikraApp({super.key});
 
+  static final _productLight = buildProductTheme(Brightness.light);
+  static final _productDark = buildProductTheme(Brightness.dark);
+  static final _fikraLight = buildFikraTheme(Brightness.light);
+  static final _fikraDark = buildFikraTheme(Brightness.dark);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(appModeProvider);
@@ -31,8 +36,8 @@ class FikraApp extends ConsumerWidget {
     return MaterialApp.router(
       onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
-      theme: product ? buildProductTheme(Brightness.light) : buildFikraTheme(Brightness.light),
-      darkTheme: product ? buildProductTheme(Brightness.dark) : buildFikraTheme(Brightness.dark),
+      theme: product ? _productLight : _fikraLight,
+      darkTheme: product ? _productDark : _fikraDark,
       themeMode: switch (savedTheme.value ?? AppTheme.system) {
         AppTheme.system => ThemeMode.system,
         AppTheme.light => ThemeMode.light,
