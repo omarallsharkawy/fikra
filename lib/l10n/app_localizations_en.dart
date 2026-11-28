@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Fikra';
+  String get appTitle => 'FIKRAH';
 
   @override
   String get navAdd => 'Add';
@@ -122,7 +122,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeCapture => 'Type, record your voice, or add a PDF or photos';
 
   @override
-  String get welcomeLinks => 'Fikra links related notes for you';
+  String get welcomeLinks => 'FIKRAH links related notes for you';
 
   @override
   String get welcomeAsk => 'Ask, and get answers from your notes with sources';
@@ -202,7 +202,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteSaved => 'Note saved';
 
   @override
-  String get noteSavedAnalyzing => 'Note saved. Fikra is analyzing it now.';
+  String get noteSavedAnalyzing => 'Note saved. FIKRAH is analyzing it now.';
 
   @override
   String get noteSaveFailed => 'Couldn\'t save the note. Try again.';
@@ -217,14 +217,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get titleOptionalHint => 'Title (optional)';
 
   @override
-  String get bodyHintWithFileLinks => 'Add a few lines about the file so Fikra can link it (optional)';
+  String get bodyHintWithFileLinks => 'Add a few lines about the file so FIKRAH can link it (optional)';
 
   @override
   String get bodyHint => 'Write your idea…';
 
   @override
   String get addFooter =>
-      'Your note is saved right away, then Fikra analyzes the text and links it to related notes. Files stay on your phone.';
+      'Your note is saved right away, then FIKRAH analyzes the text and links it to related notes. Files stay on your phone.';
 
   @override
   String get discardRecording => 'Discard recording';
@@ -259,7 +259,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get micBlockedBody => 'Microphone access is off. Open app settings and allow the microphone.';
 
   @override
-  String get micAskBody => 'To record your voice, let Fikra use the microphone.';
+  String get micAskBody => 'To record your voice, let FIKRAH use the microphone.';
 
   @override
   String get openSettings => 'Open settings';
@@ -281,7 +281,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notesEmptyBody =>
-      'Type an idea, record your voice, or add a PDF or photos. Fikra sorts and links them for you.';
+      'Type an idea, record your voice, or add a PDF or photos. FIKRAH sorts and links them for you.';
 
   @override
   String get addFirstNote => 'Add your first note';
@@ -370,7 +370,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get analyzingBody =>
-      'Fikra is analyzing this note to find its topics and related notes. The note itself is saved.';
+      'FIKRAH is analyzing this note to find its topics and related notes. The note itself is saved.';
 
   @override
   String get suggestedRewrite => 'Suggested rewrite';
@@ -435,7 +435,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linksEmptyTitle => 'Links show up here';
 
   @override
-  String get linksEmptyBody => 'Add two or more notes on related topics, and Fikra will link them.';
+  String get linksEmptyBody => 'Add two or more notes on related topics, and FIKRAH will link them.';
 
   @override
   String get addNote => 'Add a note';
@@ -667,7 +667,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteSavedNoText => 'Note saved. Add a few lines so it can be linked.';
 
   @override
-  String get noTextNoLinks => 'This note has no text, so Fikra can\'t link it.';
+  String get noTextNoLinks => 'This note has no text, so FIKRAH can\'t link it.';
 
   @override
   String get pdfOpenElsewhere => 'Open in another app';
@@ -794,7 +794,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeLinkTitle => 'Remove this link?';
 
   @override
-  String get removeLinkBody => 'Both notes stay as they are, but Fikra won\'t suggest linking them again.';
+  String get removeLinkBody => 'Both notes stay as they are, but FIKRAH won\'t suggest linking them again.';
 
   @override
   String get removeLinkConfirm => 'Remove';
@@ -1938,10 +1938,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get meVoiceServices => 'Voice & services';
 
   @override
-  String get welcomeEyebrow => 'فِكرة';
+  String get welcomeEyebrow => 'FIKRAH';
 
   @override
-  String get welcomeBrandTitle => 'Fikrah';
+  String get welcomeBrandTitle => 'FIKRAH';
 
   @override
   String get welcomeTagline => 'Write it. Link it. Ask it.';
@@ -2538,4 +2538,241 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productNewIntentionalSaveExplanation =>
       'The previous attempt was rejected or refers to a deleted note. Keep the draft and start a new intentional save only when you choose Save again.';
+
+  @override
+  String get uiSignUpEmail => 'Sign up with email';
+
+  @override
+  String get uiLogIn => 'Log in';
+
+  @override
+  String get uiContinueGoogle => 'Continue with Google';
+
+  @override
+  String get uiCreateAccount => 'Create your account';
+
+  @override
+  String get uiWelcomeBack => 'Welcome back';
+
+  @override
+  String get uiShowPassword => 'Show password';
+
+  @override
+  String get uiHidePassword => 'Hide password';
+
+  @override
+  String get uiNewIdea => 'New idea';
+
+  @override
+  String get uiVoice => 'Voice';
+
+  @override
+  String get uiFile => 'File';
+
+  @override
+  String get uiProfile => 'Profile';
+
+  @override
+  String get uiSettings => 'Settings';
+
+  @override
+  String get uiIdeas => 'Ideas';
+
+  @override
+  String get uiAll => 'All';
+
+  @override
+  String get uiToday => 'Today';
+
+  @override
+  String get uiEarlier => 'Earlier';
+
+  @override
+  String get uiIdeaMap => 'Idea map';
+
+  @override
+  String get uiSearchIdeas => 'Search your ideas';
+
+  @override
+  String get uiMapHint => 'Drag ideas, pinch to zoom, tap to open';
+
+  @override
+  String get uiZoomOut => 'Zoom out';
+
+  @override
+  String get uiFitIdeas => 'Fit all ideas';
+
+  @override
+  String get uiOpenNote => 'Open note';
+
+  @override
+  String get uiConnectedIdeas => 'Connected ideas';
+
+  @override
+  String get uiUnavailable => 'Not available yet';
+
+  @override
+  String get uiPreviewNotice => 'Development preview · temporary data';
+
+  @override
+  String get uiGoogleUnavailable => 'Google sign-in is not available in this preview.';
+
+  @override
+  String get uiWelcomeSubtitle => 'Your ideas, connected. Ask your notes anything.';
+
+  @override
+  String get uxPreviewInfo => 'Preview information';
+
+  @override
+  String get uxCaptureDetails => 'About voice and files';
+
+  @override
+  String get uxCaptureHint => 'Review voice text before saving. PDFs stay on this device.';
+
+  @override
+  String get uxLocalPdf => 'Local PDF';
+
+  @override
+  String get uxChatIntro => 'Ask a question about the ideas in this project.';
+
+  @override
+  String get uxConversationList => 'Conversations';
+
+  @override
+  String get uxVerifyTitle => 'Verify your email';
+
+  @override
+  String get uxRecoveryTitle => 'Reset your password';
+
+  @override
+  String get uxRecoverySentTitle => 'Reset requested';
+
+  @override
+  String get uxResetTitle => 'Choose a new password';
+
+  @override
+  String get uxRequestReset => 'Request reset';
+
+  @override
+  String get uxResetPassword => 'Reset password';
+
+  @override
+  String get uxEmptyChat => 'Ask your ideas';
+
+  @override
+  String get uxSearchHint => 'Search ideas in this project';
+
+  @override
+  String get uxNoConversations => 'No conversations yet';
+
+  @override
+  String get uxProjectsHelp => 'Choose the workspace for your ideas. You can create a project whenever you need one.';
+
+  @override
+  String uxProjectContext(String name) {
+    return 'Project: $name';
+  }
+
+  @override
+  String get authLoginHint => 'A little space for your next big idea.';
+
+  @override
+  String get authSignupHint => 'Give your ideas a place to grow.';
+
+  @override
+  String get authRecoveryHint => 'Enter the email you use for your account.';
+
+  @override
+  String get authRecoverySentHint => 'Your reset request has been received.';
+
+  @override
+  String get authVerifyHint => 'Complete email verification to continue to sign in.';
+
+  @override
+  String get authResetHint => 'Enter your reset token and a new password.';
+
+  @override
+  String get authHaveAccount => 'Already have an account? Log in';
+
+  @override
+  String get authNewAccount => 'New here? Create an account';
+
+  @override
+  String get apiGoogleUnavailable => 'Google sign-in is not configured yet.';
+
+  @override
+  String get apiSignOut => 'Sign out';
+
+  @override
+  String get apiSixDigitCode => '6-digit code';
+
+  @override
+  String get apiNewPassword => 'New password';
+
+  @override
+  String get apiPasswordHint => 'Use 5–128 characters.';
+
+  @override
+  String get apiVerifyEmail => 'Verify email';
+
+  @override
+  String get apiResendCode => 'Resend code';
+
+  @override
+  String get apiHaveCode => 'I have a code';
+
+  @override
+  String get apiVerifyHint => 'Enter the six-digit code for your email.';
+
+  @override
+  String get apiResetHint => 'Enter your six-digit reset code and a new password.';
+
+  @override
+  String get apiRecoveryAcknowledgment => 'If this account is eligible, check your email for a six-digit reset code.';
+
+  @override
+  String get apiCodeAcknowledgment => 'Request received. If eligible, check your email for a six-digit code.';
+
+  @override
+  String get apiVerified => 'Email verified. You can log in now.';
+
+  @override
+  String get apiResetComplete => 'Password reset. Log in with your new password.';
+
+  @override
+  String get apiSignedOut => 'Signed out.';
+
+  @override
+  String get apiTranscribe => 'Transcribe recording';
+
+  @override
+  String get apiInvalidCode => 'This code is invalid or no longer usable. Check it or request a new code.';
+
+  @override
+  String get apiInvalidEmail => 'Check your email address.';
+
+  @override
+  String get authConnectionError => 'Could not connect. Check your internet connection and try again.';
+
+  @override
+  String get authTimeoutError => 'The server took too long to respond. Try again shortly.';
+
+  @override
+  String get authSecureConnectionError =>
+      'A secure connection could not be established. Check your connection and device date.';
+
+  @override
+  String get authServiceError => 'Sign-in services are temporarily unavailable. Try again shortly.';
+
+  @override
+  String get authResponseError => 'The server returned an unexpected response. Please try again later.';
+
+  @override
+  String get authCredentialsError => 'The email or password is incorrect. Check your details and try again.';
+
+  @override
+  String get authRequestError => 'The request could not be completed. Please try again.';
+
+  @override
+  String get authCheckDetails => 'Check your details and try again.';
 }

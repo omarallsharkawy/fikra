@@ -560,29 +560,32 @@ abstract final class FikraSpace {
 class FikraText {
   const FikraText(this.colors);
   final FikraPalette colors;
-  static const family = 'NotoSansArabic';
+  static const family = 'Inter';
+  static const fallbacks = ['NotoSansArabic', 'Roboto'];
   static const _base = TextStyle(
     fontFamily: family,
-    // NotoSansArabic has no Latin glyphs; Latin words (TCP, FastAPI…) use
-    // Roboto, which Android would pick anyway. Explicit so tests match.
-    fontFamilyFallback: ['Roboto'],
+    // Inter supplies Latin; preserve the existing Arabic face for Arabic glyphs.
+    fontFamilyFallback: fallbacks,
     height: 1.5,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
   );
 
   TextStyle get title =>
-      _base.copyWith(color: colors.textPrimary, fontSize: 28, fontWeight: FontWeight.w800, height: 1.25);
-  TextStyle get cardTitle => _base.copyWith(color: colors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700);
-  TextStyle get cardTitleSmall => _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w700);
-  TextStyle get section => _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w600);
-  TextStyle get bodyLarge => _base.copyWith(color: colors.textPrimary, fontSize: 18, height: 1.55);
-  TextStyle get answer => _base.copyWith(color: colors.textPrimary, fontSize: 17, height: 1.55);
-  TextStyle get body => _base.copyWith(color: colors.textPrimary, fontSize: 16, height: 1.55);
-  TextStyle get field => _base.copyWith(color: colors.textPrimary, fontSize: 15, height: 1.45);
-  TextStyle get caption => _base.copyWith(fontSize: 14, height: 1.5, color: colors.textSecondary);
-  TextStyle get nav => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600);
-  TextStyle get button => _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w700);
-  TextStyle get chip => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600);
-  TextStyle get meta => _base.copyWith(fontSize: 12.5, color: colors.textSecondary);
+      _base.copyWith(color: colors.textPrimary, fontSize: 26, fontWeight: FontWeight.w600, height: 1.2);
+  TextStyle get cardTitle =>
+      _base.copyWith(color: colors.textPrimary, fontSize: 17, fontWeight: FontWeight.w600, height: 1.35);
+  TextStyle get cardTitleSmall =>
+      _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600, height: 1.35);
+  TextStyle get section => _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600);
+  TextStyle get bodyLarge => _base.copyWith(color: colors.textPrimary, fontSize: 17);
+  TextStyle get answer => _base.copyWith(color: colors.textPrimary, fontSize: 16);
+  TextStyle get body => _base.copyWith(color: colors.textPrimary, fontSize: 16);
+  TextStyle get field => _base.copyWith(color: colors.textPrimary, fontSize: 16, height: 1.4);
+  TextStyle get caption => _base.copyWith(fontSize: 14, height: 1.4, color: colors.textSecondary);
+  TextStyle get nav => _base.copyWith(color: colors.textPrimary, fontSize: 12.5, fontWeight: FontWeight.w500);
+  TextStyle get button =>
+      _base.copyWith(color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600, height: 1.35);
+  TextStyle get chip => _base.copyWith(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w500);
+  TextStyle get meta => _base.copyWith(fontSize: 12.5, height: 1.4, color: colors.textSecondary);
 }

@@ -2,13 +2,14 @@ import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart' show openAppSettings;
 
 import '../../app/composer_navigation.dart';
 import '../../core/format.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../workspace/product_widgets.dart';
-import '../workspace/project_controls.dart';
+import '../workspace/color_action.dart';
 import 'capture_controller.dart';
 
 class ProductComposerScreen extends StatelessWidget {
@@ -20,17 +21,48 @@ class ProductComposerScreen extends StatelessWidget {
       final w = r.workspace, capture = r.capture;
       final locked = w.busy || w.pendingAttempt != null;
       return ProductScaffold(
-        title: context.l10n.productCaptureAThought,
+        key: ObjectKey(w.draft),
+        title: context.l10n.uiNewIdea,
+        subtitle: r.workspace.projects.any((p) => !p.isGeneral)
+            ? context.l10n.uxProjectContext(r.workspace.selected?.name ?? '')
+            : null,
         trailing: IconButton(
           tooltip: context.l10n.productCloseComposer,
           onPressed: () => ComposerNavigation.closeOf(context),
           icon: const Icon(Icons.close),
         ),
+        footer: ValueListenableBuilder<bool>(
+          valueListenable: w.draftHasContentListenable,
+          builder: (context, hasContent, _) => FikraButton(
+            key: const ValueKey('save-product-note'),
+            growForText: true,
+            label: w.pendingAttempt != null
+                ? context.l10n.productReconcileTheSameSaveAttempt
+                : context.l10n.productSaveTextNote,
+            loading: w.busy,
+            onPressed:
+                capture.active ||
+                    w.selected == null ||
+                    w.coolingDown ||
+                    (w.pendingAttempt != null && w.pendingAttempt!.projectId != w.selectedProjectId) ||
+                    (w.pendingAttempt == null && !hasContent)
+                ? null
+                : () async {
+                    final saved = await w.save();
+                    if (saved != null) {
+                      capture.clearAfterSave();
+                      if (context.mounted) context.go('/notes');
+                    }
+                  },
+          ),
+        ),
         children: [
-          ProductProjectControls(runtime: r),
+          if ((w.failure ?? w.attemptFailure) != null)
+            ProductFailureView((w.failure ?? w.attemptFailure)!, onRetry: r.workspace.retryWorkspace),
           if (w.pendingAttempt != null) ...[
             Text(context.l10n.productASaveAttemptIsUnresolvedRetryItsOriginal),
-            if (w.pendingAttempt!.projectId != w.selectedProjectId)
+            if (w.pendingAttempt!.projectId != w.selectedProjectId &&
+                w.projects.any((p) => p.id == w.pendingAttempt!.projectId))
               TextButton(
                 onPressed: () => w.selectProject(w.pendingAttempt!.projectId),
                 child: Text(context.l10n.productReturnToThePendingAttemptSProject),
@@ -49,43 +81,38 @@ class ProductComposerScreen extends StatelessWidget {
               },
               child: Text(context.l10n.productReviewFailedSave),
             ),
-          ProductTextInput(
-            key: ValueKey('capture-title-${w.selectedProjectId}'),
-            value: w.draft.title,
-            onChanged: (v) => w.updateDraft(title: v),
-            enabled: !locked,
-            label: context.l10n.productTitleOptional,
+          ValueListenableBuilder<int>(
+            valueListenable: w.draftListenable,
+            builder: (context, _, _) => Column(
+              children: [
+                ProductTextInput(
+                  key: ValueKey('capture-title-${w.selectedProjectId}'),
+                  value: w.draft.title,
+                  onChanged: (v) => w.updateDraft(title: v, fromInput: true),
+                  enabled: !locked,
+                  label: context.l10n.productTitleOptional,
+                ),
+                ProductTextInput(
+                  key: ValueKey('capture-content-${w.selectedProjectId}'),
+                  value: w.draft.content,
+                  onChanged: (v) => w.updateDraft(content: v, fromInput: true),
+                  lines: 6,
+                  enabled: !locked,
+                  label: context.l10n.productYourThought,
+                ),
+              ],
+            ),
           ),
-          ProductTextInput(
-            key: ValueKey('capture-content-${w.selectedProjectId}'),
-            value: w.draft.content,
-            onChanged: (v) => w.updateDraft(content: v),
-            lines: 6,
-            enabled: !locked,
-            label: context.l10n.productYourThought,
-          ),
-          FikraButton(
-            key: const ValueKey('save-product-note'),
-            growForText: true,
-            label: w.pendingAttempt != null
-                ? context.l10n.productReconcileTheSameSaveAttempt
-                : context.l10n.productSaveTextNote,
-            loading: w.busy,
-            onPressed: capture.active || w.selected == null || w.coolingDown
-                ? null
-                : () async {
-                    final saved = await w.save();
-                    if (saved != null && context.mounted) context.go('/notes');
-                  },
-          ),
-          const SizedBox(height: 12),
-          Text(context.l10n.productSavingAndProcessingAreSeparateAMissingTitle, style: context.text.meta),
-          const Divider(height: 32),
-          Text(context.l10n.productVoiceReviewedText, style: context.text.section),
-          Text(context.l10n.productAutomaticStopAt60SecondsTranscriptionDoesNot),
-          if (capture.failure != null) ProductFailureView(capture.failure!),
+          const SizedBox(height: 4),
+          if (capture.failure != null) ProductFailureView(capture.failure!, onOpenSettings: openAppSettings),
           if (capture.state == CaptureState.recording) ...[
-            Text('${Fmt.duration(capture.elapsed.inMilliseconds)} / 1:00', key: const ValueKey('recording-time')),
+            RepaintBoundary(
+              child: ValueListenableBuilder<Duration>(
+                valueListenable: capture.elapsedListenable,
+                builder: (_, elapsed, _) =>
+                    Text('${Fmt.duration(elapsed.inMilliseconds)} / 1:00', key: const ValueKey('recording-time')),
+              ),
+            ),
             FikraButton(label: context.l10n.productStopRecording, onPressed: capture.stop),
           ] else if (capture.active)
             const Padding(
@@ -93,17 +120,43 @@ class ProductComposerScreen extends StatelessWidget {
               child: Center(child: CircularProgressIndicator()),
             )
           else
-            FikraButton.secondary(
-              key: const ValueKey('record-product-voice'),
-              label: context.l10n.productRecordVoice,
-              icon: Icons.mic_none,
-              onPressed: locked || capture.pickingPdf ? null : capture.start,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final voice = ProductColorAction(
+                  key: const ValueKey('record-product-voice'),
+                  label: context.l10n.uiVoice,
+                  icon: Icons.mic_none,
+                  color: context.colors.brandPurple,
+                  foreground: context.colors.onBrandPurple,
+                  onPressed: locked || capture.pickingPdf ? null : capture.start,
+                );
+                final file = ProductColorAction(
+                  label: context.l10n.uxLocalPdf,
+                  icon: Icons.attach_file,
+                  color: context.colors.brandBlue,
+                  foreground: context.colors.onBrandBlue,
+                  onPressed: capture.pickingPdf ? null : capture.pickPdf,
+                );
+                return MediaQuery.textScalerOf(context).scale(1) >= 1.5
+                    ? Column(children: [voice, const SizedBox(height: 12), file])
+                    : Row(
+                        children: [
+                          Expanded(child: voice),
+                          const SizedBox(width: 12),
+                          Expanded(child: file),
+                        ],
+                      );
+              },
             ),
+          const SizedBox(height: 8),
+          Text(context.l10n.uxCaptureHint, style: context.text.meta),
           if (capture.clip != null && !capture.active) ...[
             const SizedBox(height: 12),
             FikraButton.secondary(
               key: const ValueKey('transcribe-product-voice'),
-              label: context.l10n.productPreviewTranscription,
+              label: r.session.repository.isDevelopment
+                  ? context.l10n.productPreviewTranscription
+                  : context.l10n.apiTranscribe,
               onPressed: capture.coolingDown ? null : capture.transcribe,
             ),
           ],
@@ -125,16 +178,20 @@ class ProductComposerScreen extends StatelessWidget {
           ],
           if (capture.clip != null || capture.active)
             TextButton(onPressed: capture.cancel, child: Text(context.l10n.productDiscardRecording)),
-          const Divider(height: 32),
-          Text(context.l10n.productLocalPDFs, style: context.text.section),
-          Text(context.l10n.productPDFsStayOnThisDeviceTheyAreNot),
-          TextButton.icon(
-            onPressed: capture.active || capture.pickingPdf ? null : capture.pickPdf,
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            label: Text(context.l10n.productChooseLocalPDF),
+          const SizedBox(height: 12),
+          ExpansionTile(
+            title: Text(context.l10n.uxCaptureDetails, style: context.text.caption),
+            childrenPadding: const EdgeInsets.only(bottom: 12),
+            children: [
+              Text(context.l10n.productAutomaticStopAt60SecondsTranscriptionDoesNot),
+              Text(context.l10n.productPDFsStayOnThisDeviceTheyAreNot),
+              Text(context.l10n.productSavingAndProcessingAreSeparateAMissingTitle),
+            ],
           ),
+          if (capture.localPdfs.isNotEmpty) Text(context.l10n.productLocalPDFs, style: context.text.section),
           for (final pdf in capture.localPdfs)
             ListTile(title: Text(pdf.name), trailing: const Icon(Icons.open_in_new), onTap: () => capture.openPdf(pdf)),
+          const SizedBox(height: 24),
         ],
       );
     },

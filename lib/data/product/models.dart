@@ -1,9 +1,10 @@
 /// Backend-owned values. These are separate from the legacy local database.
 class Account {
-  const Account({required this.id, required this.email, required this.emailVerified});
+  const Account({required this.id, required this.email, required this.emailVerified, this.name});
   final String id;
   final String email;
   final bool emailVerified;
+  final String? name;
 }
 
 class TokenPair {
@@ -53,7 +54,9 @@ class KnowledgeNote {
     required this.processing,
     required this.createdAt,
     required this.updatedAt,
+    this.isFavorite = false,
   });
+  final bool isFavorite;
   final String id, projectId, content;
   final String? title, proposal;
   final List<String> concepts;
@@ -83,6 +86,7 @@ class KnowledgeNote {
     generation: generation ?? this.generation,
     processing: processing ?? this.processing,
     createdAt: createdAt,
+    isFavorite: isFavorite,
     updatedAt: updatedAt ?? this.updatedAt,
   );
 }
@@ -202,6 +206,7 @@ enum FailureKind {
   validation,
   unauthorized,
   unverified,
+  forbidden,
   notFound,
   conflict,
   gone,
@@ -212,11 +217,15 @@ enum FailureKind {
   uncertain,
 }
 
+enum FailureCause { connection, timeout, secureConnection, invalidResponse }
+
 class ProductFailure implements Exception {
-  const ProductFailure(this.kind, {this.retryAfter, this.field});
+  const ProductFailure(this.kind, {this.retryAfter, this.field, this.cause, this.status});
   final FailureKind kind;
   final Duration? retryAfter;
   final String? field;
+  final FailureCause? cause;
+  final int? status;
   static ProductFailure from(Object error) =>
       error is ProductFailure ? error : const ProductFailure(FailureKind.uncertain);
   // No private request or exception payload is exposed to logging/UI.

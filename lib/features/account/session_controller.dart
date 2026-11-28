@@ -32,11 +32,18 @@ class SessionController extends ChangeNotifier {
   ProductFailure? failure;
   String? notice;
   int epoch = 0;
+  int _noticeSeq = 0;
   Future<TokenPair>? _refreshing;
   Future<void> _vaultQueue = Future.value();
+  final ValueNotifier<SessionStage> stageListenable = ValueNotifier<SessionStage>(SessionStage.restoring);
+  final ValueNotifier<(int, String?)> boundaryListenable = ValueNotifier<(int, String?)>((0, null));
   bool _disposed = false;
+  bool _restoring = false;
   void _emit() {
-    if (!_disposed) notifyListeners();
+    if (_disposed) return;
+    stageListenable.value = stage;
+    boundaryListenable.value = (epoch, account?.id);
+    notifyListeners();
   }
 
   Future<void> _store(Future<void> Function() action) {
@@ -46,25 +53,71 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> restore() async {
+    if (_restoring) return;
+    _restoring = true;
     final ticket = epoch;
+    if (failure != null) {
+      failure = null;
+      _emit();
+    }
+    var hasSafeVaultPair = false;
     try {
-      final grant = await repository.restore();
+      var pair = await vault.read();
       if (_disposed || ticket != epoch) return;
-      if (grant == null) {
+      if (pair == null) {
         stage = SessionStage.unauthenticated;
       } else {
-        await _install(grant, ticket);
+        hasSafeVaultPair = true;
+        var rotated = false;
+        if (!pair.expiresAt.isAfter(clock().add(const Duration(seconds: 30)))) {
+          hasSafeVaultPair = false;
+          pair = await _rotate(pair, ticket);
+          hasSafeVaultPair = true;
+          rotated = true;
+        }
+        Account account;
+        try {
+          account = await repository.currentAccount(pair);
+        } on ProductFailure catch (error) {
+          if (error.kind != FailureKind.unauthorized || rotated) rethrow;
+          hasSafeVaultPair = false;
+          pair = await _rotate(pair, ticket);
+          hasSafeVaultPair = true;
+          account = await repository.currentAccount(pair);
+        }
+        await _install(SessionGrant(account, tokens: pair), ticket);
       }
     } catch (error) {
       if (_disposed || ticket != epoch) return;
-      failure = ProductFailure.from(error);
+      final problem = ProductFailure.from(error);
+      final transient =
+          problem.kind == FailureKind.uncertain ||
+          problem.kind == FailureKind.unavailable ||
+          problem.kind == FailureKind.quota;
+      failure = problem;
+      if (hasSafeVaultPair && transient) {
+        // Keep persisted tokens intact on offline/transient failures so the
+        // user can retry without losing their session.
+        stage = SessionStage.restoring;
+        return;
+      }
       stage = SessionStage.expired;
+      try {
+        await _store(() async {
+          if (ticket == epoch && !_disposed) await vault.clear();
+        });
+      } catch (_) {
+        failure = const ProductFailure(FailureKind.unavailable);
+      }
+    } finally {
+      _restoring = false;
+      if (!_disposed && ticket == epoch) _emit();
     }
-    _emit();
   }
 
   void show(SessionStage next) {
     if (busy) return;
+    _noticeSeq++;
     stage = next;
     if (!coolingDown) failure = null;
     notice = null;
@@ -73,6 +126,7 @@ class SessionController extends ChangeNotifier {
 
   Future<void> _action(Future<void> Function(int ticket) work) async {
     if (busy || coolingDown) return;
+    _noticeSeq++;
     busy = true;
     failure = null;
     notice = null;
@@ -98,9 +152,9 @@ class SessionController extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String address, String password) => _action((ticket) async {
+  Future<void> register(String address, String password, {String? name}) => _action((ticket) async {
     email = address.trim().toLowerCase();
-    await repository.register(email, password);
+    await repository.register(email, password, name: name);
     if (ticket != epoch || _disposed) return;
     stage = SessionStage.awaitingVerification;
     notice = 'verificationRequested';
@@ -110,7 +164,7 @@ class SessionController extends ChangeNotifier {
     if (ticket == epoch && !_disposed) notice = 'verificationRequested';
   });
   Future<void> verify(String token) => _action((ticket) async {
-    await repository.verifyEmail(token);
+    await repository.verifyEmail(token, email: email);
     if (ticket != epoch || _disposed) return;
     stage = SessionStage.unauthenticated;
     notice = 'verified';
@@ -132,9 +186,15 @@ class SessionController extends ChangeNotifier {
       });
     }
     if (ticket != epoch || _disposed) return;
+    _noticeSeq++;
     account = grant.account;
     tokens = grant.tokens;
     stage = SessionStage.authenticated;
+    failure = null;
+    notice = null;
+    busy = false;
+    epoch++;
+    _emit();
   }
 
   Future<void> recover(String address) => _action((ticket) async {
@@ -146,16 +206,36 @@ class SessionController extends ChangeNotifier {
   });
   Future<void> confirmRecovery(String token, String password) async {
     await _action((ticket) async {
-      await repository.confirmRecovery(token, password);
+      await repository.confirmRecovery(token, password, email: email);
       if (ticket != epoch || _disposed) return;
-      // Reset succeeds without creating a replacement session.
-      await signOut();
+      // Reset succeeds without creating a replacement session; fence any active
+      // session/refresh/restore while keeping busy=true until cleanup completes.
+      final old = tokens;
+      final hadActiveSession = old != null || account != null || _restoring;
+      _noticeSeq++;
+      _retryWake?.cancel();
+      retryAt = null;
+      if (hadActiveSession) epoch++;
+      account = null;
+      tokens = null;
+      _refreshing = null;
+      stage = SessionStage.unauthenticated;
+      failure = null;
       notice = 'reset';
-      _emit();
+      try {
+        await _store(vault.clear);
+      } catch (_) {
+        /* Best-effort local vault clear after password reset. */
+      }
+      if (old != null) unawaited(repository.logout(old).catchError((Object _) => false));
+      if (hadActiveSession && !_disposed) {
+        busy = false;
+        _emit();
+      }
     });
   }
 
-  /// Used by a future protected transport: callers pass the access token used
+  /// Used by the protected transport: callers pass the access token used
   /// by the failed request and may retry the original operation only once.
   Future<TokenPair> refreshAfterUnauthorized(String failedAccess) {
     final current = tokens;
@@ -180,41 +260,61 @@ class SessionController extends ChangeNotifier {
     return job;
   }
 
+  Future<TokenPair> _rotate(TokenPair current, int ticket) async {
+    // Remove the old rotating pair BEFORE sending: a killed process must not
+    // replay a refresh token whose server-side rotation may have committed.
+    await _store(() async {
+      if (ticket == epoch && !_disposed) await vault.clear();
+    });
+    if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+    final replacement = await repository.refresh(current);
+    if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+    await _store(() async {
+      if (ticket == epoch && !_disposed) await vault.replace(replacement);
+    });
+    if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+    return replacement;
+  }
+
   Future<TokenPair> _refresh(TokenPair current, int ticket) async {
     try {
-      final replacement = await repository.refresh(current);
-      if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
-      await _store(() async {
-        if (ticket == epoch && !_disposed) await vault.replace(replacement);
-      });
-      if (ticket != epoch || _disposed) throw const ProductFailure(FailureKind.unauthorized);
+      final replacement = await _rotate(current, ticket);
       tokens = replacement;
       _emit();
       return replacement;
-    } catch (_) {
+    } catch (error) {
       // An uncertain refresh must never replay the possibly rotated token.
-      if (ticket == epoch && !_disposed) await expire();
+      if (ticket == epoch && !_disposed) await expire(reason: ProductFailure.from(error));
       rethrow;
     }
   }
 
-  Future<void> expire() async {
+  Future<void> expire({ProductFailure? reason}) async {
     _retryWake?.cancel();
     retryAt = null;
+    _noticeSeq++;
     epoch++;
     account = null;
     tokens = null;
     busy = false;
     stage = SessionStage.expired;
+    notice = null;
+    if (reason != null) failure = reason;
     _refreshing = null;
     _emit();
-    await _store(vault.clear);
+    try {
+      await _store(vault.clear);
+    } catch (_) {
+      failure = const ProductFailure(FailureKind.unavailable);
+      _emit();
+    }
   }
 
   Future<void> signOut() async {
     _retryWake?.cancel();
     retryAt = null;
     final old = tokens;
+    final signOutSeq = ++_noticeSeq;
     epoch++;
     account = null;
     tokens = null;
@@ -224,12 +324,25 @@ class SessionController extends ChangeNotifier {
     notice = 'localLogout';
     _refreshing = null;
     _emit();
-    final ticket = epoch;
-    await _store(vault.clear);
+    var cleared = true;
+    try {
+      await _store(vault.clear);
+    } catch (_) {
+      cleared = false;
+    }
+    if (!cleared && signOutSeq == _noticeSeq && !_disposed) {
+      notice = null;
+      failure = const ProductFailure(FailureKind.unavailable);
+      _emit();
+    }
     try {
       final revoked = await repository.logout(old);
-      if (ticket == epoch && !_disposed) {
-        notice = revoked ? 'logout' : 'localLogout';
+      if (signOutSeq == _noticeSeq && !_disposed) {
+        notice = revoked
+            ? 'logout'
+            : cleared
+            ? 'localLogout'
+            : null;
         _emit();
       }
     } catch (_) {
@@ -242,6 +355,8 @@ class SessionController extends ChangeNotifier {
     _disposed = true;
     _retryWake?.cancel();
     epoch++;
+    stageListenable.dispose();
+    boundaryListenable.dispose();
     super.dispose();
   }
 }

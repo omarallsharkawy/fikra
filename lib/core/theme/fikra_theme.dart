@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../motion/page_transitions.dart';
 import 'tokens.dart';
 
-ThemeData buildFikraTheme(Brightness brightness) {
+ThemeData buildFikraTheme(Brightness brightness, {FikraPalette? palette}) {
   final dark = brightness == Brightness.dark;
-  final colors = dark ? FikraPalette.dark : FikraPalette.light;
+  final colors = palette ?? (dark ? FikraPalette.dark : FikraPalette.light);
   final text = FikraText(colors);
   final scheme = ColorScheme(
     brightness: brightness,
@@ -37,7 +37,7 @@ ThemeData buildFikraTheme(Brightness brightness) {
     colorScheme: scheme,
     extensions: [colors],
     fontFamily: FikraText.family,
-    fontFamilyFallback: const ['Roboto'],
+    fontFamilyFallback: FikraText.fallbacks,
     scaffoldBackgroundColor: colors.canvas,
     canvasColor: colors.canvas,
     // Plasma: no ripples, press feedback is a spring scale instead.

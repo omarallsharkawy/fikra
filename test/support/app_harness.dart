@@ -97,6 +97,12 @@ void fikraTest(
     await initializeDateFormatting();
     mockAudioPlayers(events: audioEvents, pause: pauseAudio);
     final db = FikraDatabase(NativeDatabase.memory());
+    // The harness locale is an explicit scenario choice, independent of the
+    // production first-launch default (English even on an Arabic device).
+    await pumpFuture(
+      tester,
+      () => db.into(db.settings).insert(Setting(key: 'language', value: locale.languageCode == 'ar' ? 'ar' : 'en')),
+    );
     await tester.pumpWidget(
       RepaintBoundary(
         key: appBoundaryKey,
@@ -246,14 +252,18 @@ Future<T> pumpFuture<T>(
   return result;
 }
 
-/// Loads the real Arabic font and Material icons so rendered text/icons look
-/// like the app instead of test boxes. Needed for screenshots only.
+/// Loads the bundled Latin/Arabic fonts and Material icons for real text metrics.
 Future<void> loadAppFonts() async {
   // Plugins without a test implementation: answer their channels with null.
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
     const MethodChannel('com.llfbandit.record/messages'),
     (call) async => null,
   );
+  final inter = FontLoader('Inter');
+  for (final w in ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold']) {
+    inter.addFont(Future.value(ByteData.sublistView(File('assets/fonts/inter/Inter-$w.ttf').readAsBytesSync())));
+  }
+  await inter.load();
   final arabic = FontLoader('NotoSansArabic');
   for (final w in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
     arabic.addFont(Future.value(ByteData.sublistView(File('assets/fonts/NotoSansArabic-$w.ttf').readAsBytesSync())));

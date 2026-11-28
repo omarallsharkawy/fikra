@@ -97,18 +97,60 @@ class _VoicePlayerState extends State<VoicePlayer> {
   bool _starting = false;
   bool _error = false;
 
-  Future<void> _prepare() async {
-    if (!mounted || _player != null) return;
-    final player = _player = AudioPlayer();
-    _sub = player.playerStateStream.listen((s) {
-      if (s.processingState == ProcessingState.completed) {
-        unawaited(player.pause());
-        unawaited(player.seek(Duration.zero));
+  int _generation = 0;
+
+  void _disposePlayer() {
+    voicePlaybackCoordinator.release(this);
+    _sub?.cancel();
+    _sub = null;
+    final player = _player;
+    _player = null;
+    if (player != null) {
+      unawaited(player.dispose().catchError((Object _) {}));
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant VoicePlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.path != widget.path) {
+      _generation++;
+      _disposePlayer();
+      _playing = false;
+      _starting = false;
+      _error = false;
+    }
+  }
+
+  Future<void> _prepare(int gen) async {
+    if (!mounted || _generation != gen || _player != null) return;
+    final path = widget.path;
+    final player = AudioPlayer();
+    StreamSubscription<PlayerState>? sub;
+    try {
+      sub = player.playerStateStream.listen((s) {
+        if (s.processingState == ProcessingState.completed) {
+          unawaited(player.pause().catchError((Object _) {}));
+          unawaited(player.seek(Duration.zero).catchError((Object _) {}));
+        }
+        if (mounted && _generation == gen && identical(_player, player)) {
+          setState(() => _playing = s.playing && s.processingState != ProcessingState.completed);
+        }
+      });
+      await player.setFilePath(path);
+      if (!mounted || _generation != gen || widget.path != path || _player != null) {
+        await sub.cancel();
+        unawaited(player.dispose().catchError((Object _) {}));
+        return;
       }
-      if (mounted) setState(() => _playing = s.playing && s.processingState != ProcessingState.completed);
-    });
-    await player.setFilePath(widget.path);
-    if (mounted) setState(() {});
+      _player = player;
+      _sub = sub;
+      setState(() {});
+    } catch (_) {
+      await sub?.cancel();
+      unawaited(player.dispose().catchError((Object _) {}));
+      rethrow;
+    }
   }
 
   Future<void> _toggle() async {
@@ -117,6 +159,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
       await _player?.pause();
       return;
     }
+    final gen = _generation;
     setState(() => _starting = true);
     try {
       await voicePlaybackCoordinator.start(
@@ -125,28 +168,31 @@ class _VoicePlayerState extends State<VoicePlayer> {
           await _player?.pause();
         },
         () {
+          if (!mounted || _generation != gen) return;
+          final player = _player;
+          if (player == null) return;
           unawaited(
-            _player!.play().catchError((Object _) {
-              if (mounted) setState(() => _error = true);
+            player.play().catchError((Object _) {
+              if (mounted && _generation == gen && identical(_player, player)) {
+                setState(() => _error = true);
+              }
             }),
           );
         },
-        prepare: _prepare,
-        isActive: () => mounted,
+        prepare: () => _prepare(gen),
+        isActive: () => mounted && _generation == gen,
       );
     } catch (_) {
-      if (mounted) setState(() => _error = true);
+      if (mounted && _generation == gen) setState(() => _error = true);
     } finally {
-      if (mounted) setState(() => _starting = false);
+      if (mounted && _generation == gen) setState(() => _starting = false);
     }
   }
 
   @override
   void dispose() {
-    voicePlaybackCoordinator.release(this);
-    _sub?.cancel();
-    // No player exists for previews that were never played.
-    unawaited(_player?.dispose().catchError((Object _) {}) ?? Future<void>.value());
+    _generation++;
+    _disposePlayer();
     super.dispose();
   }
 

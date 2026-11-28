@@ -33,8 +33,8 @@ class WorkspaceController extends ChangeNotifier {
   List<NoteSearchResult>? results;
   String query = '';
   bool loading = false, busy = false, searching = false, graphLoading = false, detailLoading = false;
-  bool stillProcessing = false, proposalConflict = false;
-  ProductFailure? failure, searchFailure, graphFailure, detailFailure;
+  bool stillProcessing = false;
+  ProductFailure? failure, attemptFailure, searchFailure, graphFailure, detailFailure;
   DateTime? retryAt;
   CreateAttempt? pendingAttempt;
   int knowledgeRevision = 0, _notesVersion = 0;
@@ -42,13 +42,28 @@ class WorkspaceController extends ChangeNotifier {
   String? projectDraftId;
   Timer? _retryWake;
   final _drafts = <String, NoteDraft>{};
-  int _epoch = 0, _searchSequence = 0, _detailSequence = 0, _graphSequence = 0, _pollCount = 0;
+  final ValueNotifier<int> draftListenable = ValueNotifier<int>(0);
+  final ValueNotifier<bool> draftHasContentListenable = ValueNotifier<bool>(false);
+  final _details = <String, KnowledgeNote>{};
+  final _relatedByNote = <String, List<NoteSourceReference>>{};
+  final _loadingNotes = <String>{};
+  final _noteFailures = <String, ProductFailure>{};
+  final _noteSequences = <String, int>{};
+  final _proposalConflicts = <String>{};
+  int _epoch = 0, _reloadSequence = 0, _searchSequence = 0, _detailSequence = 0, _graphSequence = 0, _pollCount = 0;
   bool _foreground = true, _disposed = false, _polling = false;
   Timer? _pollTimer;
   int get scope => _epoch;
   KnowledgeProject? get selected => projects.where((p) => p.id == selectedProjectId).firstOrNull;
   NoteDraft get draft => _drafts.putIfAbsent(selectedProjectId ?? '', NoteDraft.new);
   bool get coolingDown => retryAt != null && DateTime.now().isBefore(retryAt!);
+  bool get proposalConflict => detail != null && _proposalConflicts.contains(detail!.id);
+  bool hasProposalConflict(String id) => _proposalConflicts.contains(id);
+  KnowledgeNote? detailFor(String id) => _details[id] ?? (detail?.id == id ? detail : null);
+  List<NoteSourceReference> relatedFor(String id) =>
+      _relatedByNote[id] ?? (detail?.id == id ? related : const []);
+  bool isDetailLoading(String id) => _loadingNotes.contains(id);
+  ProductFailure? detailFailureFor(String id) => _noteFailures[id];
   void _emit() {
     if (!_disposed) notifyListeners();
   }
@@ -67,6 +82,7 @@ class WorkspaceController extends ChangeNotifier {
 
   void clear() {
     _epoch++;
+    _reloadSequence++;
     _searchSequence++;
     _detailSequence++;
     _graphSequence++;
@@ -83,11 +99,19 @@ class WorkspaceController extends ChangeNotifier {
     results = null;
     query = '';
     _drafts.clear();
+    _syncDraftSignals(external: true);
+    _details.clear();
+    _relatedByNote.clear();
+    _loadingNotes.clear();
+    _noteFailures.clear();
+    _noteSequences.clear();
+    _proposalConflicts.clear();
     projectDraft = '';
     projectDraftId = null;
     _notesVersion = 0;
     pendingAttempt = null;
     failure = null;
+    attemptFailure = null;
     detailFailure = null;
     graphFailure = null;
     searchFailure = null;
@@ -100,8 +124,18 @@ class WorkspaceController extends ChangeNotifier {
     knowledgeRevision = 0;
     retryAt = null;
     stillProcessing = false;
-    proposalConflict = false;
     _emit();
+  }
+
+  Future<CreateAttempt?> _readAttemptSafely(String id, int ticket) async {
+    try {
+      return await attempts.read(id);
+    } catch (_) {
+      // Recover cleanly from corrupt/unreadable persisted attempt records,
+      // fenced to the current account epoch so stale reads never clear newer state.
+      if (_valid(ticket)) unawaited(attempts.clear(id).catchError((Object _) {}));
+      return null;
+    }
   }
 
   Future<void> openAccount(String id) async {
@@ -111,14 +145,24 @@ class WorkspaceController extends ChangeNotifier {
     loading = true;
     _emit();
     try {
-      final restored = await attempts.read(id);
+      // Read any persisted save attempt concurrently with fetching projects.
+      final attemptFuture = _readAttemptSafely(id, ticket);
+      final projectsFuture = repository.projects(id);
+      final list = await projectsFuture;
+      final restored = await attemptFuture;
       if (!_valid(ticket)) return;
-      final list = await repository.projects(id);
-      if (!_valid(ticket)) return;
-      pendingAttempt = restored;
       projects = List.unmodifiable(list);
       final general = projects.where((p) => p.isGeneral).firstOrNull;
       if (general == null) throw const ProductFailure(FailureKind.unavailable);
+      pendingAttempt = restored;
+      if (restored != null) {
+        final attempt = restored;
+        final targetId = projects.any((p) => p.id == attempt.projectId) ? attempt.projectId : general.id;
+        final restoredDraft = _drafts.putIfAbsent(targetId, NoteDraft.new);
+        restoredDraft.title = attempt.title ?? '';
+        restoredDraft.content = attempt.content;
+        _syncDraftSignals(external: true);
+      }
       await selectProject(general.id);
     } catch (error) {
       if (_valid(ticket)) {
@@ -132,6 +176,7 @@ class WorkspaceController extends ChangeNotifier {
   Future<void> selectProject(String id) async {
     if (accountId == null || !projects.any((p) => p.id == id)) return;
     _epoch++;
+    _reloadSequence++;
     _searchSequence++;
     _detailSequence++;
     _graphSequence++;
@@ -139,11 +184,18 @@ class WorkspaceController extends ChangeNotifier {
     _polling = false;
     _pollCount = 0;
     selectedProjectId = id;
+    _syncDraftSignals(external: true);
     notes = const [];
     results = null;
     query = '';
     detail = null;
     related = const [];
+    _details.clear();
+    _relatedByNote.clear();
+    _loadingNotes.clear();
+    _noteFailures.clear();
+    _noteSequences.clear();
+    _proposalConflicts.clear();
     graph = const KnowledgeGraph();
     failure = null;
     detailFailure = null;
@@ -153,7 +205,6 @@ class WorkspaceController extends ChangeNotifier {
     graphLoading = false;
     detailLoading = false;
     busy = false;
-    proposalConflict = false;
     stillProcessing = false;
     await reload();
   }
@@ -169,7 +220,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   Future<void> reload() async {
-    final account = accountId, project = selectedProjectId, ticket = _epoch;
+    final account = accountId, project = selectedProjectId, ticket = _epoch, seq = ++_reloadSequence;
     if (account == null || project == null) return;
     final version = _notesVersion;
     loading = true;
@@ -178,26 +229,50 @@ class WorkspaceController extends ChangeNotifier {
     _emit();
     try {
       final list = await repository.notes(account, project);
-      if (!_valid(ticket)) return;
+      if (!_valid(ticket) || seq != _reloadSequence) return;
       if (version != _notesVersion) return;
       notes = List.unmodifiable(list);
+      for (final note in notes) {
+        if (_details.containsKey(note.id) && !_keepCurrent(_details[note.id]!, note)) {
+          _details[note.id] = note;
+        }
+        if (detail?.id == note.id && !_keepCurrent(detail!, note)) {
+          detail = note;
+        }
+      }
       _pollCount = 0;
       _schedulePoll();
     } catch (error) {
-      if (_valid(ticket)) failure = _error(error);
+      if (_valid(ticket) && seq == _reloadSequence) failure = _error(error);
     } finally {
-      if (_valid(ticket)) {
+      if (_valid(ticket) && seq == _reloadSequence) {
         loading = false;
         _emit();
       }
     }
   }
 
-  void updateDraft({String? title, String? content}) {
+  void _syncDraftSignals({required bool external}) {
+    if (_disposed) return;
+    final hasContent = draft.content.trim().isNotEmpty;
+    if (draftHasContentListenable.value != hasContent) {
+      draftHasContentListenable.value = hasContent;
+    }
+    if (external) draftListenable.value++;
+  }
+
+  void updateDraft({String? title, String? content, bool fromInput = false}) {
     if (busy || pendingAttempt != null) return;
-    if (title != null) draft.title = title;
-    if (content != null) draft.content = content;
-    _emit();
+    var changed = false;
+    if (title != null && draft.title != title) {
+      draft.title = title;
+      changed = true;
+    }
+    if (content != null && draft.content != content) {
+      draft.content = content;
+      changed = true;
+    }
+    if (changed) _syncDraftSignals(external: !fromInput);
   }
 
   ProductFailure? _validate(String content, String? title) {
@@ -228,10 +303,12 @@ class WorkspaceController extends ChangeNotifier {
     }
     failure = _validate(attempt.content, attempt.title);
     if (failure != null) {
+      if (pendingAttempt != null) attemptFailure = failure;
       _emit();
       return null;
     }
     busy = true;
+    attemptFailure = null;
     _emit();
     try {
       pendingAttempt = attempt;
@@ -241,14 +318,23 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return null;
       _upsert(saved);
       pendingAttempt = null;
-      await attempts.clear(account);
-      if (!_valid(ticket)) return null;
+      attemptFailure = null;
       _drafts.remove(project);
+      _syncDraftSignals(external: true);
+      try {
+        await attempts.clear(account);
+      } catch (_) {
+        /* Confirmed server write must not become a UI save failure. */
+      }
+      if (!_valid(ticket)) return null;
       _pollCount = 0;
       _schedulePoll();
       return saved;
     } catch (error) {
-      if (_valid(ticket)) failure = _error(error);
+      if (_valid(ticket)) {
+        failure = _error(error);
+        attemptFailure = failure;
+      }
       return null;
     } finally {
       if (_valid(ticket)) {
@@ -258,17 +344,30 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  bool get canReviewFailedAttempt =>
-      pendingAttempt != null &&
-      (failure?.kind == FailureKind.validation ||
-          failure?.kind == FailureKind.tooLarge ||
-          failure?.kind == FailureKind.gone);
+  bool get canReviewFailedAttempt {
+    final attempt = pendingAttempt;
+    if (attempt == null) return false;
+    if (!projects.any((p) => p.id == attempt.projectId)) return true;
+    if (attempt.projectId != selectedProjectId) return false;
+    final kind = attemptFailure?.kind;
+    return kind == FailureKind.validation ||
+        kind == FailureKind.tooLarge ||
+        kind == FailureKind.gone ||
+        kind == FailureKind.conflict ||
+        kind == FailureKind.notFound;
+  }
+
   Future<void> reviewFailedAttempt() async {
     if (!canReviewFailedAttempt || busy || accountId == null) return;
     final account = accountId!, ticket = _epoch;
-    await attempts.clear(account);
+    try {
+      await attempts.clear(account);
+    } catch (_) {
+      /* Clear in-memory lock even if local attempt storage delete fails. */
+    }
     if (!_valid(ticket)) return;
     pendingAttempt = null;
+    attemptFailure = null;
     failure = null;
     _emit();
   }
@@ -288,65 +387,103 @@ class WorkspaceController extends ChangeNotifier {
     notes = List.unmodifiable(
       [note, ...notes.where((n) => n.id != note.id)]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt)),
     );
+    if (_details.containsKey(note.id)) _details[note.id] = note;
     if (detail?.id == note.id) detail = note;
   }
 
   Future<void> openNote(String id) async {
     final account = accountId, ticket = _epoch, seq = ++_detailSequence;
     if (account == null) return;
-    detail = null;
-    related = const [];
+    final noteSeq = (_noteSequences[id] ?? 0) + 1;
+    _noteSequences[id] = noteSeq;
+    detail = _details[id];
+    related = _relatedByNote[id] ?? const [];
     detailLoading = true;
     detailFailure = null;
-    proposalConflict = false;
+    _loadingNotes.add(id);
+    _noteFailures.remove(id);
+    _proposalConflicts.remove(id);
     _emit();
     try {
       final note = await repository.readNote(account, id);
-      if (!_valid(ticket) || seq != _detailSequence) return;
+      if (!_valid(ticket) || _noteSequences[id] != noteSeq) return;
       if (note.projectId != selectedProjectId) throw const ProductFailure(FailureKind.notFound);
       final known = notes.where((n) => n.id == note.id).firstOrNull;
-      detail = known != null && _keepCurrent(known, note) ? known : note;
-      _upsert(detail!);
+      final resolved = known != null && _keepCurrent(known, note) ? known : note;
+      _details[id] = resolved;
+      if (seq == _detailSequence) detail = resolved;
+      _upsert(resolved);
       _schedulePoll();
       final links = await repository.related(account, id);
-      if (_valid(ticket) && seq == _detailSequence) related = List.unmodifiable(links);
+      if (_valid(ticket) && _noteSequences[id] == noteSeq) {
+        final immutableLinks = List<NoteSourceReference>.unmodifiable(links);
+        _relatedByNote[id] = immutableLinks;
+        if (seq == _detailSequence) related = immutableLinks;
+      }
     } catch (error) {
-      if (_valid(ticket) && seq == _detailSequence) detailFailure = _error(error);
+      if (_valid(ticket) && _noteSequences[id] == noteSeq) {
+        final problem = _error(error);
+        if (problem.kind == FailureKind.notFound) {
+          _details.remove(id);
+          _relatedByNote.remove(id);
+          _proposalConflicts.remove(id);
+          if (detail?.id == id) {
+            detail = null;
+            related = const [];
+          }
+          if (notes.any((n) => n.id == id)) {
+            _notesVersion++;
+            notes = notes.where((n) => n.id != id).toList();
+            _invalidateKnowledge();
+          }
+        }
+        _noteFailures[id] = problem;
+        if (seq == _detailSequence) detailFailure = problem;
+      }
     } finally {
-      if (_valid(ticket) && seq == _detailSequence) {
-        detailLoading = false;
+      if (_valid(ticket) && _noteSequences[id] == noteSeq) {
+        _loadingNotes.remove(id);
+        if (seq == _detailSequence) detailLoading = false;
         _emit();
       }
     }
   }
 
-  Future<bool> _noteMutation(Future<KnowledgeNote> Function(String account, KnowledgeNote note) action) async {
-    final account = accountId, note = detail, ticket = _epoch;
+  Future<bool> _noteMutation(
+    Future<KnowledgeNote> Function(String account, KnowledgeNote note) action, {
+    String? noteId,
+  }) async {
+    final account = accountId, note = noteId != null ? detailFor(noteId) : detail, ticket = _epoch;
     if (account == null || note == null || busy || coolingDown) return false;
     busy = true;
     detailFailure = null;
-    proposalConflict = false;
+    _noteFailures.remove(note.id);
+    _proposalConflicts.remove(note.id);
     _emit();
     try {
       final next = await action(account, note);
       if (!_valid(ticket)) return false;
+      _details[next.id] = next;
       _upsert(next);
 
       _invalidateKnowledge();
-      unawaited(_refreshRelated());
+      unawaited(_refreshRelated(noteId: next.id));
       _pollCount = 0;
       _schedulePoll();
       return true;
     } catch (error) {
       if (_valid(ticket)) {
-        detailFailure = _error(error);
-        if (detailFailure!.kind == FailureKind.conflict) {
+        final problem = _error(error);
+        detailFailure = problem;
+        _noteFailures[note.id] = problem;
+        if (problem.kind == FailureKind.conflict) {
           try {
             final fresh = await repository.readNote(account, note.id);
             if (_valid(ticket)) {
+              _details[fresh.id] = fresh;
               _upsert(fresh);
 
-              proposalConflict = true;
+              _proposalConflicts.add(fresh.id);
             }
           } catch (_) {
             /* Keep original conflict and require an explicit reload. */
@@ -362,50 +499,66 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<bool> edit(NotePatch patch) async {
+  Future<bool> edit(NotePatch patch, {String? noteId}) async {
     final content = patch.content;
     if (patch.fields.isEmpty ||
         (content != null && _validate(content, patch.title) != null) ||
         ((patch.title?.runes.length ?? 0) > 240)) {
       detailFailure = const ProductFailure(FailureKind.validation);
+      final targetId = noteId ?? detail?.id;
+      if (targetId != null) _noteFailures[targetId] = detailFailure!;
       _emit();
       return false;
     }
-    return _noteMutation((account, note) => repository.updateNote(account, note.id, patch));
+    return _noteMutation((account, note) => repository.updateNote(account, note.id, patch), noteId: noteId);
   }
 
-  Future<bool> refine(RefinementAction action, {String? reviewedNoteId, int? expectedGeneration}) =>
-      _noteMutation((account, note) {
-        if (reviewedNoteId != null && reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
-        return repository.refine(account, note.id, expectedGeneration ?? note.generation, action);
-      });
-  Future<bool> retryProcessing() => _noteMutation((account, note) => repository.retryProcessing(account, note.id));
-  void _invalidateKnowledge() {
+  Future<bool> refine(RefinementAction action, {String? reviewedNoteId, int? expectedGeneration}) => _noteMutation(
+    (account, note) {
+      if (reviewedNoteId != null && reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
+      return repository.refine(account, note.id, expectedGeneration ?? note.generation, action);
+    },
+    noteId: reviewedNoteId,
+  );
+  Future<bool> retryProcessing({String? noteId}) =>
+      _noteMutation((account, note) => repository.retryProcessing(account, note.id), noteId: noteId);
+  void _invalidateKnowledge({bool clearSearch = true}) {
     knowledgeRevision++;
-    results = null;
-    searchFailure = null;
+    if (clearSearch) {
+      results = null;
+      searchFailure = null;
+      _searchSequence++;
+    }
     graph = const KnowledgeGraph();
     related = const [];
-    _searchSequence++;
+    _relatedByNote.clear();
     _graphSequence++;
   }
 
-  Future<bool> deleteNote() async {
-    final account = accountId, note = detail, ticket = _epoch;
+  Future<bool> deleteNote({String? noteId}) async {
+    final account = accountId, note = noteId != null ? detailFor(noteId) : detail, ticket = _epoch;
     if (account == null || note == null || busy) return false;
     busy = true;
     detailFailure = null;
+    _noteFailures.remove(note.id);
     _emit();
     try {
       await repository.deleteNote(account, note.id);
       if (!_valid(ticket)) return false;
       _notesVersion++;
       notes = notes.where((n) => n.id != note.id).toList();
-      detail = null;
+      _details.remove(note.id);
+      _relatedByNote.remove(note.id);
+      _noteFailures.remove(note.id);
+      if (detail?.id == note.id) detail = null;
       _invalidateKnowledge();
       return true;
     } catch (error) {
-      if (_valid(ticket)) detailFailure = _error(error);
+      if (_valid(ticket)) {
+        final problem = _error(error);
+        detailFailure = problem;
+        _noteFailures[note.id] = problem;
+      }
       return false;
     } finally {
       if (_valid(ticket)) {
@@ -486,11 +639,15 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       projectDraft = '';
       projectDraftId = null;
-      projects = List.unmodifiable([
-        for (final p in projects)
-          if (p.id != saved.id) p,
-        saved,
-      ]);
+      projects = List.unmodifiable(
+        id == null
+            ? [
+                for (final p in projects)
+                  if (p.id != saved.id) p,
+                saved,
+              ]
+            : [for (final p in projects) p.id == saved.id ? saved : p],
+      );
       if (id == null) await selectProject(saved.id);
       return true;
     } catch (error) {
@@ -525,11 +682,19 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       projects = projects.where((p) => p.id != project.id).toList();
       _drafts.remove(project.id);
+      _syncDraftSignals(external: true);
       if (pendingAttempt?.projectId == project.id) {
         pendingAttempt = null;
-        await attempts.clear(account);
+        attemptFailure = null;
+        try {
+          await attempts.clear(account);
+        } catch (_) {
+          /* Best-effort attempt cleanup after project deletion. */
+        }
+        if (!_valid(ticket)) return false;
       }
-      await selectProject(projects.firstWhere((p) => p.isGeneral).id);
+      final general = projects.where((p) => p.isGeneral).firstOrNull;
+      if (general != null) await selectProject(general.id);
       return true;
     } catch (error) {
       if (_valid(ticket)) failure = _error(error);
@@ -542,18 +707,23 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<void> _refreshRelated() async {
-    final account = accountId, note = detail, ticket = _epoch;
+  Future<void> _refreshRelated({String? noteId}) async {
+    final account = accountId, note = noteId != null ? detailFor(noteId) : detail, ticket = _epoch;
     if (account == null || note == null || note.processing != ProcessingState.completed) return;
     try {
       final links = await repository.related(account, note.id);
-      if (_valid(ticket) && detail?.id == note.id && detail?.generation == note.generation) {
-        related = List.unmodifiable(links);
+      final current = detailFor(note.id);
+      if (_valid(ticket) && current?.id == note.id && current?.generation == note.generation) {
+        final immutableLinks = List<NoteSourceReference>.unmodifiable(links);
+        _relatedByNote[note.id] = immutableLinks;
+        if (detail?.id == note.id) related = immutableLinks;
         _emit();
       }
     } catch (error) {
       if (_valid(ticket)) {
-        detailFailure = _error(error);
+        final problem = _error(error);
+        _noteFailures[note.id] = problem;
+        if (detail?.id == note.id) detailFailure = problem;
         _emit();
       }
     }
@@ -586,6 +756,8 @@ class WorkspaceController extends ChangeNotifier {
   Future<void> pollNow() async {
     final account = accountId, ticket = _epoch;
     if (account == null || !_foreground || _polling) return;
+    _pollTimer?.cancel();
+    _pollTimer = null;
     _polling = true;
     _pollCount++;
     var keepPolling = true;
@@ -596,8 +768,11 @@ class WorkspaceController extends ChangeNotifier {
           if (!_valid(ticket) || !_foreground) return;
           _upsert(next);
           if (!next.processing.pending) {
-            _invalidateKnowledge();
-            unawaited(_refreshRelated());
+            _invalidateKnowledge(clearSearch: false);
+            unawaited(_refreshRelated(noteId: next.id));
+            if (detail != null && detail!.id != next.id) {
+              unawaited(_refreshRelated(noteId: detail!.id));
+            }
           }
         } catch (error) {
           if (!_valid(ticket)) return;
@@ -605,9 +780,18 @@ class WorkspaceController extends ChangeNotifier {
           if (problem.kind == FailureKind.notFound) {
             _notesVersion++;
             notes = notes.where((n) => n.id != note.id).toList();
+            _details.remove(note.id);
+            _relatedByNote.remove(note.id);
             if (detail?.id == note.id) detail = null;
-            _invalidateKnowledge();
+            _invalidateKnowledge(clearSearch: false);
+          } else if (problem.kind == FailureKind.uncertain || problem.kind == FailureKind.unavailable) {
+            // Transient poll failure: stop this cycle cleanly and allow the
+            // bounded exponential backoff schedule to retry without flashing
+            // a global workspace banner across unrelated tabs.
+            break;
           } else {
+            // Non-transient failure (unauthorized, forbidden, quota, etc.):
+            // halt polling so we never hammer rate-limited or forbidden endpoints.
             failure = problem;
             keepPolling = false;
             break;
@@ -629,6 +813,8 @@ class WorkspaceController extends ChangeNotifier {
     _retryWake?.cancel();
     _epoch++;
     _pollTimer?.cancel();
+    draftListenable.dispose();
+    draftHasContentListenable.dispose();
     super.dispose();
   }
 }

@@ -95,7 +95,7 @@ abstract class AppLocalizations {
   /// Proper app name; retain the approved brand spelling.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة'**
+  /// **'FIKRAH'**
   String get appTitle;
 
   /// No description provided for @navAdd.
@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeLinks.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة بتربط الملاحظات القريبة من بعض لوحدها'**
+  /// **'FIKRAH بتربط الملاحظات القريبة من بعض لوحدها'**
   String get welcomeLinks;
 
   /// No description provided for @welcomeAsk.
@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @noteSavedAnalyzing.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي'**
+  /// **'الملاحظة اتحفظت، وFIKRAH بتحللها دلوقتي'**
   String get noteSavedAnalyzing;
 
   /// No description provided for @noteSaveFailed.
@@ -479,7 +479,7 @@ abstract class AppLocalizations {
   /// No description provided for @bodyHintWithFileLinks.
   ///
   /// In ar, this message translates to:
-  /// **'اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)'**
+  /// **'اكتب كام سطر عن الملف عشان FIKRAH تربطه (اختياري)'**
   String get bodyHintWithFileLinks;
 
   /// No description provided for @bodyHint.
@@ -491,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @addFooter.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.'**
+  /// **'الملاحظة بتتحفظ على طول، وبعدين FIKRAH بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.'**
   String get addFooter;
 
   /// No description provided for @discardRecording.
@@ -551,13 +551,13 @@ abstract class AppLocalizations {
   /// No description provided for @micBlockedBody.
   ///
   /// In ar, this message translates to:
-  /// **'المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.'**
+  /// **'المايك مقفول لـ FIKRAH. افتح إعدادات التطبيق واسمح بالمايك.'**
   String get micBlockedBody;
 
   /// No description provided for @micAskBody.
   ///
   /// In ar, this message translates to:
-  /// **'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.'**
+  /// **'عشان تسجّل فكرة بصوتك، اسمح لـ FIKRAH تستخدم المايك.'**
   String get micAskBody;
 
   /// No description provided for @openSettings.
@@ -599,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @notesEmptyBody.
   ///
   /// In ar, this message translates to:
-  /// **'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.'**
+  /// **'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وFIKRAH هترتّبها وتربطها لوحدها.'**
   String get notesEmptyBody;
 
   /// No description provided for @addFirstNote.
@@ -767,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @analyzingBody.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.'**
+  /// **'FIKRAH بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.'**
   String get analyzingBody;
 
   /// No description provided for @suggestedRewrite.
@@ -893,7 +893,7 @@ abstract class AppLocalizations {
   /// No description provided for @linksEmptyBody.
   ///
   /// In ar, this message translates to:
-  /// **'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.'**
+  /// **'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وFIKRAH هتربطهم ببعض.'**
   String get linksEmptyBody;
 
   /// No description provided for @addNote.
@@ -1313,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @noTextNoLinks.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.'**
+  /// **'الملاحظة دي مفيهاش نص، عشان كده FIKRAH مش هتعرف تربطها بحاجة.'**
   String get noTextNoLinks;
 
   /// No description provided for @pdfOpenElsewhere.
@@ -1481,7 +1481,7 @@ abstract class AppLocalizations {
   /// No description provided for @removeLinkBody.
   ///
   /// In ar, this message translates to:
-  /// **'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.'**
+  /// **'الملاحظتين هيفضلوا زي ما هم، بس FIKRAH مش هتقترح تربطهم ببعض تاني.'**
   String get removeLinkBody;
 
   /// No description provided for @removeLinkConfirm.
@@ -3353,13 +3353,13 @@ abstract class AppLocalizations {
   /// Small brand eyebrow label above the hero title on the welcome screen.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة'**
+  /// **'FIKRAH'**
   String get welcomeEyebrow;
 
   /// Large brand title on the welcome screen.
   ///
   /// In ar, this message translates to:
-  /// **'فِكرة'**
+  /// **'FIKRAH'**
   String get welcomeBrandTitle;
 
   /// Short three-word tagline on the welcome screen.
@@ -4369,6 +4369,474 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.'**
   String get productNewIntentionalSaveExplanation;
+
+  /// No description provided for @uiSignUpEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء حساب بالبريد الإلكتروني'**
+  String get uiSignUpEmail;
+
+  /// No description provided for @uiLogIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول'**
+  String get uiLogIn;
+
+  /// No description provided for @uiContinueGoogle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابعة باستخدام Google'**
+  String get uiContinueGoogle;
+
+  /// No description provided for @uiCreateAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء حسابك'**
+  String get uiCreateAccount;
+
+  /// No description provided for @uiWelcomeBack.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرحبًا بعودتك'**
+  String get uiWelcomeBack;
+
+  /// No description provided for @uiShowPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'إظهار كلمة المرور'**
+  String get uiShowPassword;
+
+  /// No description provided for @uiHidePassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'إخفاء كلمة المرور'**
+  String get uiHidePassword;
+
+  /// No description provided for @uiNewIdea.
+  ///
+  /// In ar, this message translates to:
+  /// **'فكرة جديدة'**
+  String get uiNewIdea;
+
+  /// No description provided for @uiVoice.
+  ///
+  /// In ar, this message translates to:
+  /// **'صوت'**
+  String get uiVoice;
+
+  /// No description provided for @uiFile.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملف'**
+  String get uiFile;
+
+  /// No description provided for @uiProfile.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف الشخصي'**
+  String get uiProfile;
+
+  /// No description provided for @uiSettings.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعدادات'**
+  String get uiSettings;
+
+  /// No description provided for @uiIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأفكار'**
+  String get uiIdeas;
+
+  /// No description provided for @uiAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get uiAll;
+
+  /// No description provided for @uiToday.
+  ///
+  /// In ar, this message translates to:
+  /// **'اليوم'**
+  String get uiToday;
+
+  /// No description provided for @uiEarlier.
+  ///
+  /// In ar, this message translates to:
+  /// **'سابقًا'**
+  String get uiEarlier;
+
+  /// No description provided for @uiIdeaMap.
+  ///
+  /// In ar, this message translates to:
+  /// **'خريطة الأفكار'**
+  String get uiIdeaMap;
+
+  /// No description provided for @uiSearchIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث في أفكارك'**
+  String get uiSearchIdeas;
+
+  /// No description provided for @uiMapHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسحب الأفكار، وكبّر بإصبعين، واضغط للفتح'**
+  String get uiMapHint;
+
+  /// No description provided for @uiZoomOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصغير'**
+  String get uiZoomOut;
+
+  /// No description provided for @uiFitIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'إظهار كل الأفكار'**
+  String get uiFitIdeas;
+
+  /// No description provided for @uiOpenNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح الملاحظة'**
+  String get uiOpenNote;
+
+  /// No description provided for @uiConnectedIdeas.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكار مرتبطة'**
+  String get uiConnectedIdeas;
+
+  /// No description provided for @uiUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير متاح بعد'**
+  String get uiUnavailable;
+
+  /// No description provided for @uiPreviewNotice.
+  ///
+  /// In ar, this message translates to:
+  /// **'معاينة تطوير · بيانات مؤقتة'**
+  String get uiPreviewNotice;
+
+  /// No description provided for @uiGoogleUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول عبر Google غير متاح في هذه المعاينة.'**
+  String get uiGoogleUnavailable;
+
+  /// No description provided for @uiWelcomeSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.'**
+  String get uiWelcomeSubtitle;
+
+  /// No description provided for @uxPreviewInfo.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلومات المعاينة'**
+  String get uxPreviewInfo;
+
+  /// No description provided for @uxCaptureDetails.
+  ///
+  /// In ar, this message translates to:
+  /// **'عن الصوت والملفات'**
+  String get uxCaptureDetails;
+
+  /// No description provided for @uxCaptureHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع النص الصوتي قبل الحفظ. ملفات PDF تفضل على الجهاز ده.'**
+  String get uxCaptureHint;
+
+  /// No description provided for @uxLocalPdf.
+  ///
+  /// In ar, this message translates to:
+  /// **'PDF محلي'**
+  String get uxLocalPdf;
+
+  /// No description provided for @uxChatIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل عن الأفكار المحفوظة في المشروع ده.'**
+  String get uxChatIntro;
+
+  /// No description provided for @uxConversationList.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحادثات'**
+  String get uxConversationList;
+
+  /// No description provided for @uxVerifyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد بريدك الإلكتروني'**
+  String get uxVerifyTitle;
+
+  /// No description provided for @uxRecoveryTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة كلمة المرور'**
+  String get uxRecoveryTitle;
+
+  /// No description provided for @uxRecoverySentTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم طلب الاستعادة'**
+  String get uxRecoverySentTitle;
+
+  /// No description provided for @uxResetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختار كلمة مرور جديدة'**
+  String get uxResetTitle;
+
+  /// No description provided for @uxRequestReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب الاستعادة'**
+  String get uxRequestReset;
+
+  /// No description provided for @uxResetPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين كلمة المرور'**
+  String get uxResetPassword;
+
+  /// No description provided for @uxEmptyChat.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسأل أفكارك'**
+  String get uxEmptyChat;
+
+  /// No description provided for @uxSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث في أفكار المشروع'**
+  String get uxSearchHint;
+
+  /// No description provided for @uxNoConversations.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفيش محادثات لسه'**
+  String get uxNoConversations;
+
+  /// No description provided for @uxProjectsHelp.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختار مساحة أفكارك. تقدر تنشئ مشروع وقت ما تحتاج.'**
+  String get uxProjectsHelp;
+
+  /// No description provided for @uxProjectContext.
+  ///
+  /// In ar, this message translates to:
+  /// **'المشروع: {name}'**
+  String uxProjectContext(String name);
+
+  /// No description provided for @authLoginHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساحة صغيرة لفكرتك الكبيرة الجاية.'**
+  String get authLoginHint;
+
+  /// No description provided for @authSignupHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'خلّي لأفكارك مكان تكبر فيه.'**
+  String get authSignupHint;
+
+  /// No description provided for @authRecoveryHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب البريد الإلكتروني المستخدم لحسابك.'**
+  String get authRecoveryHint;
+
+  /// No description provided for @authRecoverySentHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم استلام طلب استعادة كلمة المرور.'**
+  String get authRecoverySentHint;
+
+  /// No description provided for @authVerifyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكمل تأكيد البريد الإلكتروني للمتابعة إلى تسجيل الدخول.'**
+  String get authVerifyHint;
+
+  /// No description provided for @authResetHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب رمز الاستعادة وكلمة مرور جديدة.'**
+  String get authResetHint;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'عندك حساب؟ سجّل الدخول'**
+  String get authHaveAccount;
+
+  /// No description provided for @authNewAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'أول مرة هنا؟ أنشئ حسابًا'**
+  String get authNewAccount;
+
+  /// No description provided for @apiGoogleUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول بجوجل غير مُعدّ بعد.'**
+  String get apiGoogleUnavailable;
+
+  /// No description provided for @apiSignOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الخروج'**
+  String get apiSignOut;
+
+  /// No description provided for @apiSixDigitCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'كود من ٦ أرقام'**
+  String get apiSixDigitCode;
+
+  /// No description provided for @apiNewPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الجديدة'**
+  String get apiNewPassword;
+
+  /// No description provided for @apiPasswordHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدم من ٥ إلى ١٢٨ حرفًا.'**
+  String get apiPasswordHint;
+
+  /// No description provided for @apiVerifyEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد البريد الإلكتروني'**
+  String get apiVerifyEmail;
+
+  /// No description provided for @apiResendCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة إرسال الكود'**
+  String get apiResendCode;
+
+  /// No description provided for @apiHaveCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'معايا الكود'**
+  String get apiHaveCode;
+
+  /// No description provided for @apiVerifyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب كود تأكيد البريد المكوّن من ٦ أرقام.'**
+  String get apiVerifyHint;
+
+  /// No description provided for @apiResetHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب كود الاستعادة المكوّن من ٦ أرقام وكلمة مرور جديدة.'**
+  String get apiResetHint;
+
+  /// No description provided for @apiRecoveryAcknowledgment.
+  ///
+  /// In ar, this message translates to:
+  /// **'لو الحساب مؤهل للاستعادة، راجع بريدك للحصول على كود من ٦ أرقام.'**
+  String get apiRecoveryAcknowledgment;
+
+  /// No description provided for @apiCodeAcknowledgment.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم استلام الطلب. راجع بريدك للحصول على كود من ٦ أرقام إذا كان الحساب مؤهلًا.'**
+  String get apiCodeAcknowledgment;
+
+  /// No description provided for @apiVerified.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد البريد. تقدر تسجّل الدخول دلوقتي.'**
+  String get apiVerified;
+
+  /// No description provided for @apiResetComplete.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تغيير كلمة المرور. سجّل الدخول بالكلمة الجديدة.'**
+  String get apiResetComplete;
+
+  /// No description provided for @apiSignedOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تسجيل الخروج.'**
+  String get apiSignedOut;
+
+  /// No description provided for @apiTranscribe.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحويل التسجيل لنص'**
+  String get apiTranscribe;
+
+  /// No description provided for @apiInvalidCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكود غير صحيح أو لم يعد صالحًا. راجعه أو اطلب كودًا جديدًا.'**
+  String get apiInvalidCode;
+
+  /// No description provided for @apiInvalidEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع عنوان البريد الإلكتروني.'**
+  String get apiInvalidEmail;
+
+  /// No description provided for @authConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر الاتصال. راجع اتصال الإنترنت وحاول مرة أخرى.'**
+  String get authConnectionError;
+
+  /// No description provided for @authTimeoutError.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخادم استغرق وقتًا طويلًا للرد. حاول بعد قليل.'**
+  String get authTimeoutError;
+
+  /// No description provided for @authSecureConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إنشاء اتصال آمن. راجع اتصالك وتاريخ الجهاز.'**
+  String get authSecureConnectionError;
+
+  /// No description provided for @authServiceError.
+  ///
+  /// In ar, this message translates to:
+  /// **'خدمة الحسابات غير متاحة مؤقتًا. حاول بعد قليل.'**
+  String get authServiceError;
+
+  /// No description provided for @authResponseError.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصل رد غير متوقع من الخادم. حاول لاحقًا.'**
+  String get authResponseError;
+
+  /// No description provided for @authCredentialsError.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني أو كلمة المرور غير صحيحة. راجع بياناتك وحاول مرة أخرى.'**
+  String get authCredentialsError;
+
+  /// No description provided for @authRequestError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إكمال الطلب. حاول مرة أخرى.'**
+  String get authRequestError;
+
+  /// No description provided for @authCheckDetails.
+  ///
+  /// In ar, this message translates to:
+  /// **'راجع البيانات وحاول مرة أخرى.'**
+  String get authCheckDetails;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

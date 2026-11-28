@@ -26,8 +26,11 @@ void _expectUnscaledPage(WidgetTester tester) {
   }
 }
 
-double _opacity(WidgetTester tester) =>
-    tester.widget<Opacity>(find.ancestor(of: find.byKey(_textKey), matching: find.byType(Opacity))).opacity;
+double _opacity(WidgetTester tester) {
+  final fade = find.ancestor(of: find.byKey(_textKey), matching: find.byType(FadeTransition));
+  if (fade.evaluate().isNotEmpty) return tester.widget<FadeTransition>(fade.first).opacity.value;
+  return tester.widget<Opacity>(find.ancestor(of: find.byKey(_textKey), matching: find.byType(Opacity)).first).opacity;
+}
 
 void _expectFlight(WidgetTester tester, double t, Rect origin) {
   _expectUnscaledPage(tester);

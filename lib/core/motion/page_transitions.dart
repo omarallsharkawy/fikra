@@ -25,31 +25,51 @@ class FikraPageTransitionsBuilder extends PageTransitionsBuilder {
   ) {
     final reduced = FikraMotion.reduced(context);
     final direction = Directionality.of(context) == TextDirection.rtl ? -1.0 : 1.0;
+    final fadeInterval = Interval(
+      0,
+      (reduced ? FikraMotion.reducedFade : FikraMotion.pushFade).inMilliseconds / FikraMotion.push.inMilliseconds,
+    );
     return FikraPredictiveBack(
       route: route,
       animation: animation,
       builder: (context, animation) => AnimatedBuilder(
         animation: animation,
-        child: child,
+        child: FadeTransition(
+          opacity: _PushFadeAnimation(animation, route, fadeInterval),
+          child: child,
+        ),
         builder: (context, child) {
           final progress = animation.value.clamp(0.0, 1.0);
           // Flutter keeps userGestureInProgress true through predictive commit
           // and cancel settling, so neither switches to the button-pop visuals.
           final buttonPop =
               animation.status == AnimationStatus.reverse && !(route.navigator?.userGestureInProgress ?? false);
-          final fade = Interval(
-            0,
-            (reduced ? FikraMotion.reducedFade : FikraMotion.pushFade).inMilliseconds / FikraMotion.push.inMilliseconds,
-          );
           return Transform.translate(
             offset: reduced || buttonPop
                 ? Offset.zero
                 : Offset(direction * FikraMotion.pushOffset * (1 - FikraMotion.pushCurve.transform(progress)), 0),
-            child: Opacity(opacity: buttonPop ? progress : fade.transform(progress), child: child),
+            child: child,
           );
         },
       ),
     );
+  }
+}
+
+class _PushFadeAnimation extends Animation<double> with AnimationWithParentMixin<double> {
+  _PushFadeAnimation(this.parent, this.route, this.interval);
+
+  @override
+  final Animation<double> parent;
+  final PageRoute<dynamic> route;
+  final Interval interval;
+
+  @override
+  double get value {
+    final progress = parent.value.clamp(0.0, 1.0);
+    final buttonPop =
+        parent.status == AnimationStatus.reverse && !(route.navigator?.userGestureInProgress ?? false);
+    return buttonPop ? progress : interval.transform(progress);
   }
 }
 

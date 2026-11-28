@@ -43,7 +43,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(appThemeProvider).value ?? AppTheme.system;
-    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.system;
+    final language = ref.watch(appLanguageProvider).value ?? AppLanguage.en;
     final services = ref.watch(transcriptionServicesStateProvider);
     final c = context.colors;
     final t = context.text;
@@ -150,6 +150,8 @@ class SettingsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
+                      const FikraBrandMark(size: 48),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +161,8 @@ class SettingsScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
+                      if (ref.watch(appModeProvider) != AppMode.connected)
+                        FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoVersion),
                     ],
                   ),
                 ),

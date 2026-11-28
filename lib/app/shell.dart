@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,9 +9,12 @@ import '../core/motion/motion.dart';
 import '../core/widgets/glass_quality.dart';
 import '../core/widgets/pearl_canvas.dart';
 import '../core/widgets/navigation_inset.dart';
+import '../features/capture/capture_controller.dart';
 import 'composer_navigation.dart';
+import 'product_runtime.dart';
 import 'tab_bar/activity_capsule.dart';
 import 'tab_bar/floating_navigation.dart';
+import 'tab_bar/product_navigation.dart';
 
 export 'tab_bar/sliding_tab_bar.dart';
 export 'branch_container.dart';
@@ -28,7 +33,20 @@ class _AppShellState extends ConsumerState<AppShell> {
   int? _lastBranch;
   int _composerReturn = 1;
 
-  void _closeComposer() => widget.shell.goBranch(_composerReturn);
+  void _stopLiveRecordingIfLeavingComposer() {
+    if (widget.showLegacyActivity) return;
+    final capture = ref.read(productRuntimeProvider).capture;
+    if (capture.state == CaptureState.starting) {
+      unawaited(capture.cancel());
+    } else if (capture.state == CaptureState.recording) {
+      unawaited(capture.stop());
+    }
+  }
+
+  void _closeComposer() {
+    _stopLiveRecordingIfLeavingComposer();
+    widget.shell.goBranch(_composerReturn);
+  }
   bool _shrinkEnabled = false;
   bool _reduced = false;
 
@@ -36,7 +54,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   /// tree only depends on whether it is open. Returning the identical widget
   /// stops those frames from rebuilding the navigation and copying ThemeData.
   Widget? _built;
-  (StatefulNavigationShell, bool, double, ThemeData, bool)? _builtFor;
+  (StatefulNavigationShell, bool, double, ThemeData, bool, bool, bool)? _builtFor;
 
   @override
   void dispose() {
@@ -83,6 +101,11 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (_scrollShrink.value != 0) _scrollShrink.value = 0;
     }
     if (shell.currentIndex == 0 && _lastBranch != null && _lastBranch != 0) _composerReturn = _lastBranch!;
+    if (_lastBranch == 0 && shell.currentIndex != 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.shell.currentIndex != 0) _stopLiveRecordingIfLeavingComposer();
+      });
+    }
     _lastBranch = shell.currentIndex;
     final inputs = _builtFor;
     if (inputs != null &&
@@ -90,11 +113,13 @@ class _AppShellState extends ConsumerState<AppShell> {
         inputs.$2 == keyboard &&
         inputs.$3 == safeBottom &&
         inputs.$5 == shrinkEnabled &&
+        inputs.$6 == widget.showLegacyActivity &&
+        inputs.$7 == _reduced &&
         // Theme.of's localized copy is cached FIFO, so equal can mean a new instance.
         (identical(inputs.$4, theme) || inputs.$4 == theme)) {
       return _built!;
     }
-    _builtFor = (shell, keyboard, safeBottom, theme, shrinkEnabled);
+    _builtFor = (shell, keyboard, safeBottom, theme, shrinkEnabled, widget.showLegacyActivity, _reduced);
     final hidden = keyboard || shell.currentIndex == 0;
     final bottomInset = hidden ? 0.0 : FloatingNavigation.clearance + safeBottom;
     return _built = PearlCanvas(
@@ -138,19 +163,25 @@ class _AppShellState extends ConsumerState<AppShell> {
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     heightFactor: 1,
-                    child: FloatingNavigation(
-                      branch: shell.currentIndex,
-                      keyboardOpen: hidden,
-                      shrink: shrinkEnabled ? _scrollShrink : null,
-                      aboveBar: widget.showLegacyActivity
-                          ? ActivityCapsule(
-                              branch: shell.currentIndex,
-                              onOpenAdd: () => shell.goBranch(0, initialLocation: false),
-                              onOpenNote: (id) => context.push('/note/$id'),
-                            )
-                          : null,
-                      onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
-                    ),
+                    child: !widget.showLegacyActivity
+                        ? ProductNavigation(
+                            branch: shell.currentIndex,
+                            hidden: hidden,
+                            onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
+                          )
+                        : FloatingNavigation(
+                            branch: shell.currentIndex,
+                            keyboardOpen: hidden,
+                            shrink: shrinkEnabled ? _scrollShrink : null,
+                            aboveBar: widget.showLegacyActivity
+                                ? ActivityCapsule(
+                                    branch: shell.currentIndex,
+                                    onOpenAdd: () => shell.goBranch(0, initialLocation: false),
+                                    onOpenNote: (id) => context.push('/note/$id'),
+                                  )
+                                : null,
+                            onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
+                          ),
                   ),
                 ),
               ],

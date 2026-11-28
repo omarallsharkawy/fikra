@@ -6,7 +6,7 @@
 
 ## Current development phase
 
-The default `flutter run` opens backend-aligned product journeys using explicit, volatile development fixtures. No backend or third-party provider is contacted. Registration/email/Google/processing/search/chat/transcription previews are not real integration or durable storage. Existing local notes and files are kept separately without migration.
+The default `flutter run` opens the mobile product UI connected directly to the agreed FIKRAH HTTPS API. Account OTP, session storage/refresh, projects, notes, polling, search, graph, chat and audio transcription use native repositories. Existing local notes and files remain separate without migration. See [connection and contracts](docs/features/mobile-api-integration/connection-and-contracts.md) for the deployed schema, configuration and remaining live-validation requirements.
 
 - [Behavior audit](docs/phases/backend-alignment/behavior-audit.md)
 - [User-story capability map](docs/features/backend-aligned-journeys/story-capability-map.md)
@@ -14,7 +14,7 @@ The default `flutter run` opens backend-aligned product journeys using explicit,
 - [Validation record](docs/phases/backend-alignment/validation-results.md)
 - [Reviewed backend handbook](https://github.com/theg4br/fikrah/blob/dev/docs/mobile/README.md)
 
-Use `flutter run --dart-define=FIKRA_MODE=demo` for the preserved local-first app described below. `FIKRA_MODE=connected` remains unavailable. Appearance and language preferences are shared; private fixture and legacy note data are separate.
+Use `flutter run --dart-define=FIKRA_MODE=development` for explicit volatile fixtures, or `FIKRA_MODE=demo` for the preserved local-first app described below. Override the connected HTTPS origin with `FIKRA_API_URL`. Appearance and language preferences are shared; connected, fixture and legacy note data remain separate.
 
 ## Legacy local demo reference
 
@@ -35,7 +35,7 @@ The remaining local storage/attachment/transcription documentation describes exp
 ## التشغيل
 ```bash
 flutter pub get
-flutter run                     # backend-aligned development fixtures
+flutter run                     # connected native mobile client
 flutter run --dart-define=FIKRA_MODE=demo  # preserved local-first demo
 flutter analyze                 # لازم يطلع "No issues found!"
 flutter test                    # كل التيستات

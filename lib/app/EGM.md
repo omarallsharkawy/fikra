@@ -1,8 +1,10 @@
 # lib/app
 
+Current runtime: default `connected` uses the product UI and native API repositories with protected session/attempt storage. `development` explicitly uses fixtures and `demo` retains legacy local processing. See [mobile API integration](../../docs/features/mobile-api-integration/connection-and-contracts.md). The historical architecture notes below describe the preserved legacy implementation; earlier statements that connected mode is unavailable are superseded by this runtime.
+
 ## Backend-aligned default composition
 
-The default `development` mode now uses `data/product`, `product_runtime.dart`, `product_router.dart` and account/workspace/conversation/capture controllers. See `docs/features/backend-aligned-journeys/implementation.md` for boundaries, fixtures and validation. The existing local-first implementation documented below is preserved under explicit `FIKRA_MODE=demo`; it is not the default production-client contract. Connected mode remains unavailable.
+Connected and development modes use `data/product`, `product_runtime.dart`, `product_router.dart` and account/workspace/conversation/capture controllers. Native HTTP repositories and secure records are selected only in connected mode; development selects volatile fixtures. The existing local-first implementation below is preserved under explicit `FIKRA_MODE=demo` and its maintenance is not run in product modes.
 
 ## Overview
 
@@ -16,16 +18,14 @@ here as route targets; the local transcription adapter is also wired here behind
 
 ### `app_config.dart`: build mode
 
-- `enum AppMode { demo, connected }`
-- `final AppMode appMode`: parsed from `--dart-define=FIKRA_MODE`, default `demo`.
-- `bool get isDemo`: true when `appMode == AppMode.demo`. Drives the demo labels
-  in the UI.
+- `enum AppMode { development, demo, connected }`
+- `final AppMode appMode`: parsed from `--dart-define=FIKRA_MODE`, default `connected`.
+- `apiOrigin`: supplied HTTPS origin, overridable through `FIKRA_API_URL`.
+- Preview badges follow `appModeProvider`, including explicit test overrides. The compatibility `isDemo` getter describes the build-time mode only.
 
 ### `app.dart`: root widget
 
-- `class FikraApp extends ConsumerWidget`: builds `MaterialApp.router` with
-  `routerProvider`, the light and dark themes from `buildFikraTheme`, and the
-  saved theme mode and language. Watches `startupMaintenanceProvider`.
+- `class FikraApp extends ConsumerWidget`: uses `productRouterProvider` and product themes for connected/development, or the preserved `routerProvider`/legacy themes for demo. Appearance and language are saved preferences. Watches `startupMaintenanceProvider` only in demo; product modes use `ProductBoundary` and mode-aware preview disclosure.
 
 ### `providers.dart`: dependency wiring
 
@@ -100,12 +100,8 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 
 ### Build mode
 
-- `FIKRA_MODE` accepts only `demo` or `connected`. Any other value makes
-  `_parse` throw `ArgumentError` on the first read of `appMode`.
-- `connected` must not run on demo services. `lib/main.dart` throws
-  `UnsupportedError` before `runApp`, and `aiServiceProvider` throws
-  `UnimplementedError` in that mode. Wiring a real backend has to change both
-  (see `docs/backend-integration.md`).
+- `FIKRA_MODE` accepts only `development`, `demo` or `connected`; unknown values fail configuration parsing.
+- Connected product repositories never fall back to fixtures. `main.dart` starts the configured app; product routes own backend capabilities. The old `aiServiceProvider` remains unavailable in connected mode because that service belongs to the preserved legacy pipeline and must not run there.
 
 ### Providers
 
@@ -216,7 +212,7 @@ Re-exports `isDemo` from `app_config.dart`, and `AppTheme`, `AppLanguage`, and
 ## Locale and clock providers
 
 - `appLanguageProvider` streams `SettingsRepository.watchLanguage`, exactly like appearance.
-- `deviceLocaleProvider` observes platform locale changes; `appLocaleProvider` resolves `AppLanguage.system/ar/en` to Arabic or English. Device languages other than English resolve to Arabic.
+- `deviceLocaleProvider` observes platform locale changes; `appLocaleProvider` defaults to English until a saved language choice resolves. A missing/unknown preference also defaults to English. Explicit `ar`/`en` choices are retained; explicit `system` follows Arabic devices and otherwise falls back to English. System is now persisted as a value rather than deleting the setting, so it remains distinct from an unconfigured first launch.
 - `aiServiceProvider` passes a callback reading the current resolved locale to `DemoAiService`. It does not recreate the AI or processing queue on language changes.
 - Startup maintenance waits for the saved language before resuming interrupted analysis.
 - `appClockProvider` defaults to `DateTime.now`; the welcome seed and date grouping use it. Tests override it for stable screenshots.
@@ -274,3 +270,26 @@ modelDiscoveryProvider supplies fakeable transport plus database-backed availabi
 - `shell.dart`: `AppShell` (`ConsumerStatefulWidget`) tracks top-to-bottom vertical scroll deltas (`AxisDirection.down`, ignoring horizontal and reversed scrollables) into a `ValueNotifier<double>` (`0..1` over `FikraMotion.barShrinkDistance`, reset on branch change) only when `!kReleaseMode && ref.watch(navBarShrinkEnabledProvider)` and Reduce Motion is off, passing it to `FloatingNavigation` without rebuilding branch children. Mounts `ActivityCapsule` via `FloatingNavigation.aboveBar`; `NavigationInset` stays constant so capsule appearance never jumps scroll insets or rebuilds tabs. Shell toasts use their own ungrouped `BackdropFilter` (not shared with `FloatingNavigation`) and get bottom clearance from `AppShell`'s `snackBarTheme.insetPadding`.
 
 `/links/note/:id` also accepts `(LibraryNote?, CardOrigin?)`; only a preview whose ID matches the path is displayed. The origin continues through the existing container transform.
+
+## Reference mobile navigation and settings
+
+The default product journey uses `ProductNavigation`: Home, Map, central Add,
+Ask, and Me, preserving existing shell branch indices. The bar is opaque,
+limited to 520 logical pixels and hidden while the keyboard is visible. At
+large text sizes, tooltip/semantic labels remain available while visual labels
+are omitted to prevent clipping. Screen-reader activation invokes the same
+selection callbacks as touch. The legacy demo retains `FloatingNavigation`.
+
+`/settings` is a protected product route reached from Me. It exposes the
+existing language/theme preferences; it does not enable notifications, reset
+private data or invent server-side profile fields.
+
+## Mobile UX flow routes
+
+`/settings/projects` and `/conversations` are protected product routes on the root
+navigator. Project CRUD/selection is reached from Settings, while conversation
+history is reached from Ask. Both use the existing product runtime/controllers.
+The global account redirect applies to these routes. ProductScaffold pins its
+header/information action, supports a footer above keyboard/nav clearance and
+an optional bounded content viewport used by the map. The legacy demo shell and
+its data are unchanged.

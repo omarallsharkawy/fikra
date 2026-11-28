@@ -30,7 +30,11 @@ class CaptureController extends ChangeNotifier {
   static const maximum = Duration(seconds: 60);
   String? accountId;
   CaptureState state = CaptureState.idle;
-  Duration elapsed = Duration.zero;
+  final ValueNotifier<Duration> elapsedListenable = ValueNotifier<Duration>(Duration.zero);
+  Duration get elapsed => elapsedListenable.value;
+  set elapsed(Duration value) {
+    if (!_disposed) elapsedListenable.value = value;
+  }
   RecordedClip? clip;
   String transcript = '';
   ProductFailure? failure;
@@ -39,6 +43,7 @@ class CaptureController extends ChangeNotifier {
   Timer? _tick, _limit;
   DateTime? _started;
   Future<void> _cleanup = Future.value();
+  Future<void> get pendingCleanup => _cleanup;
   void _emit() {
     if (!_disposed) notifyListeners();
   }
@@ -49,7 +54,9 @@ class CaptureController extends ChangeNotifier {
       state == CaptureState.recording ||
       state == CaptureState.stopping ||
       state == CaptureState.transcribing;
-  void setAccount(String? id) {
+  void setAccount(String? id) => _reset(id, clearDocuments: true);
+
+  void _reset(String? id, {required bool clearDocuments}) {
     if (id != accountId) {
       _retryWake?.cancel();
       retryAt = null;
@@ -57,7 +64,7 @@ class CaptureController extends ChangeNotifier {
     _epoch++;
     _timersOff();
     _cleanup = _cleanup.then((_) => device.cancel()).catchError((_) {});
-    localPdfs = const [];
+    if (clearDocuments) localPdfs = const [];
     pickingPdf = false;
     accountId = id;
     clip = null;
@@ -88,9 +95,9 @@ class CaptureController extends ChangeNotifier {
       elapsed = Duration.zero;
       state = CaptureState.recording;
       _tick = Timer.periodic(const Duration(milliseconds: 200), (_) {
-        elapsed = clock().difference(_started!);
-        if (elapsed > maximum) elapsed = maximum;
-        _emit();
+        var next = clock().difference(_started!);
+        if (next > maximum) next = maximum;
+        if (!_disposed) elapsedListenable.value = next;
       });
       _limit = Timer(maximum, () {
         elapsed = maximum;
@@ -135,9 +142,14 @@ class CaptureController extends ChangeNotifier {
   }
 
   Future<void> cancel() async {
-    final account = accountId;
-    setAccount(account);
+    _reset(accountId, clearDocuments: false);
     await _cleanup;
+  }
+
+  /// A confirmed save consumes the voice review for this composer session.
+  /// Local documents are independent of the saved text and remain accessible.
+  void clearAfterSave() {
+    _reset(accountId, clearDocuments: false);
   }
 
   Future<void> transcribe() async {
@@ -224,7 +236,8 @@ class CaptureController extends ChangeNotifier {
     _retryWake?.cancel();
     _epoch++;
     _timersOff();
-    unawaited(_cleanup.then((_) => device.dispose()));
+    elapsedListenable.dispose();
+    unawaited(_cleanup.then((_) => device.dispose()).catchError((Object _) {}));
     super.dispose();
   }
 }

@@ -10,7 +10,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'فِكرة';
+  String get appTitle => 'FIKRAH';
 
   @override
   String get navAdd => 'إضافة';
@@ -121,7 +121,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcomeCapture => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور';
 
   @override
-  String get welcomeLinks => 'فِكرة بتربط الملاحظات القريبة من بعض لوحدها';
+  String get welcomeLinks => 'FIKRAH بتربط الملاحظات القريبة من بعض لوحدها';
 
   @override
   String get welcomeAsk => 'اسأل، والإجابة بتيجي من ملاحظاتك ومعاها المصدر';
@@ -201,7 +201,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noteSaved => 'الملاحظة اتحفظت';
 
   @override
-  String get noteSavedAnalyzing => 'الملاحظة اتحفظت، وفِكرة بتحللها دلوقتي';
+  String get noteSavedAnalyzing => 'الملاحظة اتحفظت، وFIKRAH بتحللها دلوقتي';
 
   @override
   String get noteSaveFailed => 'مقدرناش نحفظ الملاحظة. جرّب تاني.';
@@ -216,13 +216,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get titleOptionalHint => 'عنوان (اختياري)';
 
   @override
-  String get bodyHintWithFileLinks => 'اكتب كام سطر عن الملف عشان فِكرة تربطه (اختياري)';
+  String get bodyHintWithFileLinks => 'اكتب كام سطر عن الملف عشان FIKRAH تربطه (اختياري)';
 
   @override
   String get bodyHint => 'اكتب فكرتك هنا…';
 
   @override
-  String get addFooter => 'الملاحظة بتتحفظ على طول، وبعدين فِكرة بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.';
+  String get addFooter =>
+      'الملاحظة بتتحفظ على طول، وبعدين FIKRAH بتحلل النص وتربطه بالباقي. الملفات بتفضل على موبايلك.';
 
   @override
   String get discardRecording => 'الغي التسجيل';
@@ -254,10 +255,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get close => 'اقفل';
 
   @override
-  String get micBlockedBody => 'المايك مقفول لفِكرة. افتح إعدادات التطبيق واسمح بالمايك.';
+  String get micBlockedBody => 'المايك مقفول لـ FIKRAH. افتح إعدادات التطبيق واسمح بالمايك.';
 
   @override
-  String get micAskBody => 'عشان تسجّل فكرة بصوتك، اسمح لفِكرة تستخدم المايك.';
+  String get micAskBody => 'عشان تسجّل فكرة بصوتك، اسمح لـ FIKRAH تستخدم المايك.';
 
   @override
   String get openSettings => 'افتح الإعدادات';
@@ -278,7 +279,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notesEmptyTitle => 'لسه مفيش ملاحظات';
 
   @override
-  String get notesEmptyBody => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وفِكرة هترتّبها وتربطها لوحدها.';
+  String get notesEmptyBody => 'اكتب فكرة، أو سجّل صوت، أو ضيف PDF أو صور، وFIKRAH هترتّبها وتربطها لوحدها.';
 
   @override
   String get addFirstNote => 'ضيف أول ملاحظة';
@@ -367,7 +368,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get analyzingBody =>
-      'فِكرة بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.';
+      'FIKRAH بتحلل الملاحظة دلوقتي عشان تطلّع مواضيعها وتلاقي الملاحظات المرتبطة بيها. الملاحظة نفسها محفوظة.';
 
   @override
   String get suggestedRewrite => 'صياغة مقترحة';
@@ -432,7 +433,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linksEmptyTitle => 'الروابط بتظهر هنا';
 
   @override
-  String get linksEmptyBody => 'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وفِكرة هتربطهم ببعض.';
+  String get linksEmptyBody => 'ضيف ملاحظتين أو أكتر عن مواضيع قريبة، وFIKRAH هتربطهم ببعض.';
 
   @override
   String get addNote => 'ضيف ملاحظة';
@@ -662,7 +663,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noteSavedNoText => 'الملاحظة اتحفظت. اكتب عنها كام سطر عشان تتربط بالباقي';
 
   @override
-  String get noTextNoLinks => 'الملاحظة دي مفيهاش نص، عشان كده فِكرة مش هتعرف تربطها بحاجة.';
+  String get noTextNoLinks => 'الملاحظة دي مفيهاش نص، عشان كده FIKRAH مش هتعرف تربطها بحاجة.';
 
   @override
   String get pdfOpenElsewhere => 'افتح في تطبيق تاني';
@@ -806,7 +807,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get removeLinkTitle => 'تشيل الرابط ده؟';
 
   @override
-  String get removeLinkBody => 'الملاحظتين هيفضلوا زي ما هم، بس فِكرة مش هتقترح تربطهم ببعض تاني.';
+  String get removeLinkBody => 'الملاحظتين هيفضلوا زي ما هم، بس FIKRAH مش هتقترح تربطهم ببعض تاني.';
 
   @override
   String get removeLinkConfirm => 'شيل';
@@ -1983,10 +1984,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get meVoiceServices => 'الصوت والخدمات';
 
   @override
-  String get welcomeEyebrow => 'فِكرة';
+  String get welcomeEyebrow => 'FIKRAH';
 
   @override
-  String get welcomeBrandTitle => 'فِكرة';
+  String get welcomeBrandTitle => 'FIKRAH';
 
   @override
   String get welcomeTagline => 'اكتب. اربط. اسأل.';
@@ -2609,4 +2610,240 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get productNewIntentionalSaveExplanation =>
       'المحاولة السابقة اترفضت أو تخص ملاحظة اتحذفت. هنحتفظ بالمسودة، ومحاولة جديدة هتبدأ فقط لما تختار الحفظ تاني.';
+
+  @override
+  String get uiSignUpEmail => 'إنشاء حساب بالبريد الإلكتروني';
+
+  @override
+  String get uiLogIn => 'تسجيل الدخول';
+
+  @override
+  String get uiContinueGoogle => 'المتابعة باستخدام Google';
+
+  @override
+  String get uiCreateAccount => 'إنشاء حسابك';
+
+  @override
+  String get uiWelcomeBack => 'مرحبًا بعودتك';
+
+  @override
+  String get uiShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get uiHidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get uiNewIdea => 'فكرة جديدة';
+
+  @override
+  String get uiVoice => 'صوت';
+
+  @override
+  String get uiFile => 'ملف';
+
+  @override
+  String get uiProfile => 'الملف الشخصي';
+
+  @override
+  String get uiSettings => 'الإعدادات';
+
+  @override
+  String get uiIdeas => 'الأفكار';
+
+  @override
+  String get uiAll => 'الكل';
+
+  @override
+  String get uiToday => 'اليوم';
+
+  @override
+  String get uiEarlier => 'سابقًا';
+
+  @override
+  String get uiIdeaMap => 'خريطة الأفكار';
+
+  @override
+  String get uiSearchIdeas => 'ابحث في أفكارك';
+
+  @override
+  String get uiMapHint => 'اسحب الأفكار، وكبّر بإصبعين، واضغط للفتح';
+
+  @override
+  String get uiZoomOut => 'تصغير';
+
+  @override
+  String get uiFitIdeas => 'إظهار كل الأفكار';
+
+  @override
+  String get uiOpenNote => 'فتح الملاحظة';
+
+  @override
+  String get uiConnectedIdeas => 'أفكار مرتبطة';
+
+  @override
+  String get uiUnavailable => 'غير متاح بعد';
+
+  @override
+  String get uiPreviewNotice => 'معاينة تطوير · بيانات مؤقتة';
+
+  @override
+  String get uiGoogleUnavailable => 'تسجيل الدخول عبر Google غير متاح في هذه المعاينة.';
+
+  @override
+  String get uiWelcomeSubtitle => 'أفكارك مترابطة. اسأل ملاحظاتك عن أي شيء.';
+
+  @override
+  String get uxPreviewInfo => 'معلومات المعاينة';
+
+  @override
+  String get uxCaptureDetails => 'عن الصوت والملفات';
+
+  @override
+  String get uxCaptureHint => 'راجع النص الصوتي قبل الحفظ. ملفات PDF تفضل على الجهاز ده.';
+
+  @override
+  String get uxLocalPdf => 'PDF محلي';
+
+  @override
+  String get uxChatIntro => 'اسأل عن الأفكار المحفوظة في المشروع ده.';
+
+  @override
+  String get uxConversationList => 'المحادثات';
+
+  @override
+  String get uxVerifyTitle => 'تأكيد بريدك الإلكتروني';
+
+  @override
+  String get uxRecoveryTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get uxRecoverySentTitle => 'تم طلب الاستعادة';
+
+  @override
+  String get uxResetTitle => 'اختار كلمة مرور جديدة';
+
+  @override
+  String get uxRequestReset => 'طلب الاستعادة';
+
+  @override
+  String get uxResetPassword => 'تعيين كلمة المرور';
+
+  @override
+  String get uxEmptyChat => 'اسأل أفكارك';
+
+  @override
+  String get uxSearchHint => 'ابحث في أفكار المشروع';
+
+  @override
+  String get uxNoConversations => 'مفيش محادثات لسه';
+
+  @override
+  String get uxProjectsHelp => 'اختار مساحة أفكارك. تقدر تنشئ مشروع وقت ما تحتاج.';
+
+  @override
+  String uxProjectContext(String name) {
+    return 'المشروع: $name';
+  }
+
+  @override
+  String get authLoginHint => 'مساحة صغيرة لفكرتك الكبيرة الجاية.';
+
+  @override
+  String get authSignupHint => 'خلّي لأفكارك مكان تكبر فيه.';
+
+  @override
+  String get authRecoveryHint => 'اكتب البريد الإلكتروني المستخدم لحسابك.';
+
+  @override
+  String get authRecoverySentHint => 'تم استلام طلب استعادة كلمة المرور.';
+
+  @override
+  String get authVerifyHint => 'أكمل تأكيد البريد الإلكتروني للمتابعة إلى تسجيل الدخول.';
+
+  @override
+  String get authResetHint => 'اكتب رمز الاستعادة وكلمة مرور جديدة.';
+
+  @override
+  String get authHaveAccount => 'عندك حساب؟ سجّل الدخول';
+
+  @override
+  String get authNewAccount => 'أول مرة هنا؟ أنشئ حسابًا';
+
+  @override
+  String get apiGoogleUnavailable => 'تسجيل الدخول بجوجل غير مُعدّ بعد.';
+
+  @override
+  String get apiSignOut => 'تسجيل الخروج';
+
+  @override
+  String get apiSixDigitCode => 'كود من ٦ أرقام';
+
+  @override
+  String get apiNewPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get apiPasswordHint => 'استخدم من ٥ إلى ١٢٨ حرفًا.';
+
+  @override
+  String get apiVerifyEmail => 'تأكيد البريد الإلكتروني';
+
+  @override
+  String get apiResendCode => 'إعادة إرسال الكود';
+
+  @override
+  String get apiHaveCode => 'معايا الكود';
+
+  @override
+  String get apiVerifyHint => 'اكتب كود تأكيد البريد المكوّن من ٦ أرقام.';
+
+  @override
+  String get apiResetHint => 'اكتب كود الاستعادة المكوّن من ٦ أرقام وكلمة مرور جديدة.';
+
+  @override
+  String get apiRecoveryAcknowledgment => 'لو الحساب مؤهل للاستعادة، راجع بريدك للحصول على كود من ٦ أرقام.';
+
+  @override
+  String get apiCodeAcknowledgment => 'تم استلام الطلب. راجع بريدك للحصول على كود من ٦ أرقام إذا كان الحساب مؤهلًا.';
+
+  @override
+  String get apiVerified => 'تم تأكيد البريد. تقدر تسجّل الدخول دلوقتي.';
+
+  @override
+  String get apiResetComplete => 'تم تغيير كلمة المرور. سجّل الدخول بالكلمة الجديدة.';
+
+  @override
+  String get apiSignedOut => 'تم تسجيل الخروج.';
+
+  @override
+  String get apiTranscribe => 'تحويل التسجيل لنص';
+
+  @override
+  String get apiInvalidCode => 'الكود غير صحيح أو لم يعد صالحًا. راجعه أو اطلب كودًا جديدًا.';
+
+  @override
+  String get apiInvalidEmail => 'راجع عنوان البريد الإلكتروني.';
+
+  @override
+  String get authConnectionError => 'تعذّر الاتصال. راجع اتصال الإنترنت وحاول مرة أخرى.';
+
+  @override
+  String get authTimeoutError => 'الخادم استغرق وقتًا طويلًا للرد. حاول بعد قليل.';
+
+  @override
+  String get authSecureConnectionError => 'تعذّر إنشاء اتصال آمن. راجع اتصالك وتاريخ الجهاز.';
+
+  @override
+  String get authServiceError => 'خدمة الحسابات غير متاحة مؤقتًا. حاول بعد قليل.';
+
+  @override
+  String get authResponseError => 'وصل رد غير متوقع من الخادم. حاول لاحقًا.';
+
+  @override
+  String get authCredentialsError => 'البريد الإلكتروني أو كلمة المرور غير صحيحة. راجع بياناتك وحاول مرة أخرى.';
+
+  @override
+  String get authRequestError => 'تعذّر إكمال الطلب. حاول مرة أخرى.';
+
+  @override
+  String get authCheckDetails => 'راجع البيانات وحاول مرة أخرى.';
 }

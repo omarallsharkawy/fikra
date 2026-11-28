@@ -37,7 +37,8 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
               Icon(Icons.auto_awesome_outlined, size: 18, color: context.colors.accent),
               const SizedBox(width: 8),
               Expanded(child: Text(context.l10n.suggestedRewrite, style: context.text.cardTitleSmall)),
-              if (isDemo) FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoBadge),
+              if (ref.watch(appModeProvider) != AppMode.connected)
+                FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoBadge),
             ],
           ),
           const SizedBox(height: 10),

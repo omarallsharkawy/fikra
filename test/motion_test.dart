@@ -244,10 +244,10 @@ void main() {
       controller.forward();
       await tester.pump();
       await tester.pump(FikraMotion.pushFade);
-      final opacity = tester.widget<Opacity>(
-        find.ancestor(of: find.byKey(const ValueKey('page')), matching: find.byType(Opacity)).first,
+      final fade = tester.widget<FadeTransition>(
+        find.ancestor(of: find.byKey(const ValueKey('page')), matching: find.byType(FadeTransition)).first,
       );
-      expect(opacity.opacity, 1);
+      expect(fade.opacity.value, 1);
       await tester.pumpAndSettle();
       expect(tester.getTopLeft(find.byKey(const ValueKey('page'))).dx, 0);
     });
@@ -336,8 +336,9 @@ void main() {
         expect(page, findsOneWidget);
         final halfwayPosition = tester.getTopLeft(page);
         final halfwayOpacity = tester
-            .widget<Opacity>(find.ancestor(of: page, matching: find.byType(Opacity)).first)
-            .opacity;
+            .widget<FadeTransition>(find.ancestor(of: page, matching: find.byType(FadeTransition)).first)
+            .opacity
+            .value;
         await tester.pump(FikraMotion.pop ~/ 2);
         await tester.pump(const Duration(milliseconds: 16)); // final route disposal frame
         expect(FikraMotion.pop + const Duration(milliseconds: 16), lessThan(FikraMotion.push));
@@ -374,10 +375,11 @@ void main() {
     await tester.pump();
     await tester.pump(FikraMotion.reducedFade);
     double opacity() => tester
-        .widget<Opacity>(
-          find.ancestor(of: find.byKey(const ValueKey('reduced-page')), matching: find.byType(Opacity)).first,
+        .widget<FadeTransition>(
+          find.ancestor(of: find.byKey(const ValueKey('reduced-page')), matching: find.byType(FadeTransition)).first,
         )
-        .opacity;
+        .opacity
+        .value;
     expect(opacity(), closeTo(1, 0.001));
     expect(tester.getTopLeft(find.byKey(const ValueKey('reduced-page'))), Offset.zero);
     await tester.pumpAndSettle();
@@ -424,7 +426,10 @@ void main() {
       }
 
       final page = find.byKey(const ValueKey('gesture-page'), skipOffstage: false);
-      double opacity() => tester.widget<Opacity>(find.ancestor(of: page, matching: find.byType(Opacity)).first).opacity;
+      double opacity() => tester
+          .widget<FadeTransition>(find.ancestor(of: page, matching: find.byType(FadeTransition)).first)
+          .opacity
+          .value;
       // Late commits also exercise the translucent part of the entrance fade;
       // checking only halfway would miss a jump because opacity is still 1.
       for (final progress in [0.1, 0.5, 0.9, 1.0]) {

@@ -9,6 +9,9 @@ import '../features/conversation/conversation_screen.dart';
 import '../features/workspace/graph_screen.dart';
 import '../features/workspace/note_screen.dart';
 import '../features/workspace/notes_screen.dart';
+import '../features/workspace/product_widgets.dart';
+import '../features/workspace/project_controls.dart';
+import '../l10n/localizations.dart';
 import 'product_runtime.dart';
 import 'shell.dart';
 
@@ -16,7 +19,7 @@ final productRouterProvider = Provider<GoRouter>((ref) {
   final runtime = ref.watch(productRuntimeProvider);
   final router = GoRouter(
     initialLocation: '/session-loading',
-    refreshListenable: runtime.session,
+    refreshListenable: runtime.session.stageListenable,
     redirect: (_, state) {
       final stage = runtime.session.stage;
       final path = state.uri.path;
@@ -28,7 +31,7 @@ final productRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/session-loading',
-        builder: (_, _) => const Scaffold(body: Center(child: CircularProgressIndicator())),
+        builder: (_, _) => _SessionLoadingScreen(session: runtime.session),
       ),
       GoRoute(path: '/sign-in', builder: (_, _) => const ProductAccountScreen()),
       StatefulShellRoute(
@@ -53,6 +56,9 @@ final productRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(path: '/settings', builder: (_, _) => const ProductSettingsScreen()),
+      GoRoute(path: '/settings/projects', builder: (_, _) => const ProductProjectsScreen()),
+      GoRoute(path: '/conversations', builder: (_, _) => const ProductConversationHistoryScreen()),
       GoRoute(
         path: '/note/:id',
         pageBuilder: (_, state) => MaterialPage(
@@ -65,3 +71,42 @@ final productRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+class _SessionLoadingScreen extends StatelessWidget {
+  const _SessionLoadingScreen({required this.session});
+  final SessionController session;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: session,
+    builder: (context, _) {
+      final failure = session.failure;
+      if (failure == null) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ProductFailureView(failure, onRetry: session.restore),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: session.signOut,
+                      child: Text(context.l10n.apiSignOut),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}

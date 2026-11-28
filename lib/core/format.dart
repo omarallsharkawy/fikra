@@ -239,10 +239,19 @@ bool _wordMatchesAlt(String word, String token, {required bool prefix}) {
 
 /// Locale-aware display formatting. Digits stay Western (0-9).
 abstract final class Fmt {
-  static String time(AppLocalizations l10n, DateTime d) => _ascii(DateFormat('h:mm a', l10n.localeName).format(d));
+  static final _arabicDigits = RegExp(r'[\u0660-\u0669\u06f0-\u06f9]');
+  static final _dateFormats = <String, DateFormat>{};
+  static DateFormat _df(String key, DateFormat Function() create) => _dateFormats.putIfAbsent(key, create);
+
+  static String weekday(AppLocalizations l10n, DateTime d) =>
+      _df('EEEE:${l10n.localeName}', () => DateFormat.EEEE(l10n.localeName)).format(d);
+
+  static String time(AppLocalizations l10n, DateTime d) =>
+      _ascii(_df('hm:${l10n.localeName}', () => DateFormat('h:mm a', l10n.localeName)).format(d));
 
   /// A calendar date in the current locale, e.g. "Feb 26, 2027" / "26 فبراير 2027".
-  static String date(AppLocalizations l10n, DateTime d) => _ascii(DateFormat.yMMMd(l10n.localeName).format(d));
+  static String date(AppLocalizations l10n, DateTime d) =>
+      _ascii(_df('yMMMd:${l10n.localeName}', () => DateFormat.yMMMd(l10n.localeName)).format(d));
 
   static String dayHeader(AppLocalizations l10n, DateTime d, {DateTime? now}) {
     now ??= DateTime.now();
@@ -251,7 +260,8 @@ abstract final class Fmt {
     final diff = today.difference(day).inDays;
     if (diff == 0) return l10n.today;
     if (diff == 1) return l10n.yesterday;
-    return _ascii(DateFormat(l10n.localeName == 'ar' ? 'EEEE d MMMM' : 'EEEE, d MMMM', l10n.localeName).format(d));
+    final pattern = l10n.localeName == 'ar' ? 'EEEE d MMMM' : 'EEEE, d MMMM';
+    return _ascii(_df('day:$pattern:${l10n.localeName}', () => DateFormat(pattern, l10n.localeName)).format(d));
   }
 
   static String relative(AppLocalizations l10n, DateTime d, {DateTime? now}) {
@@ -294,7 +304,7 @@ abstract final class Fmt {
     return l10n.sizeMb(number(b / 1024 / 1024, '0.0'));
   }
 
-  static String _ascii(String s) => s.replaceAllMapped(RegExp(r'[\u0660-\u0669\u06f0-\u06f9]'), (m) {
+  static String _ascii(String s) => s.replaceAllMapped(_arabicDigits, (m) {
     final code = m[0]!.codeUnitAt(0);
     return '${code - (code >= 0x6f0 ? 0x6f0 : 0x660)}';
   });

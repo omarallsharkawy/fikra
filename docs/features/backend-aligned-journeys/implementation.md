@@ -1,5 +1,8 @@
 # Backend-aligned product journeys
 
+> Historical record of the original development-fixture implementation. Connected mode is now the default, with native API repositories, protected session/attempt records and six-digit OTP. Current deployment contracts and validation are documented in [mobile API integration](../mobile-api-integration/connection-and-contracts.md). The fixture walkthrough below now requires `FIKRA_MODE=development`; its earlier connection checklist records the pre-integration state.
+
+
 ## Scope and composition
 
 The default build now opens the backend-aligned **development** journey. It uses the existing Riverpod composition, GoRouter, shared FIKRAH theme, floating navigation, motion, and Arabic/English localization catalogs. It does not contact a backend or third-party provider. `FIKRA_MODE=connected` remains unavailable and fails before app startup.

@@ -151,16 +151,24 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> with SingleTicker
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Semantics(
-                              header: true,
-                              child: Text(
-                                l10n.welcomeBrandTitle,
-                                style: context.text.title.copyWith(
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.w800,
-                                  height: 1.12,
+                            Row(
+                              children: [
+                                const FikraBrandMark(size: 64),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Semantics(
+                                    header: true,
+                                    child: Text(
+                                      l10n.welcomeBrandTitle,
+                                      style: context.text.title.copyWith(
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.w800,
+                                        height: 1.12,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                             const SizedBox(height: 12),
                             Text(
