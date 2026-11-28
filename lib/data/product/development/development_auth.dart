@@ -30,7 +30,7 @@ class DevelopmentAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<SessionGrant> exchangeGoogleIdToken(String idToken) async =>
+  Future<SessionGrant> exchangeGoogleIdToken(String idToken, {String? name}) async =>
       throw const ProductFailure(FailureKind.unavailable);
   @override
   Future<void> requestRecovery(String email) async {}

@@ -72,8 +72,7 @@ No existing user note was edited or deleted. Native voice recording, PDF picker,
 share chooser, offline/session recovery and final user acceptance remain separate
 checks. No production-ready claim is made while these gates remain open.
 
-Google sign-in still needs the Web application client ID accepted by the backend;
-the provided Android client ID cannot replace it. The test package is
+Google sign-in succeeded on the physical profile app using the owner-confirmed Web client ID; the live Google exchange and account lookup returned HTTP 200. The eventual release package and signing certificate need their own matching Android OAuth registration. The test package is
 `com.fikra.app.stress`. Store/release signing currently uses the repository's debug
 signing configuration and requires the owner's release identity before a store
 handoff. No iOS target or Bundle ID is invented.

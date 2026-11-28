@@ -3241,4 +3241,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rdOnDevice => 'على هذا الجهاز';
+
+  @override
+  String get googleIdentityError => 'تعذّر التحقق من حساب Google. حاول مرة أخرى.';
+
+  @override
+  String get googleServiceError => 'تسجيل الدخول بـ Google غير متاح حاليًا. حاول مرة أخرى.';
 }

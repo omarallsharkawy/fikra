@@ -45,8 +45,8 @@ class _ProductAuthFeedbackState extends State<ProductAuthFeedback> {
       FailureCause.secureConnection => l.authSecureConnectionError,
       FailureCause.invalidResponse => l.authResponseError,
       null => switch (failure.kind) {
-        FailureKind.unauthorized => l.authCredentialsError,
-        FailureKind.unavailable => l.authServiceError,
+        FailureKind.unauthorized => failure.field == 'google' ? l.googleIdentityError : l.authCredentialsError,
+        FailureKind.unavailable => failure.field == 'google' ? l.googleServiceError : l.authServiceError,
         FailureKind.uncertain => l.authRequestError,
         FailureKind.validation => switch (failure.field) {
           'email' => l.apiInvalidEmail,

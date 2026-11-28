@@ -16,6 +16,7 @@ import 'product_auth_layout.dart';
 import 'product_auth_feedback.dart';
 import 'redesign_auth_field.dart';
 import 'redesign_me_screen.dart';
+import 'native_google_identity.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -56,12 +57,15 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
         SessionStage.recoveryConfirm,
       ].contains(s.stage);
       final sent = s.stage == SessionStage.recoverySent, reset = s.stage == SessionStage.recoveryConfirm;
-      final welcome = !verifying && !recovery && !_loginForm && !_register;
+      final welcome = !s.needsGoogleName && !verifying && !recovery && !_loginForm && !_register;
       final validCode = preview ? _token.isNotEmpty : RegExp(r'^[0-9]{6}$').hasMatch(_token);
       final passwordLength = _password.runes.length;
       final validPassword = passwordLength >= ((_register || reset) ? 5 : 1) && passwordLength <= 128;
       final enabled = !s.busy && !s.coolingDown;
-      final title = verifying
+      final googleIdentity = ProviderScope.containerOf(context).read(googleIdentityProvider);
+      final title = s.needsGoogleName
+          ? l.rdNm
+          : verifying
           ? l.uxVerifyTitle
           : reset
           ? l.uxResetTitle
@@ -106,7 +110,26 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
       final children = <Widget>[
         if (notice != null) Semantics(liveRegion: true, child: RdText(notice, size: 13, color: context.rd.muted)),
         if (s.stage == SessionStage.expired) RdText(l.productYourSessionExpiredSignInAgain, color: context.rd.muted),
-        if (welcome)
+        if (s.needsGoogleName) ...[
+          RdText(l.rdNm, size: 18, weight: FontWeight.w600),
+          RedesignAuthField(
+            key: const ValueKey('google-name'),
+            value: _name,
+            label: l.rdNm,
+            onChanged: (v) => setState(() => _name = v),
+            enabled: enabled,
+            autofillHints: const [AutofillHints.givenName],
+            inputFormatters: [LengthLimitingTextInputFormatter(40)],
+          ),
+          if (s.failure != null) ProductAuthFeedback(s.failure!),
+          RdButton(
+            l.uiContinueGoogle,
+            key: const ValueKey('google-name-submit'),
+            loading: s.busy,
+            onPressed: enabled && ProfileController.validName(_name) ? () => s.completeGoogleName(_name) : null,
+          ),
+          _AuthLink(l.productCancel, onPressed: enabled ? () => s.show(SessionStage.unauthenticated) : null),
+        ] else if (welcome) ...[
           ProductWelcome(
             busy: s.busy,
             preview: preview,
@@ -114,8 +137,19 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             onLogin: enabled ? () => _screen(register: false) : null,
             onSample: enabled ? () => s.login('reader@example.invalid', 'fixture-only') : null,
             onEmpty: enabled ? () => s.login('other@example.invalid', 'fixture-only') : null,
-          )
-        else ...[
+          ),
+          if (!preview && googleIdentity.available) ...[
+            const SizedBox(height: 10),
+            RdButton(
+              l.uiContinueGoogle,
+              key: const ValueKey('google-sign-in'),
+              primary: false,
+              loading: s.googleActive,
+              onPressed: enabled ? () => _submit(() => s.googleWith(googleIdentity)) : null,
+            ),
+          ],
+          if (s.failure != null) ProductAuthFeedback(s.failure!),
+        ] else ...[
           if (_register && !verifying && !recovery)
             RedesignAuthField(
               key: const ValueKey('account-name'),
@@ -245,6 +279,16 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                   ? authenticate
                   : null,
             ),
+            if (!preview && googleIdentity.available) ...[
+              const SizedBox(height: 10),
+              RdButton(
+                l.uiContinueGoogle,
+                key: const ValueKey('google-sign-in'),
+                primary: false,
+                loading: s.googleActive,
+                onPressed: enabled ? () => _submit(() => s.googleWith(googleIdentity)) : null,
+              ),
+            ],
             if (_register) RdText(l.rdTerms, size: 12.5, color: context.rd.muted, align: TextAlign.center),
             _AuthLink(
               _register ? l.rdAh : l.rdNw,
@@ -265,6 +309,10 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
         welcome: welcome,
         onBack: enabled
             ? () {
+                if (s.needsGoogleName) {
+                  s.show(SessionStage.unauthenticated);
+                  return;
+                }
                 _screen(register: false, login: verifying || recovery);
                 if (verifying || recovery) s.show(SessionStage.unauthenticated);
               }

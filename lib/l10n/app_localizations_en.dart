@@ -3164,4 +3164,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rdOnDevice => 'On this device';
+
+  @override
+  String get googleIdentityError => 'Google sign-in could not be verified. Please try again.';
+
+  @override
+  String get googleServiceError => 'Google sign-in is unavailable right now. Please try again.';
 }

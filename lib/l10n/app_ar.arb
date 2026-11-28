@@ -2273,5 +2273,7 @@
   "rdCheckConversation": "راجع المحادثة",
   "rdReviewConversation": "المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.",
   "rdDraftFailed": "تعذّر حفظ المسودة على جهازك. أعد المحاولة قبل الإغلاق.",
-  "rdOnDevice": "على هذا الجهاز"
+  "rdOnDevice": "على هذا الجهاز",
+  "googleIdentityError": "تعذّر التحقق من حساب Google. حاول مرة أخرى.",
+  "googleServiceError": "تسجيل الدخول بـ Google غير متاح حاليًا. حاول مرة أخرى."
 }

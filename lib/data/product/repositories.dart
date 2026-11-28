@@ -7,7 +7,7 @@ abstract interface class AuthRepository {
   Future<void> verifyEmail(String token, {required String email});
   Future<void> resendVerification(String email);
   Future<SessionGrant> login(String email, String password);
-  Future<SessionGrant> exchangeGoogleIdToken(String idToken);
+  Future<SessionGrant> exchangeGoogleIdToken(String idToken, {String? name});
   Future<void> requestRecovery(String email);
   Future<void> confirmRecovery(String token, String password, {required String email});
   Future<TokenPair> refresh(TokenPair current);

@@ -5569,6 +5569,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'على هذا الجهاز'**
   String get rdOnDevice;
+
+  /// No description provided for @googleIdentityError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر التحقق من حساب Google. حاول مرة أخرى.'**
+  String get googleIdentityError;
+
+  /// No description provided for @googleServiceError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول بـ Google غير متاح حاليًا. حاول مرة أخرى.'**
+  String get googleServiceError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

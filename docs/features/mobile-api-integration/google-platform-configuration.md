@@ -1,24 +1,26 @@
 # Google platform configuration
 
-The owner supplied the following **Android** OAuth client on 27 November 2026:
+On 28 November 2026 the owner confirmed Web application client ID
+`109535867594-0gok833v4j10mtedhee5146g8r8dcgtn.apps.googleusercontent.com`.
+The matching downloaded Google client configuration identifies it as a Web
+client. It is a public identifier, not a client secret. Its local backend configuration matches. On 28 November 2026 the owner completed native Google sign-in on the physical Android profile app; the deployed Google exchange and subsequent `/me` returned HTTP 200. Use it as the Android plugin's
+`serverClientId` (override with `FIKRA_GOOGLE_SERVER_CLIENT_ID` when building
+against a different environment). No client secret belongs in the app.
 
-`109535867594-0gok833v4j10mtedhee5146g8r8dcgtn.apps.googleusercontent.com`
+The physical-device profile application ID is `com.fikra.app.stress`; the debug
+signing SHA-1 is `5E:13:1A:11:45:AD:42:3A:E4:E8:E1:C8:A8:6C:0B:A1:9B:69:FF:56`.
+Google Cloud must have a separate **Android** OAuth registration matching both
+values in the same project. The base `com.fikra.app` and its eventual release
+signing key each need a matching Android registration. No iOS target or bundle
+ID was supplied. See [Flutter Android integration](https://pub.dev/packages/google_sign_in_android).
 
-The APK installed for current physical-device testing has application ID
-`com.fikra.app.stress` and certificate SHA-1
-`5E:13:1A:11:45:AD:42:3A:E4:E8:E1:C8:A8:6C:0B:A1:9B:69:FF:56`.
-These were extracted from the APK, which is a profile build signed with the
-Android debug certificate. The base application ID is `com.fikra.app`; its
-eventual release signing certificate is a separate configuration. The mobile
-repository currently has no iOS target or verified bundle ID.
+The client launches Google's Android account picker and sends only its short-lived
+ID token to `POST /v1/auth/google`; then it retrieves `/v1/auth/me` with the
+issued FIKRAH access token and stores the FIKRAH pair in the existing secure
+vault. Cancellation leaves the FIKRAH session unchanged. The optional provider
+name is sent as the existing backend fallback; a documented missing-name 422
+prompts the user and retries the same assertion without storing it persistently.
+No token, provider exception or server response body is shown or logged.
 
-The Android client ID must not be substituted for the **Web application** client
-ID used as `serverClientId` for Google ID-token acquisition. The owner has been
-asked for that Web client ID from the same Google Cloud project and confirmation
-that its audience is accepted by the backend. No client secret belongs in the
-mobile app. See the [Flutter Android integration instructions](https://pub.dev/packages/google_sign_in_android).
-
-Native acquisition remains pending until that identifier is supplied. The
-existing exchange remains POST `/v1/auth/google` with JSON `{"id_token":"…"}`,
-followed by authoritative account lookup and the current session/vault flow.
-No server configuration or public API contract is changed by this document.
+Tests cover successful exchange/account lookup, cancellation, name fallback,
+invalid-token mapping, existing login and AR/EN registration. A deployed negative-token probe returned 401 as expected. On-device owner-selected Google sign-in succeeded: the server returned HTTP 200 for the exchange and the account lookup, and the owner confirmed reaching Home. Other account-linking, cancellation on a real device and release signing configurations remain separate checks.
