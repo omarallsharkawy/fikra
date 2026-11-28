@@ -52,6 +52,7 @@ void main() {
         await tapConnected(tester, find.text(l.authNewAccount));
         expect(find.byKey(const ValueKey('auth-feedback')), findsNothing);
         connectionFailure = true;
+        await fill(tester, 'account-name', 'Test Reader');
         await fill(tester, 'account-password', 'test-password');
         await tapConnected(tester, find.byKey(const ValueKey('account-submit')));
         expect(find.text(l.authConnectionError), findsOneWidget);
@@ -59,6 +60,8 @@ void main() {
           await tester.ensureVisible(find.byKey(const ValueKey('auth-feedback')));
           await capture(tester, 'repair-${locale.languageCode}-signup-error');
         }
+        await tapConnected(tester, find.byKey(const ValueKey('auth-back')));
+        expect(find.byKey(const ValueKey('auth-feedback')), findsNothing);
         expect(tester.takeException(), isNull);
         await cleanup(tester);
       });

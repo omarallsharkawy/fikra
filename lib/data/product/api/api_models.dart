@@ -6,7 +6,12 @@ List<String> strings(dynamic value) =>
     value == null ? const [] : List<String>.unmodifiable([for (final item in value as List) item as String]);
 Account accountFromJson(dynamic value) {
   final x = object(value);
-  return Account(id: x['id'], email: x['email'], emailVerified: x['email_verified']);
+  return Account(
+    id: x['id'],
+    email: x['email'],
+    emailVerified: x['email_verified'],
+    name: x['name'] as String?,
+  );
 }
 
 TokenPair tokensFromJson(dynamic value, DateTime now) {

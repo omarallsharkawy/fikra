@@ -152,9 +152,9 @@ class SessionController extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String address, String password) => _action((ticket) async {
+  Future<void> register(String address, String password, {String? name}) => _action((ticket) async {
     email = address.trim().toLowerCase();
-    await repository.register(email, password);
+    await repository.register(email, password, name: name);
     if (ticket != epoch || _disposed) return;
     stage = SessionStage.awaitingVerification;
     notice = 'verificationRequested';

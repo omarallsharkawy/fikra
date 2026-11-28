@@ -118,7 +118,7 @@ void main() {
     final t = ScriptTransport((_) => jsonReply({'message': 'accepted'}, status: 202)),
         api = client(t),
         auth = ApiAuthRepository(api);
-    await auth.register('test@example.invalid', 'abcde');
+    await auth.register('test@example.invalid', 'abcde', name: 'Omar');
     await auth.verifyEmail('123456', email: 'test@example.invalid');
     await auth.resendVerification('test@example.invalid');
     await auth.requestRecovery('test@example.invalid');
@@ -130,6 +130,7 @@ void main() {
       '/v1/auth/password-reset/otp/request',
       '/v1/auth/password-reset/otp/confirm',
     ]);
+    expect(t.calls[0].json, {'email': 'test@example.invalid', 'password': 'abcde', 'name': 'Omar'});
     expect(t.calls[1].json, {'email': 'test@example.invalid', 'code': '123456'});
     expect(t.calls.last.json, {'email': 'test@example.invalid', 'code': '654321', 'new_password': 'new password'});
     expect(t.calls.every((c) => !c.headers.containsKey('Authorization')), isTrue);

@@ -25,12 +25,24 @@ class ApiAuthRepository implements AuthRepository {
     await api.request('GET', '/v1/auth/me', accessToken: tokens.access, timeout: _authTimeout),
     accountFromJson,
   );
+  static String _resolveRegistrationName(String email, String? name) {
+    final trimmed = name?.trim() ?? '';
+    if (trimmed.isNotEmpty) {
+      return trimmed.length <= 120 ? trimmed : trimmed.substring(0, 120);
+    }
+    final localPart = email.split('@').first.trim();
+    if (localPart.isNotEmpty) {
+      return localPart.length <= 120 ? localPart : localPart.substring(0, 120);
+    }
+    return 'User';
+  }
+
   @override
-  Future<void> register(String email, String password) async {
+  Future<void> register(String email, String password, {String? name}) async {
     await api.request(
       'POST',
       '/v1/auth/register/otp',
-      json: {'email': email, 'password': password},
+      json: {'email': email, 'password': password, 'name': _resolveRegistrationName(email, name)},
       timeout: _authTimeout,
     );
   }

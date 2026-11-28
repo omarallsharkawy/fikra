@@ -111,6 +111,7 @@ void main() {
         expect(find.byKey(const ValueKey('fixture-reader')), findsNothing);
         expect(find.byKey(const ValueKey('development-banner')), findsNothing);
         await tapConnected(tester, find.text(l.uiSignUpEmail));
+        await fill(tester, 'account-name', 'Test Reader');
         await fill(tester, 'account-email', 'TEST@example.invalid ');
         await fill(tester, 'account-password', '1234');
         expect(tester.widget<FikraButton>(find.byKey(const ValueKey('account-submit'))).onPressed, isNull);
@@ -119,7 +120,11 @@ void main() {
         await tester.pumpAndSettle();
         await tapConnected(tester, find.byKey(const ValueKey('account-submit')));
         expect(runtime.session.stage, SessionStage.awaitingVerification);
-        expect(transport.calls.first.json, {'email': 'test@example.invalid', 'password': 'abcde'});
+        expect(transport.calls.first.json, {
+          'email': 'test@example.invalid',
+          'password': 'abcde',
+          'name': 'Test Reader',
+        });
         expect(find.text(l.apiSixDigitCode), findsOneWidget);
         await fill(tester, 'account-token', '12a34567');
         expect(tester.widget<TextField>(input('account-token')).controller!.text, '123456');

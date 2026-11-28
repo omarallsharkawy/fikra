@@ -3,7 +3,7 @@ import 'models.dart';
 abstract interface class AuthRepository {
   bool get isDevelopment;
   Future<Account> currentAccount(TokenPair tokens);
-  Future<void> register(String email, String password);
+  Future<void> register(String email, String password, {String? name});
   Future<void> verifyEmail(String token, {required String email});
   Future<void> resendVerification(String email);
   Future<SessionGrant> login(String email, String password);

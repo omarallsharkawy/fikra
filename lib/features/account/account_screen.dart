@@ -22,7 +22,7 @@ class ProductAccountScreen extends StatefulWidget {
 }
 
 class _ProductAccountScreenState extends State<ProductAccountScreen> {
-  String _email = '', _password = '', _token = '';
+  String _name = '', _email = '', _password = '', _token = '';
   bool _register = false;
   bool _loginForm = false;
   Future<void> _submit(Future<void> Function() action) async {
@@ -98,21 +98,49 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
             child: Row(
               children: [
                 Container(
-                  width: 84,
-                  height: 84,
+                  width: 72,
+                  height: 72,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: context.colors.brandPurple,
-                    border: Border.all(color: context.colors.brandLime, width: 4),
+                    border: Border.all(color: context.colors.brandLime, width: 3.5),
                   ),
                   child: Text(
-                    session.account!.email.isEmpty ? 'F' : session.account!.email.characters.first.toUpperCase(),
+                    () {
+                      final label = (session.account!.name ?? '').trim().isNotEmpty
+                          ? session.account!.name!.trim()
+                          : session.account!.email;
+                      return label.isEmpty ? 'F' : label.characters.first.toUpperCase();
+                    }(),
                     style: context.text.title.copyWith(color: context.colors.onBrandPurple),
                   ),
                 ),
                 const SizedBox(width: 16),
-                Expanded(child: Text(session.account!.email, style: context.text.section)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if ((session.account!.name ?? '').trim().isNotEmpty) ...[
+                        Text(
+                          session.account!.name!.trim(),
+                          style: context.text.section,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                      ],
+                      Text(
+                        session.account!.email,
+                        style: (session.account!.name ?? '').trim().isNotEmpty
+                            ? context.text.caption.copyWith(color: context.colors.textSecondary)
+                            : context.text.section,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -137,8 +165,18 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
           ProductWelcome(
             busy: session.busy,
             preview: preview,
-            onSignup: session.busy ? null : () => setState(() => _register = true),
-            onLogin: session.busy ? null : () => setState(() => _loginForm = true),
+            onSignup: session.busy
+                ? null
+                : () {
+                    session.show(session.stage);
+                    setState(() => _register = true);
+                  },
+            onLogin: session.busy
+                ? null
+                : () {
+                    session.show(session.stage);
+                    setState(() => _loginForm = true);
+                  },
             onSample: session.busy || session.coolingDown
                 ? null
                 : () => session.login('reader@example.invalid', 'fixture-only'),
@@ -149,6 +187,16 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
         ] else ...[
           if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
 
+          if (_register && !verifying && !recovery)
+            ProductTextInput(
+              key: const ValueKey('account-name'),
+              value: _name,
+              onChanged: (v) => setState(() => _name = v),
+              enabled: !session.busy,
+              label: context.l10n.productName,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.name],
+            ),
           if (!verifying && !resetForm && session.stage != SessionStage.recoverySent)
             ProductTextInput(
               key: const ValueKey('account-email'),
@@ -291,10 +339,17 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
               loading: session.busy,
               growForText: true,
               label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
-              onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty || !validPassword
+              onPressed:
+                  session.coolingDown ||
+                      _email.trim().isEmpty ||
+                      _password.isEmpty ||
+                      !validPassword ||
+                      (_register && !preview && _name.trim().isEmpty)
                   ? null
                   : () => _submit(
-                      () => _register ? session.register(_email, _password) : session.login(_email, _password),
+                      () => _register
+                          ? session.register(_email, _password, name: _name)
+                          : session.login(_email, _password),
                     ),
             ),
             const SizedBox(height: 16),
@@ -369,7 +424,7 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
                   _password = '';
                   _token = '';
                 });
-                if (verifying || recovery) session.show(SessionStage.unauthenticated);
+                session.show(verifying || recovery ? SessionStage.unauthenticated : session.stage);
               },
         previewDetails: previewDetails,
         children: children,

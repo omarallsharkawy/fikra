@@ -247,9 +247,9 @@ class ProductScaffold extends StatelessWidget {
   final ScrollController? controller;
   final List<String> previewDetails;
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, double hPad) {
     if (content != null) {
-      final padded = Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 12), child: content);
+      final padded = Padding(padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 12), child: content);
       return footer == null ? NavigationInsetPadding(child: padded) : padded;
     }
     final scroll = itemBuilder != null
@@ -259,16 +259,16 @@ class ProductScaffold extends StatelessWidget {
             slivers: [
               if (beforeItems.isNotEmpty)
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 0),
                   sliver: SliverList.list(children: beforeItems),
                 ),
               SliverPadding(
-                padding: EdgeInsets.fromLTRB(16, beforeItems.isEmpty ? 8 : 0, 16, 0),
+                padding: EdgeInsets.fromLTRB(hPad, beforeItems.isEmpty ? 8 : 0, hPad, 0),
                 sliver: SliverList.builder(itemCount: itemCount ?? 0, itemBuilder: itemBuilder!),
               ),
               if (afterItems.isNotEmpty)
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: hPad),
                   sliver: SliverList.list(children: afterItems),
                 ),
               SliverToBoxAdapter(
@@ -279,7 +279,7 @@ class ProductScaffold extends StatelessWidget {
         : ListView(
             controller: controller,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 0),
             children: [
               ...children,
               footer == null ? const NavigationInsetSpacer(extra: 24) : const SizedBox(height: 24),
@@ -291,14 +291,21 @@ class ProductScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inShell = context.getInheritedWidgetOfExactType<NavigationInset>() != null;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final hPad = screenWidth < 360
+        ? 12.0
+        : screenWidth >= 600
+        ? 24.0
+        : 16.0;
+    final maxWidth = screenWidth >= 840 ? 720.0 : 560.0;
     final body = Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
+        constraints: BoxConstraints(maxWidth: maxWidth),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 0),
               child: Column(
                 children: [
                   header ??
@@ -346,10 +353,10 @@ class ProductScaffold extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(child: _buildBody(context)),
+            Expanded(child: _buildBody(context, hPad)),
             if (footer != null)
               NavigationInsetPadding(
-                child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 12), child: footer),
+                child: Padding(padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 12), child: footer),
               ),
           ],
         ),

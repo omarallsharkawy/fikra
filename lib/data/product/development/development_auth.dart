@@ -9,7 +9,7 @@ class DevelopmentAuthRepository implements AuthRepository {
   @override
   Future<Account> currentAccount(TokenPair tokens) async => throw const ProductFailure(FailureKind.unavailable);
   @override
-  Future<void> register(String email, String password) async {}
+  Future<void> register(String email, String password, {String? name}) async {}
   @override
   Future<void> resendVerification(String email) async {}
   @override
