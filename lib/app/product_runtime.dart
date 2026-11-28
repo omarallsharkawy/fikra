@@ -44,9 +44,10 @@ final productAttemptsProvider = Provider<AttemptStore>(
 );
 final productCaptureDeviceProvider = Provider<CaptureDevice>(
   (ref) => NativeCaptureDevice(
-    ref.read(audioRecorderFactoryProvider)(),
+    null,
     ref.read(microphonePermissionProvider),
     ref.read(attachmentStoreProvider),
+    createRecorder: ref.read(audioRecorderFactoryProvider),
   ),
 );
 
@@ -102,6 +103,7 @@ class ProductRuntime {
   late final CaptureController capture;
   String? _account, _project;
   int _knowledgeRevision = 0;
+  bool _foreground = true;
   void _sessionChanged() {
     final id = session.stage == SessionStage.authenticated ? session.account?.id : null;
     if (id == _account) return;
@@ -113,7 +115,9 @@ class ProductRuntime {
     capture.setAccount(id);
     if (old != null) {
       repository.clearAccount(old);
-      unawaited(attempts.clear(old));
+      if (session.stage != SessionStage.expired) {
+        unawaited(attempts.clear(old).catchError((Object _) {}));
+      }
     }
     if (id != null) unawaited(workspace.openAccount(id));
   }
@@ -134,6 +138,8 @@ class ProductRuntime {
   }
 
   void foreground(bool value) {
+    if (_foreground == value) return;
+    _foreground = value;
     workspace.setForeground(value);
     if (!value) {
       capture.background();
@@ -170,8 +176,17 @@ class _ProductBoundaryState extends State<ProductBoundary> with WidgetsBindingOb
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) =>
-      widget.runtime.foreground(state == AppLifecycleState.resumed);
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Ignore AppLifecycleState.inactive: transient OS overlays (permission
+    // dialogs, notification shade, file pickers) are not true backgrounding.
+    if (state == AppLifecycleState.resumed) {
+      widget.runtime.foreground(true);
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      widget.runtime.foreground(false);
+    }
+  }
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);

@@ -9,14 +9,24 @@ import 'capture_controller.dart';
 
 /// Reuses the existing record, permissions and local temporary-file boundaries.
 class NativeCaptureDevice implements CaptureDevice {
-  NativeCaptureDevice(this.recorder, this.permission, this.files);
-  final AudioRecorder recorder;
+  NativeCaptureDevice(
+    AudioRecorder? recorder,
+    this.permission,
+    this.files, {
+    AudioRecorder Function()? createRecorder,
+  }) : _recorder = recorder,
+       _createRecorder = createRecorder ?? AudioRecorder.new;
+  AudioRecorder? _recorder;
+  final AudioRecorder Function() _createRecorder;
   final Future<PermissionStatus> Function() permission;
   final AttachmentStore files;
   String? _path;
   Future<void>? _starting;
   Future<RecordedClip?>? _stopping;
   bool _closed = false;
+
+  AudioRecorder _ensureRecorder() => _recorder ??= _createRecorder();
+
   @override
   Future<void> start() async {
     _starting = _start();
@@ -31,6 +41,7 @@ class NativeCaptureDevice implements CaptureDevice {
     if (_closed) throw const ProductFailure(FailureKind.unavailable);
     if (!(await permission()).isGranted) throw const ProductFailure(FailureKind.validation, field: 'microphone');
     _path = await files.newRecordingPath();
+    final recorder = _ensureRecorder();
     await recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc, numChannels: 1, bitRate: 64000), path: _path!);
   }
 
@@ -45,8 +56,20 @@ class NativeCaptureDevice implements CaptureDevice {
   }
 
   Future<RecordedClip?> _stop(Duration duration) async {
+    final recorder = _recorder;
+    if (recorder == null) return null;
     final path = await recorder.stop();
-    return path == null ? null : RecordedClip(path, 'audio/m4a', duration);
+    if (path == null) return null;
+    final file = File(path);
+    if (!await file.exists() || await file.length() == 0) {
+      try {
+        if (await file.exists()) await file.delete();
+      } catch (_) {
+        /* Already removed. */
+      }
+      return null;
+    }
+    return RecordedClip(path, 'audio/m4a', duration);
   }
 
   @override
@@ -62,14 +85,25 @@ class NativeCaptureDevice implements CaptureDevice {
       /* A failed stop still needs cancellation. */
     }
     if (_closed) return;
-    try {
-      await recorder.cancel();
-    } catch (_) {
+    final recorder = _recorder;
+    if (recorder != null) {
       try {
-        await recorder.stop();
+        if (await recorder.isRecording()) {
+          await recorder.cancel();
+        }
       } catch (_) {
-        _closed = true;
-        await recorder.dispose();
+        try {
+          await recorder.stop();
+        } catch (_) {
+          // Discard the broken recorder instance so the next start() creates
+          // a fresh one instead of permanently disabling recording.
+          _recorder = null;
+          try {
+            await recorder.dispose();
+          } catch (_) {
+            /* Best-effort teardown of broken recorder. */
+          }
+        }
       }
     }
     final path = _path;
@@ -88,7 +122,15 @@ class NativeCaptureDevice implements CaptureDevice {
     await cancel();
     if (!_closed) {
       _closed = true;
-      await recorder.dispose();
+      final recorder = _recorder;
+      _recorder = null;
+      if (recorder != null) {
+        try {
+          await recorder.dispose();
+        } catch (_) {
+          /* Best-effort teardown on dispose. */
+        }
+      }
     }
   }
 }

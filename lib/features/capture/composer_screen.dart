@@ -41,6 +41,7 @@ class ProductComposerScreen extends StatelessWidget {
               capture.active ||
                   w.selected == null ||
                   w.coolingDown ||
+                  (w.pendingAttempt != null && w.pendingAttempt!.projectId != w.selectedProjectId) ||
                   (w.pendingAttempt == null && w.draft.content.trim().isEmpty)
               ? null
               : () async {
@@ -52,11 +53,12 @@ class ProductComposerScreen extends StatelessWidget {
                 },
         ),
         children: [
-          if (r.workspace.failure != null)
-            ProductFailureView(r.workspace.failure!, onRetry: r.workspace.retryWorkspace),
+          if ((w.failure ?? w.attemptFailure) != null)
+            ProductFailureView((w.failure ?? w.attemptFailure)!, onRetry: r.workspace.retryWorkspace),
           if (w.pendingAttempt != null) ...[
             Text(context.l10n.productASaveAttemptIsUnresolvedRetryItsOriginal),
-            if (w.pendingAttempt!.projectId != w.selectedProjectId)
+            if (w.pendingAttempt!.projectId != w.selectedProjectId &&
+                w.projects.any((p) => p.id == w.pendingAttempt!.projectId))
               TextButton(
                 onPressed: () => w.selectProject(w.pendingAttempt!.projectId),
                 child: Text(context.l10n.productReturnToThePendingAttemptSProject),

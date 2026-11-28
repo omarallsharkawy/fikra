@@ -35,6 +35,7 @@ class SessionController extends ChangeNotifier {
   Future<TokenPair>? _refreshing;
   Future<void> _vaultQueue = Future.value();
   bool _disposed = false;
+  bool _restoring = false;
   void _emit() {
     if (!_disposed) notifyListeners();
   }
@@ -46,16 +47,26 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> restore() async {
+    if (_restoring) return;
+    _restoring = true;
     final ticket = epoch;
+    if (failure != null) {
+      failure = null;
+      _emit();
+    }
+    var hasSafeVaultPair = false;
     try {
       var pair = await vault.read();
       if (_disposed || ticket != epoch) return;
       if (pair == null) {
         stage = SessionStage.unauthenticated;
       } else {
+        hasSafeVaultPair = true;
         var rotated = false;
         if (!pair.expiresAt.isAfter(clock().add(const Duration(seconds: 30)))) {
+          hasSafeVaultPair = false;
           pair = await _rotate(pair, ticket);
+          hasSafeVaultPair = true;
           rotated = true;
         }
         Account account;
@@ -63,14 +74,27 @@ class SessionController extends ChangeNotifier {
           account = await repository.currentAccount(pair);
         } on ProductFailure catch (error) {
           if (error.kind != FailureKind.unauthorized || rotated) rethrow;
+          hasSafeVaultPair = false;
           pair = await _rotate(pair, ticket);
+          hasSafeVaultPair = true;
           account = await repository.currentAccount(pair);
         }
         await _install(SessionGrant(account, tokens: pair), ticket);
       }
     } catch (error) {
       if (_disposed || ticket != epoch) return;
-      failure = ProductFailure.from(error);
+      final problem = ProductFailure.from(error);
+      final transient =
+          problem.kind == FailureKind.uncertain ||
+          problem.kind == FailureKind.unavailable ||
+          problem.kind == FailureKind.quota;
+      failure = problem;
+      if (hasSafeVaultPair && transient) {
+        // Keep persisted tokens intact on offline/transient failures so the
+        // user can retry without losing their session.
+        stage = SessionStage.restoring;
+        return;
+      }
       stage = SessionStage.expired;
       try {
         await _store(() async {
@@ -79,8 +103,10 @@ class SessionController extends ChangeNotifier {
       } catch (_) {
         failure = const ProductFailure(FailureKind.unavailable);
       }
+    } finally {
+      _restoring = false;
+      if (!_disposed && ticket == epoch) _emit();
     }
-    _emit();
   }
 
   void show(SessionStage next) {
@@ -222,14 +248,14 @@ class SessionController extends ChangeNotifier {
       tokens = replacement;
       _emit();
       return replacement;
-    } catch (_) {
+    } catch (error) {
       // An uncertain refresh must never replay the possibly rotated token.
-      if (ticket == epoch && !_disposed) await expire();
+      if (ticket == epoch && !_disposed) await expire(reason: ProductFailure.from(error));
       rethrow;
     }
   }
 
-  Future<void> expire() async {
+  Future<void> expire({ProductFailure? reason}) async {
     _retryWake?.cancel();
     retryAt = null;
     epoch++;
@@ -237,6 +263,7 @@ class SessionController extends ChangeNotifier {
     tokens = null;
     busy = false;
     stage = SessionStage.expired;
+    if (reason != null) failure = reason;
     _refreshing = null;
     _emit();
     try {

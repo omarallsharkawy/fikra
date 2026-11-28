@@ -137,8 +137,7 @@ class CaptureController extends ChangeNotifier {
   }
 
   Future<void> cancel() async {
-    final account = accountId;
-    setAccount(account);
+    _reset(accountId, clearDocuments: false);
     await _cleanup;
   }
 
@@ -232,7 +231,7 @@ class CaptureController extends ChangeNotifier {
     _retryWake?.cancel();
     _epoch++;
     _timersOff();
-    unawaited(_cleanup.then((_) => device.dispose()));
+    unawaited(_cleanup.then((_) => device.dispose()).catchError((Object _) {}));
     super.dispose();
   }
 }

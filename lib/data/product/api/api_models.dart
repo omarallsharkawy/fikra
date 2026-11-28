@@ -2,7 +2,8 @@ import '../models.dart';
 
 Map<String, dynamic> object(dynamic value) => value as Map<String, dynamic>;
 DateTime date(dynamic value) => DateTime.parse(value as String);
-List<String> strings(dynamic value) => List<String>.unmodifiable(value as List);
+List<String> strings(dynamic value) =>
+    value == null ? const [] : List<String>.unmodifiable([for (final item in value as List) item as String]);
 Account accountFromJson(dynamic value) {
   final x = object(value);
   return Account(id: x['id'], email: x['email'], emailVerified: x['email_verified']);
@@ -31,9 +32,9 @@ KnowledgeNote noteFromJson(dynamic value) {
     content: x['content'],
     concepts: strings(x['concepts']),
     proposal: x['refinement_proposal'],
-    revision: x['revision'],
-    generation: x['processing_generation'],
-    processing: ProcessingState.parse(x['processing_status']),
+    revision: (x['revision'] as num).toInt(),
+    generation: (x['processing_generation'] as num).toInt(),
+    processing: ProcessingState.parse(x['processing_status'] as String),
     createdAt: date(x['created_at']),
     updatedAt: date(x['updated_at']),
     isFavorite: x['is_favorite'] as bool? ?? false,
@@ -58,13 +59,16 @@ Conversation conversationFromJson(dynamic value) {
 
 KnowledgeMessage messageFromJson(dynamic value) {
   final x = object(value);
+  final rawSources = x['sources'];
   return KnowledgeMessage(
     id: x['id'],
     role: x['role'],
     content: x['content'],
     supported: x['supported'],
     createdAt: date(x['created_at']),
-    sources: [for (final s in x['sources'] as List) sourceFromJson(s)],
+    sources: rawSources == null
+        ? const []
+        : List<NoteSourceReference>.unmodifiable([for (final s in rawSources as List) sourceFromJson(s)]),
   );
 }
 
