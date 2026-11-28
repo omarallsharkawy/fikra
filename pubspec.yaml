@@ -54,6 +54,7 @@ dependencies:
     sdk: flutter
   whisper_ggml: ^2.9.0
   liquid_glass_easy: 5.2.0
+  google_sign_in: ^7.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -78,12 +79,21 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/fonts/ibm-plex-sans-arabic/OFL.txt
     - assets/fonts/inter/LICENSE.txt
     - lib/l10n/demo_vocabulary.json
     - assets/icons/fikrah-icon-dark-mode.png
     - assets/icons/fikrah-icon-light-mode.png
 
   fonts:
+    - family: IBMPlexSansArabic
+      fonts:
+        - asset: assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
     - family: Inter
       fonts:
         - asset: assets/fonts/inter/Inter-Regular.ttf

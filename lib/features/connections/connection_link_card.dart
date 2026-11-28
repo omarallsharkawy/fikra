@@ -35,7 +35,7 @@ class ConnectionLinkCard extends StatelessWidget {
                   children: [
                     LibraryNoteText(note: projectNote(entry.other)),
                     const SizedBox(height: 8),
-                    Text(
+                    SmartText(
                       entry.link.label.trim().isEmpty ? context.l10n.linkNoReason : entry.link.label,
                       style: context.text.meta.copyWith(color: context.colors.textSecondary),
                     ),

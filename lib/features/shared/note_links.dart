@@ -63,8 +63,9 @@ class LinkSuggestedTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(FikraRadius.full),
         border: Border.all(color: context.colors.borderGraph, width: 1),
       ),
-      child: Text(
+      child: SmartText(
         context.l10n.linkSuggestedTag,
+        content: ReadOnlyContent.chrome,
         style: context.text.meta.copyWith(color: context.colors.textSecondary),
       ),
     );
@@ -100,10 +101,10 @@ class LinkReasonField extends StatelessWidget {
             alignment: AlignmentDirectional.centerEnd,
             child: ValueListenableBuilder(
               valueListenable: controller,
-              builder: (context, value, _) => Text(
+              builder: (context, value, _) => SmartText(
                 '${value.text.characters.length}/$linkReasonMaxLength',
                 key: const ValueKey('link-reason-count'),
-                textDirection: TextDirection.ltr,
+                content: ReadOnlyContent.identifier,
                 style: context.text.meta,
               ),
             ),

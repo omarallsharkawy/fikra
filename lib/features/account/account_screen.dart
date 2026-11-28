@@ -1,19 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../app/providers.dart';
-import '../../l10n/localizations.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/providers.dart';
+import '../../l10n/localizations.dart';
 import '../../core/widgets/fikra_widgets.dart';
-import '../../core/theme/tokens.dart';
+import '../../core/widgets/redesign_widgets.dart';
+import '../../core/theme/redesign_tokens.dart';
 import '../workspace/product_widgets.dart';
 import 'session_controller.dart';
+import 'profile_controller.dart';
 import 'product_welcome.dart';
 import 'product_auth_layout.dart';
 import 'product_auth_feedback.dart';
+import 'redesign_auth_field.dart';
+import 'redesign_me_screen.dart';
+import 'native_google_identity.dart';
 
 class ProductAccountScreen extends StatefulWidget {
   const ProductAccountScreen({super.key});
@@ -22,9 +25,19 @@ class ProductAccountScreen extends StatefulWidget {
 }
 
 class _ProductAccountScreenState extends State<ProductAccountScreen> {
-  String _email = '', _password = '', _token = '';
-  bool _register = false;
-  bool _loginForm = false;
+  String _email = '', _password = '', _token = '', _name = '';
+  bool _register = false, _loginForm = false;
+  bool get _validEmail => RegExp(r'^\S+@\S+\.\S+$').hasMatch(_email.trim());
+  void _screen({required bool register, bool login = true}) {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _register = register;
+      _loginForm = login;
+      _password = '';
+      _token = '';
+    });
+  }
+
   Future<void> _submit(Future<void> Function() action) async {
     FocusScope.of(context).unfocus();
     await action();
@@ -32,350 +45,343 @@ class _ProductAccountScreenState extends State<ProductAccountScreen> {
 
   @override
   Widget build(BuildContext context) => ProductView(
-    listenTo: (r) => [r.session],
-    builder: (context, runtime) {
-      final session = runtime.session;
-      final preview = session.repository.isDevelopment;
-      final validPassword = preview || (_password.runes.length >= 5 && _password.runes.length <= 128);
+    listenTo: (r) => [r.session, r.profile],
+    builder: (context, r) {
+      final s = r.session, l = context.l10n;
+      if (s.stage == SessionStage.authenticated) return ProductMeScreen(runtime: r);
+      final preview = s.repository.isDevelopment;
+      final verifying = s.stage == SessionStage.awaitingVerification;
+      final recovery = [
+        SessionStage.recoveryRequest,
+        SessionStage.recoverySent,
+        SessionStage.recoveryConfirm,
+      ].contains(s.stage);
+      final sent = s.stage == SessionStage.recoverySent, reset = s.stage == SessionStage.recoveryConfirm;
+      final welcome = !s.needsGoogleName && !verifying && !recovery && !_loginForm && !_register;
       final validCode = preview ? _token.isNotEmpty : RegExp(r'^[0-9]{6}$').hasMatch(_token);
-      final signedIn = session.stage == SessionStage.authenticated;
-      final verifying = session.stage == SessionStage.awaitingVerification;
-      final recovery =
-          session.stage == SessionStage.recoveryRequest ||
-          session.stage == SessionStage.recoverySent ||
-          session.stage == SessionStage.recoveryConfirm;
-      final resetForm = session.stage == SessionStage.recoveryConfirm;
-      final welcome = !signedIn && !verifying && !recovery && !_loginForm && !_register;
-      final title = signedIn
-          ? context.l10n.uiProfile
-          : welcome
-          ? 'FIKRAH'
+      final passwordLength = _password.runes.length;
+      final validPassword = passwordLength >= ((_register || reset) ? 5 : 1) && passwordLength <= 128;
+      final enabled = !s.busy && !s.coolingDown;
+      final googleIdentity = ProviderScope.containerOf(context).read(googleIdentityProvider);
+      final title = s.needsGoogleName
+          ? l.rdNm
           : verifying
-          ? context.l10n.uxVerifyTitle
-          : resetForm
-          ? context.l10n.uxResetTitle
-          : session.stage == SessionStage.recoverySent
-          ? context.l10n.uxRecoverySentTitle
+          ? l.uxVerifyTitle
+          : reset
+          ? l.uxResetTitle
+          : sent
+          ? l.uxRecoverySentTitle
           : recovery
-          ? context.l10n.uxRecoveryTitle
+          ? l.uxRecoveryTitle
           : _register
-          ? context.l10n.uiCreateAccount
-          : context.l10n.uiWelcomeBack;
-      final trailing = signedIn
-          ? IconButton(
-              tooltip: context.l10n.uiSettings,
-              onPressed: () => context.push('/settings'),
-              icon: const Icon(Icons.settings_outlined),
-            )
-          : null;
-      final previewDetails = [
-        context.l10n.productUseFixtureAddressesOnlyRegistrationVerificationAndRecovery,
-        context.l10n.productThisIsAVolatileDevelopmentWorkspaceExistingLocal,
-        context.l10n.productGoogleSignInWaitingForApprovedPlatformConfiguration,
-        if (verifying) context.l10n.productAwaitingVerificationUseFixtureVerifyToPreviewSuccess,
-        if (resetForm) context.l10n.productUseFixtureResetTheRealPasswordPolicyIs,
-      ];
+          ? l.rdMk
+          : l.rdWb;
+      final subtitle = verifying
+          ? l.apiVerifyHint
+          : reset
+          ? l.apiResetHint
+          : sent
+          ? l.authRecoverySentHint
+          : recovery
+          ? l.authRecoveryHint
+          : _register
+          ? l.rdMks
+          : l.rdWbs;
+      final notice = switch (s.notice) {
+        'verified' => l.apiVerified,
+        'reset' => l.apiResetComplete,
+        'localLogout' || 'logout' => l.apiSignedOut,
+        'verificationRequested' => verifying ? null : l.apiCodeAcknowledgment,
+        _ => null,
+      };
+      Future<void> authenticate() => _submit(() async {
+        if (_register) {
+          // The deployed registration schema requires name. Keep a device copy
+          // for local profile edits until a profile update endpoint is available.
+          final address = _email, name = _name;
+          await s.register(address, _password, name: name);
+          if (s.stage == SessionStage.awaitingVerification && s.failure == null) {
+            await r.profile.stageRegistration(address, name);
+          }
+        } else {
+          await s.login(_email, _password);
+        }
+      });
       final children = <Widget>[
-        if (session.notice != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(switch (session.notice!) {
-              'verified' =>
-                preview ? context.l10n.productVerificationPreviewCompleteSignInSeparately : context.l10n.apiVerified,
-              'reset' => preview ? context.l10n.productResetPreviewCompleteSignInAgain : context.l10n.apiResetComplete,
-              'localLogout' => context.l10n.productLocalPrivateStateClearedServerRevocationIsNot,
-              'logout' => context.l10n.apiSignedOut,
-              _ =>
-                preview
-                    ? context.l10n.productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount
-                    : context.l10n.apiCodeAcknowledgment,
-            }),
+        if (notice != null) Semantics(liveRegion: true, child: RdText(notice, size: 13, color: context.rd.muted)),
+        if (s.stage == SessionStage.expired) RdText(l.productYourSessionExpiredSignInAgain, color: context.rd.muted),
+        if (s.needsGoogleName) ...[
+          RdText(l.rdNm, size: 18, weight: FontWeight.w600),
+          RedesignAuthField(
+            key: const ValueKey('google-name'),
+            value: _name,
+            label: l.rdNm,
+            onChanged: (v) => setState(() => _name = v),
+            enabled: enabled,
+            autofillHints: const [AutofillHints.givenName],
+            inputFormatters: [LengthLimitingTextInputFormatter(40)],
           ),
-        if (session.failure != null) ProductAuthFeedback(session.failure!),
-        if (signedIn) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
-              children: [
-                Container(
-                  width: 84,
-                  height: 84,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: context.colors.brandPurple,
-                    border: Border.all(color: context.colors.brandLime, width: 4),
-                  ),
-                  child: Text(
-                    session.account!.email.isEmpty ? 'F' : session.account!.email.characters.first.toUpperCase(),
-                    style: context.text.title.copyWith(color: context.colors.onBrandPurple),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(child: Text(session.account!.email, style: context.text.section)),
-              ],
-            ),
+          if (s.failure != null) ProductAuthFeedback(s.failure!),
+          RdButton(
+            l.uiContinueGoogle,
+            key: const ValueKey('google-name-submit'),
+            loading: s.busy,
+            onPressed: enabled && ProfileController.validName(_name) ? () => s.completeGoogleName(_name) : null,
           ),
-          const SizedBox(height: 12),
-
-          Card(
-            child: ListTile(
-              title: Text(context.l10n.uiSettings),
-              leading: const Icon(Icons.settings_outlined),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/settings'),
-            ),
-          ),
-          const SizedBox(height: 24),
-          FikraButton.secondary(
-            label: preview ? context.l10n.productSignOutLocally : context.l10n.apiSignOut,
-            onPressed: session.signOut,
-            growForText: true,
-          ),
+          _AuthLink(l.productCancel, onPressed: enabled ? () => s.show(SessionStage.unauthenticated) : null),
         ] else if (welcome) ...[
-          if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
           ProductWelcome(
-            busy: session.busy,
+            busy: s.busy,
             preview: preview,
-            onSignup: session.busy ? null : () => setState(() => _register = true),
-            onLogin: session.busy ? null : () => setState(() => _loginForm = true),
-            onSample: session.busy || session.coolingDown
-                ? null
-                : () => session.login('reader@example.invalid', 'fixture-only'),
-            onEmpty: session.busy || session.coolingDown
-                ? null
-                : () => session.login('other@example.invalid', 'fixture-only'),
+            onSignup: enabled ? () => _screen(register: true) : null,
+            onLogin: enabled ? () => _screen(register: false) : null,
+            onSample: enabled ? () => s.login('reader@example.invalid', 'fixture-only') : null,
+            onEmpty: enabled ? () => s.login('other@example.invalid', 'fixture-only') : null,
           ),
+          if (!preview && googleIdentity.available) ...[
+            const SizedBox(height: 10),
+            RdButton(
+              l.uiContinueGoogle,
+              key: const ValueKey('google-sign-in'),
+              primary: false,
+              loading: s.googleActive,
+              onPressed: enabled ? () => _submit(() => s.googleWith(googleIdentity)) : null,
+            ),
+          ],
+          if (s.failure != null) ProductAuthFeedback(s.failure!),
         ] else ...[
-          if (session.stage == SessionStage.expired) Text(context.l10n.productYourSessionExpiredSignInAgain),
-
-          if (!verifying && !resetForm && session.stage != SessionStage.recoverySent)
-            ProductTextInput(
+          if (_register && !verifying && !recovery)
+            RedesignAuthField(
+              key: const ValueKey('account-name'),
+              value: _name,
+              label: l.rdNm,
+              onChanged: (v) => setState(() => _name = v),
+              enabled: !s.busy,
+              autofillHints: const [AutofillHints.givenName],
+              inputFormatters: [LengthLimitingTextInputFormatter(40)],
+            ),
+          if (!verifying && !reset && !sent)
+            RedesignAuthField(
               key: const ValueKey('account-email'),
               value: _email,
+              label: l.rdEm,
               onChanged: (v) => setState(() => _email = v),
-              enabled: !session.busy,
-              label: context.l10n.productEmail,
+              enabled: !s.busy,
+              content: InputContent.identifier,
               keyboardType: TextInputType.emailAddress,
-              textDirection: TextDirection.ltr,
-              textInputAction: recovery ? TextInputAction.done : TextInputAction.next,
               autofillHints: const [AutofillHints.email],
+              action: recovery ? TextInputAction.done : TextInputAction.next,
             ),
-          if ((verifying || resetForm) && !preview) ...[
-            Text(session.email, textDirection: TextDirection.ltr, style: context.text.caption),
-            const SizedBox(height: 16),
-          ],
-          if (verifying || resetForm)
-            ProductTextInput(
+          if (verifying || reset) ...[
+            RdText(s.email, size: 13, color: context.rd.muted, direction: TextDirection.ltr),
+            RedesignAuthField(
               key: const ValueKey('account-token'),
               value: _token,
+              label: preview ? l.productFixtureActionToken : l.apiSixDigitCode,
               onChanged: (v) => setState(() => _token = v),
-              enabled: !session.busy,
-              label: preview ? context.l10n.productFixtureActionToken : context.l10n.apiSixDigitCode,
+              enabled: !s.busy,
               keyboardType: preview ? null : TextInputType.number,
-              autofillHints: preview ? null : const [AutofillHints.oneTimeCode],
+              content: InputContent.identifier,
+              autofillHints: const [AutofillHints.oneTimeCode],
               inputFormatters: preview
                   ? null
                   : [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
-              textDirection: TextDirection.ltr,
-              textInputAction: resetForm ? TextInputAction.next : TextInputAction.done,
+              action: reset ? TextInputAction.next : TextInputAction.done,
             ),
-          if ((!verifying && !recovery) || resetForm)
-            ProductTextInput(
+          ],
+          if ((!verifying && !recovery) || reset)
+            RedesignAuthField(
               key: const ValueKey('account-password'),
               value: _password,
+              label: reset ? l.apiNewPassword : l.rdPw,
+              password: true,
               onChanged: (v) => setState(() => _password = v),
-              obscure: true,
-              textDirection: TextDirection.ltr,
-              textInputAction: TextInputAction.done,
-              autofillHints: [resetForm || _register ? AutofillHints.newPassword : AutofillHints.password],
-              enabled: !session.busy,
-              label: resetForm
-                  ? (preview ? context.l10n.productNewPasswordPreview : context.l10n.apiNewPassword)
-                  : context.l10n.productPassword,
+              enabled: !s.busy,
+              content: InputContent.identifier,
+              action: TextInputAction.done,
+              autofillHints: [reset || _register ? AutofillHints.newPassword : AutofillHints.password],
             ),
-          if (!preview && (_register || resetForm))
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(context.l10n.apiPasswordHint, style: context.text.meta),
-            ),
+          if (_register && !verifying && !recovery) ...[_PasswordStrength(value: _password)],
           if (!verifying && !recovery && !_register)
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: TextButton(
-                onPressed: session.busy
-                    ? null
-                    : () {
-                        FocusScope.of(context).unfocus();
-                        setState(() {
-                          _password = '';
-                          _token = '';
-                        });
-                        session.show(SessionStage.recoveryRequest);
-                      },
-                child: Text(context.l10n.productForgotPassword),
-              ),
-            ),
-          const SizedBox(height: 12),
-          if (verifying) ...[
-            FikraButton(
-              key: const ValueKey('verify-email'),
-              label: preview ? context.l10n.productPreviewVerification : context.l10n.apiVerifyEmail,
-              loading: session.busy,
-              growForText: true,
-              onPressed: session.coolingDown || !validCode
-                  ? null
-                  : () async {
-                      await _submit(() => session.verify(_token));
-                      if (mounted && session.stage == SessionStage.unauthenticated) {
-                        setState(() {
-                          _register = false;
-                          _loginForm = true;
-                          _password = '';
-                          _token = '';
-                        });
+              child: _AuthLink(
+                l.rdFg,
+                onPressed: enabled
+                    ? () {
+                        _screen(register: false);
+                        s.show(SessionStage.recoveryRequest);
                       }
-                    },
+                    : null,
+              ),
             ),
-            TextButton(
-              onPressed: (session.busy || session.coolingDown) ? null : session.resend,
-              child: Text(preview ? context.l10n.productPreviewResendRequest : context.l10n.apiResendCode),
+          if (s.failure != null)
+            ProductAuthFeedback(s.failure!)
+          else if (r.profile.failure != null)
+            ProductFailureView(r.profile.failure!)
+          else if (!verifying && !recovery)
+            SizedBox(
+              height: 20,
+              child: _register && _email.isNotEmpty && !_validEmail
+                  ? RdText(l.rdEmerr, size: 13, color: context.rd.red)
+                  : null,
             ),
+          if (verifying) ...[
+            RdButton(
+              l.apiVerifyEmail,
+              key: const ValueKey('verify-email'),
+              loading: s.busy,
+              onPressed: enabled && validCode
+                  ? () => _submit(() async {
+                      await s.verify(_token);
+                      if (mounted && s.stage == SessionStage.unauthenticated) _screen(register: false);
+                    })
+                  : null,
+            ),
+            _AuthLink(l.apiResendCode, onPressed: enabled ? s.resend : null),
           ] else if (recovery) ...[
-            if (session.stage == SessionStage.recoverySent) ...[
-              Text(
-                preview
-                    ? context.l10n.productGenericRecoveryAcknowledgmentFixtureNoDeliveryIsClaimed
-                    : context.l10n.apiRecoveryAcknowledgment,
+            if (sent) ...[
+              RdText(l.apiRecoveryAcknowledgment, color: context.rd.muted),
+              RdButton(l.apiHaveCode, onPressed: enabled ? () => s.show(SessionStage.recoveryConfirm) : null),
+            ] else if (reset) ...[
+              RdButton(
+                l.uxResetPassword,
+                loading: s.busy,
+                onPressed: enabled && validCode && validPassword
+                    ? () => _submit(() async {
+                        await s.confirmRecovery(_token, _password);
+                        if (mounted && s.stage == SessionStage.unauthenticated) _screen(register: false);
+                      })
+                    : null,
               ),
-              TextButton(
-                onPressed: () => session.show(SessionStage.recoveryConfirm),
-                child: Text(preview ? context.l10n.productPreviewResetForm : context.l10n.apiHaveCode),
-              ),
-            ] else if (resetForm) ...[
-              FikraButton(
-                label: context.l10n.uxResetPassword,
-                loading: session.busy,
-                growForText: true,
-                onPressed: session.coolingDown || !validCode || _password.isEmpty || !validPassword
-                    ? null
-                    : () async {
-                        await _submit(() => session.confirmRecovery(_token, _password));
-                        if (mounted && session.stage == SessionStage.unauthenticated) {
-                          setState(() {
-                            _password = '';
-                            _token = '';
-                            _register = false;
-                            _loginForm = true;
-                          });
-                        }
-                      },
-              ),
-              if (!preview)
-                TextButton(
-                  onPressed: session.busy || session.coolingDown ? null : () => session.recover(session.email),
-                  child: Text(context.l10n.apiResendCode),
-                ),
+              _AuthLink(l.apiResendCode, onPressed: enabled ? () => s.recover(s.email) : null),
             ] else
-              FikraButton(
-                label: context.l10n.uxRequestReset,
-                loading: session.busy,
-                growForText: true,
-                onPressed: session.coolingDown || _email.trim().isEmpty
-                    ? null
-                    : () => _submit(() => session.recover(_email)),
+              RdButton(
+                l.uxRequestReset,
+                loading: s.busy,
+                onPressed: enabled && _validEmail ? () => _submit(() => s.recover(_email)) : null,
               ),
-          ] else ...[
-            FikraButton(
-              key: const ValueKey('account-submit'),
-              loading: session.busy,
-              growForText: true,
-              label: _register ? context.l10n.uiCreateAccount : context.l10n.uiLogIn,
-              onPressed: session.coolingDown || _email.trim().isEmpty || _password.isEmpty || !validPassword
-                  ? null
-                  : () => _submit(
-                      () => _register ? session.register(_email, _password) : session.login(_email, _password),
-                    ),
+            _AuthLink(
+              l.productBackToSignIn,
+              onPressed: enabled
+                  ? () {
+                      _screen(register: false);
+                      s.show(SessionStage.unauthenticated);
+                    }
+                  : null,
             ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: session.busy
-                  ? null
-                  : () {
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        _register = !_register;
-                        _loginForm = !_register;
-                        _password = '';
-                        _token = '';
-                      });
-                      session.show(session.stage);
-                    },
-              child: Text(_register ? context.l10n.authHaveAccount : context.l10n.authNewAccount),
+          ] else ...[
+            RdButton(
+              _register ? l.rdMk : l.rdLi,
+              key: const ValueKey('account-submit'),
+              loading: s.busy,
+              onPressed: enabled && _validEmail && validPassword && (!_register || ProfileController.validName(_name))
+                  ? authenticate
+                  : null,
+            ),
+            if (!preview && googleIdentity.available) ...[
+              const SizedBox(height: 10),
+              RdButton(
+                l.uiContinueGoogle,
+                key: const ValueKey('google-sign-in'),
+                primary: false,
+                loading: s.googleActive,
+                onPressed: enabled ? () => _submit(() => s.googleWith(googleIdentity)) : null,
+              ),
+            ],
+            if (_register) RdText(l.rdTerms, size: 12.5, color: context.rd.muted, align: TextAlign.center),
+            _AuthLink(
+              _register ? l.rdAh : l.rdNw,
+              onPressed: enabled
+                  ? () {
+                      _screen(register: !_register);
+                      s.show(s.stage);
+                    }
+                  : null,
             ),
           ],
-          if (verifying || recovery)
-            TextButton(
-              onPressed: session.busy
-                  ? null
-                  : () {
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        _register = false;
-                        _loginForm = true;
-                        _password = '';
-                        _token = '';
-                      });
-                      session.show(SessionStage.unauthenticated);
-                    },
-              child: Text(context.l10n.productBackToSignIn),
-            ),
         ],
       ];
-      if (signedIn) {
-        return ProductScaffold(title: title, trailing: trailing, previewDetails: previewDetails, children: children);
-      }
       return ProductAuthLayout(
-        key: ValueKey((welcome, verifying, recovery, resetForm, _register)),
+        key: ValueKey((welcome, verifying, recovery, reset, _register)),
         title: title,
+        subtitle: welcome ? null : subtitle,
         welcome: welcome,
-        subtitle: welcome
-            ? null
-            : verifying
-            ? (preview ? context.l10n.authVerifyHint : context.l10n.apiVerifyHint)
-            : resetForm
-            ? (preview ? context.l10n.authResetHint : context.l10n.apiResetHint)
-            : session.stage == SessionStage.recoverySent
-            ? context.l10n.authRecoverySentHint
-            : recovery
-            ? context.l10n.authRecoveryHint
-            : _register
-            ? context.l10n.authSignupHint
-            : context.l10n.authLoginHint,
-        icon: verifying || session.stage == SessionStage.recoverySent
-            ? Icons.mark_email_unread_outlined
-            : recovery
-            ? Icons.lock_reset_rounded
-            : _register
-            ? Icons.person_add_alt_1_rounded
-            : Icons.login_rounded,
-        onBack: welcome || session.busy
-            ? null
-            : () {
-                FocusScope.of(context).unfocus();
-                setState(() {
-                  _register = false;
-                  _loginForm = verifying || recovery;
-                  _password = '';
-                  _token = '';
-                });
-                if (verifying || recovery) session.show(SessionStage.unauthenticated);
-              },
-        previewDetails: previewDetails,
+        onBack: enabled
+            ? () {
+                if (s.needsGoogleName) {
+                  s.show(SessionStage.unauthenticated);
+                  return;
+                }
+                _screen(register: false, login: verifying || recovery);
+                if (verifying || recovery) s.show(SessionStage.unauthenticated);
+              }
+            : null,
         children: children,
       );
     },
   );
+}
+
+class _AuthLink extends StatelessWidget {
+  const _AuthLink(this.label, {this.onPressed});
+  final String label;
+  final VoidCallback? onPressed;
+  @override
+  Widget build(BuildContext context) => TextButton(
+    style: TextButton.styleFrom(
+      foregroundColor: context.rd.blue,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      minimumSize: const Size(44, 44),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      textStyle: RdTokens.style(context),
+    ),
+    onPressed: onPressed,
+    child: SmartText(label, textAlign: TextAlign.center),
+  );
+}
+
+class _PasswordStrength extends StatelessWidget {
+  const _PasswordStrength({required this.value});
+  final String value;
+  @override
+  Widget build(BuildContext context) {
+    final n = value.runes.length;
+    final s = n < 5
+        ? 0
+        : n >= 8 && RegExp(r'\d').hasMatch(value)
+        ? 3
+        : n >= 8
+        ? 2
+        : 1;
+    final c = [context.rd.surface2, context.rd.red, context.rd.orange, const Color(0xff3fb868)][s];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 14,
+      children: [
+        Row(
+          spacing: 4,
+          children: [
+            for (var i = 0; i < 3; i++)
+              Expanded(
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: i < s ? c : context.rd.surface2,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        RdText(
+          [context.l10n.rdPwh, context.l10n.rdS1, context.l10n.rdS2, context.l10n.rdS3][s],
+          size: 13,
+          color: context.rd.muted,
+        ),
+      ],
+    );
+  }
 }
 
 class _ProductPreferences extends ConsumerWidget {
@@ -393,9 +399,9 @@ class _ProductPreferences extends ConsumerWidget {
           isExpanded: true,
           decoration: InputDecoration(labelText: context.l10n.appearance),
           items: [
-            DropdownMenuItem(value: AppTheme.system, child: Text(context.l10n.themeSystem)),
-            DropdownMenuItem(value: AppTheme.light, child: Text(context.l10n.themeLight)),
-            DropdownMenuItem(value: AppTheme.dark, child: Text(context.l10n.themeDark)),
+            DropdownMenuItem(value: AppTheme.system, child: SmartText(context.l10n.themeSystem)),
+            DropdownMenuItem(value: AppTheme.light, child: SmartText(context.l10n.themeLight)),
+            DropdownMenuItem(value: AppTheme.dark, child: SmartText(context.l10n.themeDark)),
           ],
           onChanged: (value) {
             if (value != null) runAction(context, () => ref.read(settingsRepoProvider).setTheme(value));
@@ -408,9 +414,9 @@ class _ProductPreferences extends ConsumerWidget {
           isExpanded: true,
           decoration: InputDecoration(labelText: context.l10n.languageSection),
           items: [
-            DropdownMenuItem(value: AppLanguage.system, child: Text(context.l10n.languageSystem)),
-            DropdownMenuItem(value: AppLanguage.ar, child: Text(context.l10n.languageArabic)),
-            DropdownMenuItem(value: AppLanguage.en, child: Text(context.l10n.languageEnglish)),
+            DropdownMenuItem(value: AppLanguage.system, child: SmartText(context.l10n.languageSystem)),
+            DropdownMenuItem(value: AppLanguage.ar, child: SmartText(context.l10n.languageArabic)),
+            DropdownMenuItem(value: AppLanguage.en, child: SmartText(context.l10n.languageEnglish)),
           ],
           onChanged: (value) {
             if (value != null) runAction(context, () => ref.read(settingsRepoProvider).setLanguage(value));
@@ -432,7 +438,7 @@ class ProductSettingsScreen extends StatelessWidget {
         child: ListTile(
           key: const ValueKey('manage-product-projects'),
           leading: const Icon(Icons.folder_outlined),
-          title: Text(context.l10n.projectsTitle),
+          title: SmartText(context.l10n.projectsTitle),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push('/settings/projects'),
         ),

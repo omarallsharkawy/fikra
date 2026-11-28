@@ -21,8 +21,8 @@ class ProductProjectControls extends StatelessWidget {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(rename ? context.l10n.productRenameProject : context.l10n.productNewProject),
-        content: TextFormField(
+        title: SmartText(rename ? context.l10n.productRenameProject : context.l10n.productNewProject),
+        content: SmartInput(
           initialValue: value,
           autofocus: true,
           maxLength: 120,
@@ -30,12 +30,12 @@ class ProductProjectControls extends StatelessWidget {
           onChanged: (v) => value = v,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productCancel)),
+          TextButton(onPressed: () => Navigator.pop(context), child: SmartText(context.l10n.productCancel)),
           TextButton(
             onPressed: () {
               if (value.trim().isNotEmpty) Navigator.pop(context, value);
             },
-            child: Text(context.l10n.productSave),
+            child: SmartText(context.l10n.productSave),
           ),
         ],
       ),
@@ -52,7 +52,7 @@ class ProductProjectControls extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(context.l10n.uxProjectsHelp, style: context.text.caption),
+        SmartText(context.l10n.uxProjectsHelp, content: ReadOnlyContent.chrome, style: context.text.caption),
         const SizedBox(height: 16),
         FikraButton.secondary(
           key: const ValueKey('new-product-project'),
@@ -70,7 +70,7 @@ class ProductProjectControls extends StatelessWidget {
                 selected: project.id == w.selectedProjectId,
                 enabled: !w.busy && !w.loading,
                 leading: Icon(project.id == w.selectedProjectId ? Icons.check_circle_outline : Icons.folder_outlined),
-                title: Text(project.name),
+                title: SmartText(project.name),
                 onTap: () => w.selectProject(project.id),
                 trailing: project.id != w.selectedProjectId
                     ? null
@@ -78,9 +78,9 @@ class ProductProjectControls extends StatelessWidget {
                         tooltip: context.l10n.projectOptionsA11y(project.name),
                         enabled: !w.busy && !w.loading,
                         itemBuilder: (_) => [
-                          PopupMenuItem(value: 'rename', child: Text(context.l10n.productRename)),
+                          PopupMenuItem(value: 'rename', child: SmartText(context.l10n.productRename)),
                           if (!project.isGeneral)
-                            PopupMenuItem(value: 'delete', child: Text(context.l10n.productDeleteProject2)),
+                            PopupMenuItem(value: 'delete', child: SmartText(context.l10n.productDeleteProject2)),
                         ],
                         onSelected: (action) async {
                           if (w.selectedProjectId != project.id) return;

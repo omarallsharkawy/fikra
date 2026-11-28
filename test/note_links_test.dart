@@ -1,3 +1,5 @@
+import 'package:fikra/core/widgets/smart_text.dart';
+
 import 'dart:async';
 
 import 'package:fikra/app/providers.dart';
@@ -265,7 +267,7 @@ void main() {
     await settle(tester, find.text(ar.removeLink));
     await tester.tap(find.text(ar.removeLink));
     await settle(tester, find.text(ar.removeLinkTitle));
-    expect(find.text(ar.removeLinkBody), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is SmartText && w.data == ar.removeLinkBody), findsOneWidget);
     await tester.tap(find.text(ar.cancel).last);
     await tester.pump(const Duration(milliseconds: 500));
     expect((await rows(tester, db)).single.dismissed, isFalse);

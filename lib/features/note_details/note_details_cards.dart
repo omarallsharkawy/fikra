@@ -36,13 +36,19 @@ class _ProposalCardState extends ConsumerState<_ProposalCard> {
             children: [
               Icon(Icons.auto_awesome_outlined, size: 18, color: context.colors.accent),
               const SizedBox(width: 8),
-              Expanded(child: Text(context.l10n.suggestedRewrite, style: context.text.cardTitleSmall)),
+              Expanded(
+                child: SmartText(
+                  context.l10n.suggestedRewrite,
+                  textDirection: Directionality.of(context),
+                  style: context.text.cardTitleSmall,
+                ),
+              ),
               if (ref.watch(appModeProvider) != AppMode.connected)
                 FikraBadge(kind: BadgeKind.demo, label: context.l10n.demoBadge),
             ],
           ),
           const SizedBox(height: 10),
-          Text(widget.note.proposedText!, style: context.text.body),
+          SmartText(widget.note.proposedText!, style: context.text.body),
           const SizedBox(height: 14),
           LayoutBuilder(
             builder: (context, box) {
@@ -129,7 +135,7 @@ class _Attachment extends ConsumerWidget {
                     Icon(Icons.picture_as_pdf_outlined, color: context.colors.danger),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
+                      child: SmartText(
                         a.name ?? context.l10n.pdfFile,
                         style: context.text.body,
                         maxLines: 1,
@@ -137,9 +143,9 @@ class _Attachment extends ConsumerWidget {
                       ),
                     ),
                     if (a.bytes != null)
-                      Text(
+                      SmartText(
                         Fmt.bytes(context.l10n, a.bytes!),
-                        textDirection: TextDirection.ltr,
+                        content: ReadOnlyContent.identifier,
                         style: context.text.meta,
                       ),
                     const SizedBox(width: 10),

@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -107,8 +109,8 @@ class _TabLabelState extends State<TabLabel> {
                           child: Opacity(
                             opacity: labelOpacity,
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(2, 2, 2, 0),
-                              child: Text(
+                              padding: const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 0),
+                              child: SmartText(
                                 widget.label,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

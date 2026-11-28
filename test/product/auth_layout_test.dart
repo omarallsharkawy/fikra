@@ -26,8 +26,8 @@ void main() {
           final l = tester.element(find.byKey(const ValueKey('auth-scroll'))).l10n;
           final name = 'auth-${locale.languageCode}-${theme.name}';
           if (scale == 1) await capture(tester, '$name-welcome');
-          await tapVisible(tester, find.text(l.uiLogIn));
-          expect(find.text(l.uiWelcomeBack), findsOneWidget);
+          await tapVisible(tester, find.byKey(const ValueKey('auth-start-login')));
+          expect(find.text(l.rdWb), findsOneWidget);
           if (scale == 1) await capture(tester, '$name-login');
           await fill(tester, 'account-email', 'reader@example.invalid');
           expect(tester.widget<TextField>(input('account-email')).textInputAction, TextInputAction.next);
@@ -58,7 +58,7 @@ void main() {
           tester.view.resetViewInsets();
           tester.testTextInput.hide();
           await tester.pumpAndSettle();
-          await tapVisible(tester, find.text(l.productForgotPassword));
+          await tapVisible(tester, find.text(l.rdFg));
           expect(find.text(l.uxRecoveryTitle), findsOneWidget);
           expect(tester.getTopLeft(find.text(l.uxRecoveryTitle)).dy, greaterThan(0));
           expect(find.byKey(const ValueKey('account-password')), findsNothing);
@@ -67,7 +67,7 @@ void main() {
           expect(runtime.session.stage, SessionStage.recoverySent);
           expect(find.byType(TextField), findsNothing);
           if (scale == 1) await capture(tester, '$name-requested');
-          await tapVisible(tester, find.text(l.productPreviewResetForm));
+          await tapVisible(tester, find.text(l.apiHaveCode));
           expect(find.text(l.uxResetTitle), findsOneWidget);
           expect(tester.widget<TextField>(input('account-password')).controller!.text, isEmpty);
           expect(
@@ -82,11 +82,12 @@ void main() {
           await tapVisible(tester, find.text(l.uxResetPassword));
           expect(runtime.session.stage, SessionStage.unauthenticated);
           expect(tester.widget<TextField>(input('account-password')).controller!.text, isEmpty);
-          await tapVisible(tester, find.text(l.authNewAccount));
-          expect(find.text(l.uiCreateAccount), findsNWidgets(2));
-          expect(find.text(l.productForgotPassword), findsNothing);
+          await tapVisible(tester, find.text(l.rdNw));
+          expect(find.text(l.rdMk), findsNWidgets(2));
+          expect(find.text(l.rdFg), findsNothing);
           expect(find.text(l.productResetPreviewCompleteSignInAgain), findsNothing);
           if (scale == 1) await capture(tester, '$name-signup');
+          await fill(tester, 'account-name', '  علاء  ');
           await fill(tester, 'account-email', 'fresh@example.invalid');
           await fill(tester, 'account-password', 'fixture-only');
           tester.testTextInput.hide();
@@ -94,9 +95,9 @@ void main() {
           await tapVisible(tester, find.byKey(const ValueKey('account-submit')));
           expect(runtime.session.stage, SessionStage.awaitingVerification);
           if (scale == 1) await capture(tester, '$name-verify');
-          await tapVisible(tester, find.text(l.productBackToSignIn));
+          await tapVisible(tester, find.byKey(const ValueKey('auth-back')));
           expect(tester.widget<TextField>(input('account-password')).controller!.text, isEmpty);
-          await tapVisible(tester, find.text(l.authNewAccount));
+          await tapVisible(tester, find.text(l.rdNw));
           await fill(tester, 'account-password', 'fixture-only');
           tester.testTextInput.hide();
           await tester.pumpAndSettle();
@@ -109,7 +110,7 @@ void main() {
           expect(runtime.session.stage, SessionStage.unauthenticated);
           expect(tester.widget<TextField>(input('account-password')).controller!.text, isEmpty);
           await tapVisible(tester, find.byKey(const ValueKey('auth-back')));
-          expect(find.text(l.welcomeTagline), findsOneWidget);
+          expect(find.text(l.rdTagl), findsOneWidget);
           expect(tester.takeException(), isNull);
           await cleanup(tester);
         });

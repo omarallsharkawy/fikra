@@ -5,7 +5,7 @@ DateTime date(dynamic value) => DateTime.parse(value as String);
 List<String> strings(dynamic value) => List<String>.unmodifiable(value as List);
 Account accountFromJson(dynamic value) {
   final x = object(value);
-  return Account(id: x['id'], email: x['email'], emailVerified: x['email_verified']);
+  return Account(id: x['id'], email: x['email'], emailVerified: x['email_verified'], name: x['name'] as String?);
 }
 
 TokenPair tokensFromJson(dynamic value, DateTime now) {

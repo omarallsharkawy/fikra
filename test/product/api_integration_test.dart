@@ -118,7 +118,7 @@ void main() {
     final t = ScriptTransport((_) => jsonReply({'message': 'accepted'}, status: 202)),
         api = client(t),
         auth = ApiAuthRepository(api);
-    await auth.register('test@example.invalid', 'abcde');
+    await auth.register('test@example.invalid', 'abcde', name: '  علاء  ');
     await auth.verifyEmail('123456', email: 'test@example.invalid');
     await auth.resendVerification('test@example.invalid');
     await auth.requestRecovery('test@example.invalid');
@@ -130,6 +130,7 @@ void main() {
       '/v1/auth/password-reset/otp/request',
       '/v1/auth/password-reset/otp/confirm',
     ]);
+    expect(t.calls.first.json, {'email': 'test@example.invalid', 'password': 'abcde', 'name': 'علاء'});
     expect(t.calls[1].json, {'email': 'test@example.invalid', 'code': '123456'});
     expect(t.calls.last.json, {'email': 'test@example.invalid', 'code': '654321', 'new_password': 'new password'});
     expect(t.calls.every((c) => !c.headers.containsKey('Authorization')), isTrue);
@@ -138,6 +139,16 @@ void main() {
       invalid.verifyEmail('123456', email: 'test@example.invalid'),
       throwsA(isA<ProductFailure>().having((f) => f.field, 'field', 'code')),
     );
+  });
+  test('account reads preserve deployed names and accept null or older responses', () async {
+    Map<String, Object?> response = {...user, 'name': 'علاء'};
+    final auth = ApiAuthRepository(client(ScriptTransport((_) => jsonReply(response))));
+    final tokens = TokenPair(access: 'test-access', refresh: 'test-refresh', expiresAt: DateTime(2030));
+    expect((await auth.currentAccount(tokens)).name, 'علاء');
+    response = {...user, 'name': null};
+    expect((await auth.currentAccount(tokens)).name, isNull);
+    response = {...user};
+    expect((await auth.currentAccount(tokens)).name, isNull);
   });
   test('login and Google fetch server account with issued bearer; logout uses refresh token', () async {
     final t = ScriptTransport((c) => jsonReply(c.uri.path.endsWith('/me') ? user : pair('new'))),
@@ -392,6 +403,10 @@ void main() {
     expect((await r.readNote('user-a', 'note-a')).content, 'A thought');
     await r.retryProcessing('user-a', 'note-a');
     expect(t.calls.last.json, isNull);
+    expect((await r.setFavorite('user-a', 'note-a', false)).id, 'note-a');
+    expect(t.calls.last.method, 'PUT');
+    expect(t.calls.last.uri.path, '/v1/notes/note-a/favorite');
+    expect(t.calls.last.json, {'is_favorite': false});
     for (final action in RefinementAction.values) {
       await r.refine('user-a', 'note-a', 2, action);
       expect(t.calls.last.json, {'expected_processing_generation': 2});

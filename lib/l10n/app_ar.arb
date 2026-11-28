@@ -1900,7 +1900,6 @@
   "productPreviewSeparateEmptyAccount": "تجربة حساب منفصل وفارغ",
   "productVerificationPreviewCompleteSignInSeparately": "اكتملت تجربة التفعيل. سجّل الدخول بشكل منفصل.",
   "productResetPreviewCompleteSignInAgain": "اكتملت تجربة إعادة التعيين. سجّل دخول تاني.",
-  "productLocalPrivateStateClearedServerRevocationIsNot": "تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.",
   "productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount": "تأكيد تجريبي فقط؛ لم يتم إرسال بريد أو تنفيذ إجراء على حساب حقيقي.",
   "productCaptureAThought": "سجّل فكرة",
   "productCloseComposer": "إغلاق الكتابة",
@@ -2088,7 +2087,6 @@
   "authResetHint": "اكتب رمز الاستعادة وكلمة مرور جديدة.",
   "authHaveAccount": "عندك حساب؟ سجّل الدخول",
   "authNewAccount": "أول مرة هنا؟ أنشئ حسابًا",
-  "apiGoogleUnavailable": "تسجيل الدخول بجوجل غير مُعدّ بعد.",
   "apiSignOut": "تسجيل الخروج",
   "apiSixDigitCode": "كود من ٦ أرقام",
   "apiNewPassword": "كلمة المرور الجديدة",
@@ -2113,5 +2111,169 @@
   "authResponseError": "وصل رد غير متوقع من الخادم. حاول لاحقًا.",
   "authCredentialsError": "البريد الإلكتروني أو كلمة المرور غير صحيحة. راجع بياناتك وحاول مرة أخرى.",
   "authRequestError": "تعذّر إكمال الطلب. حاول مرة أخرى.",
-  "authCheckDetails": "راجع البيانات وحاول مرة أخرى."
+  "authCheckDetails": "راجع البيانات وحاول مرة أخرى.",
+  "rdGreet": "أهلاً يا {name} 👋",
+  "@rdGreet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rdNotes": "{count} نوتات",
+  "@rdNotes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rdSearch": "دوّر في نوتاتك",
+  "rdAll": "الكل",
+  "rdToday": "النهارده",
+  "rdEarlier": "قبل كده",
+  "rdHome": "الرئيسية",
+  "rdMap": "الخريطة",
+  "rdAsk": "اسأل",
+  "rdMe": "أنا",
+  "rdProc": "بيتحلل…",
+  "rdNone": "مفيش نتايج. جرّب كلمة تانية.",
+  "rdRel": "نوتات مرتبطة",
+  "rdShared": "تاج مشترك: ",
+  "rdAisug": "اقتراح الذكاء الاصطناعي",
+  "rdApply": "تطبيق",
+  "rdDismiss": "تجاهل",
+  "rdAnother": "جرّب اقتراح تاني",
+  "rdBefore": "قبل",
+  "rdAfter": "بعد",
+  "rdChg": "التغييرات",
+  "rdNudge": "ضيف تفاصيل أكتر؟",
+  "rdNudgeb": "النوتة قصيرة. جرّب تجاوب: مين؟ فين؟ ليه مهمة؟",
+  "rdReana": "حلّل تاني",
+  "rdPin": "تثبيت",
+  "rdShare": "مشاركة كصورة",
+  "rdDel": "مسح النوتة",
+  "rdDelq": "تمسح النوتة دي؟",
+  "rdDelb": "هتقدر تتراجع لثواني بعد المسح.",
+  "rdCancel": "إلغاء",
+  "rdDeleted": "اتمسحت",
+  "rdUndo": "تراجع",
+  "rdApplied": "اتطبّق",
+  "rdHint": "اسحب وقرّب بصباعين عشان تستكشف",
+  "rdOk": "تمام",
+  "rdLinks": "{count} نوتات · {links} روابط",
+  "@rdLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "links": {
+        "type": "int"
+      }
+    }
+  },
+  "rdOpen": "افتح",
+  "rdAsktt": "اسأل نوتاتك",
+  "rdScope": "كل النوتات",
+  "rdPh": "اكتب سؤالك…",
+  "rdBased": "{count, plural, zero{من غير مصادر} one{مبني على نوتة واحدة} two{مبني على نوتتين} few{مبني على {count} نوتات} many{مبني على {count} نوتة} other{مبني على {count} نوتة}}",
+  "@rdBased": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rdHello": "{count, plural, zero{لسه مفيش نوتات. حابب تعرف إيه؟} one{عندك نوتة واحدة. حابب تعرف إيه؟} two{عندك نوتتين. حابب تعرف إيه؟} few{عندك {count} نوتات. حابب تعرف إيه؟} many{عندك {count} نوتة. حابب تعرف إيه؟} other{عندك {count} نوتة. حابب تعرف إيه؟}}",
+  "@rdHello": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rdCph": "اكتب أي فكرة جت في بالك…",
+  "rdAddt": "+ عنوان",
+  "rdTph": "العنوان",
+  "rdSave": "حفظ",
+  "rdSh": "اكتب حاجة الأول عشان تحفظ",
+  "rdVoice": "صوت",
+  "rdPdf": "PDF",
+  "rdTag": "تاج",
+  "rdLis": "بسمعك…",
+  "rdStop": "وقّف وحوّل لنص",
+  "rdSaved": "اتحفظت ✓",
+  "rdLang": "اللغة",
+  "rdTheme": "الشكل",
+  "rdLight": "فاتح",
+  "rdDark": "داكن",
+  "rdSys": "تلقائي",
+  "rdAuto": "تاج تلقائي",
+  "rdExp": "تصدير نوتاتك",
+  "rdOut": "تسجيل خروج",
+  "rdOutq": "تسجيل خروج؟",
+  "rdOutb": "نوتاتك محفوظة وهتلاقيها لما ترجع.",
+  "rdStat1": "نوتة",
+  "rdStat2": "رابط",
+  "rdNewc": "محادثة جديدة",
+  "rdHist": "السجل",
+  "rdStart": "ابدأ بكتابة أول فكرة",
+  "rdFirst": "لسه مفيش نوتات",
+  "rdFl": "ضيف كام نوتة وشوف الروابط بتظهر",
+  "rdUntitled": "بدون عنوان",
+  "rdChips0": "لخّصلي نوتاتي",
+  "rdChips1": "بكتب عن إيه أكتر؟",
+  "rdChips2": "إيه اللي بيربط أفكاري؟",
+  "rdWr": "اكتب",
+  "rdLk": "اربط",
+  "rdAs": "اسأل",
+  "rdTagl": "اكتبها. اربطها. اسألها.",
+  "rdTag1": "أفكارك متوصّلة ببعض، واسأل نوتاتك أي حاجة.",
+  "rdGs": "ابدأ دلوقتي",
+  "rdHave": "عندي حساب",
+  "rdMk": "اعمل حسابك",
+  "rdMks": "خلّي أفكارك تلاقي مكان تكبر فيه.",
+  "rdWb": "أهلاً بيك تاني",
+  "rdWbs": "مساحة صغيرة لفكرتك الجاية.",
+  "rdEm": "الإيميل",
+  "rdPw": "الباسورد",
+  "rdShow": "إظهار",
+  "rdFg": "نسيت الباسورد؟",
+  "rdLi": "تسجيل الدخول",
+  "rdNw": "جديد هنا؟ اعمل حساب",
+  "rdAh": "عندك حساب؟ سجّل دخول",
+  "rdTerms": "بالتسجيل انت موافق على الشروط وسياسة الخصوصية.",
+  "rdS1": "ضعيفة",
+  "rdS2": "مقبولة، ضيف رقم",
+  "rdS3": "قوية",
+  "rdEmerr": "الإيميل مش مكتوب صح",
+  "rdPwh": "٨ حروف أو أكتر أحسن",
+  "rdErr": "الإيميل أو الباسورد غلط. جرّب تاني.",
+  "rdBack": "رجوع",
+  "rdNm": "اسمك",
+  "rdHide": "إخفاء",
+  "rdNamePrompt": "تحب نناديك بإيه؟",
+  "rdNeutralGreeting": "أهلاً بيك 👋",
+  "rdAddName": "ضيف اسمك",
+  "rdEditName": "تعديل الاسم",
+  "rdNameDevice": "محفوظ على الجهاز ده",
+  "rdNameInvalid": "اكتب اسم لحد ٤٠ حرف",
+  "rdLater": "بعدين",
+  "rdNewTag": "تاج جديد",
+  "rdTagName": "اسم التاج",
+  "rdEditTag": "تعديل التاج",
+  "rdTagExists": "فيه تاج بالاسم ده بالفعل",
+  "rdUnpin": "إلغاء التثبيت",
+  "rdUndoExpired": "وقت التراجع خلص",
+  "rdShareFailed": "المشاركة ما كملتش. جرّب تاني.",
+  "rdUndoFailed": "التراجع ما كملش. جرّب تاني.",
+  "rdPendingChange": "بنكمل التعديل…",
+  "rdNoteActions": "اختيارات النوتة",
+  "rdReplying": "بنجهّز الرد…",
+  "rdCheckConversation": "راجع المحادثة",
+  "rdReviewConversation": "المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.",
+  "rdDraftFailed": "تعذّر حفظ المسودة على جهازك. أعد المحاولة قبل الإغلاق.",
+  "rdOnDevice": "على هذا الجهاز",
+  "googleIdentityError": "تعذّر التحقق من حساب Google. حاول مرة أخرى.",
+  "googleServiceError": "تسجيل الدخول بـ Google غير متاح حاليًا. حاول مرة أخرى."
 }

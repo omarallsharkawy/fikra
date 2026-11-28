@@ -52,7 +52,7 @@ class ActiveDaysChip extends StatelessWidget {
     if (days <= 0) return const SizedBox.shrink();
     final c = context.colors;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 0, FikraSpace.screen, 8),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
         child: Container(
@@ -65,7 +65,7 @@ class ActiveDaysChip extends StatelessWidget {
               Icon(Icons.local_fire_department_rounded, size: 15, color: c.brandPurpleFg),
               const SizedBox(width: 5),
               Flexible(
-                child: Text(
+                child: SmartText(
                   context.l10n.activeDaysThisWeek(days),
                   style: context.text.meta.copyWith(color: c.brandPurpleFg, fontWeight: FontWeight.w600),
                 ),
@@ -124,7 +124,7 @@ class NotesActionStrip extends StatelessWidget {
     };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 0, FikraSpace.screen, 8),
       child: SolidSurface(
         key: const ValueKey('notes-action-strip'),
         radius: FikraRadius.md,
@@ -148,14 +148,14 @@ class NotesActionStrip extends StatelessWidget {
                         Icon(icon, size: 18, color: fg),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
+                          child: SmartText(
                             message,
                             style: context.text.chip.copyWith(color: fg, fontWeight: FontWeight.w600),
                           ),
                         ),
                         if (trailing != null) ...[
                           const SizedBox(width: 8),
-                          Text(
+                          SmartText(
                             trailing,
                             style: context.text.meta.copyWith(color: fg, fontWeight: FontWeight.w700),
                           ),

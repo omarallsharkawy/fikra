@@ -239,6 +239,8 @@ bool _wordMatchesAlt(String word, String token, {required bool prefix}) {
 
 /// Locale-aware display formatting. Digits stay Western (0-9).
 abstract final class Fmt {
+  static String number(AppLocalizations l10n, num value) =>
+      _ascii(NumberFormat.decimalPattern(l10n.localeName).format(value));
   static String time(AppLocalizations l10n, DateTime d) => _ascii(DateFormat('h:mm a', l10n.localeName).format(d));
 
   /// A calendar date in the current locale, e.g. "Feb 26, 2027" / "26 فبراير 2027".

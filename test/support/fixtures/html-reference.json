@@ -1,0 +1,126 @@
+{
+  "notes": [
+    {
+      "id": "n1",
+      "t": {
+        "ar": "محمد الحسيني: خريج جامعة كفر الشيخ",
+        "en": "Mohamed: Kafr El-Sheikh grad"
+      },
+      "b": {
+        "ar": "محمد الحسيني خريج جامعة كفر الشيخ ويعمل حاليًا في مايكروسوفت",
+        "en": "Mohamed El-Husseini graduated from Kafr El-Sheikh University and now works at Microsoft"
+      },
+      "df": {
+        "ar": "محمد الحسيني خريج جامعة كفر الشيخ <del>ويعمل</del><ins>وبيشتغل مهندس برمجيات</ins> حاليًا في مايكروسوفت",
+        "en": "Mohamed El-Husseini graduated from Kafr El-Sheikh University<del> and now works</del><ins>, now a software engineer</ins> at Microsoft"
+      },
+      "tags": [
+        "uni",
+        "career"
+      ],
+      "st": "d",
+      "d": "t"
+    },
+    {
+      "id": "n2",
+      "t": {
+        "ar": "جامعة كفر الشيخ",
+        "en": "Kafr El-Sheikh University"
+      },
+      "b": {
+        "ar": "جامعة كفر الشيخ",
+        "en": "Kafr El-Sheikh University"
+      },
+      "tags": [
+        "uni"
+      ],
+      "st": "p",
+      "d": "t",
+      "short": 1
+    },
+    {
+      "id": "n3",
+      "t": {
+        "ar": "ال Deep Learning يعني إيه؟",
+        "en": "What is Deep Learning?"
+      },
+      "b": {
+        "ar": "ال Deep Learning يعني إيه؟ وإزاي بيلتقط الأنماط من الداتا؟",
+        "en": "What is Deep Learning, and how does it find patterns in data?"
+      },
+      "tags": [
+        "ai"
+      ],
+      "st": "d",
+      "d": "e"
+    },
+    {
+      "id": "n4",
+      "t": {
+        "ar": "سؤال عن معنى الحشو في المحشي",
+        "en": "Why is stuffing called stuffing?"
+      },
+      "b": {
+        "ar": "سؤال عن معنى الحشو في المحشي وظهوره في المطبخ المصري",
+        "en": "A question about stuffing and where it first appeared in cooking"
+      },
+      "tags": [
+        "food"
+      ],
+      "st": "d",
+      "d": "e"
+    },
+    {
+      "id": "n5",
+      "t": {
+        "ar": "Placeholder Text with No Substantive Content",
+        "en": "Placeholder Text with No Substantive Content"
+      },
+      "b": {
+        "ar": "ابقى أشتري لابتوب جديد للشغل",
+        "en": "Buy a new laptop for work"
+      },
+      "tags": [],
+      "st": "d",
+      "d": "e"
+    }
+  ],
+  "edges": [
+    [
+      "n1",
+      "n2"
+    ],
+    [
+      "n1",
+      "n3"
+    ],
+    [
+      "n3",
+      "n5"
+    ]
+  ],
+  "tags": {
+    "ar": {
+      "uni": "جامعة",
+      "ai": "ذكاء اصطناعي",
+      "food": "أكل",
+      "career": "شغل"
+    },
+    "en": {
+      "uni": "University",
+      "ai": "AI",
+      "food": "Cooking",
+      "career": "Career"
+    }
+  },
+  "chat": {
+    "ar": {
+      "answer": "عندك ٥ نوتات، أغلبها عن الجامعة والذكاء الاصطناعي، ونوتة عن الأكل.",
+      "prompt": "لخّصلي نوتاتي"
+    },
+    "en": {
+      "answer": "You have 5 notes, mostly about university and AI, plus one about cooking.",
+      "prompt": "Summarize my notes"
+    }
+  }
+}

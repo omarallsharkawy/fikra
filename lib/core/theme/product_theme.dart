@@ -2,61 +2,100 @@ import 'package:flutter/material.dart';
 
 import 'fikra_theme.dart';
 import 'tokens.dart';
+import 'redesign_tokens.dart';
 
-/// Presentation from the approved HTML reference. Legacy demo keeps its theme.
 ThemeData buildProductTheme(Brightness brightness) {
-  final dark = brightness == Brightness.dark;
-  final colors = (dark ? FikraPalette.dark : FikraPalette.light).copyWith(
-    canvas: Color(dark ? 0xff101114 : 0xffeef0f2),
-    surface: Color(dark ? 0xff1a1c21 : 0xffffffff),
-    chip: Color(dark ? 0xff1a1c21 : 0xffffffff),
-    line: Color(dark ? 0xff2b2e35 : 0xffcbd0d6),
-    textPrimary: Color(dark ? 0xffeef0f2 : 0xff101114),
-    textSecondary: Color(dark ? 0xffa7adb5 : 0xff4a525c),
-    brandLime: const Color(0xffc6f04a),
-    onBrandLime: const Color(0xff101114),
-    brandBlue: const Color(0xff2547e8),
-    onBrandBlue: const Color(0xffeef0f2),
-    brandPurple: const Color(0xff5f31c4),
-    onBrandPurple: const Color(0xffeef0f2),
-    brandSlate: const Color(0xff55606d),
-    onBrandSlate: const Color(0xffeef0f2),
-    accent: Color(dark ? 0xffc6f04a : 0xff4a6a00),
-    onAccent: Color(dark ? 0xff101114 : 0xffffffff),
+  final c = RdColors(brightness == Brightness.dark);
+  final colors = (c.dark ? FikraPalette.dark : FikraPalette.light).copyWith(
+    canvas: c.bg,
+    surface: c.surface,
+    chip: c.surface2,
+    line: c.line,
+    textPrimary: c.text,
+    textSecondary: c.muted,
+    brandLime: c.lime,
+    onBrandLime: c.onLime,
+    brandLimeFg: c.onLime,
+    brandLimeTint: c.lime,
+    brandBlue: c.blue,
+    brandBlueFg: c.blue,
+    brandBlueTint: c.purpleSoft,
+    onBrandBlue: c.text,
+    brandPurple: c.purple,
+    brandPurpleFg: c.purple,
+    brandPurpleTint: c.purpleSoft,
+    onBrandPurple: Colors.white,
+    accent: c.lime,
+    onAccent: c.onLime,
+    danger: c.red,
+    dangerBg: c.redSoft,
+    selected: c.lime,
+    scrim: const Color(0x80000000),
+    graphEdge: c.line,
+    selection: c.purpleSoft,
   );
   final theme = buildFikraTheme(brightness, palette: colors);
-  OutlineInputBorder border(Color color, [double width = 1]) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(18),
-    borderSide: BorderSide(color: color, width: width),
+  OutlineInputBorder border(Color color) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(14),
+    borderSide: BorderSide(color: color),
   );
   return theme.copyWith(
-    dividerTheme: DividerThemeData(color: colors.line, thickness: 1, space: 24),
+    extensions: [colors, c],
+    textTheme: theme.textTheme.apply(fontFamily: RdTokens.family, fontFamilyFallback: RdTokens.fallbacks),
+    primaryTextTheme: theme.primaryTextTheme.apply(fontFamily: RdTokens.family, fontFamilyFallback: RdTokens.fallbacks),
+    scaffoldBackgroundColor: c.bg,
+    canvasColor: c.bg,
+    dividerTheme: DividerThemeData(color: c.line, space: 1, thickness: 1),
+    iconTheme: IconThemeData(size: 22, color: c.text),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: colors.surface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      border: border(colors.line),
-      enabledBorder: border(colors.line),
-      disabledBorder: border(colors.line),
-      focusedBorder: border(colors.accent, 2),
-      errorBorder: border(colors.danger),
-      focusedErrorBorder: border(colors.danger, 2),
-      labelStyle: FikraText(colors).caption,
+      fillColor: c.surface,
+      contentPadding: const EdgeInsetsDirectional.fromSTEB(14, 12, 6, 12),
+      border: border(c.line),
+      enabledBorder: border(c.line),
+      focusedBorder: border(c.blue),
+      errorBorder: border(c.red),
+      focusedErrorBorder: border(c.red),
+      labelStyle: TextStyle(color: c.muted),
+      floatingLabelStyle: TextStyle(color: c.blue),
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: c.blue,
+      selectionColor: c.purpleSoft,
+      selectionHandleColor: c.blue,
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: c.blue, minimumSize: const Size(44, 44)),
     ),
     cardTheme: CardThemeData(
-      color: colors.surface,
+      color: c.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-        side: BorderSide(color: colors.line),
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: c.line),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
-        minimumSize: const Size(48, 48),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        minimumSize: const Size(44, 44),
+        padding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: c.text,
+      contentTextStyle: TextStyle(fontFamily: RdTokens.family, fontSize: 15, color: c.bg, height: 1.6),
+      actionTextColor: c.bg,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16) + const EdgeInsets.only(bottom: 84),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: c.surface,
+      modalBarrierColor: const Color(0x80000000),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
     ),
   );
 }

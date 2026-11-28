@@ -66,7 +66,7 @@ class HeaderActionButton extends StatelessWidget {
                     Icon(icon, size: _pillIconSize, color: fg),
                     const SizedBox(width: _pillGap),
                     Flexible(
-                      child: Text(
+                      child: SmartText(
                         label,
                         maxLines: 1,
                         softWrap: false,
@@ -121,7 +121,7 @@ class ProjectHeader extends ConsumerWidget {
               Icon(Icons.folder_outlined, size: 18, color: context.colors.textSecondary),
               const SizedBox(width: 6),
               Flexible(
-                child: Text(
+                child: SmartText(
                   project?.name ?? '—',
                   style: context.text.chip,
                   maxLines: 1,
@@ -137,7 +137,7 @@ class ProjectHeader extends ConsumerWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 14, FikraSpace.screen, FikraSpace.s8),
+      padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 14, FikraSpace.screen, FikraSpace.s8),
       child: LayoutBuilder(
         builder: (context, constraints) {
           // A fixed breakpoint keeps header work cheap; Flexible owns text fit.
@@ -150,7 +150,7 @@ class ProjectHeader extends ConsumerWidget {
                 children: [
                   if (leading != null) ...[leading!, const SizedBox(width: 4)],
                   Expanded(
-                    child: Semantics(header: true, child: Text(title, style: titleStyle)),
+                    child: Semantics(header: true, child: SmartText(title, style: titleStyle)),
                   ),
                   if (trailing != null) ...[
                     const SizedBox(width: 12),

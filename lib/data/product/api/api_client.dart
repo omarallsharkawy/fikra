@@ -257,6 +257,9 @@ class ApiClient {
 
   static ProductFailure failure(int status, Map<String, String> headers, dynamic payload) {
     String? field;
+    if (status == 422 && payload is Map && payload['detail'] == 'Name is required to create an account') {
+      field = 'name';
+    }
     if (payload is Map && payload['detail'] is List) {
       for (final item in payload['detail'] as List) {
         if (item is Map && item['loc'] is List && (item['loc'] as List).length > 1) {

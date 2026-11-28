@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../data/product/models.dart';
 import '../../data/product/repositories.dart';
+import 'google_identity.dart';
+import 'profile_controller.dart';
 
 enum SessionStage {
   restoring,
@@ -31,6 +33,9 @@ class SessionController extends ChangeNotifier {
   bool busy = false;
   ProductFailure? failure;
   String? notice;
+  bool googleActive = false;
+  String? _pendingGoogleIdToken;
+  bool get needsGoogleName => _pendingGoogleIdToken != null;
   int epoch = 0;
   Future<TokenPair>? _refreshing;
   Future<void> _vaultQueue = Future.value();
@@ -85,6 +90,7 @@ class SessionController extends ChangeNotifier {
 
   void show(SessionStage next) {
     if (busy) return;
+    _pendingGoogleIdToken = null;
     stage = next;
     if (!coolingDown) failure = null;
     notice = null;
@@ -118,9 +124,9 @@ class SessionController extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String address, String password) => _action((ticket) async {
+  Future<void> register(String address, String password, {required String name}) => _action((ticket) async {
     email = address.trim().toLowerCase();
-    await repository.register(email, password);
+    await repository.register(email, password, name: name.trim());
     if (ticket != epoch || _disposed) return;
     stage = SessionStage.awaitingVerification;
     notice = 'verificationRequested';
@@ -140,10 +146,51 @@ class SessionController extends ChangeNotifier {
     final grant = await repository.login(email, password);
     await _install(grant, ticket);
   });
-  Future<void> google(String idToken) => _action((ticket) async {
-    final grant = await repository.exchangeGoogleIdToken(idToken);
-    await _install(grant, ticket);
+  Future<void> google(String idToken, {String? name}) => _action((ticket) => _googleExchange(idToken, name, ticket));
+
+  Future<void> googleWith(GoogleIdentity source) => _action((ticket) async {
+    googleActive = true;
+    _pendingGoogleIdToken = null;
+    _emit();
+    try {
+      final identity = await source.authenticate();
+      if (identity == null || ticket != epoch || _disposed) return;
+      final name = identity.name;
+      await _googleExchange(identity.idToken, name != null && ProfileController.validName(name) ? name : null, ticket);
+    } finally {
+      if (ticket == epoch && !_disposed) googleActive = false;
+    }
   });
+
+  Future<void> completeGoogleName(String name) => _action((ticket) async {
+    final token = _pendingGoogleIdToken;
+    if (token == null || !ProfileController.validName(name)) {
+      throw const ProductFailure(FailureKind.validation, field: 'name');
+    }
+    await _googleExchange(token, name.trim(), ticket);
+  });
+
+  Future<void> _googleExchange(String token, String? name, int ticket) async {
+    try {
+      final grant = await repository.exchangeGoogleIdToken(token, name: name);
+      await _install(grant, ticket);
+    } on ProductFailure catch (error) {
+      if (ticket != epoch || _disposed) return;
+      if (error.kind == FailureKind.validation && error.field == 'name') {
+        _pendingGoogleIdToken = token;
+        return;
+      }
+      _pendingGoogleIdToken = null;
+      throw ProductFailure(
+        error.kind,
+        field: 'google',
+        cause: error.cause,
+        status: error.status,
+        retryAfter: error.retryAfter,
+      );
+    }
+  }
+
   Future<void> _install(SessionGrant grant, int ticket) async {
     if (ticket != epoch || _disposed) return;
     if (grant.tokens != null) {
@@ -153,6 +200,7 @@ class SessionController extends ChangeNotifier {
     }
     if (ticket != epoch || _disposed) return;
     account = grant.account;
+    _pendingGoogleIdToken = null;
     tokens = grant.tokens;
     stage = SessionStage.authenticated;
   }
@@ -230,6 +278,8 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> expire() async {
+    _pendingGoogleIdToken = null;
+    googleActive = false;
     _retryWake?.cancel();
     retryAt = null;
     epoch++;
@@ -248,6 +298,8 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    _pendingGoogleIdToken = null;
+    googleActive = false;
     _retryWake?.cancel();
     retryAt = null;
     final old = tokens;
@@ -290,6 +342,7 @@ class SessionController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _pendingGoogleIdToken = null;
     _retryWake?.cancel();
     epoch++;
     super.dispose();

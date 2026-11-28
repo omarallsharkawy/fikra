@@ -19,7 +19,7 @@ class ConnectionsNoteHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (note case final n?)
-            Text(
+            SmartText(
               noteTitleText(context, n.title),
               style: context.text.body.copyWith(fontWeight: FontWeight.w600),
               maxLines: 1,
@@ -36,7 +36,7 @@ class ConnectionsNoteHeader extends StatelessWidget {
             height: line * 2,
             child: note == null
                 ? const Align(alignment: AlignmentDirectional.topStart, child: _Shape(width: 240, height: 12))
-                : Text(note!.text, style: caption, maxLines: 2, overflow: TextOverflow.ellipsis),
+                : SmartText(note!.text, style: caption, maxLines: 2, overflow: TextOverflow.ellipsis),
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/tokens.dart';
@@ -19,7 +21,7 @@ class ProductColorAction extends StatelessWidget {
   Widget build(BuildContext context) => FilledButton.icon(
     onPressed: onPressed,
     icon: Icon(icon, size: 22),
-    label: Text(label, textAlign: TextAlign.center),
+    label: SmartText(label, textAlign: TextAlign.center),
     style: FilledButton.styleFrom(
       backgroundColor: color,
       foregroundColor: foreground,

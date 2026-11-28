@@ -3,11 +3,20 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../data/ids.dart';
+import '../../data/product/local_ui_store.dart';
 import '../../data/product/models.dart';
 import '../../data/product/repositories.dart';
 
 class NoteDraft {
   String title = '', content = '';
+  bool titleVisible = false;
+  Set<String> tagIds = {};
+  Map<String, Object?> toJson() => {
+    'title': title,
+    'content': content,
+    'title_visible': titleVisible,
+    'tag_ids': tagIds.toList(),
+  };
 }
 
 /// Coordinates capabilities; widgets never advance processing or write storage.
@@ -18,7 +27,9 @@ class WorkspaceController extends ChangeNotifier {
     this.pollInterval = const Duration(seconds: 2),
     this.maxPolls = 12,
     this.onUnauthorized,
-  });
+    LocalUiStore? localUi,
+  }) : localUi = localUi ?? MemoryLocalUiStore();
+  final LocalUiStore localUi;
   final KnowledgeRepository repository;
   final AttemptStore attempts;
   final Duration pollInterval;
@@ -42,6 +53,61 @@ class WorkspaceController extends ChangeNotifier {
   String? projectDraftId;
   Timer? _retryWake;
   final _drafts = <String, NoteDraft>{};
+  Timer? _draftTimer;
+  int _accountEpoch = 0, _draftRevision = 0;
+  bool draftsReady = false, draftSaving = false, draftFailure = false, _draftDirty = false;
+
+  Future<void> restoreDrafts() async {
+    final account = accountId, ticket = _accountEpoch;
+    if (account == null) return;
+    try {
+      final value = await localUi.read('account:$account');
+      if (_disposed || ticket != _accountEpoch) return;
+      final records = value['drafts'];
+      _drafts.clear();
+      if (records is Map) {
+        for (final entry in records.entries) {
+          final raw = entry.value;
+          if (entry.key is! String || raw is! Map || raw['title'] is! String || raw['content'] is! String) continue;
+          _drafts[entry.key as String] = NoteDraft()
+            ..title = raw['title'] as String
+            ..content = raw['content'] as String
+            ..titleVisible = raw['title_visible'] == true || (raw['title'] as String).isNotEmpty
+            ..tagIds = raw['tag_ids'] is List ? (raw['tag_ids'] as List).whereType<String>().toSet() : <String>{};
+        }
+      }
+      draftsReady = true;
+      draftFailure = false;
+    } catch (_) {
+      if (ticket == _accountEpoch && !_disposed) draftFailure = true;
+    }
+    if (ticket == _accountEpoch) _emit();
+  }
+
+  /// Device autosave never creates an API note. Snapshot before account changes.
+  Future<void> flushDraft() async {
+    _draftTimer?.cancel();
+    final account = accountId, ticket = _accountEpoch, revision = _draftRevision;
+    if (account == null || !draftsReady || !_draftDirty) return;
+    final snapshot = {for (final e in _drafts.entries) e.key: e.value.toJson()};
+    draftSaving = true;
+    _emit();
+    try {
+      await localUi.update('account:$account', (r) => r['drafts'] = snapshot);
+      if (ticket == _accountEpoch && !_disposed) {
+        if (revision == _draftRevision) _draftDirty = false;
+        draftFailure = false;
+      }
+    } catch (_) {
+      if (ticket == _accountEpoch && !_disposed) draftFailure = true;
+    } finally {
+      if (ticket == _accountEpoch && !_disposed) {
+        draftSaving = false;
+        _emit();
+      }
+    }
+  }
+
   int _epoch = 0, _searchSequence = 0, _detailSequence = 0, _graphSequence = 0, _pollCount = 0;
   bool _foreground = true, _disposed = false, _polling = false;
   Timer? _pollTimer;
@@ -66,6 +132,12 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   void clear() {
+    unawaited(flushDraft());
+    _draftTimer?.cancel();
+    _accountEpoch++;
+    _draftRevision++;
+    draftsReady = false;
+    draftFailure = draftSaving = _draftDirty = false;
     _epoch++;
     _searchSequence++;
     _detailSequence++;
@@ -111,6 +183,8 @@ class WorkspaceController extends ChangeNotifier {
     loading = true;
     _emit();
     try {
+      await restoreDrafts();
+      if (!_valid(ticket)) return;
       final restored = await attempts.read(id);
       if (!_valid(ticket)) return;
       final list = await repository.projects(id);
@@ -193,10 +267,16 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  void updateDraft({String? title, String? content}) {
-    if (busy || pendingAttempt != null) return;
+  void updateDraft({String? title, String? content, bool? titleVisible, Set<String>? tagIds}) {
+    if (busy || pendingAttempt != null || !draftsReady) return;
     if (title != null) draft.title = title;
     if (content != null) draft.content = content;
+    if (titleVisible != null) draft.titleVisible = titleVisible;
+    if (tagIds != null) draft.tagIds = Set.of(tagIds);
+    _draftDirty = true;
+    _draftRevision++;
+    _draftTimer?.cancel();
+    _draftTimer = Timer(const Duration(milliseconds: 350), () => unawaited(flushDraft()));
     _emit();
   }
 
@@ -210,7 +290,7 @@ class WorkspaceController extends ChangeNotifier {
 
   Future<KnowledgeNote?> save() async {
     final account = accountId, project = selectedProjectId, ticket = _epoch;
-    if (account == null || project == null || busy || coolingDown) return null;
+    if (account == null || project == null || busy || coolingDown || !draftsReady) return null;
     final title = draft.title.trim().isEmpty ? null : draft.title.trim();
     final attempt =
         pendingAttempt ??
@@ -240,10 +320,34 @@ class WorkspaceController extends ChangeNotifier {
       final saved = await repository.createNote(attempt);
       if (!_valid(ticket)) return null;
       _upsert(saved);
-      pendingAttempt = null;
+      // Keep the original idempotency key until local cleanup succeeds too.
+      // A failed local write retries reconciliation, never a second create intent.
+      _draftTimer?.cancel();
+      await flushDraft();
+      if (!_valid(ticket)) return null;
+      final selectedTags = draft.tagIds.toList();
+      final remainingDrafts = {
+        for (final e in _drafts.entries)
+          if (e.key != project) e.key: e.value.toJson(),
+      };
+      await localUi.update('account:$account', (r) {
+        r['drafts'] = remainingDrafts;
+        if (selectedTags.isNotEmpty) {
+          final assignments = r['note_tags'] is Map
+              ? Map<String, Object?>.from(r['note_tags'] as Map)
+              : <String, Object?>{};
+          assignments[saved.id] = selectedTags;
+          r['note_tags'] = assignments;
+        }
+      });
+      if (!_valid(ticket)) return null;
       await attempts.clear(account);
       if (!_valid(ticket)) return null;
+      pendingAttempt = null;
       _drafts.remove(project);
+      _draftDirty = false;
+      draftFailure = false;
+      _draftRevision++;
       _pollCount = 0;
       _schedulePoll();
       return saved;
@@ -320,7 +424,10 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<bool> _noteMutation(Future<KnowledgeNote> Function(String account, KnowledgeNote note) action) async {
+  Future<bool> _noteMutation(
+    Future<KnowledgeNote> Function(String account, KnowledgeNote note) action, {
+    bool invalidatesKnowledge = true,
+  }) async {
     final account = accountId, note = detail, ticket = _epoch;
     if (account == null || note == null || busy || coolingDown) return false;
     busy = true;
@@ -332,8 +439,13 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       _upsert(next);
 
-      _invalidateKnowledge();
-      unawaited(_refreshRelated());
+      if (invalidatesKnowledge ||
+          next.content != note.content ||
+          next.generation != note.generation ||
+          !listEquals(next.concepts, note.concepts)) {
+        _invalidateKnowledge();
+        unawaited(_refreshRelated());
+      }
       _pollCount = 0;
       _schedulePoll();
       return true;
@@ -379,6 +491,28 @@ class WorkspaceController extends ChangeNotifier {
         if (reviewedNoteId != null && reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
         return repository.refine(account, note.id, expectedGeneration ?? note.generation, action);
       });
+  bool get supportsFavorite => repository is FavoriteNotesRepository;
+  Future<bool> setFavorite(bool value, {required String reviewedNoteId}) => _noteMutation((account, note) async {
+    if (reviewedNoteId != note.id) throw const ProductFailure(FailureKind.conflict);
+    final capability = repository;
+    if (capability is! FavoriteNotesRepository) throw const ProductFailure(FailureKind.unavailable);
+    return (capability as FavoriteNotesRepository).setFavorite(account, note.id, value);
+  }, invalidatesKnowledge: false);
+  void acceptCommittedChange(String id, KnowledgeNote? note) {
+    if (accountId == null) return;
+    if (note == null) {
+      _notesVersion++;
+      notes = List.unmodifiable(notes.where((n) => n.id != id));
+      if (detail?.id == id) detail = null;
+    } else {
+      _upsert(note);
+    }
+    _invalidateKnowledge();
+    if (detail != null) unawaited(_refreshRelated());
+    _schedulePoll();
+    _emit();
+  }
+
   Future<bool> retryProcessing() => _noteMutation((account, note) => repository.retryProcessing(account, note.id));
   void _invalidateKnowledge() {
     knowledgeRevision++;
@@ -625,6 +759,8 @@ class WorkspaceController extends ChangeNotifier {
 
   @override
   void dispose() {
+    unawaited(flushDraft());
+    _draftTimer?.cancel();
     _disposed = true;
     _retryWake?.cancel();
     _epoch++;

@@ -20,7 +20,6 @@ import 'voice_text_providers.dart';
 import 'voice_text_recording.dart';
 import 'voice_text_result.dart';
 import 'voice_text_testing.dart';
-import 'whisper_metrics.dart';
 
 class VoiceTextScreen extends ConsumerStatefulWidget {
   const VoiceTextScreen({super.key});
@@ -94,7 +93,7 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
           padding: const EdgeInsets.only(top: FikraSpace.s24, bottom: FikraSpace.s10),
           child: Semantics(
             header: true,
-            child: Text(title, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+            child: SmartText(title, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
           ),
         );
         Future<void> language() => showFikraSheet<void>(
@@ -126,7 +125,12 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(FikraSpace.s12, FikraSpace.s8, FikraSpace.s12, FikraSpace.s4),
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    FikraSpace.s12,
+                    FikraSpace.s8,
+                    FikraSpace.s12,
+                    FikraSpace.s4,
+                  ),
                   child: Row(
                     children: [
                       FikraIconButton(
@@ -141,7 +145,7 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                   child: ListView(
                     controller: _scroll,
                     key: const ValueKey('vt-scroll'),
-                    padding: const EdgeInsets.fromLTRB(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
                       FikraSpace.screen,
                       FikraSpace.s8,
                       FikraSpace.screen,
@@ -150,7 +154,11 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                     children: [
                       Semantics(
                         header: true,
-                        child: Text(l.vtTitle, style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+                        child: SmartText(
+                          l.vtTitle,
+                          content: ReadOnlyContent.chrome,
+                          style: context.text.title.copyWith(fontWeight: FontWeight.w700),
+                        ),
                       ),
                       const SizedBox(height: FikraSpace.s8),
                       Align(
@@ -158,7 +166,7 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                         child: FikraBadge(kind: BadgeKind.demo, label: l.vtExperimental),
                       ),
                       const SizedBox(height: FikraSpace.s12),
-                      Text(
+                      SmartText(
                         c.phase == VoiceTextPhase.loading
                             ? l.vtWait
                             : c.isRemote
@@ -229,23 +237,26 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                         onPressed: c.idle && c.selected != null && c.canTranscribe ? () => act(c.transcribe) : null,
                       ),
                       const SizedBox(height: FikraSpace.s8),
-                      Text(l.vtCannotCancel, style: context.text.caption),
+                      SmartText(l.vtCannotCancel, content: ReadOnlyContent.chrome, style: context.text.caption),
                       if (c.phase == VoiceTextPhase.transcribing) VoiceTextProgress(label: l.vtWorking),
                       const SizedBox(height: FikraSpace.s20),
-                      Semantics(header: true, child: Text(l.vtLive, style: context.text.section)),
+                      Semantics(
+                        header: true,
+                        child: SmartText(l.vtLive, content: ReadOnlyContent.chrome, style: context.text.section),
+                      ),
                       const SizedBox(height: FikraSpace.s4),
-                      Text(c.isRemote ? l.vsLiveLocal : l.vtLiveHint, style: context.text.caption),
+                      SmartText(c.isRemote ? l.vsLiveLocal : l.vtLiveHint, style: context.text.caption),
                       if (live) ...[
                         InlineRecorder(
                           levels: List.of(c.levels),
                           elapsed: c.elapsed,
                           max: VoiceTextController.maxRecording,
                         ),
-                        SelectableText(
+                        SmartText(
                           c.partial,
+                          selectable: true,
                           key: const ValueKey('vt-partial'),
                           style: context.text.bodyLarge,
-                          textDirection: containsArabic(c.partial) ? TextDirection.rtl : TextDirection.ltr,
                         ),
                       ],
                       const SizedBox(height: FikraSpace.s12),
@@ -262,7 +273,10 @@ class _VoiceTextScreenState extends ConsumerState<VoiceTextScreen> {
                       ),
                       if (c.history.isNotEmpty) ...[
                         const SizedBox(height: FikraSpace.s20),
-                        Semantics(header: true, child: Text(l.vtResult, style: context.text.section)),
+                        Semantics(
+                          header: true,
+                          child: SmartText(l.vtResult, content: ReadOnlyContent.chrome, style: context.text.section),
+                        ),
                         const SizedBox(height: FikraSpace.s8),
                         VoiceTextTranscript(run: c.history.first),
                       ],

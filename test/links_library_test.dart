@@ -77,7 +77,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 200));
         await tester.pumpAndSettle();
         expect(find.text(l10n.noResultsTitle), findsOneWidget);
-        expect(find.text(l10n.noResultsBody('missing')), findsOneWidget);
+        expect(find.bySemanticsLabel(l10n.noResultsBody('missing')), findsOneWidget);
         await tester.enterText(find.byKey(const ValueKey('links-search')), '');
         await librarySegment(tester, LinksLibrarySegment.browse);
         FocusManager.instance.primaryFocus?.unfocus();
@@ -354,7 +354,9 @@ void main() {
     final projectAId = notesA.first.projectId;
 
     // Capture project A's live search and scroll controllers.
-    final searchFieldA = tester.widget<TextField>(find.byKey(const ValueKey('links-search')));
+    final searchFieldA = tester.widget<TextField>(
+      find.descendant(of: find.byKey(const ValueKey('links-search')), matching: find.byType(TextField)),
+    );
     final searchControllerA = searchFieldA.controller!;
     final scrollControllerA = tester
         .widget<CustomScrollView>(find.byKey(LinksLibrarySegment.listKey(projectAId, LinksLibrarySegment.browse)))

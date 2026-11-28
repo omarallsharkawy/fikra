@@ -28,7 +28,7 @@ class SelectionHeader extends StatelessWidget {
           Expanded(
             child: Semantics(
               liveRegion: true,
-              child: Text(
+              child: SmartText(
                 context.l10n.selectedCount(count),
                 key: const ValueKey('selection-count'),
                 style: context.text.cardTitle,
@@ -76,7 +76,7 @@ class SelectionActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final note = this.note;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen - 8, 6, FikraSpace.screen - 8, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen - 8, 6, FikraSpace.screen - 8, 8),
       child: SolidSurface(
         radius: FikraRadius.lg,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -86,8 +86,8 @@ class SelectionActionBar extends StatelessWidget {
           children: [
             if (note != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 2),
-                child: Text(
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 12, 2),
+                child: SmartText(
                   note,
                   key: const ValueKey('selection-note'),
                   style: context.text.caption.copyWith(color: context.colors.textSecondary),
@@ -179,7 +179,7 @@ class _ActionItem extends StatelessWidget {
                 children: [
                   Icon(action.icon, size: 22, color: fg),
                   const SizedBox(height: 2),
-                  Text(
+                  SmartText(
                     action.label,
                     textAlign: TextAlign.center,
                     style: context.text.chip.copyWith(color: fg),

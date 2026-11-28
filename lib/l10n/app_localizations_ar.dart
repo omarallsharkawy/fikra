@@ -2233,10 +2233,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get productResetPreviewCompleteSignInAgain => 'اكتملت تجربة إعادة التعيين. سجّل دخول تاني.';
 
   @override
-  String get productLocalPrivateStateClearedServerRevocationIsNot =>
-      'تم مسح الحالة الخاصة محليًا. إلغاء جلسة الخادم غير مؤكد.';
-
-  @override
   String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount =>
       'تأكيد تجريبي فقط؛ لم يتم إرسال بريد أو تنفيذ إجراء على حساب حقيقي.';
 
@@ -2770,9 +2766,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authNewAccount => 'أول مرة هنا؟ أنشئ حسابًا';
 
   @override
-  String get apiGoogleUnavailable => 'تسجيل الدخول بجوجل غير مُعدّ بعد.';
-
-  @override
   String get apiSignOut => 'تسجيل الخروج';
 
   @override
@@ -2846,4 +2839,412 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authCheckDetails => 'راجع البيانات وحاول مرة أخرى.';
+
+  @override
+  String rdGreet(String name) {
+    return 'أهلاً يا $name 👋';
+  }
+
+  @override
+  String rdNotes(int count) {
+    return '$count نوتات';
+  }
+
+  @override
+  String get rdSearch => 'دوّر في نوتاتك';
+
+  @override
+  String get rdAll => 'الكل';
+
+  @override
+  String get rdToday => 'النهارده';
+
+  @override
+  String get rdEarlier => 'قبل كده';
+
+  @override
+  String get rdHome => 'الرئيسية';
+
+  @override
+  String get rdMap => 'الخريطة';
+
+  @override
+  String get rdAsk => 'اسأل';
+
+  @override
+  String get rdMe => 'أنا';
+
+  @override
+  String get rdProc => 'بيتحلل…';
+
+  @override
+  String get rdNone => 'مفيش نتايج. جرّب كلمة تانية.';
+
+  @override
+  String get rdRel => 'نوتات مرتبطة';
+
+  @override
+  String get rdShared => 'تاج مشترك: ';
+
+  @override
+  String get rdAisug => 'اقتراح الذكاء الاصطناعي';
+
+  @override
+  String get rdApply => 'تطبيق';
+
+  @override
+  String get rdDismiss => 'تجاهل';
+
+  @override
+  String get rdAnother => 'جرّب اقتراح تاني';
+
+  @override
+  String get rdBefore => 'قبل';
+
+  @override
+  String get rdAfter => 'بعد';
+
+  @override
+  String get rdChg => 'التغييرات';
+
+  @override
+  String get rdNudge => 'ضيف تفاصيل أكتر؟';
+
+  @override
+  String get rdNudgeb => 'النوتة قصيرة. جرّب تجاوب: مين؟ فين؟ ليه مهمة؟';
+
+  @override
+  String get rdReana => 'حلّل تاني';
+
+  @override
+  String get rdPin => 'تثبيت';
+
+  @override
+  String get rdShare => 'مشاركة كصورة';
+
+  @override
+  String get rdDel => 'مسح النوتة';
+
+  @override
+  String get rdDelq => 'تمسح النوتة دي؟';
+
+  @override
+  String get rdDelb => 'هتقدر تتراجع لثواني بعد المسح.';
+
+  @override
+  String get rdCancel => 'إلغاء';
+
+  @override
+  String get rdDeleted => 'اتمسحت';
+
+  @override
+  String get rdUndo => 'تراجع';
+
+  @override
+  String get rdApplied => 'اتطبّق';
+
+  @override
+  String get rdHint => 'اسحب وقرّب بصباعين عشان تستكشف';
+
+  @override
+  String get rdOk => 'تمام';
+
+  @override
+  String rdLinks(int count, int links) {
+    return '$count نوتات · $links روابط';
+  }
+
+  @override
+  String get rdOpen => 'افتح';
+
+  @override
+  String get rdAsktt => 'اسأل نوتاتك';
+
+  @override
+  String get rdScope => 'كل النوتات';
+
+  @override
+  String get rdPh => 'اكتب سؤالك…';
+
+  @override
+  String rdBased(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'مبني على $count نوتة',
+      many: 'مبني على $count نوتة',
+      few: 'مبني على $count نوتات',
+      two: 'مبني على نوتتين',
+      one: 'مبني على نوتة واحدة',
+      zero: 'من غير مصادر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rdHello(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'عندك $count نوتة. حابب تعرف إيه؟',
+      many: 'عندك $count نوتة. حابب تعرف إيه؟',
+      few: 'عندك $count نوتات. حابب تعرف إيه؟',
+      two: 'عندك نوتتين. حابب تعرف إيه؟',
+      one: 'عندك نوتة واحدة. حابب تعرف إيه؟',
+      zero: 'لسه مفيش نوتات. حابب تعرف إيه؟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rdCph => 'اكتب أي فكرة جت في بالك…';
+
+  @override
+  String get rdAddt => '+ عنوان';
+
+  @override
+  String get rdTph => 'العنوان';
+
+  @override
+  String get rdSave => 'حفظ';
+
+  @override
+  String get rdSh => 'اكتب حاجة الأول عشان تحفظ';
+
+  @override
+  String get rdVoice => 'صوت';
+
+  @override
+  String get rdPdf => 'PDF';
+
+  @override
+  String get rdTag => 'تاج';
+
+  @override
+  String get rdLis => 'بسمعك…';
+
+  @override
+  String get rdStop => 'وقّف وحوّل لنص';
+
+  @override
+  String get rdSaved => 'اتحفظت ✓';
+
+  @override
+  String get rdLang => 'اللغة';
+
+  @override
+  String get rdTheme => 'الشكل';
+
+  @override
+  String get rdLight => 'فاتح';
+
+  @override
+  String get rdDark => 'داكن';
+
+  @override
+  String get rdSys => 'تلقائي';
+
+  @override
+  String get rdAuto => 'تاج تلقائي';
+
+  @override
+  String get rdExp => 'تصدير نوتاتك';
+
+  @override
+  String get rdOut => 'تسجيل خروج';
+
+  @override
+  String get rdOutq => 'تسجيل خروج؟';
+
+  @override
+  String get rdOutb => 'نوتاتك محفوظة وهتلاقيها لما ترجع.';
+
+  @override
+  String get rdStat1 => 'نوتة';
+
+  @override
+  String get rdStat2 => 'رابط';
+
+  @override
+  String get rdNewc => 'محادثة جديدة';
+
+  @override
+  String get rdHist => 'السجل';
+
+  @override
+  String get rdStart => 'ابدأ بكتابة أول فكرة';
+
+  @override
+  String get rdFirst => 'لسه مفيش نوتات';
+
+  @override
+  String get rdFl => 'ضيف كام نوتة وشوف الروابط بتظهر';
+
+  @override
+  String get rdUntitled => 'بدون عنوان';
+
+  @override
+  String get rdChips0 => 'لخّصلي نوتاتي';
+
+  @override
+  String get rdChips1 => 'بكتب عن إيه أكتر؟';
+
+  @override
+  String get rdChips2 => 'إيه اللي بيربط أفكاري؟';
+
+  @override
+  String get rdWr => 'اكتب';
+
+  @override
+  String get rdLk => 'اربط';
+
+  @override
+  String get rdAs => 'اسأل';
+
+  @override
+  String get rdTagl => 'اكتبها. اربطها. اسألها.';
+
+  @override
+  String get rdTag1 => 'أفكارك متوصّلة ببعض، واسأل نوتاتك أي حاجة.';
+
+  @override
+  String get rdGs => 'ابدأ دلوقتي';
+
+  @override
+  String get rdHave => 'عندي حساب';
+
+  @override
+  String get rdMk => 'اعمل حسابك';
+
+  @override
+  String get rdMks => 'خلّي أفكارك تلاقي مكان تكبر فيه.';
+
+  @override
+  String get rdWb => 'أهلاً بيك تاني';
+
+  @override
+  String get rdWbs => 'مساحة صغيرة لفكرتك الجاية.';
+
+  @override
+  String get rdEm => 'الإيميل';
+
+  @override
+  String get rdPw => 'الباسورد';
+
+  @override
+  String get rdShow => 'إظهار';
+
+  @override
+  String get rdFg => 'نسيت الباسورد؟';
+
+  @override
+  String get rdLi => 'تسجيل الدخول';
+
+  @override
+  String get rdNw => 'جديد هنا؟ اعمل حساب';
+
+  @override
+  String get rdAh => 'عندك حساب؟ سجّل دخول';
+
+  @override
+  String get rdTerms => 'بالتسجيل انت موافق على الشروط وسياسة الخصوصية.';
+
+  @override
+  String get rdS1 => 'ضعيفة';
+
+  @override
+  String get rdS2 => 'مقبولة، ضيف رقم';
+
+  @override
+  String get rdS3 => 'قوية';
+
+  @override
+  String get rdEmerr => 'الإيميل مش مكتوب صح';
+
+  @override
+  String get rdPwh => '٨ حروف أو أكتر أحسن';
+
+  @override
+  String get rdErr => 'الإيميل أو الباسورد غلط. جرّب تاني.';
+
+  @override
+  String get rdBack => 'رجوع';
+
+  @override
+  String get rdNm => 'اسمك';
+
+  @override
+  String get rdHide => 'إخفاء';
+
+  @override
+  String get rdNamePrompt => 'تحب نناديك بإيه؟';
+
+  @override
+  String get rdNeutralGreeting => 'أهلاً بيك 👋';
+
+  @override
+  String get rdAddName => 'ضيف اسمك';
+
+  @override
+  String get rdEditName => 'تعديل الاسم';
+
+  @override
+  String get rdNameDevice => 'محفوظ على الجهاز ده';
+
+  @override
+  String get rdNameInvalid => 'اكتب اسم لحد ٤٠ حرف';
+
+  @override
+  String get rdLater => 'بعدين';
+
+  @override
+  String get rdNewTag => 'تاج جديد';
+
+  @override
+  String get rdTagName => 'اسم التاج';
+
+  @override
+  String get rdEditTag => 'تعديل التاج';
+
+  @override
+  String get rdTagExists => 'فيه تاج بالاسم ده بالفعل';
+
+  @override
+  String get rdUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get rdUndoExpired => 'وقت التراجع خلص';
+
+  @override
+  String get rdShareFailed => 'المشاركة ما كملتش. جرّب تاني.';
+
+  @override
+  String get rdUndoFailed => 'التراجع ما كملش. جرّب تاني.';
+
+  @override
+  String get rdPendingChange => 'بنكمل التعديل…';
+
+  @override
+  String get rdNoteActions => 'اختيارات النوتة';
+
+  @override
+  String get rdReplying => 'بنجهّز الرد…';
+
+  @override
+  String get rdCheckConversation => 'راجع المحادثة';
+
+  @override
+  String get rdReviewConversation => 'المحادثة اتحدّثت. راجع الرسائل قبل ما تبعت تاني.';
+
+  @override
+  String get rdDraftFailed => 'تعذّر حفظ المسودة على جهازك. أعد المحاولة قبل الإغلاق.';
+
+  @override
+  String get rdOnDevice => 'على هذا الجهاز';
+
+  @override
+  String get googleIdentityError => 'تعذّر التحقق من حساب Google. حاول مرة أخرى.';
+
+  @override
+  String get googleServiceError => 'تسجيل الدخول بـ Google غير متاح حاليًا. حاول مرة أخرى.';
 }

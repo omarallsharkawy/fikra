@@ -56,9 +56,9 @@ class _LinkRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: context.text.body.copyWith(fontWeight: FontWeight.w600)),
+                    SmartText(title, style: context.text.body.copyWith(fontWeight: FontWeight.w600)),
                     if (reason.isNotEmpty)
-                      Text(reason, style: context.text.meta.copyWith(color: context.colors.accent)),
+                      SmartText(reason, style: context.text.meta.copyWith(color: context.colors.accent)),
                   ],
                 ),
               ),
@@ -178,7 +178,7 @@ class _InlineAction extends StatelessWidget {
                 Icon(icon, size: 18, color: fg),
                 const SizedBox(width: 6),
                 Flexible(
-                  child: Text(label, style: context.text.chip.copyWith(color: fg)),
+                  child: SmartText(label, style: context.text.chip.copyWith(color: fg)),
                 ),
               ],
             ),

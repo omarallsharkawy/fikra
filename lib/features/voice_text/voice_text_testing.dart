@@ -20,7 +20,7 @@ class VoiceTextTesting extends StatelessWidget {
     final l = context.l10n;
     Widget section(String title) => Padding(
       padding: const EdgeInsets.symmetric(vertical: FikraSpace.s12),
-      child: Text(title, style: context.text.section),
+      child: SmartText(title, style: context.text.section),
     );
     final fullModels = c.models.where((m) => !m.quantized && m != c.model).toList();
     return Column(
@@ -105,7 +105,7 @@ class VoiceTextTesting extends StatelessWidget {
           onPressed: c.idle && c.selected != null && c.canTranscribe ? () => act(c.transcribe) : null,
         ),
         const SizedBox(height: FikraSpace.s8),
-        Text(l.vtCannotCancel, style: context.text.caption),
+        SmartText(l.vtCannotCancel, content: ReadOnlyContent.chrome, style: context.text.caption),
         if (c.phase == VoiceTextPhase.transcribing) ...[
           const SizedBox(height: FikraSpace.s12),
           VoiceTextProgress(key: const ValueKey('vt-working'), label: l.vtWorking),

@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,8 +83,9 @@ class _RecordingCapsuleButton extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Flexible(
-              child: Text(
+              child: SmartText(
                 l10n.capsuleRecording,
+                content: ReadOnlyContent.chrome,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.text.chip,
@@ -94,7 +97,7 @@ class _RecordingCapsuleButton extends StatelessWidget {
                 textDirection: TextDirection.ltr,
                 child: ValueListenableBuilder<Duration>(
                   valueListenable: elapsed,
-                  builder: (context, duration, _) => Text(Fmt.duration(duration.inMilliseconds), style: timeStyle),
+                  builder: (context, duration, _) => SmartText(Fmt.duration(duration.inMilliseconds), style: timeStyle),
                 ),
               ),
             ),
@@ -128,8 +131,9 @@ class _TranscribingCapsuleButton extends StatelessWidget {
             Icon(Icons.graphic_eq_rounded, size: 16, color: colors.accent),
             const SizedBox(width: 8),
             Flexible(
-              child: Text(
+              child: SmartText(
                 l10n.capsuleTranscribing,
+                content: ReadOnlyContent.chrome,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.text.chip,

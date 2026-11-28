@@ -13,8 +13,12 @@ class ApiAuthRepository implements AuthRepository {
   Future<Account> currentAccount(TokenPair tokens) async =>
       accountFromJson(await api.request('GET', '/v1/auth/me', accessToken: tokens.access));
   @override
-  Future<void> register(String email, String password) async {
-    await api.request('POST', '/v1/auth/register/otp', json: {'email': email, 'password': password});
+  Future<void> register(String email, String password, {required String name}) async {
+    await api.request(
+      'POST',
+      '/v1/auth/register/otp',
+      json: {'email': email, 'password': password, 'name': name.trim()},
+    );
   }
 
   @override
@@ -47,7 +51,8 @@ class ApiAuthRepository implements AuthRepository {
   Future<SessionGrant> login(String email, String password) =>
       _grant('/v1/auth/login', {'email': email, 'password': password});
   @override
-  Future<SessionGrant> exchangeGoogleIdToken(String idToken) => _grant('/v1/auth/google', {'id_token': idToken});
+  Future<SessionGrant> exchangeGoogleIdToken(String idToken, {String? name}) =>
+      _grant('/v1/auth/google', {'id_token': idToken, if (name != null) 'name': name.trim()});
   @override
   Future<void> requestRecovery(String email) async {
     await api.request('POST', '/v1/auth/password-reset/otp/request', json: {'email': email});

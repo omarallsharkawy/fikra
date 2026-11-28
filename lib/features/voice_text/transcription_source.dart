@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +26,6 @@ class TranscriptionSource extends ConsumerWidget {
     } else {
       label = local != null ? l.trLocalEngine(modelName(l, local)) : Fmt.isolate(engineId);
     }
-    return Text(label, style: context.text.meta);
+    return SmartText(label, style: context.text.meta);
   }
 }

@@ -142,8 +142,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> with SingleTicker
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            SmartText(
                               l10n.welcomeEyebrow,
+                              content: ReadOnlyContent.chrome,
                               style: context.text.section.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -158,8 +159,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> with SingleTicker
                                 Expanded(
                                   child: Semantics(
                                     header: true,
-                                    child: Text(
+                                    child: SmartText(
                                       l10n.welcomeBrandTitle,
+                                      content: ReadOnlyContent.chrome,
                                       style: context.text.title.copyWith(
                                         fontSize: 40,
                                         fontWeight: FontWeight.w800,
@@ -171,8 +173,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> with SingleTicker
                               ],
                             ),
                             const SizedBox(height: 12),
-                            Text(
+                            SmartText(
                               l10n.welcomeTagline,
+                              content: ReadOnlyContent.chrome,
                               style: context.text.title.copyWith(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
@@ -180,14 +183,18 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> with SingleTicker
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Text(l10n.welcomeSubtitle, style: context.text.body.copyWith(color: c.textSecondary)),
+                            SmartText(
+                              l10n.welcomeSubtitle,
+                              content: ReadOnlyContent.chrome,
+                              style: context.text.body.copyWith(color: c.textSecondary),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     const Spacer(),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 28, FikraSpace.screen, 16),
+                      padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 28, FikraSpace.screen, 16),
                       child: _stagger(
                         0.3,
                         1.0,
@@ -210,7 +217,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> with SingleTicker
                               onPressed: busy ? null : _seed,
                             ),
                             const SizedBox(height: 16),
-                            Text(l10n.welcomeFooter, textAlign: TextAlign.center, style: context.text.meta),
+                            SmartText(
+                              l10n.welcomeFooter,
+                              content: ReadOnlyContent.chrome,
+                              textAlign: TextAlign.center,
+                              style: context.text.meta,
+                            ),
                           ],
                         ),
                       ),

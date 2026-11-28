@@ -54,14 +54,14 @@ void main() {
         await r.capture.transcribe();
         await tester.pumpAndSettle();
         final clip = r.capture.clip;
-        final l = tester.element(find.byKey(const ValueKey('use-transcript'))).l10n;
-        await tapVisible(tester, find.byKey(const ValueKey('use-transcript')));
+        final l = tester.element(find.byKey(const ValueKey('save-product-note'))).l10n;
+        expect(r.workspace.draft.content, 'Reviewed voice text');
         await tapVisible(tester, find.byKey(const ValueKey('save-product-note')));
         if (uncertain) {
           expect(r.workspace.pendingAttempt, isNotNull);
           expect(r.capture.clip, same(clip));
           expect(r.capture.transcript, 'Reviewed voice text');
-          expect(find.byKey(const ValueKey('transcript-review')), findsOneWidget);
+          expect(r.workspace.draft.content, 'Reviewed voice text');
           await tapVisible(tester, find.byKey(const ValueKey('save-product-note')));
           expect(repository.sent[0].key, repository.sent[1].key);
         }
@@ -71,7 +71,7 @@ void main() {
         expect(r.workspace.pendingAttempt, isNull);
         expect(r.workspace.notes.single.content, 'Reviewed voice text');
         await tapVisible(tester, find.byKey(const ValueKey('nav-add')));
-        expect(tester.getRect(input('capture-title-${r.workspace.selectedProjectId}')).top, greaterThanOrEqualTo(0));
+        expect(find.byKey(ValueKey('capture-title-${r.workspace.selectedProjectId}')), findsNothing);
         expect(
           tester.widget<TextField>(input('capture-content-${r.workspace.selectedProjectId}')).controller!.text,
           isEmpty,

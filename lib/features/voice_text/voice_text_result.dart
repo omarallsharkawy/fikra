@@ -9,7 +9,6 @@ import 'transcription_source.dart';
 import '../../data/processing/transcription_engine.dart';
 import 'service_copy.dart';
 import 'voice_text_copy.dart';
-import 'whisper_metrics.dart';
 
 class VoiceTextResult extends StatelessWidget {
   const VoiceTextResult({super.key, required this.run});
@@ -31,7 +30,7 @@ class VoiceTextResult extends StatelessWidget {
         VoiceTextIssue.values.where((i) => i.name == run['error_kind']).firstOrNull ?? VoiceTextIssue.transcription;
     Widget number(String label) => Padding(
       padding: const EdgeInsets.only(top: FikraSpace.s4),
-      child: Text(label, style: context.text.caption),
+      child: SmartText(label, style: context.text.caption),
     );
     return SolidSurface(
       key: const ValueKey('vt-result-card'),
@@ -43,7 +42,7 @@ class VoiceTextResult extends StatelessWidget {
           if (run['engine_id'] case final String engine)
             TranscriptionSource(engineId: engine, serviceName: run['service_name'] as String?),
           if (model != null)
-            Text(modelLabel(l, model, bytes: (run['model_bytes'] as num?)?.toInt()), style: context.text.section),
+            SmartText(modelLabel(l, model, bytes: (run['model_bytes'] as num?)?.toInt()), style: context.text.section),
           const SizedBox(height: FikraSpace.s8),
           if (run['error'] != null)
             StatusBanner(
@@ -57,13 +56,9 @@ class VoiceTextResult extends StatelessWidget {
                   : issueMessage(l, issue),
             ),
           if (text.isNotEmpty || run['error'] == null)
-            SelectableText(
-              text.isEmpty ? l.vtNoSpeech : text,
-              textDirection: containsArabic(text) ? TextDirection.rtl : TextDirection.ltr,
-              style: context.text.bodyLarge,
-            ),
+            SmartText(text.isEmpty ? l.vtNoSpeech : text, selectable: true, style: context.text.bodyLarge),
           const SizedBox(height: FikraSpace.s16),
-          Text(l.vtNumbers, style: context.text.section),
+          SmartText(l.vtNumbers, content: ReadOnlyContent.chrome, style: context.text.section),
           number(l.vtAudioLength(_number('audio_seconds'))),
           number(l.vtWall(Fmt.isolate(((run['wall_ms'] as num) / 1000).toStringAsFixed(2)))),
           if (!live && factor != null && factor > 0)
@@ -81,7 +76,7 @@ class VoiceTextResult extends StatelessWidget {
             number(l.vtEstimate(_ms(l, 'transcription_wall_ms_estimate'))),
           if (run['model_load_ms'] != null) number(l.vtModelLoad(_ms(l, 'model_load_ms'))),
           const SizedBox(height: FikraSpace.s8),
-          Text(
+          SmartText(
             live
                 ? l.vtLiveTiming
                 : run['mode'] == 'remote'
@@ -114,14 +109,11 @@ class VoiceTextTranscript extends StatelessWidget {
           if ((run['engine_id'] ?? (run['model'] == null ? null : 'local:${run['model']}')) case final String engine)
             TranscriptionSource(engineId: engine, serviceName: run['service_name'] as String?),
           if (text.isNotEmpty || run['error'] == null)
-            SelectableText(
-              text.isEmpty ? context.l10n.vtNoSpeech : text,
-              style: context.text.bodyLarge,
-              textDirection: containsArabic(text) ? TextDirection.rtl : TextDirection.ltr,
-            ),
+            SmartText(text.isEmpty ? context.l10n.vtNoSpeech : text, selectable: true, style: context.text.bodyLarge),
           const SizedBox(height: FikraSpace.s8),
-          Text(context.l10n.vtWall(Fmt.isolate(seconds)), style: context.text.caption),
-          if (run['mode'] == 'live') Text(context.l10n.vtLiveTiming, style: context.text.caption),
+          SmartText(context.l10n.vtWall(Fmt.isolate(seconds)), style: context.text.caption),
+          if (run['mode'] == 'live')
+            SmartText(context.l10n.vtLiveTiming, content: ReadOnlyContent.chrome, style: context.text.caption),
         ],
       ),
     );

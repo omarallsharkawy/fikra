@@ -1,3 +1,5 @@
+import 'smart_text.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -180,7 +182,7 @@ class _ToastCapsuleState extends State<_ToastCapsule> {
       return pill(
         radius: FikraRadius.full,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Text(widget.message, style: context.text.body),
+        child: SmartText(widget.message, style: context.text.body),
       );
     }
 
@@ -205,7 +207,7 @@ class _ToastCapsuleState extends State<_ToastCapsule> {
     return pill(
       radius: widget.stacked ? FikraRadius.xl : FikraRadius.full,
       padding: widget.stacked
-          ? const EdgeInsets.fromLTRB(18, 10, 10, 4)
+          ? const EdgeInsetsDirectional.fromSTEB(18, 10, 10, 4)
           : const EdgeInsetsDirectional.fromSTEB(18, 4, 8, 4),
       child: widget.stacked
           ? Column(
@@ -214,7 +216,7 @@ class _ToastCapsuleState extends State<_ToastCapsule> {
               children: [
                 Padding(
                   padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: Text(widget.message, style: context.text.body),
+                  child: SmartText(widget.message, style: context.text.body),
                 ),
                 Align(alignment: AlignmentDirectional.centerEnd, child: actionButton),
               ],
@@ -225,7 +227,7 @@ class _ToastCapsuleState extends State<_ToastCapsule> {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(widget.message, style: context.text.body),
+                    child: SmartText(widget.message, style: context.text.body),
                   ),
                 ),
                 const SizedBox(width: 8),

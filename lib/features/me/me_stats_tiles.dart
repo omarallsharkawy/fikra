@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,7 +51,7 @@ class MeStatsTiles extends ConsumerWidget {
               value?.toString() ?? '—',
               style: context.text.title.copyWith(fontSize: 30, fontWeight: FontWeight.w800, color: ink),
             ),
-            Text(
+            SmartText(
               label,
               style: context.text.caption.copyWith(color: ink, fontWeight: FontWeight.w600),
             ),

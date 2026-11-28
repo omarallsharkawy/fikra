@@ -15,7 +15,6 @@ import '../../l10n/localizations.dart';
 import '../shared/transcription_notifications.dart';
 import '../voice_text/service_copy.dart';
 import '../voice_text/transcription_source.dart';
-import '../voice_text/whisper_metrics.dart';
 
 /// A saved recording's durable state. No native engine calls from presentation.
 class VoiceTranscript extends ConsumerStatefulWidget {
@@ -77,18 +76,8 @@ class _VoiceTranscriptState extends ConsumerState<VoiceTranscript> {
               key: ValueKey('transcript-text-${a.id}'),
               expanded: _expanded,
               child: _expanded
-                  ? SelectableText(
-                      transcript,
-                      style: context.text.body,
-                      textDirection: containsArabic(transcript) ? TextDirection.rtl : TextDirection.ltr,
-                    )
-                  : Text(
-                      transcript,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.text.body,
-                      textDirection: containsArabic(transcript) ? TextDirection.rtl : TextDirection.ltr,
-                    ),
+                  ? SmartText(transcript, selectable: true, style: context.text.body)
+                  : SmartText(transcript, maxLines: 3, overflow: TextOverflow.ellipsis, style: context.text.body),
             ),
             FikraButton.secondary(
               key: ValueKey('transcript-expand-${a.id}'),

@@ -6,6 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/product/development/development_auth.dart';
 import '../data/product/development/development_knowledge.dart';
 import '../data/product/repositories.dart';
+import '../data/product/local_ui_store.dart';
+import '../features/account/profile_controller.dart';
+import '../features/workspace/local_tags_controller.dart';
+import '../features/workspace/note_undo_controller.dart';
 import '../features/account/session_controller.dart';
 import '../features/workspace/workspace_controller.dart';
 import '../features/conversation/conversation_controller.dart';
@@ -42,6 +46,12 @@ final productAttemptsProvider = Provider<AttemptStore>(
       ? SecureAttemptStore(namespace: ref.watch(productApiOriginProvider).origin)
       : MemoryAttemptStore(),
 );
+final productLocalUiProvider = Provider<LocalUiStore>(
+  (ref) => ref.watch(appModeProvider) == AppMode.connected
+      ? SecureLocalUiStore(origin: ref.watch(productApiOriginProvider).origin)
+      : MemoryLocalUiStore(),
+);
+
 final productCaptureDeviceProvider = Provider<CaptureDevice>(
   (ref) => NativeCaptureDevice(
     ref.read(audioRecorderFactoryProvider)(),
@@ -60,6 +70,7 @@ final productRuntimeProvider = Provider<ProductRuntime>((ref) {
     ref.watch(productAttemptsProvider),
     ref.watch(productCaptureDeviceProvider),
     documents: ref.watch(productDocumentsProvider),
+    localUi: ref.watch(productLocalUiProvider),
   );
   if (ref.watch(appModeProvider) == AppMode.connected) {
     final api = ref.watch(productApiClientProvider);
@@ -81,9 +92,24 @@ class ProductRuntime {
     this.attempts,
     CaptureDevice device, {
     LocalDocuments? documents,
+    LocalUiStore? localUi,
   }) {
     session = SessionController(auth, vault);
-    workspace = WorkspaceController(repository, attempts, onUnauthorized: () => unawaited(session.expire()));
+    final uiStore = localUi ?? MemoryLocalUiStore();
+    profile = ProfileController(uiStore);
+    tags = LocalTagsController(uiStore);
+    workspace = WorkspaceController(
+      repository,
+      attempts,
+      localUi: uiStore,
+      onUnauthorized: () => unawaited(session.expire()),
+    );
+    undo = NoteUndoController(
+      repository,
+      uiStore,
+      onCommitted: (action, note) => workspace.acceptCommittedChange(action.noteId, note),
+      onUnauthorized: () => unawaited(session.expire()),
+    );
     chat = ConversationController(repository, onUnauthorized: () => unawaited(session.expire()));
     capture = CaptureController(
       device,
@@ -97,6 +123,9 @@ class ProductRuntime {
   final KnowledgeRepository repository;
   final AttemptStore attempts;
   late final SessionController session;
+  late final ProfileController profile;
+  late final LocalTagsController tags;
+  late final NoteUndoController undo;
   late final WorkspaceController workspace;
   late final ConversationController chat;
   late final CaptureController capture;
@@ -111,6 +140,9 @@ class ProductRuntime {
     workspace.clear();
     chat.reset();
     capture.setAccount(id);
+    unawaited(profile.bind(id, session.account?.email ?? '', serverName: session.account?.name));
+    unawaited(tags.bind(id));
+    unawaited(undo.bind(id));
     if (old != null) {
       repository.clearAccount(old);
       unawaited(attempts.clear(old));
@@ -126,6 +158,7 @@ class ProductRuntime {
     final project = workspace.selectedProjectId;
     if (project == _project) return;
     _project = project;
+    capture.setProject(project);
     if (project == null || _account == null) {
       chat.reset();
     } else {
@@ -135,6 +168,8 @@ class ProductRuntime {
 
   void foreground(bool value) {
     workspace.setForeground(value);
+    if (!value) unawaited(workspace.flushDraft());
+    if (value) unawaited(undo.flushDue());
     if (!value) {
       capture.background();
       chat.interrupt();
@@ -147,6 +182,9 @@ class ProductRuntime {
     session.removeListener(_sessionChanged);
     workspace.removeListener(_projectChanged);
     session.dispose();
+    profile.dispose();
+    tags.dispose();
+    undo.dispose();
     workspace.dispose();
     chat.dispose();
     capture.dispose();

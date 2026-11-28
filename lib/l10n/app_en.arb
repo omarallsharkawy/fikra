@@ -1881,7 +1881,6 @@
   "productPreviewSeparateEmptyAccount": "Preview separate empty account",
   "productVerificationPreviewCompleteSignInSeparately": "Verification preview complete. Sign in separately.",
   "productResetPreviewCompleteSignInAgain": "Reset preview complete. Sign in again.",
-  "productLocalPrivateStateClearedServerRevocationIsNot": "Local private state cleared. Server revocation is not confirmed.",
   "productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount": "Development acknowledgment only; no real delivery or account operation occurred.",
   "productCaptureAThought": "Capture a thought",
   "productCloseComposer": "Close composer",
@@ -2052,7 +2051,6 @@
   "authResetHint": "Enter your reset token and a new password.",
   "authHaveAccount": "Already have an account? Log in",
   "authNewAccount": "New here? Create an account",
-  "apiGoogleUnavailable": "Google sign-in is not configured yet.",
   "apiSignOut": "Sign out",
   "apiSixDigitCode": "6-digit code",
   "apiNewPassword": "New password",
@@ -2077,5 +2075,169 @@
   "authResponseError": "The server returned an unexpected response. Please try again later.",
   "authCredentialsError": "The email or password is incorrect. Check your details and try again.",
   "authRequestError": "The request could not be completed. Please try again.",
-  "authCheckDetails": "Check your details and try again."
+  "authCheckDetails": "Check your details and try again.",
+  "rdGreet": "Hey {name} 👋",
+  "@rdGreet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rdNotes": "{count} notes",
+  "@rdNotes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rdSearch": "Search your notes",
+  "rdAll": "All",
+  "rdToday": "Today",
+  "rdEarlier": "Earlier",
+  "rdHome": "Home",
+  "rdMap": "Map",
+  "rdAsk": "Ask",
+  "rdMe": "Me",
+  "rdProc": "Analyzing…",
+  "rdNone": "No results. Try another word.",
+  "rdRel": "Related notes",
+  "rdShared": "Shared tag: ",
+  "rdAisug": "AI suggestion",
+  "rdApply": "Apply",
+  "rdDismiss": "Dismiss",
+  "rdAnother": "Try another",
+  "rdBefore": "Before",
+  "rdAfter": "After",
+  "rdChg": "Changes",
+  "rdNudge": "Add more detail?",
+  "rdNudgeb": "Short note. Try answering: who, where, why does it matter?",
+  "rdReana": "Re-analyze",
+  "rdPin": "Pin",
+  "rdShare": "Share as card",
+  "rdDel": "Delete note",
+  "rdDelq": "Delete this note?",
+  "rdDelb": "You’ll have a few seconds to undo.",
+  "rdCancel": "Cancel",
+  "rdDeleted": "Deleted",
+  "rdUndo": "Undo",
+  "rdApplied": "Applied",
+  "rdHint": "Drag and pinch to explore",
+  "rdOk": "Got it",
+  "rdLinks": "{count} notes · {links} links",
+  "@rdLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "links": {
+        "type": "int"
+      }
+    }
+  },
+  "rdOpen": "Open",
+  "rdAsktt": "Ask your notes",
+  "rdScope": "All notes",
+  "rdPh": "Type your question…",
+  "rdBased": "{count, plural, =0{No sources} one{Based on 1 note} other{Based on {count} notes}}",
+  "@rdBased": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rdHello": "{count, plural, =0{You have no notes yet. What do you want to know?} one{You have 1 note. What do you want to know?} other{You have {count} notes. What do you want to know?}}",
+  "@rdHello": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rdCph": "Write any idea on your mind…",
+  "rdAddt": "+ Title",
+  "rdTph": "Title",
+  "rdSave": "Save",
+  "rdSh": "Write something to enable Save",
+  "rdVoice": "Voice",
+  "rdPdf": "PDF",
+  "rdTag": "Tag",
+  "rdLis": "Listening…",
+  "rdStop": "Stop and transcribe",
+  "rdSaved": "Saved ✓",
+  "rdLang": "Language",
+  "rdTheme": "Theme",
+  "rdLight": "Light",
+  "rdDark": "Dark",
+  "rdSys": "System",
+  "rdAuto": "Auto-tag",
+  "rdExp": "Export notes",
+  "rdOut": "Sign out",
+  "rdOutq": "Sign out?",
+  "rdOutb": "Your notes are saved. They’ll be here when you’re back.",
+  "rdStat1": "Notes",
+  "rdStat2": "Links",
+  "rdNewc": "New chat",
+  "rdHist": "History",
+  "rdStart": "Write your first idea",
+  "rdFirst": "No notes yet",
+  "rdFl": "Add a few notes and watch links appear",
+  "rdUntitled": "Untitled",
+  "rdChips0": "Summarize my notes",
+  "rdChips1": "What do I write about most?",
+  "rdChips2": "What connects my ideas?",
+  "rdWr": "Write",
+  "rdLk": "Link",
+  "rdAs": "Ask",
+  "rdTagl": "Write it. Link it. Ask it.",
+  "rdTag1": "Your ideas, connected. Ask your notes anything.",
+  "rdGs": "Get started",
+  "rdHave": "I already have an account",
+  "rdMk": "Create your account",
+  "rdMks": "Give your ideas a place to grow.",
+  "rdWb": "Welcome back",
+  "rdWbs": "A little space for your next big idea.",
+  "rdEm": "Email",
+  "rdPw": "Password",
+  "rdShow": "Show",
+  "rdFg": "Forgot password?",
+  "rdLi": "Log in",
+  "rdNw": "New here? Create an account",
+  "rdAh": "Already have an account? Log in",
+  "rdTerms": "By signing up you agree to the Terms and Privacy Policy.",
+  "rdS1": "Weak",
+  "rdS2": "Okay, add a number",
+  "rdS3": "Strong",
+  "rdEmerr": "That email doesn’t look right",
+  "rdPwh": "8+ characters is better",
+  "rdErr": "Wrong email or password. Try again.",
+  "rdBack": "Back",
+  "rdNm": "Your name",
+  "rdHide": "Hide",
+  "rdNamePrompt": "What should we call you?",
+  "rdNeutralGreeting": "Hey there 👋",
+  "rdAddName": "Add your name",
+  "rdEditName": "Edit name",
+  "rdNameDevice": "Saved on this device",
+  "rdNameInvalid": "Enter a name up to 40 characters",
+  "rdLater": "Later",
+  "rdNewTag": "New tag",
+  "rdTagName": "Tag name",
+  "rdEditTag": "Edit tag",
+  "rdTagExists": "A tag with this name already exists",
+  "rdUnpin": "Unpin",
+  "rdUndoExpired": "That change can no longer be undone",
+  "rdShareFailed": "Couldn’t share this note. Try again.",
+  "rdUndoFailed": "Couldn’t undo this change. Please try again.",
+  "rdPendingChange": "Finishing your change…",
+  "rdNoteActions": "Note actions",
+  "rdReplying": "Replying…",
+  "rdCheckConversation": "Check conversation",
+  "rdReviewConversation": "Conversation refreshed. Review the messages before sending again.",
+  "rdDraftFailed": "Couldn’t save this draft on your device. Retry before closing.",
+  "rdOnDevice": "On this device",
+  "googleIdentityError": "Google sign-in could not be verified. Please try again.",
+  "googleServiceError": "Google sign-in is unavailable right now. Please try again."
 }

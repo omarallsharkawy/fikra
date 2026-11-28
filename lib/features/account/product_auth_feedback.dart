@@ -1,3 +1,5 @@
+import '../../core/widgets/smart_text.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/tokens.dart';
@@ -43,11 +45,12 @@ class _ProductAuthFeedbackState extends State<ProductAuthFeedback> {
       FailureCause.secureConnection => l.authSecureConnectionError,
       FailureCause.invalidResponse => l.authResponseError,
       null => switch (failure.kind) {
-        FailureKind.unauthorized => l.authCredentialsError,
-        FailureKind.unavailable => l.authServiceError,
+        FailureKind.unauthorized => failure.field == 'google' ? l.googleIdentityError : l.authCredentialsError,
+        FailureKind.unavailable => failure.field == 'google' ? l.googleServiceError : l.authServiceError,
         FailureKind.uncertain => l.authRequestError,
         FailureKind.validation => switch (failure.field) {
           'email' => l.apiInvalidEmail,
+          'name' => l.rdNameInvalid,
           'password' || 'new_password' => l.apiPasswordHint,
           'code' => l.apiInvalidCode,
           _ => l.authCheckDetails,
@@ -74,7 +77,7 @@ class _ProductAuthFeedbackState extends State<ProductAuthFeedback> {
             Expanded(
               child: message == null
                   ? ProductFailureView(failure)
-                  : Text(message, style: context.text.caption.copyWith(color: context.colors.danger)),
+                  : SmartText(message, style: context.text.caption.copyWith(color: context.colors.danger)),
             ),
           ],
         ),

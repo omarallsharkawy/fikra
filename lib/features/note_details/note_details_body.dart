@@ -13,11 +13,11 @@ class _Body extends ConsumerWidget {
     final text = improved && view == _originalView ? note.originalContent : note.displayText;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 8, FikraSpace.screen, 32),
+      padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 8, FikraSpace.screen, 32),
       children: [
         Semantics(
           header: true,
-          child: Text(noteTitle(context, note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
+          child: SmartText(noteTitle(context, note), style: context.text.title.copyWith(fontWeight: FontWeight.w700)),
         ),
         const SizedBox(height: 6),
         Row(
@@ -27,7 +27,7 @@ class _Body extends ConsumerWidget {
               const SizedBox(width: 6),
             ],
             Flexible(
-              child: Text(
+              child: SmartText(
                 [
                   Fmt.dayHeader(context.l10n, note.createdAt, now: ref.read(appClockProvider)()),
                   Fmt.time(context.l10n, note.createdAt),
@@ -73,13 +73,14 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: 14),
         ],
         if (note.rewrite == RewriteStatus.pending && note.proposedText != null && text.isNotEmpty) ...[
-          Text(
+          SmartText(
             context.l10n.originalTextLabel,
+            content: ReadOnlyContent.chrome,
             style: context.text.meta.copyWith(fontSize: 12, color: context.colors.textSecondary),
           ),
           const SizedBox(height: 6),
         ],
-        if (text.isNotEmpty) SelectableText(text, style: context.text.bodyLarge.copyWith(height: 1.7)),
+        if (text.isNotEmpty) SmartText(text, selectable: true, style: context.text.bodyLarge.copyWith(height: 1.7)),
         if (attachments.hasError && !attachments.hasValue)
           FikraButton.secondary(
             label: context.l10n.retry,
@@ -93,7 +94,11 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: 24),
           Semantics(
             header: true,
-            child: Text(context.l10n.topicsHeader, style: context.text.section.copyWith(fontWeight: FontWeight.w600)),
+            child: SmartText(
+              context.l10n.topicsHeader,
+              content: ReadOnlyContent.chrome,
+              style: context.text.section.copyWith(fontWeight: FontWeight.w600),
+            ),
           ),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [for (final c in note.conceptList) FikraChip(label: c)]),
@@ -121,7 +126,9 @@ class _ProcessingCard extends StatelessWidget {
             child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(context.l10n.analyzingBody, style: context.text.caption)),
+          Expanded(
+            child: SmartText(context.l10n.analyzingBody, content: ReadOnlyContent.chrome, style: context.text.caption),
+          ),
         ],
       ),
     );

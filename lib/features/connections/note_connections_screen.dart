@@ -140,7 +140,10 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
             children: [
               BackButton(onPressed: () => context.pop()),
               Expanded(
-                child: Semantics(header: true, child: Text(context.l10n.linksTitle, style: context.text.title)),
+                child: Semantics(
+                  header: true,
+                  child: SmartText(context.l10n.linksTitle, content: ReadOnlyContent.chrome, style: context.text.title),
+                ),
               ),
             ],
           ),
@@ -197,11 +200,19 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
                               const SizedBox(height: 24),
                               Semantics(
                                 header: true,
-                                child: Text(context.l10n.linksConfirmed, style: context.text.section),
+                                child: SmartText(
+                                  context.l10n.linksConfirmed,
+                                  content: ReadOnlyContent.chrome,
+                                  style: context.text.section,
+                                ),
                               ),
                               const SizedBox(height: 10),
                               if (!loading && confirmed.isEmpty)
-                                Text(context.l10n.noteLinksEmpty, style: context.text.caption),
+                                SmartText(
+                                  context.l10n.noteLinksEmpty,
+                                  content: ReadOnlyContent.chrome,
+                                  style: context.text.caption,
+                                ),
                             ],
                           ),
                         ),
@@ -227,10 +238,18 @@ class _NoteConnectionsScreenState extends ConsumerState<NoteConnectionsScreen> {
                             children: [
                               Semantics(
                                 header: true,
-                                child: Text(context.l10n.linksSuggestions, style: context.text.section),
+                                child: SmartText(
+                                  context.l10n.linksSuggestions,
+                                  content: ReadOnlyContent.chrome,
+                                  style: context.text.section,
+                                ),
                               ),
                               if (!loading && suggestions.isEmpty)
-                                Text(context.l10n.linksSuggestionsEmpty, style: context.text.caption),
+                                SmartText(
+                                  context.l10n.linksSuggestionsEmpty,
+                                  content: ReadOnlyContent.chrome,
+                                  style: context.text.caption,
+                                ),
                             ],
                           ),
                         ),

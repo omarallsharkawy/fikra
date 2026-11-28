@@ -9,7 +9,7 @@ import '../repositories.dart';
 import 'api_client.dart';
 import 'api_models.dart';
 
-class ApiKnowledgeRepository implements KnowledgeRepository {
+class ApiKnowledgeRepository implements KnowledgeRepository, FavoriteNotesRepository {
   ApiKnowledgeRepository(this.api);
   final ApiClient api;
   String _id(String value) => Uri.encodeComponent(value);
@@ -62,6 +62,10 @@ class ApiKnowledgeRepository implements KnowledgeRepository {
   @override
   Future<KnowledgeNote> updateNote(String a, String id, NotePatch patch) =>
       _one('PATCH', '/v1/notes/${_id(id)}', a, noteFromJson, json: patch.fields);
+  @override
+  Future<KnowledgeNote> setFavorite(String a, String id, bool value) =>
+      _one('PUT', '/v1/notes/${_id(id)}/favorite', a, noteFromJson, json: {'is_favorite': value});
+
   @override
   Future<void> deleteNote(String a, String id) async {
     await api.request('DELETE', '/v1/notes/${_id(id)}', accountId: a);

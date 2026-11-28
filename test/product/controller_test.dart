@@ -110,7 +110,7 @@ void main() {
       addTearDown(c.dispose);
       await c.restore();
       expect(c.stage, SessionStage.unauthenticated);
-      await c.register(' USER@example.invalid ', 'fixture-only');
+      await c.register(' USER@example.invalid ', 'fixture-only', name: ' Owner ');
       expect(c.stage, SessionStage.awaitingVerification);
       expect(c.account, isNull);
       expect(c.tokens, isNull);

@@ -272,7 +272,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
           if (selection == null && activeDays > 0) ActiveDaysChip(days: activeDays),
           if (all.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+              padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 0, FikraSpace.screen, 8),
               child: Row(
                 children: [
                   Expanded(
@@ -384,7 +384,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
                               ),
                       )
                     : ListView.builder(
-                        padding: EdgeInsets.fromLTRB(
+                        padding: EdgeInsetsDirectional.fromSTEB(
                           FikraSpace.screen,
                           4,
                           FikraSpace.screen,
@@ -401,7 +401,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> with SingleTickerProv
                               padding: const EdgeInsets.only(top: 10, bottom: 10),
                               child: Semantics(
                                 header: true,
-                                child: Text(
+                                child: SmartText(
                                   row.header!,
                                   style: context.text.section.copyWith(color: context.colors.textSecondary),
                                 ),

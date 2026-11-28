@@ -1,9 +1,10 @@
 /// Backend-owned values. These are separate from the legacy local database.
 class Account {
-  const Account({required this.id, required this.email, required this.emailVerified});
+  const Account({required this.id, required this.email, required this.emailVerified, this.name});
   final String id;
   final String email;
   final bool emailVerified;
+  final String? name;
 }
 
 class TokenPair {
@@ -74,6 +75,7 @@ class KnowledgeNote {
     int? generation,
     ProcessingState? processing,
     DateTime? updatedAt,
+    bool? isFavorite,
   }) => KnowledgeNote(
     id: id,
     projectId: projectId,
@@ -85,7 +87,7 @@ class KnowledgeNote {
     generation: generation ?? this.generation,
     processing: processing ?? this.processing,
     createdAt: createdAt,
-    isFavorite: isFavorite,
+    isFavorite: isFavorite ?? this.isFavorite,
     updatedAt: updatedAt ?? this.updatedAt,
   );
 }

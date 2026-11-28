@@ -2162,10 +2162,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productResetPreviewCompleteSignInAgain => 'Reset preview complete. Sign in again.';
 
   @override
-  String get productLocalPrivateStateClearedServerRevocationIsNot =>
-      'Local private state cleared. Server revocation is not confirmed.';
-
-  @override
   String get productDevelopmentAcknowledgmentOnlyNoRealDeliveryOrAccount =>
       'Development acknowledgment only; no real delivery or account operation occurred.';
 
@@ -2698,9 +2694,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authNewAccount => 'New here? Create an account';
 
   @override
-  String get apiGoogleUnavailable => 'Google sign-in is not configured yet.';
-
-  @override
   String get apiSignOut => 'Sign out';
 
   @override
@@ -2775,4 +2768,406 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authCheckDetails => 'Check your details and try again.';
+
+  @override
+  String rdGreet(String name) {
+    return 'Hey $name 👋';
+  }
+
+  @override
+  String rdNotes(int count) {
+    return '$count notes';
+  }
+
+  @override
+  String get rdSearch => 'Search your notes';
+
+  @override
+  String get rdAll => 'All';
+
+  @override
+  String get rdToday => 'Today';
+
+  @override
+  String get rdEarlier => 'Earlier';
+
+  @override
+  String get rdHome => 'Home';
+
+  @override
+  String get rdMap => 'Map';
+
+  @override
+  String get rdAsk => 'Ask';
+
+  @override
+  String get rdMe => 'Me';
+
+  @override
+  String get rdProc => 'Analyzing…';
+
+  @override
+  String get rdNone => 'No results. Try another word.';
+
+  @override
+  String get rdRel => 'Related notes';
+
+  @override
+  String get rdShared => 'Shared tag: ';
+
+  @override
+  String get rdAisug => 'AI suggestion';
+
+  @override
+  String get rdApply => 'Apply';
+
+  @override
+  String get rdDismiss => 'Dismiss';
+
+  @override
+  String get rdAnother => 'Try another';
+
+  @override
+  String get rdBefore => 'Before';
+
+  @override
+  String get rdAfter => 'After';
+
+  @override
+  String get rdChg => 'Changes';
+
+  @override
+  String get rdNudge => 'Add more detail?';
+
+  @override
+  String get rdNudgeb => 'Short note. Try answering: who, where, why does it matter?';
+
+  @override
+  String get rdReana => 'Re-analyze';
+
+  @override
+  String get rdPin => 'Pin';
+
+  @override
+  String get rdShare => 'Share as card';
+
+  @override
+  String get rdDel => 'Delete note';
+
+  @override
+  String get rdDelq => 'Delete this note?';
+
+  @override
+  String get rdDelb => 'You’ll have a few seconds to undo.';
+
+  @override
+  String get rdCancel => 'Cancel';
+
+  @override
+  String get rdDeleted => 'Deleted';
+
+  @override
+  String get rdUndo => 'Undo';
+
+  @override
+  String get rdApplied => 'Applied';
+
+  @override
+  String get rdHint => 'Drag and pinch to explore';
+
+  @override
+  String get rdOk => 'Got it';
+
+  @override
+  String rdLinks(int count, int links) {
+    return '$count notes · $links links';
+  }
+
+  @override
+  String get rdOpen => 'Open';
+
+  @override
+  String get rdAsktt => 'Ask your notes';
+
+  @override
+  String get rdScope => 'All notes';
+
+  @override
+  String get rdPh => 'Type your question…';
+
+  @override
+  String rdBased(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Based on $count notes',
+      one: 'Based on 1 note',
+      zero: 'No sources',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rdHello(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count notes. What do you want to know?',
+      one: 'You have 1 note. What do you want to know?',
+      zero: 'You have no notes yet. What do you want to know?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rdCph => 'Write any idea on your mind…';
+
+  @override
+  String get rdAddt => '+ Title';
+
+  @override
+  String get rdTph => 'Title';
+
+  @override
+  String get rdSave => 'Save';
+
+  @override
+  String get rdSh => 'Write something to enable Save';
+
+  @override
+  String get rdVoice => 'Voice';
+
+  @override
+  String get rdPdf => 'PDF';
+
+  @override
+  String get rdTag => 'Tag';
+
+  @override
+  String get rdLis => 'Listening…';
+
+  @override
+  String get rdStop => 'Stop and transcribe';
+
+  @override
+  String get rdSaved => 'Saved ✓';
+
+  @override
+  String get rdLang => 'Language';
+
+  @override
+  String get rdTheme => 'Theme';
+
+  @override
+  String get rdLight => 'Light';
+
+  @override
+  String get rdDark => 'Dark';
+
+  @override
+  String get rdSys => 'System';
+
+  @override
+  String get rdAuto => 'Auto-tag';
+
+  @override
+  String get rdExp => 'Export notes';
+
+  @override
+  String get rdOut => 'Sign out';
+
+  @override
+  String get rdOutq => 'Sign out?';
+
+  @override
+  String get rdOutb => 'Your notes are saved. They’ll be here when you’re back.';
+
+  @override
+  String get rdStat1 => 'Notes';
+
+  @override
+  String get rdStat2 => 'Links';
+
+  @override
+  String get rdNewc => 'New chat';
+
+  @override
+  String get rdHist => 'History';
+
+  @override
+  String get rdStart => 'Write your first idea';
+
+  @override
+  String get rdFirst => 'No notes yet';
+
+  @override
+  String get rdFl => 'Add a few notes and watch links appear';
+
+  @override
+  String get rdUntitled => 'Untitled';
+
+  @override
+  String get rdChips0 => 'Summarize my notes';
+
+  @override
+  String get rdChips1 => 'What do I write about most?';
+
+  @override
+  String get rdChips2 => 'What connects my ideas?';
+
+  @override
+  String get rdWr => 'Write';
+
+  @override
+  String get rdLk => 'Link';
+
+  @override
+  String get rdAs => 'Ask';
+
+  @override
+  String get rdTagl => 'Write it. Link it. Ask it.';
+
+  @override
+  String get rdTag1 => 'Your ideas, connected. Ask your notes anything.';
+
+  @override
+  String get rdGs => 'Get started';
+
+  @override
+  String get rdHave => 'I already have an account';
+
+  @override
+  String get rdMk => 'Create your account';
+
+  @override
+  String get rdMks => 'Give your ideas a place to grow.';
+
+  @override
+  String get rdWb => 'Welcome back';
+
+  @override
+  String get rdWbs => 'A little space for your next big idea.';
+
+  @override
+  String get rdEm => 'Email';
+
+  @override
+  String get rdPw => 'Password';
+
+  @override
+  String get rdShow => 'Show';
+
+  @override
+  String get rdFg => 'Forgot password?';
+
+  @override
+  String get rdLi => 'Log in';
+
+  @override
+  String get rdNw => 'New here? Create an account';
+
+  @override
+  String get rdAh => 'Already have an account? Log in';
+
+  @override
+  String get rdTerms => 'By signing up you agree to the Terms and Privacy Policy.';
+
+  @override
+  String get rdS1 => 'Weak';
+
+  @override
+  String get rdS2 => 'Okay, add a number';
+
+  @override
+  String get rdS3 => 'Strong';
+
+  @override
+  String get rdEmerr => 'That email doesn’t look right';
+
+  @override
+  String get rdPwh => '8+ characters is better';
+
+  @override
+  String get rdErr => 'Wrong email or password. Try again.';
+
+  @override
+  String get rdBack => 'Back';
+
+  @override
+  String get rdNm => 'Your name';
+
+  @override
+  String get rdHide => 'Hide';
+
+  @override
+  String get rdNamePrompt => 'What should we call you?';
+
+  @override
+  String get rdNeutralGreeting => 'Hey there 👋';
+
+  @override
+  String get rdAddName => 'Add your name';
+
+  @override
+  String get rdEditName => 'Edit name';
+
+  @override
+  String get rdNameDevice => 'Saved on this device';
+
+  @override
+  String get rdNameInvalid => 'Enter a name up to 40 characters';
+
+  @override
+  String get rdLater => 'Later';
+
+  @override
+  String get rdNewTag => 'New tag';
+
+  @override
+  String get rdTagName => 'Tag name';
+
+  @override
+  String get rdEditTag => 'Edit tag';
+
+  @override
+  String get rdTagExists => 'A tag with this name already exists';
+
+  @override
+  String get rdUnpin => 'Unpin';
+
+  @override
+  String get rdUndoExpired => 'That change can no longer be undone';
+
+  @override
+  String get rdShareFailed => 'Couldn’t share this note. Try again.';
+
+  @override
+  String get rdUndoFailed => 'Couldn’t undo this change. Please try again.';
+
+  @override
+  String get rdPendingChange => 'Finishing your change…';
+
+  @override
+  String get rdNoteActions => 'Note actions';
+
+  @override
+  String get rdReplying => 'Replying…';
+
+  @override
+  String get rdCheckConversation => 'Check conversation';
+
+  @override
+  String get rdReviewConversation => 'Conversation refreshed. Review the messages before sending again.';
+
+  @override
+  String get rdDraftFailed => 'Couldn’t save this draft on your device. Retry before closing.';
+
+  @override
+  String get rdOnDevice => 'On this device';
+
+  @override
+  String get googleIdentityError => 'Google sign-in could not be verified. Please try again.';
+
+  @override
+  String get googleServiceError => 'Google sign-in is unavailable right now. Please try again.';
 }

@@ -1,3 +1,5 @@
+import 'smart_input.dart';
+
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,7 @@ class FikraField extends StatefulWidget {
     this.autofocus = false,
     this.error = false,
     this.keyboardType,
+    this.content = InputContent.text,
     this.obscure = false,
     this.textInputAction,
     this.maxLength,
@@ -33,6 +36,7 @@ class FikraField extends StatefulWidget {
   final bool autofocus;
   final bool error;
   final TextInputType? keyboardType;
+  final InputContent content;
   final bool obscure;
   final TextInputAction? textInputAction;
   final int? maxLength;
@@ -104,13 +108,14 @@ class _FikraFieldState extends State<FikraField> {
         child: Row(
           children: [
             Expanded(
-              child: TextField(
+              child: SmartInput(
                 controller: controller,
                 focusNode: _focus,
                 autofocus: widget.autofocus,
                 onChanged: widget.onChanged,
                 onSubmitted: widget.onSubmitted,
                 keyboardType: widget.keyboardType,
+                content: widget.content,
                 obscureText: widget.obscure,
                 textInputAction: widget.textInputAction,
                 maxLength: widget.maxLength,

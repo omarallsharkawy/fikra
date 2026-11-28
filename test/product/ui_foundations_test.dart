@@ -1,6 +1,7 @@
 import 'package:fikra/app/tab_bar/product_navigation.dart';
 import 'package:fikra/core/theme/product_theme.dart';
-import 'package:fikra/core/theme/tokens.dart';
+import 'package:fikra/core/theme/redesign_tokens.dart';
+import 'package:fikra/core/widgets/smart_input.dart';
 import 'package:fikra/features/workspace/product_widgets.dart';
 import 'package:fikra/l10n/localizations.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +17,16 @@ void main() {
     expect(productContentDirection('هذه ملاحظة عربية.'), TextDirection.rtl);
   });
   for (final brightness in Brightness.values) {
-    test('reference $brightness reading and colored surfaces meet AA', () {
-      final c = buildProductTheme(brightness).extension<FikraPalette>()!;
+    test('reference $brightness reading text and actual action pairs meet AA', () {
+      final c = buildProductTheme(brightness).extension<RdColors>()!;
       for (final pair in [
-        (c.textPrimary, c.canvas),
-        (c.textPrimary, c.surface),
-        (c.textSecondary, c.canvas),
-        (c.textSecondary, c.surface),
-        (c.onBrandBlue, c.brandBlue),
-        (c.onBrandPurple, c.brandPurple),
-        (c.onBrandLime, c.brandLime),
-        (c.onBrandSlate, c.brandSlate),
-        (c.accent, c.surface),
+        (c.text, c.bg),
+        (c.text, c.surface),
+        (c.muted, c.bg),
+        (c.muted, c.surface),
+        (c.onLime, c.lime),
+        (c.purple, c.surface),
+        (c.blue, c.surface),
       ]) {
         expect(contrast(pair.$1, pair.$2), greaterThanOrEqualTo(4.5));
       }
@@ -76,7 +75,12 @@ void main() {
         supportedLocales: AppLocalizations.supportedLocales,
         theme: buildProductTheme(Brightness.dark),
         home: Scaffold(
-          body: ProductTextInput(value: '', onChanged: (_) {}, label: 'Content', textDirection: direction),
+          body: ProductTextInput(
+            value: '',
+            onChanged: (_) {},
+            label: 'Content',
+            content: direction == null ? InputContent.text : InputContent.identifier,
+          ),
         ),
       );
       await tester.pumpWidget(host());

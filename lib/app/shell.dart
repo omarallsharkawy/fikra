@@ -71,8 +71,56 @@ class _AppShellState extends ConsumerState<AppShell> {
     return false;
   }
 
+  Widget _productShell(BuildContext context) {
+    final shell = widget.shell;
+    if (shell.currentIndex == 0 && _lastBranch != null && _lastBranch != 0) _composerReturn = _lastBranch!;
+    _lastBranch = shell.currentIndex;
+    final hidden = MediaQuery.viewInsetsOf(context).bottom > 0 || shell.currentIndex == 0;
+    final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
+    final inset = hidden ? 0.0 : ProductNavigation.barHeight(context) + 38 + safeBottom;
+    return Scaffold(
+      // The active page owns keyboard resizing. Restoring MediaQuery below
+      // this shell and resizing both scaffolds subtracts the IME twice.
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeBottom: !hidden,
+              child: NavigationInset(
+                bottom: inset,
+                child: ComposerNavigation(
+                  close: _closeComposer,
+                  child: PopScope(
+                    canPop: shell.currentIndex != 0,
+                    onPopInvokedWithResult: (didPop, _) {
+                      if (!didPop && shell.currentIndex == 0) _closeComposer();
+                    },
+                    child: shell,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (!hidden)
+            PositionedDirectional(
+              start: 14,
+              end: 14,
+              bottom: 22 + safeBottom,
+              child: ProductNavigation(
+                branch: shell.currentIndex,
+                onSelect: (branch, reselect) => shell.goBranch(branch, initialLocation: reselect),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!widget.showLegacyActivity) return _productShell(context);
     final shell = widget.shell;
     final keyboard = MediaQuery.viewInsetsOf(context).bottom > 0;
     final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
@@ -102,7 +150,10 @@ class _AppShellState extends ConsumerState<AppShell> {
       child: Theme(
         // Keep existing toasts/Undo reachable above the same floating controls.
         data: theme.copyWith(
-          snackBarTheme: theme.snackBarTheme.copyWith(insetPadding: EdgeInsets.fromLTRB(16, 5, 16, bottomInset + 10)),
+          snackBarTheme: theme.snackBarTheme.copyWith(
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 16) + EdgeInsets.only(top: 5, bottom: bottomInset + 10),
+          ),
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -132,9 +183,9 @@ class _AppShellState extends ConsumerState<AppShell> {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 12,
-                  right: 12,
+                PositionedDirectional(
+                  start: 12,
+                  end: 12,
                   bottom: FloatingNavigation.gap + safeBottom,
                   child: Align(
                     alignment: Alignment.bottomCenter,

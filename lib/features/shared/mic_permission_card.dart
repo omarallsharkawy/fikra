@@ -10,7 +10,7 @@ class _MicPermissionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SolidSurface(
       radius: FikraRadius.lg,
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 16, 18, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -18,7 +18,13 @@ class _MicPermissionCard extends StatelessWidget {
             children: [
               Icon(Icons.mic_off_outlined, color: context.colors.warning),
               const SizedBox(width: 10),
-              Expanded(child: Text(context.l10n.micNeededTitle, style: context.text.cardTitleSmall)),
+              Expanded(
+                child: SmartText(
+                  context.l10n.micNeededTitle,
+                  content: ReadOnlyContent.chrome,
+                  style: context.text.cardTitleSmall,
+                ),
+              ),
               Pressable(
                 onTap: onClose,
                 minTarget: true,
@@ -28,7 +34,7 @@ class _MicPermissionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(blocked ? context.l10n.micBlockedBody : context.l10n.micAskBody, style: context.text.caption),
+          SmartText(blocked ? context.l10n.micBlockedBody : context.l10n.micAskBody, style: context.text.caption),
           const SizedBox(height: 14),
           FikraButton.secondary(
             label: blocked ? context.l10n.openSettings : context.l10n.allowMic,

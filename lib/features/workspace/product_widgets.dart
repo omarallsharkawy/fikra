@@ -1,4 +1,6 @@
-import 'package:intl/intl.dart' show DateFormat, Bidi;
+import '../../core/text_direction.dart';
+
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../../core/format.dart';
 
@@ -18,8 +20,7 @@ import '../../core/widgets/pearl_canvas.dart';
 import '../../data/product/models.dart';
 
 /// Content direction follows its script, independently of the interface locale.
-TextDirection productContentDirection(String text) =>
-    Bidi.detectRtlDirectionality(text) ? TextDirection.rtl : TextDirection.ltr;
+TextDirection productContentDirection(String text) => contentDirection(text);
 
 String productTimestamp(BuildContext context, DateTime storedTimestamp) {
   final local = storedTimestamp.toLocal(), l10n = context.l10n;
@@ -71,13 +72,13 @@ class DevelopmentBanner extends StatelessWidget {
             key: const ValueKey('development-banner'),
             style: TextButton.styleFrom(foregroundColor: context.colors.textSecondary),
             icon: const Icon(Icons.info_outline, size: 18),
-            label: Text(context.l10n.uiPreviewNotice, style: context.text.meta),
+            label: SmartText(context.l10n.uiPreviewNotice, content: ReadOnlyContent.chrome, style: context.text.meta),
             onPressed: () => showDialog<void>(
               context: context,
               builder: (context) => AlertDialog(
-                title: Text(context.l10n.uxPreviewInfo),
+                title: SmartText(context.l10n.uxPreviewInfo),
                 content: SingleChildScrollView(
-                  child: Text(
+                  child: SmartText(
                     [
                       context.l10n.productDevelopmentFixturesMemoryOnlyNoLiveBackend,
                       context.l10n.productDevelopmentSearchUsesLiteralFixtureMatchingNotSemantic,
@@ -85,7 +86,9 @@ class DevelopmentBanner extends StatelessWidget {
                     ].join('\n\n'),
                   ),
                 ),
-                actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.productBack))],
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(context), child: SmartText(context.l10n.productBack)),
+                ],
               ),
             ),
           ),
@@ -122,9 +125,9 @@ class ProductFailureView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(message, style: context.text.body.copyWith(color: context.colors.warning)),
+          SmartText(message, style: context.text.body.copyWith(color: context.colors.warning)),
           if (failure.retryAfter != null) _QuotaCountdown(key: ValueKey(failure), duration: failure.retryAfter!),
-          if (onRetry != null) TextButton(onPressed: onRetry, child: Text(context.l10n.productReloadRetry)),
+          if (onRetry != null) TextButton(onPressed: onRetry, child: SmartText(context.l10n.productReloadRetry)),
         ],
       ),
     );
@@ -165,7 +168,7 @@ class ProductScaffold extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
                   child: Column(
                     children: [
                       header ??
@@ -183,14 +186,14 @@ class ProductScaffold extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    SmartText(
                                       title,
                                       style: context.text.title,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     if (subtitle != null)
-                                      Text(
+                                      SmartText(
                                         subtitle!,
                                         style: context.text.caption,
                                         maxLines: 1,
@@ -210,7 +213,7 @@ class ProductScaffold extends StatelessWidget {
                 Expanded(
                   child: content != null
                       ? Padding(
-                          padding: EdgeInsets.fromLTRB(
+                          padding: EdgeInsetsDirectional.fromSTEB(
                             16,
                             4,
                             16,
@@ -221,7 +224,7 @@ class ProductScaffold extends StatelessWidget {
                       : ListView(
                           controller: controller,
                           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                          padding: EdgeInsets.fromLTRB(
+                          padding: EdgeInsetsDirectional.fromSTEB(
                             16,
                             8,
                             16,
@@ -231,7 +234,10 @@ class ProductScaffold extends StatelessWidget {
                         ),
                 ),
                 if (footer != null)
-                  Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + NavigationInset.of(context)), child: footer),
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 12 + NavigationInset.of(context)),
+                    child: footer,
+                  ),
               ],
             ),
           ),
@@ -256,7 +262,7 @@ class ProductTextInput extends StatefulWidget {
     this.suffix,
     this.textInputAction,
     this.autofillHints,
-    this.textDirection,
+    this.content = InputContent.text,
     this.inputFormatters,
   });
   final String value, label;
@@ -269,7 +275,7 @@ class ProductTextInput extends StatefulWidget {
   final Widget? suffix;
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
-  final TextDirection? textDirection;
+  final InputContent content;
   final List<TextInputFormatter>? inputFormatters;
   @override
   State<ProductTextInput> createState() => _ProductTextInputState();
@@ -298,14 +304,13 @@ class _ProductTextInputState extends State<ProductTextInput> {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
-    child: TextField(
+    child: SmartInput(
       controller: _controller,
       enabled: widget.enabled,
       onChanged: (value) {
         widget.onChanged(value);
         // Editing state can live outside a notifier (for example note edits).
         // Rebuild direction from the live controller without moving the caret.
-        if (widget.textDirection == null) setState(() {});
       },
       onSubmitted: widget.onSubmitted,
       keyboardType: widget.keyboardType,
@@ -313,9 +318,7 @@ class _ProductTextInputState extends State<ProductTextInput> {
           widget.textInputAction ?? (widget.lines == 1 && widget.onSubmitted != null ? TextInputAction.search : null),
       autofillHints: widget.autofillHints,
       inputFormatters: widget.inputFormatters,
-      textDirection:
-          widget.textDirection ??
-          (_controller.text.isEmpty ? Directionality.of(context) : productContentDirection(_controller.text)),
+      content: widget.obscure ? InputContent.identifier : widget.content,
       obscureText: widget.obscure && !_revealed,
       enableSuggestions: !widget.obscure,
       autocorrect: !widget.obscure,
@@ -365,5 +368,5 @@ class _QuotaCountdownState extends State<_QuotaCountdown> {
 
   @override
   Widget build(BuildContext context) =>
-      Text(_seconds == 0 ? context.l10n.retry : context.l10n.productRetryAfterSeconds(_seconds));
+      SmartText(_seconds == 0 ? context.l10n.retry : context.l10n.productRetryAfterSeconds(_seconds));
 }

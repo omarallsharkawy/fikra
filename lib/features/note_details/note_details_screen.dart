@@ -196,7 +196,7 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 12, 4),
             child: Row(
               children: [
                 FikraIconButton(icon: Icons.arrow_back_rounded, label: context.l10n.back, onTap: () => context.pop()),
@@ -221,8 +221,9 @@ class _NoteDetailsScreenState extends ConsumerState<NoteDetailsScreen> {
                                 Icon(Icons.edit_outlined, size: 18, color: context.colors.textPrimary),
                                 const SizedBox(width: 6),
                                 Flexible(
-                                  child: Text(
+                                  child: SmartText(
                                     context.l10n.edit,
+                                    content: ReadOnlyContent.chrome,
                                     style: context.text.chip,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,

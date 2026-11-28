@@ -7,7 +7,6 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/fikra_widgets.dart';
 import '../../data/processing/transcript_corrections.dart';
 import '../../l10n/localizations.dart';
-import '../voice_text/whisper_metrics.dart';
 
 class TranscriptEditorScreen extends ConsumerStatefulWidget {
   const TranscriptEditorScreen({super.key, required this.noteId, required this.attachmentId});
@@ -134,24 +133,23 @@ class _TranscriptEditorScreenState extends ConsumerState<TranscriptEditorScreen>
             ),
             Expanded(
               child: _text == null || a == null
-                  ? Center(child: Text(files.hasError || files.hasValue ? l.v2TranscriptFailed : l.vtWait))
+                  ? Center(child: SmartText(files.hasError || files.hasValue ? l.v2TranscriptFailed : l.vtWait))
                   : ListView(
                       key: const ValueKey('v2-editor-scroll'),
                       padding: const EdgeInsets.all(FikraSpace.screen),
                       children: [
-                        Text(l.v2EditTranscript, style: context.text.title),
+                        SmartText(l.v2EditTranscript, content: ReadOnlyContent.chrome, style: context.text.title),
                         const SizedBox(height: FikraSpace.s16),
                         SolidSurface(
                           radius: FikraRadius.lg,
                           padding: const EdgeInsets.all(FikraSpace.s16),
-                          child: TextField(
+                          child: SmartInput(
                             key: const ValueKey('v2-transcript-field'),
                             controller: _text,
                             readOnly: _busy,
                             onChanged: (_) => setState(() => _append = false),
                             minLines: 8,
                             maxLines: 20,
-                            textDirection: containsArabic(_text!.text) ? TextDirection.rtl : TextDirection.ltr,
                             style: context.text.bodyLarge,
                             decoration: InputDecoration(border: InputBorder.none, hintText: l.v2EditTranscript),
                           ),

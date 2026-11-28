@@ -162,7 +162,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
           ),
           if (ref.watch(appModeProvider) != AppMode.connected)
             Padding(
-              padding: EdgeInsets.fromLTRB(FikraSpace.screen, 0, FikraSpace.screen, 8),
+              padding: EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 0, FikraSpace.screen, 8),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: FikraBadge(kind: BadgeKind.demo, label: context.l10n.askDemoBadge),
@@ -203,7 +203,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                       )
                     : ListView(
                         controller: _scroll,
-                        padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 16),
+                        padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 4, FikraSpace.screen, 16),
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         children: [
                           for (final e in entries)
@@ -238,7 +238,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(FikraSpace.screen, 4, FikraSpace.screen, 8),
+            padding: const EdgeInsetsDirectional.fromSTEB(FikraSpace.screen, 4, FikraSpace.screen, 8),
             child: Row(
               children: [
                 Expanded(
@@ -289,7 +289,7 @@ class _UserBubble extends StatelessWidget {
             color: context.colors.brandBlue,
             borderRadius: BorderRadius.circular(FikraRadius.lg),
           ),
-          child: Text(text, style: context.text.body.copyWith(color: context.colors.onBrandBlue)),
+          child: SmartText(text, style: context.text.body.copyWith(color: context.colors.onBrandBlue)),
         ),
       ),
     );
@@ -311,7 +311,7 @@ class _AnswerBubble extends StatelessWidget {
         child: SolidSurface(
           radius: FikraRadius.lg,
           borderColor: entry.found ? context.colors.line : context.colors.warning.withValues(alpha: 0.5),
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -321,8 +321,9 @@ class _AnswerBubble extends StatelessWidget {
                     Icon(Icons.search_off_rounded, size: 18, color: context.colors.warning),
                     const SizedBox(width: 6),
                     Flexible(
-                      child: Text(
+                      child: SmartText(
                         context.l10n.notFoundInNotes,
+                        content: ReadOnlyContent.chrome,
                         style: context.text.chip.copyWith(color: context.colors.warning),
                       ),
                     ),
@@ -330,10 +331,10 @@ class _AnswerBubble extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
               ],
-              Text(entry.body, style: context.text.answer),
+              SmartText(entry.body, style: context.text.answer),
               if (sources.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(context.l10n.sources, style: context.text.meta),
+                SmartText(context.l10n.sources, content: ReadOnlyContent.chrome, style: context.text.meta),
                 const SizedBox(height: 6),
                 for (var i = 0; i < sources.length; i++)
                   Padding(
@@ -380,11 +381,11 @@ class _SourceRow extends StatelessWidget {
                 color: context.colors.selected,
                 borderRadius: BorderRadius.circular(FikraRadius.full),
               ),
-              child: Text('$index', style: context.text.meta.copyWith(color: context.colors.accent, height: 1.1)),
+              child: SmartText('$index', style: context.text.meta.copyWith(color: context.colors.accent, height: 1.1)),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
+              child: SmartText(
                 n == null ? context.l10n.sourceMissing : noteTitle(context, n),
                 style: context.text.chip.copyWith(
                   color: n == null ? context.colors.textSecondary : context.colors.accent,

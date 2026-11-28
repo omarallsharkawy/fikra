@@ -1,99 +1,97 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/tokens.dart';
-import '../../core/widgets/fikra_widgets.dart';
-import '../../core/widgets/pearl_canvas.dart';
+import '../../core/theme/redesign_tokens.dart';
+import '../../core/widgets/redesign_widgets.dart';
 import '../../l10n/localizations.dart';
 import '../workspace/product_widgets.dart';
 
-/// One scrollable column keeps every auth stage usable with the keyboard,
-/// large text and small screens, without nesting scroll views or fixed heights.
+/// The reference's sticky header and 14px column rhythm, with a scrollable
+/// content area so keyboards and accessibility text never hide form actions.
 class ProductAuthLayout extends StatelessWidget {
   const ProductAuthLayout({
     super.key,
     required this.title,
     required this.children,
-    required this.previewDetails,
+    this.previewDetails = const [],
     this.subtitle,
-    this.icon = Icons.login_rounded,
+    this.icon = 'me',
     this.onBack,
     this.welcome = false,
   });
-
-  final String title;
+  final String title, icon;
   final String? subtitle;
   final List<Widget> children;
   final List<String> previewDetails;
-  final IconData icon;
   final VoidCallback? onBack;
   final bool welcome;
 
   @override
-  Widget build(BuildContext context) => PearlCanvas(
-    child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: SingleChildScrollView(
-              key: const ValueKey('auth-scroll'),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-              child: AutofillGroup(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.rd.bg,
+    body: SafeArea(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 10),
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        if (!welcome) ...[
-                          IconButton(
-                            key: const ValueKey('auth-back'),
-                            tooltip: context.l10n.productBack,
-                            onPressed: onBack,
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          ),
-                          const Spacer(),
-                        ],
-                        const FikraBrandMark(size: 32),
-                        const SizedBox(width: 8),
-                        Text('FIKRAH', style: context.text.section),
-                      ],
+                    Visibility(
+                      visible: !welcome,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: RdIconButton(
+                        'back',
+                        key: const ValueKey('auth-back'),
+                        label: context.l10n.rdBack,
+                        onPressed: onBack,
+                        flip: true,
+                      ),
                     ),
-                    if (!welcome) ...[
-                      const SizedBox(height: 24),
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: context.colors.brandPurple.withValues(alpha: .15),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: ExcludeSemantics(child: Icon(icon, color: context.colors.brandPurpleFg, size: 28)),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Semantics(
-                        header: true,
-                        child: Text(title, style: context.text.title.copyWith(fontSize: 28, height: 1.2)),
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 10),
-                        Text(subtitle!, style: context.text.body.copyWith(color: context.colors.textSecondary)),
-                      ],
-                      const SizedBox(height: 24),
-                    ] else
-                      const SizedBox(height: 24),
-                    ...children,
-                    const SizedBox(height: 24),
-                    DevelopmentBanner(details: previewDetails),
+                    const Spacer(),
+                    const RdLogo(),
                   ],
                 ),
               ),
-            ),
+              Expanded(
+                child: SingleChildScrollView(
+                  key: const ValueKey('auth-scroll'),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsetsDirectional.fromSTEB(16, 6, 16, 16),
+                  child: AutofillGroup(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 14,
+                      children: [
+                        if (!welcome) ...[
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: context.rd.purpleSoft,
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              alignment: Alignment.center,
+                              child: RdIcon(icon, color: context.rd.purple),
+                            ),
+                          ),
+                          Semantics(header: true, child: RdText(title, size: 26, weight: FontWeight.w700)),
+                          if (subtitle != null) RdText(subtitle!, color: context.rd.muted),
+                        ],
+                        ...children,
+                        if (ProductEnvironment.previewOf(context)) DevelopmentBanner(details: previewDetails),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

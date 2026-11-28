@@ -63,7 +63,7 @@ void main() {
         expect(r.chat.current!.messages.first.content, 'Hello');
         await tapVisible(tester, find.byKey(const ValueKey('conversation-history')));
         await tapVisible(tester, find.text(l10n.productDeleteConversation2));
-        expect(find.byType(Dialog), findsOneWidget);
+        expect(find.byType(BottomSheet), findsOneWidget);
         await tapVisible(tester, find.text(l10n.cancel));
         expect(r.chat.current!.conversation.id, first);
         expect(r.chat.conversations.length, 2);
@@ -79,16 +79,16 @@ void main() {
   }
   testWidgets('recovery has stage-specific headings and returns to sign-in with cleared secrets', (tester) async {
     final r = await boot(tester);
-    await tapVisible(tester, find.text('Log in'));
+    await tapVisible(tester, find.byKey(const ValueKey('auth-start-login')));
     await tester.enterText(
       find.descendant(of: find.byKey(const ValueKey('account-email')), matching: find.byType(TextField)),
       'reader@example.invalid',
     );
-    await tapVisible(tester, find.text('Forgot password'));
+    await tapVisible(tester, find.text('Forgot password?'));
     expect(find.text('Reset your password'), findsOneWidget);
     await tapVisible(tester, find.text('Request reset'));
     expect(find.text('Reset requested'), findsOneWidget);
-    await tapVisible(tester, find.text('Preview reset form'));
+    await tapVisible(tester, find.text(tester.element(find.byType(Scaffold).first).l10n.apiHaveCode));
     expect(find.text('Choose a new password'), findsOneWidget);
     for (final (key, text) in [('account-password', 'new-fixture-password'), ('account-token', 'fixture-reset')]) {
       await tester.enterText(find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(TextField)), text);
@@ -115,7 +115,8 @@ void main() {
     await r.session.login('reader@example.invalid', 'fixture-only');
     await tester.pumpAndSettle();
     await tapVisible(tester, find.byKey(const ValueKey('nav-1')));
-    expect(tester.getSize(find.byType(ProductNoteGraph)).height, greaterThan(400));
+    final graph = find.byType(ProductNoteGraph);
+    expect(tester.getSize(graph).height, greaterThanOrEqualTo(tester.getSize(graph).width));
     expect(find.byKey(const ValueKey('new-product-project')), findsNothing);
     expect(tester.takeException(), isNull);
     await cleanup(tester);
@@ -127,7 +128,7 @@ void main() {
     final noteId = r.workspace.notes.first.id;
     final l10n = tester.element(find.byKey(const ValueKey('product-navigation'))).l10n;
     await tapVisible(tester, find.byKey(ValueKey('product-note-$noteId')));
-    await tester.scrollUntilVisible(find.text(l10n.productEditNote), 250, scrollable: find.byType(Scrollable).first);
+    await tapVisible(tester, find.byKey(const ValueKey('note-menu')));
     await tapVisible(tester, find.text(l10n.productEditNote));
     final field = find.descendant(of: find.byKey(const ValueKey('edit-content')), matching: find.byType(TextField));
     await tester.ensureVisible(field);

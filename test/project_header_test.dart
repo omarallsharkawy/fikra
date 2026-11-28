@@ -113,8 +113,8 @@ void expectHeaderLayout(
   expect(find.descendant(of: root, matching: find.byKey(const ValueKey('header-settings'))), findsNothing);
   final title = find.text(header.title);
   final titleParagraph = tester.renderObject<RenderParagraph>(title);
-  expect((titleParagraph.text as TextSpan).style!.fontSize, 28);
-  expect(titleParagraph.textScaler.scale(28), closeTo(28 * scale, 0.01));
+  expect((titleParagraph.text as TextSpan).style!.fontSize, 26);
+  expect(titleParagraph.textScaler.scale(26), closeTo(26 * scale, 0.01));
   final rtl = l10n.localeName == 'ar';
   expect(Directionality.of(tester.element(title)), rtl ? TextDirection.rtl : TextDirection.ltr);
 

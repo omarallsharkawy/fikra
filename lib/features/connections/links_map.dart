@@ -76,15 +76,15 @@ class _LinksMapState extends ConsumerState<LinksMap> {
           key: const ValueKey('map-more-list'),
           itemCount: ids.length,
           itemBuilder: (_, i) => Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 8),
             child: SolidSurface(
               padding: EdgeInsets.zero,
               child: Material(
                 type: MaterialType.transparency,
                 child: ListTile(
                   key: ValueKey('map-more-${ids[i]}'),
-                  title: Text(noteTitleText(context, index.notes[ids[i]]!.title)),
-                  subtitle: Text(context.l10n.mapConnections(index.degree(ids[i]))),
+                  title: SmartText(noteTitleText(context, index.notes[ids[i]]!.title)),
+                  subtitle: SmartText(context.l10n.mapConnections(index.degree(ids[i]))),
                   onTap: () {
                     Navigator.pop(sheet);
                     _focus(index, ids[i]);
@@ -177,7 +177,7 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                                     _centre = null;
                                     _selected = null;
                                   }),
-                                  child: Text(widget.projectName),
+                                  child: SmartText(widget.projectName),
                                 ),
                                 if (cluster != null) ...[
                                   const Icon(Icons.chevron_right_rounded),
@@ -186,12 +186,15 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                                       _centre = null;
                                       _selected = _cluster;
                                     }),
-                                    child: Text(cluster.name ?? context.l10n.mapOthers),
+                                    child: SmartText(cluster.name ?? context.l10n.mapOthers),
                                   ),
                                 ],
                                 if (_centre != null) ...[
                                   const Icon(Icons.chevron_right_rounded),
-                                  Text(noteTitleText(context, index.notes[_centre]!.title), style: context.text.meta),
+                                  SmartText(
+                                    noteTitleText(context, index.notes[_centre]!.title),
+                                    style: context.text.meta,
+                                  ),
                                 ],
                               ],
                             ),
@@ -201,8 +204,8 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                    child: Text(
+                    padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 8),
+                    child: SmartText(
                       context.l10n.mapTotals(level.total, level.confirmed, level.suggestions, level.omitted),
                       key: const ValueKey('map-totals'),
                       style: context.text.meta,
@@ -210,8 +213,12 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                   ),
                   if (_centre != null)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                      child: Text(context.l10n.mapPanHint, style: context.text.meta),
+                      padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 8),
+                      child: SmartText(
+                        context.l10n.mapPanHint,
+                        content: ReadOnlyContent.chrome,
+                        style: context.text.meta,
+                      ),
                     ),
                   if (widget.query.isNotEmpty)
                     _MapSection(
@@ -222,7 +229,7 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                         child: matches.isEmpty
                             ? Padding(
                                 padding: const EdgeInsets.all(16),
-                                child: Text(context.l10n.noResultsBody(widget.query)),
+                                child: SmartText(context.l10n.noResultsBody(widget.query)),
                               )
                             : ListView.builder(
                                 shrinkWrap: true,
@@ -233,12 +240,12 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                                     type: MaterialType.transparency,
                                     child: ListTile(
                                       key: ValueKey('map-search-${n.id}'),
-                                      title: Text(
+                                      title: SmartText(
                                         noteTitleText(context, n.title),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      subtitle: Text(context.l10n.mapConnections(index.degree(n.id))),
+                                      subtitle: SmartText(context.l10n.mapConnections(index.degree(n.id))),
                                       onTap: () => _focus(index, n.id),
                                     ),
                                   );
@@ -294,14 +301,14 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                     TextButton(
                       key: const ValueKey('map-show-more'),
                       onPressed: () => _more(index),
-                      child: Text('${context.l10n.mapShowMore} +${level.omitted}'),
+                      child: SmartText('${context.l10n.mapShowMore} +${level.omitted}'),
                     ),
                   if (note != null || selectedCluster != null)
                     _MapSection(
                       compact: compact,
                       child: SingleChildScrollView(
                         key: const ValueKey('map-card-scroll'),
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                        padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 8),
                         child: SolidSurface(
                           key: const ValueKey('map-card'),
                           child: Column(
@@ -310,28 +317,31 @@ class _LinksMapState extends ConsumerState<LinksMap> {
                               if (note != null) ...[
                                 LibraryNoteText(note: note, lines: 2),
                                 const SizedBox(height: 8),
-                                Text(context.l10n.mapConnections(index.degree(note.id)), style: context.text.meta),
+                                SmartText(context.l10n.mapConnections(index.degree(note.id)), style: context.text.meta),
                                 Wrap(
                                   spacing: 8,
                                   children: [
                                     TextButton(
                                       key: const ValueKey('map-open-note'),
                                       onPressed: () => context.push('/note/${note.id}'),
-                                      child: Text(context.l10n.mapOpen),
+                                      child: SmartText(context.l10n.mapOpen),
                                     ),
                                     if (suggestion != null) _MapPairActions(entry: suggestion),
                                   ],
                                 ),
                               ] else if (selectedCluster != null) ...[
-                                Text(selectedCluster.name ?? context.l10n.mapOthers, style: context.text.body),
-                                Text(context.l10n.mapNotes(selectedCluster.notes.length), style: context.text.meta),
+                                SmartText(selectedCluster.name ?? context.l10n.mapOthers, style: context.text.body),
+                                SmartText(
+                                  context.l10n.mapNotes(selectedCluster.notes.length),
+                                  style: context.text.meta,
+                                ),
                                 TextButton(
                                   key: const ValueKey('map-open-cluster'),
                                   onPressed: () => setState(() {
                                     _cluster = selectedCluster.id;
                                     _centre = null;
                                   }),
-                                  child: Text(context.l10n.mapOpen),
+                                  child: SmartText(context.l10n.mapOpen),
                                 ),
                               ],
                             ],
@@ -398,7 +408,7 @@ class _MapPairActions extends ConsumerWidget {
               key: ValueKey('map-${accept ? 'accept' : 'reject'}'),
               onPressed: busy ? null : () => act(accept),
               icon: Icon(accept ? Icons.check_rounded : Icons.close_rounded),
-              label: Text(accept ? context.l10n.acceptLink : context.l10n.rejectLink),
+              label: SmartText(accept ? context.l10n.acceptLink : context.l10n.rejectLink),
             ),
           ),
       ],

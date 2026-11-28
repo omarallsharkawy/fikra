@@ -9,7 +9,7 @@ class DevelopmentAuthRepository implements AuthRepository {
   @override
   Future<Account> currentAccount(TokenPair tokens) async => throw const ProductFailure(FailureKind.unavailable);
   @override
-  Future<void> register(String email, String password) async {}
+  Future<void> register(String email, String password, {required String name}) async {}
   @override
   Future<void> resendVerification(String email) async {}
   @override
@@ -30,7 +30,7 @@ class DevelopmentAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<SessionGrant> exchangeGoogleIdToken(String idToken) async =>
+  Future<SessionGrant> exchangeGoogleIdToken(String idToken, {String? name}) async =>
       throw const ProductFailure(FailureKind.unavailable);
   @override
   Future<void> requestRecovery(String email) async {}

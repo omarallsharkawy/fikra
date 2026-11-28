@@ -3,11 +3,11 @@ import 'models.dart';
 abstract interface class AuthRepository {
   bool get isDevelopment;
   Future<Account> currentAccount(TokenPair tokens);
-  Future<void> register(String email, String password);
+  Future<void> register(String email, String password, {required String name});
   Future<void> verifyEmail(String token, {required String email});
   Future<void> resendVerification(String email);
   Future<SessionGrant> login(String email, String password);
-  Future<SessionGrant> exchangeGoogleIdToken(String idToken);
+  Future<SessionGrant> exchangeGoogleIdToken(String idToken, {String? name});
   Future<void> requestRecovery(String email);
   Future<void> confirmRecovery(String token, String password, {required String email});
   Future<TokenPair> refresh(TokenPair current);
@@ -52,4 +52,9 @@ abstract interface class AttemptStore {
   Future<CreateAttempt?> read(String accountId);
   Future<void> write(CreateAttempt attempt);
   Future<void> clear(String accountId);
+}
+
+/// Optional client binding for the already-deployed favorite endpoint.
+abstract interface class FavoriteNotesRepository {
+  Future<KnowledgeNote> setFavorite(String accountId, String noteId, bool value);
 }
