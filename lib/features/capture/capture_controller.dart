@@ -43,6 +43,7 @@ class CaptureController extends ChangeNotifier {
   Timer? _tick, _limit;
   DateTime? _started;
   Future<void> _cleanup = Future.value();
+  Future<void> get pendingCleanup => _cleanup;
   void _emit() {
     if (!_disposed) notifyListeners();
   }

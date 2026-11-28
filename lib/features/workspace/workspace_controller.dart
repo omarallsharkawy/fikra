@@ -127,6 +127,17 @@ class WorkspaceController extends ChangeNotifier {
     _emit();
   }
 
+  Future<CreateAttempt?> _readAttemptSafely(String id, int ticket) async {
+    try {
+      return await attempts.read(id);
+    } catch (_) {
+      // Recover cleanly from corrupt/unreadable persisted attempt records,
+      // fenced to the current account epoch so stale reads never clear newer state.
+      if (_valid(ticket)) unawaited(attempts.clear(id).catchError((Object _) {}));
+      return null;
+    }
+  }
+
   Future<void> openAccount(String id) async {
     clear();
     accountId = id;
@@ -134,15 +145,11 @@ class WorkspaceController extends ChangeNotifier {
     loading = true;
     _emit();
     try {
-      CreateAttempt? restored;
-      try {
-        restored = await attempts.read(id);
-      } catch (_) {
-        // Recover cleanly from corrupt/unreadable persisted attempt records.
-        unawaited(attempts.clear(id).catchError((Object _) {}));
-      }
-      if (!_valid(ticket)) return;
-      final list = await repository.projects(id);
+      // Read any persisted save attempt concurrently with fetching projects.
+      final attemptFuture = _readAttemptSafely(id, ticket);
+      final projectsFuture = repository.projects(id);
+      final list = await projectsFuture;
+      final restored = await attemptFuture;
       if (!_valid(ticket)) return;
       projects = List.unmodifiable(list);
       final general = projects.where((p) => p.isGeneral).firstOrNull;

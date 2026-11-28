@@ -32,6 +32,9 @@ Future<void> main() async {
       ),
     );
   }
-  await initializeDateFormatting();
+  await Future.wait([
+    initializeDateFormatting('en'),
+    initializeDateFormatting('ar'),
+  ]);
   runApp(const ProviderScope(child: FikraApp()));
 }

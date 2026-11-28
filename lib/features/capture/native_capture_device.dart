@@ -39,7 +39,11 @@ class NativeCaptureDevice implements CaptureDevice {
 
   Future<void> _start() async {
     if (_closed) throw const ProductFailure(FailureKind.unavailable);
-    if (!(await permission()).isGranted) throw const ProductFailure(FailureKind.validation, field: 'microphone');
+    final status = await permission();
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      throw const ProductFailure(FailureKind.validation, field: 'microphone_settings');
+    }
+    if (!status.isGranted) throw const ProductFailure(FailureKind.validation, field: 'microphone');
     _path = await files.newRecordingPath();
     final recorder = _ensureRecorder();
     await recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc, numChannels: 1, bitRate: 64000), path: _path!);

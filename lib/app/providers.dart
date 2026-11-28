@@ -24,6 +24,7 @@ import '../features/voice_text/transcription_service.dart';
 import '../data/processing/whisper_lock.dart';
 import '../features/voice_text/local_transcription_engine.dart';
 import '../data/repositories.dart';
+import '../data/product/product_preferences.dart';
 import '../data/settings_repository.dart';
 import '../data/transcription/service_keys.dart';
 import '../data/transcription/services_repository.dart';
@@ -54,13 +55,22 @@ final notesRepoProvider = Provider<NotesRepository>((ref) => LocalNotesRepositor
 final linksRepoProvider = Provider<LinksRepository>((ref) => LocalLinksRepository(ref.watch(databaseProvider)));
 final groupsRepoProvider = Provider<GroupsRepository>((ref) => LocalGroupsRepository(ref.watch(databaseProvider)));
 final chatRepoProvider = Provider<ChatRepository>((ref) => LocalChatRepository(ref.watch(databaseProvider)));
-final settingsRepoProvider = Provider<SettingsRepository>(
-  (ref) => LocalSettingsRepository(
+final productPreferencesStoreProvider = Provider<ProductPreferencesStore>((ref) {
+  final store = ProductPreferencesStore();
+  ref.onDispose(store.dispose);
+  return store;
+});
+
+final settingsRepoProvider = Provider<SettingsRepository>((ref) {
+  if (ref.watch(appModeProvider) != AppMode.demo) {
+    return ProductPreferencesRepository(ref.watch(productPreferencesStoreProvider));
+  }
+  return LocalSettingsRepository(
     ref.watch(databaseProvider),
     ref.watch(attachmentStoreProvider),
     transcriptionServices: ref.watch(transcriptionServicesProvider),
-  ),
-);
+  );
+});
 
 /// Saved appearance; `system` until the user picks one (and while loading).
 final appThemeProvider = StreamProvider<AppTheme>((ref) => ref.watch(settingsRepoProvider).watchTheme());

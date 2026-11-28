@@ -171,14 +171,16 @@ class DevelopmentBanner extends StatelessWidget {
 }
 
 class ProductFailureView extends StatelessWidget {
-  const ProductFailureView(this.failure, {super.key, this.onRetry});
+  const ProductFailureView(this.failure, {super.key, this.onRetry, this.onOpenSettings});
   final ProductFailure failure;
   final VoidCallback? onRetry;
+  final VoidCallback? onOpenSettings;
   @override
   Widget build(BuildContext context) {
     final message = switch (failure.kind) {
       FailureKind.validation => switch (failure.field) {
         'microphone' => context.l10n.productMicrophonePermissionIsRequiredEnableItInDevice,
+        'microphone_settings' => context.l10n.micBlockedBody,
         'code' => context.l10n.apiInvalidCode,
         'password' || 'new_password' => context.l10n.apiPasswordHint,
         'email' => context.l10n.apiInvalidEmail,
@@ -195,6 +197,8 @@ class ProductFailureView extends StatelessWidget {
       FailureKind.unavailable => context.l10n.productThisServiceIsUnavailableYourInputHasBeen,
       FailureKind.uncertain => context.l10n.productTheResultIsUncertainReconcileBeforeTryingAgain,
     };
+    final showSettings =
+        failure.kind == FailureKind.validation && failure.field == 'microphone_settings' && onOpenSettings != null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
@@ -202,6 +206,7 @@ class ProductFailureView extends StatelessWidget {
         children: [
           Text(message, style: context.text.body.copyWith(color: context.colors.warning)),
           if (failure.retryAfter != null) _QuotaCountdown(key: ValueKey(failure), duration: failure.retryAfter!),
+          if (showSettings) TextButton(onPressed: onOpenSettings, child: Text(context.l10n.openSettings)),
           if (onRetry != null) TextButton(onPressed: onRetry, child: Text(context.l10n.productReloadRetry)),
         ],
       ),

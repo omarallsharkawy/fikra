@@ -35,10 +35,15 @@ class SessionController extends ChangeNotifier {
   int _noticeSeq = 0;
   Future<TokenPair>? _refreshing;
   Future<void> _vaultQueue = Future.value();
+  final ValueNotifier<SessionStage> stageListenable = ValueNotifier<SessionStage>(SessionStage.restoring);
+  final ValueNotifier<(int, String?)> boundaryListenable = ValueNotifier<(int, String?)>((0, null));
   bool _disposed = false;
   bool _restoring = false;
   void _emit() {
-    if (!_disposed) notifyListeners();
+    if (_disposed) return;
+    stageListenable.value = stage;
+    boundaryListenable.value = (epoch, account?.id);
+    notifyListeners();
   }
 
   Future<void> _store(Future<void> Function() action) {
@@ -350,6 +355,8 @@ class SessionController extends ChangeNotifier {
     _disposed = true;
     _retryWake?.cancel();
     epoch++;
+    stageListenable.dispose();
+    boundaryListenable.dispose();
     super.dispose();
   }
 }

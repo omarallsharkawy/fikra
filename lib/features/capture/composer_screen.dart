@@ -2,6 +2,7 @@ import '../../l10n/localizations.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart' show openAppSettings;
 
 import '../../app/composer_navigation.dart';
 import '../../core/format.dart';
@@ -103,7 +104,7 @@ class ProductComposerScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          if (capture.failure != null) ProductFailureView(capture.failure!),
+          if (capture.failure != null) ProductFailureView(capture.failure!, onOpenSettings: openAppSettings),
           if (capture.state == CaptureState.recording) ...[
             RepaintBoundary(
               child: ValueListenableBuilder<Duration>(

@@ -58,6 +58,7 @@ final productCaptureDeviceProvider = Provider<CaptureDevice>(
 final productDocumentsProvider = Provider<LocalDocuments>((ref) => DeviceLocalDocuments(ref.read(fileOpenerProvider)));
 
 final productRuntimeProvider = Provider<ProductRuntime>((ref) {
+  final store = ref.read(attachmentStoreProvider);
   final runtime = ProductRuntime(
     ref.watch(productAuthProvider),
     ref.watch(productVaultProvider),
@@ -65,6 +66,7 @@ final productRuntimeProvider = Provider<ProductRuntime>((ref) {
     ref.watch(productAttemptsProvider),
     ref.watch(productCaptureDeviceProvider),
     documents: ref.watch(productDocumentsProvider),
+    onSignOutCleanup: () => store.sweepTempFiles(grace: Duration.zero),
   );
   if (ref.watch(appModeProvider) == AppMode.connected) {
     final api = ref.watch(productApiClientProvider);
@@ -78,6 +80,18 @@ final productRuntimeProvider = Provider<ProductRuntime>((ref) {
   return runtime;
 });
 
+/// Sweeps orphaned temp recordings and cached file-picker copies on cold start
+/// in product mode without opening the legacy local SQLite database.
+final productStartupMaintenanceProvider = FutureProvider<void>((ref) async {
+  final runtime = ref.read(productRuntimeProvider);
+  final store = ref.read(attachmentStoreProvider);
+  final active = <String>{
+    ?runtime.capture.clip?.path,
+    for (final doc in runtime.capture.localPdfs) doc.path,
+  };
+  await store.sweepTempFiles(activePaths: active);
+});
+
 class ProductRuntime {
   ProductRuntime(
     AuthRepository auth,
@@ -86,6 +100,7 @@ class ProductRuntime {
     this.attempts,
     CaptureDevice device, {
     LocalDocuments? documents,
+    this.onSignOutCleanup,
   }) {
     session = SessionController(auth, vault);
     workspace = WorkspaceController(repository, attempts, onUnauthorized: () => unawaited(session.expire()));
@@ -101,6 +116,7 @@ class ProductRuntime {
   }
   final KnowledgeRepository repository;
   final AttemptStore attempts;
+  final Future<void> Function()? onSignOutCleanup;
   late final SessionController session;
   late final WorkspaceController workspace;
   late final ConversationController chat;
@@ -108,6 +124,7 @@ class ProductRuntime {
   String? _account, _project;
   int _knowledgeRevision = 0;
   bool _foreground = true;
+  bool _disposed = false;
   void _sessionChanged() {
     final id = session.stage == SessionStage.authenticated ? session.account?.id : null;
     if (id == _account) return;
@@ -121,6 +138,19 @@ class ProductRuntime {
       repository.clearAccount(old);
       if (session.stage != SessionStage.expired) {
         unawaited(attempts.clear(old).catchError((Object _) {}));
+        final cleanup = onSignOutCleanup;
+        if (cleanup != null) {
+          unawaited(
+            capture.pendingCleanup
+                .then((_) async {
+                  // Skip sign-out temp sweep if the user already signed into a
+                  // new account or the runtime was disposed while cancel ran.
+                  if (_disposed || _account != null) return;
+                  await cleanup();
+                })
+                .catchError((Object _) {}),
+          );
+        }
       }
     }
     if (id != null) unawaited(workspace.openAccount(id));
@@ -154,6 +184,7 @@ class ProductRuntime {
   }
 
   void dispose() {
+    _disposed = true;
     session.removeListener(_sessionChanged);
     workspace.removeListener(_projectChanged);
     session.dispose();
@@ -198,10 +229,10 @@ class _ProductBoundaryState extends State<ProductBoundary> with WidgetsBindingOb
   }
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: widget.runtime.session,
-    builder: (_, _) => KeyedSubtree(
-      key: ValueKey((widget.runtime.session.epoch, widget.runtime.session.account?.id)),
+  Widget build(BuildContext context) => ValueListenableBuilder<(int, String?)>(
+    valueListenable: widget.runtime.session.boundaryListenable,
+    builder: (_, boundary, _) => KeyedSubtree(
+      key: ValueKey(boundary),
       child: widget.child,
     ),
   );

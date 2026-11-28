@@ -19,7 +19,7 @@ final productRouterProvider = Provider<GoRouter>((ref) {
   final runtime = ref.watch(productRuntimeProvider);
   final router = GoRouter(
     initialLocation: '/session-loading',
-    refreshListenable: runtime.session,
+    refreshListenable: runtime.session.stageListenable,
     redirect: (_, state) {
       final stage = runtime.session.stage;
       final path = state.uri.path;

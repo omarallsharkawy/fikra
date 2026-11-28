@@ -63,6 +63,28 @@ class AttachmentStore {
     } catch (_) {}
   }
 
+  /// Deletes stale temp recordings (`rec_*.m4a`) and cached file-picker copies
+  /// without touching the legacy local documents/attachments directory.
+  Future<void> sweepTempFiles({
+    Set<String> activePaths = const {},
+    Duration? grace,
+    bool clearPicker = true,
+  }) async {
+    final effectiveGrace = grace ?? sweepGrace;
+    final cutoff = DateTime.now().subtract(effectiveGrace);
+    try {
+      await for (final f in (await _temp()).list()) {
+        if (f is! File) continue;
+        if (!p.basename(f.path).startsWith(recordingPrefix)) continue;
+        if (activePaths.contains(f.path)) continue;
+        if (effectiveGrace <= Duration.zero || (await f.lastModified()).isBefore(cutoff)) {
+          await deleteQuietly([f.path]);
+        }
+      }
+    } catch (_) {}
+    if (clearPicker) await clearPickerCopies();
+  }
+
   /// Deletes attachment files no note references, plus stale temp recordings.
   /// Best effort: anything left is retried on the next launch.
   Future<void> sweepOrphans(Set<String> referenced) async {
@@ -72,13 +94,8 @@ class AttachmentStore {
       await for (final f in (await _dir()).list()) {
         if (f is File && !referenced.contains(f.path) && await stale(f)) await deleteQuietly([f.path]);
       }
-      await for (final f in (await _temp()).list()) {
-        if (f is File && p.basename(f.path).startsWith(recordingPrefix) && await stale(f)) {
-          await deleteQuietly([f.path]);
-        }
-      }
     } catch (_) {}
-    await clearPickerCopies();
+    await sweepTempFiles();
   }
 
   /// Deletes every attachment and temp recording, referenced or not.

@@ -25,9 +25,16 @@ class FikraApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(appModeProvider);
     final product = mode != AppMode.demo;
-    if (!product) ref.watch(startupMaintenanceProvider);
-    // Wait for the saved theme (one quick DB read) so a restart never flashes
-    // the wrong appearance. A read error falls back to the system setting.
+    if (product) {
+      // Start session restore and temp-file cleanup immediately, in parallel
+      // with reading saved appearance and language preferences.
+      ref.watch(productRuntimeProvider);
+      ref.watch(productStartupMaintenanceProvider);
+    } else {
+      ref.watch(startupMaintenanceProvider);
+    }
+    // Wait for the saved theme/language so a restart never flashes the wrong
+    // appearance. A read error falls back to the system setting.
     final savedTheme = ref.watch(appThemeProvider);
     final savedLanguage = ref.watch(appLanguageProvider);
     if ((savedTheme.isLoading && !savedTheme.hasValue) || (savedLanguage.isLoading && !savedLanguage.hasValue)) {
