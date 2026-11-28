@@ -1,0 +1,162 @@
+name: Android Release Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Optional tag to publish as a GitHub Release (e.g. v1.0.0). Leave empty for build-only verification.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-android-release:
+    name: Analyze, Test & Build Split-ABI APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Install Android SDK 37, Build Tools 36 & NDK 29
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          SDKMANAGER="$(command -v sdkmanager || find "$SDK_ROOT" -maxdepth 4 -name sdkmanager -type f 2>/dev/null | head -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "ERROR: sdkmanager not found under $SDK_ROOT"
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" \
+            "platforms;android-37" \
+            "build-tools;36.0.0" \
+            "ndk;29.0.13113456"
+
+      - name: Set up Flutter 3.47.5
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dart & Flutter dependencies
+        run: flutter pub get
+
+      - name: Run static analysis
+        run: flutter analyze --no-pub
+
+      - name: Run product test suite
+        run: flutter test --no-pub test/product/
+
+      - name: Configure release signing (when secrets are provided)
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/release-keystore.jks
+            cat > android/key.properties <<EOF
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=release-keystore.jks
+          EOF
+            echo "Configured release keystore signing."
+          else
+            echo "Release keystore secrets not configured; using fallback signing."
+          fi
+
+      - name: Build split-per-ABI Android release APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: Prepare named release artifacts and SHA-256 checksums
+        id: package
+        env:
+          INPUT_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          elif [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG="build-${GITHUB_SHA::7}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          OUT="release-artifacts"
+          mkdir -p "$OUT"
+          APK_DIR="build/app/outputs/flutter-apk"
+
+          for ABI in arm64-v8a armeabi-v7a x86_64; do
+            SRC="$APK_DIR/app-${ABI}-release.apk"
+            if [ ! -f "$SRC" ]; then
+              echo "ERROR: Expected APK missing: $SRC"
+              ls -la "$APK_DIR"
+              exit 1
+            fi
+            cp "$SRC" "$OUT/fikrah-${TAG}-${ABI}.apk"
+          done
+
+          (cd "$OUT" && sha256sum fikrah-*.apk > SHA256SUMS.txt)
+          ls -lh "$OUT"
+          cat "$OUT/SHA256SUMS.txt"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fikrah-android-${{ steps.package.outputs.tag }}
+          path: release-artifacts/*
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.package.outputs.tag }}
+        run: |
+          ARM64_SIZE="$(du -h "release-artifacts/fikrah-${TAG}-arm64-v8a.apk" | cut -f1)"
+          ARMV7_SIZE="$(du -h "release-artifacts/fikrah-${TAG}-armeabi-v7a.apk" | cut -f1)"
+          X86_64_SIZE="$(du -h "release-artifacts/fikrah-${TAG}-x86_64.apk" | cut -f1)"
+
+          cat > release-notes.md <<EOF
+          ## FIKRAH Android Release (\`${TAG}\`)
+
+          Built directly via GitHub Actions with R8 code & resource shrinking and split-per-ABI APKs.
+
+          ### Choose the right APK for your device
+          - **\`fikrah-${TAG}-arm64-v8a.apk\` (${ARM64_SIZE})** — Recommended for modern 64-bit Android phones (ARM v8).
+          - **\`fikrah-${TAG}-armeabi-v7a.apk\` (${ARMV7_SIZE})** — For older 32-bit Android phones (ARM v7).
+          - **\`fikrah-${TAG}-x86_64.apk\` (${X86_64_SIZE})** — For x86_64 tablets and Android emulators.
+          - **\`SHA256SUMS.txt\`** — SHA-256 verification checksums for all APKs.
+          EOF
+
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file release-notes.md
+            gh release upload "$TAG" release-artifacts/* --clobber
+          else
+            gh release create "$TAG" release-artifacts/* \
+              --title "FIKRAH ${TAG}" \
+              --notes-file release-notes.md \
+              --target "${GITHUB_SHA}"
+          fi
