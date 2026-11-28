@@ -21,7 +21,11 @@ import '../data/product/secure_session_vault.dart';
 import '../data/product/secure_attempt_store.dart';
 
 final productApiOriginProvider = Provider<Uri>((ref) => Uri.parse(apiOrigin));
-final productApiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(productApiOriginProvider)));
+final productApiClientProvider = Provider<ApiClient>((ref) {
+  final client = ApiClient(ref.watch(productApiOriginProvider));
+  ref.onDispose(client.close);
+  return client;
+});
 final productAuthProvider = Provider<AuthRepository>(
   (ref) => ref.watch(appModeProvider) == AppMode.connected
       ? ApiAuthRepository(ref.watch(productApiClientProvider))

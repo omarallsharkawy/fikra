@@ -21,8 +21,17 @@ class ApiKnowledgeRepository implements KnowledgeRepository {
     Object? json,
     Map<String, String> headers = const {},
     ApiBody? body,
+    Duration? timeout,
   }) async {
-    final result = await api.request(method, path, accountId: account, json: json, headers: headers, body: body);
+    final result = await api.request(
+      method,
+      path,
+      accountId: account,
+      json: json,
+      headers: headers,
+      body: body,
+      timeout: timeout,
+    );
     try {
       return decode(result);
     } catch (_) {
@@ -119,6 +128,10 @@ class ApiKnowledgeRepository implements KnowledgeRepository {
     await api.request('DELETE', '/v1/conversations/${_id(id)}', accountId: a);
   }
 
+  static const _sseTimeout = Duration(seconds: 180);
+  static const _transcribeTimeout = Duration(seconds: 120);
+  static const _maxErrorBytes = 1024 * 1024;
+
   @override
   Stream<ChatEvent> send(String a, String id, String text) {
     final cancel = ApiCancellation();
@@ -133,21 +146,31 @@ class ApiKnowledgeRepository implements KnowledgeRepository {
           json: {'content': text},
           accept: 'text/event-stream',
           cancellation: cancel,
+          timeout: _sseTimeout,
         );
         if (cancel.cancelled) return;
         if (response!.status != 200) {
           dynamic payload;
           try {
-            payload = jsonDecode(await utf8.decoder.bind(response!.body).join().timeout(api.timeout));
+            final bytes = await response!.body
+                .fold<List<int>>(<int>[], (acc, chunk) {
+                  if (acc.length + chunk.length > _maxErrorBytes) {
+                    throw const ProductFailure(FailureKind.unavailable);
+                  }
+                  acc.addAll(chunk);
+                  return acc;
+                })
+                .timeout(api.resolveTimeout(const Duration(seconds: 20)));
+            if (bytes.isNotEmpty) payload = jsonDecode(utf8.decode(bytes));
           } catch (_) {}
           throw ApiClient.failure(response!.status, response!.headers, payload);
         }
-        if (response!.headers['content-type']?.split(';').first.trim() != 'text/event-stream') {
+        if (response!.headers['content-type']?.split(';').first.trim().toLowerCase() != 'text/event-stream') {
           throw const ProductFailure(FailureKind.unavailable);
         }
         final coordinator = api.session;
         final epoch = coordinator?.epoch;
-        await for (final frame in decodeChatFrames(response!.body).timeout(api.timeout)) {
+        await for (final frame in decodeChatFrames(response!.body).timeout(api.resolveTimeout(_sseTimeout))) {
           if (cancel.cancelled) break;
           if (api.session?.epoch != epoch || api.session?.account?.id != a) {
             throw const ProductFailure(FailureKind.unauthorized);
@@ -165,7 +188,11 @@ class ApiKnowledgeRepository implements KnowledgeRepository {
             break;
           }
           if (frame.event == 'error') {
-            output.add(ChatError(ApiClient.failure((x['status'] as num?)?.toInt() ?? 503, const {}, x)));
+            final retryRaw = x['retry_after'];
+            final errHeaders = retryRaw == null
+                ? const <String, String>{}
+                : {'retry-after': retryRaw is num ? '${retryRaw.ceil()}' : '$retryRaw'};
+            output.add(ChatError(ApiClient.failure((x['status'] as num?)?.toInt() ?? 503, errHeaders, x)));
             break;
           }
         }
@@ -217,7 +244,14 @@ class ApiKnowledgeRepository implements KnowledgeRepository {
         yield tail;
       },
     );
-    return _one('POST', '/v1/transcriptions', a, (x) => object(x)['text'] as String, body: body);
+    return _one(
+      'POST',
+      '/v1/transcriptions',
+      a,
+      (x) => object(x)['text'] as String,
+      body: body,
+      timeout: _transcribeTimeout,
+    );
   }
 
   @override

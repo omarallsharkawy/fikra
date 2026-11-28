@@ -184,7 +184,7 @@ class ProductFailureView extends StatelessWidget {
         'email' => context.l10n.apiInvalidEmail,
         _ => context.l10n.productCheckTheInputYourDraftHasBeenKept,
       },
-      FailureKind.unauthorized => context.l10n.productSignInAgainOrCheckYourCredentials,
+      FailureKind.unauthorized || FailureKind.forbidden => context.l10n.productSignInAgainOrCheckYourCredentials,
       FailureKind.unverified => context.l10n.productVerifyYourEmailBeforeSigningIn,
       FailureKind.notFound => context.l10n.productThisItemIsNoLongerAvailableReloadThe,
       FailureKind.conflict => context.l10n.productTheStateChangedReloadAndReviewBeforeActing,

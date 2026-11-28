@@ -153,12 +153,15 @@ class ConversationController extends ChangeNotifier {
       _bumpDraft();
       sendState = SendState.idle;
     } catch (error) {
-      if (_valid(ticket)) failure = _error(error);
-      // Uncertain create is never retried automatically. Reload the list first.
       if (_valid(ticket)) {
-        loading = false;
-        await reloadList();
-        if (_valid(ticket)) failure = ProductFailure.from(error);
+        final problem = _error(error);
+        failure = problem;
+        // Uncertain create is never retried automatically. Reload the list first.
+        if (problem.kind == FailureKind.uncertain) {
+          loading = false;
+          await reloadList();
+          if (_valid(ticket)) failure = problem;
+        }
       }
     } finally {
       if (_valid(ticket)) {
@@ -176,6 +179,7 @@ class ConversationController extends ChangeNotifier {
     _bumpDraft();
     _clearPreview();
     failure = null;
+    sendState = SendState.idle;
     if (account == null) return;
     loading = true;
     _emit();
@@ -298,6 +302,7 @@ class ConversationController extends ChangeNotifier {
     try {
       final loaded = await repository.history(account, history.conversation.id);
       if (!_valid(ticket)) return;
+      if (loaded.conversation.projectId != projectId) throw const ProductFailure(FailureKind.notFound);
       current = loaded;
       _clearPreview();
       sendState = SendState.reviewed;
@@ -305,8 +310,17 @@ class ConversationController extends ChangeNotifier {
       // Keep the draft. User reviews authoritative history before any new send.
     } catch (error) {
       if (_valid(ticket)) {
-        failure = _error(error);
-        sendState = SendState.uncertain;
+        final problem = _error(error);
+        failure = problem;
+        if (problem.kind == FailureKind.notFound) {
+          conversations = conversations.where((c) => c.id != history.conversation.id).toList();
+          _uncertain.remove(history.conversation.id);
+          current = null;
+          _clearPreview();
+          sendState = SendState.idle;
+        } else {
+          sendState = SendState.uncertain;
+        }
       }
     } finally {
       if (_valid(ticket)) _emit();

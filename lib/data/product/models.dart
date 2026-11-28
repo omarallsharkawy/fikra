@@ -205,6 +205,7 @@ enum FailureKind {
   validation,
   unauthorized,
   unverified,
+  forbidden,
   notFound,
   conflict,
   gone,

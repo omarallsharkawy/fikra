@@ -18,13 +18,18 @@ class ApiCancellation {
     }
   }
 
+  void removeListener(void Function() callback) {
+    _callbacks.remove(callback);
+  }
+
   void cancel() {
     if (cancelled) return;
     cancelled = true;
-    for (final callback in _callbacks) {
+    final list = List<void Function()>.of(_callbacks);
+    _callbacks.clear();
+    for (final callback in list) {
       callback();
     }
-    _callbacks.clear();
   }
 }
 
@@ -52,6 +57,22 @@ abstract interface class ApiTransport {
 }
 
 class NativeApiTransport implements ApiTransport {
+  HttpClient? _client;
+  bool _closed = false;
+
+  HttpClient _ensureClient() {
+    if (_closed) throw const ProductFailure(FailureKind.unavailable);
+    return _client ??= HttpClient()
+      ..connectionTimeout = const Duration(seconds: 15)
+      ..idleTimeout = const Duration(seconds: 30);
+  }
+
+  void close() {
+    _closed = true;
+    _client?.close(force: true);
+    _client = null;
+  }
+
   @override
   Future<ApiResponse> send(
     String method,
@@ -60,11 +81,52 @@ class NativeApiTransport implements ApiTransport {
     ApiBody? body,
     ApiCancellation cancel,
   ) async {
-    final client = HttpClient()..connectionTimeout = const Duration(seconds: 15);
-    cancel.listen(() => client.close(force: true));
+    final client = _ensureClient();
+    HttpClientRequest? activeRequest;
+    HttpClientResponse? activeResponse;
+    StreamSubscription<List<int>>? activeResponseSub;
+    StreamController<List<int>>? activeController;
+    var responseListened = false;
+    var responseClosed = false;
+
+    void abortInFlight() {
+      responseClosed = true;
+      final req = activeRequest;
+      activeRequest = null;
+      if (req != null) {
+        try {
+          req.abort();
+        } catch (_) {}
+      }
+      final sub = activeResponseSub;
+      activeResponseSub = null;
+      if (sub != null) {
+        unawaited(sub.cancel().catchError((Object _) {}));
+      }
+      final res = activeResponse;
+      activeResponse = null;
+      if (res != null && !responseListened) {
+        responseListened = true;
+        // Release the underlying socket in the shared HttpClient pool without
+        // hanging on large or infinite response bodies.
+        unawaited(res.listen((_) {}, onError: (Object _) {}).cancel().catchError((Object _) {}));
+      }
+      final ctrl = activeController;
+      activeController = null;
+      if (ctrl != null && !ctrl.isClosed) {
+        unawaited(ctrl.close().catchError((Object _) {}));
+      }
+    }
+
+    cancel.listen(abortInFlight);
     try {
       if (cancel.cancelled) throw const ProductFailure(FailureKind.uncertain);
       final request = await client.openUrl(method, uri);
+      activeRequest = request;
+      if (cancel.cancelled || responseClosed) {
+        abortInFlight();
+        throw const ProductFailure(FailureKind.uncertain);
+      }
       // Credentials and private data must never follow a redirect.
       request.followRedirects = false;
       headers.forEach(request.headers.set);
@@ -74,11 +136,52 @@ class NativeApiTransport implements ApiTransport {
         await request.addStream(body.open());
       }
       final response = await request.close();
+      activeRequest = null;
+      activeResponse = response;
+      if (cancel.cancelled || responseClosed) {
+        abortInFlight();
+        throw const ProductFailure(FailureKind.uncertain);
+      }
       final responseHeaders = <String, String>{};
       response.headers.forEach((name, values) => responseHeaders[name.toLowerCase()] = values.join(','));
-      return ApiResponse(response.statusCode, responseHeaders, response, () => client.close(force: true));
+      final controller = StreamController<List<int>>();
+      activeController = controller;
+      controller.onListen = () {
+        if (responseClosed || activeResponse == null) {
+          abortInFlight();
+          return;
+        }
+        final res = activeResponse!;
+        activeResponse = null;
+        responseListened = true;
+        activeResponseSub = res.listen(
+          controller.add,
+          onError: (Object error, StackTrace stack) {
+            activeResponseSub = null;
+            cancel.removeListener(abortInFlight);
+            if (!controller.isClosed) {
+              controller.addError(error, stack);
+              unawaited(controller.close().catchError((Object _) {}));
+            }
+          },
+          onDone: () {
+            activeResponseSub = null;
+            cancel.removeListener(abortInFlight);
+            if (!controller.isClosed) unawaited(controller.close().catchError((Object _) {}));
+          },
+          cancelOnError: true,
+        );
+      };
+      void closeResponse() {
+        cancel.removeListener(abortInFlight);
+        abortInFlight();
+      }
+
+      controller.onCancel = closeResponse;
+      return ApiResponse(response.statusCode, responseHeaders, controller.stream, closeResponse);
     } catch (_) {
-      client.close(force: true);
+      cancel.removeListener(abortInFlight);
+      abortInFlight();
       rethrow;
     }
   }
@@ -87,8 +190,12 @@ class NativeApiTransport implements ApiTransport {
 /// Native JSON/Bearer transport. The only automatic replay follows a rejected
 /// protected 401, once, after the session coordinator's single-flight refresh.
 class ApiClient {
-  ApiClient(this.origin, {ApiTransport? transport, this.timeout = const Duration(seconds: 180)})
-    : transport = transport ?? NativeApiTransport() {
+  static const defaultTimeout = Duration(seconds: 25);
+
+  ApiClient(this.origin, {ApiTransport? transport, Duration? timeout})
+    : transport = transport ?? NativeApiTransport(),
+      timeout = timeout ?? defaultTimeout,
+      _hasCustomTimeout = timeout != null {
     if (origin.scheme != 'https' ||
         origin.host.isEmpty ||
         origin.userInfo.isNotEmpty ||
@@ -101,7 +208,15 @@ class ApiClient {
   final Uri origin;
   final ApiTransport transport;
   final Duration timeout;
+  final bool _hasCustomTimeout;
   SessionController? session;
+
+  Duration resolveTimeout([Duration? override]) => _hasCustomTimeout ? timeout : (override ?? timeout);
+
+  void close() {
+    final t = transport;
+    if (t is NativeApiTransport) t.close();
+  }
 
   bool _valid(SessionController coordinator, String accountId, int epoch) =>
       identical(session, coordinator) &&
@@ -119,8 +234,11 @@ class ApiClient {
     Map<String, String> headers = const {},
     String accept = 'application/json',
     ApiCancellation? cancellation,
+    Duration? timeout,
   }) async {
     final cancel = cancellation ?? ApiCancellation();
+    final totalBudget = resolveTimeout(timeout);
+    final elapsed = Stopwatch()..start();
     final coordinator = session;
     final epoch = coordinator?.epoch;
     if (accountId != null && (coordinator == null || !_valid(coordinator, accountId, epoch!))) {
@@ -134,6 +252,11 @@ class ApiClient {
       }
       final token = accountId == null ? accessToken : coordinator!.tokens?.access;
       if (accountId != null && token == null) throw const ProductFailure(FailureKind.unauthorized);
+      final remaining = totalBudget - elapsed.elapsed;
+      if (remaining <= Duration.zero) {
+        cancel.cancel();
+        throw const ProductFailure(FailureKind.uncertain, cause: FailureCause.timeout);
+      }
       ApiResponse response;
       _diagnose(method, path, 'started');
       try {
@@ -146,7 +269,7 @@ class ApiClient {
               cancel,
             )
             .timeout(
-              timeout,
+              remaining,
               onTimeout: () {
                 cancel.cancel();
                 throw const ProductFailure(FailureKind.uncertain, cause: FailureCause.timeout);
@@ -188,8 +311,11 @@ class ApiClient {
     Object? json,
     ApiBody? body,
     Map<String, String> headers = const {},
+    Duration? timeout,
   }) async {
     final cancel = ApiCancellation();
+    final totalTimeout = resolveTimeout(timeout);
+    final elapsed = Stopwatch()..start();
     ApiResponse? response;
     final coordinator = session;
     final epoch = coordinator?.epoch;
@@ -203,13 +329,24 @@ class ApiClient {
         body: body,
         headers: headers,
         cancellation: cancel,
+        timeout: totalTimeout,
       );
+      final remaining = totalTimeout - elapsed.elapsed;
+      final bodyTimeout = remaining > Duration.zero ? remaining : const Duration(seconds: 2);
       // A body can contain private echoed validation input. Never log it.
-      final bytes = await response.body.timeout(timeout).fold<List<int>>(<int>[], (bytes, chunk) {
-        if (bytes.length + chunk.length > 16 * 1024 * 1024) throw const ProductFailure(FailureKind.unavailable);
-        bytes.addAll(chunk);
-        return bytes;
-      });
+      final bytes = await response.body
+          .fold<List<int>>(<int>[], (bytes, chunk) {
+            if (bytes.length + chunk.length > 16 * 1024 * 1024) throw const ProductFailure(FailureKind.unavailable);
+            bytes.addAll(chunk);
+            return bytes;
+          })
+          .timeout(
+            bodyTimeout,
+            onTimeout: () {
+              cancel.cancel();
+              throw const ProductFailure(FailureKind.uncertain, cause: FailureCause.timeout);
+            },
+          );
       if (accountId != null && !_valid(coordinator!, accountId, epoch!)) {
         throw const ProductFailure(FailureKind.unauthorized);
       }
@@ -224,7 +361,7 @@ class ApiClient {
         }
       }
       if (response.status < 200 || response.status >= 300) {
-        throw failure(response.status, response.headers, value);
+        throw failure(response.status, response.headers, value, allowUnverified: path == '/v1/auth/login');
       }
       return value;
     } on ProductFailure {
@@ -255,7 +392,14 @@ class ApiClient {
     }
   }
 
-  static ProductFailure failure(int status, Map<String, String> headers, dynamic payload) {
+  static const _maxRetryAfter = Duration(minutes: 15);
+
+  static ProductFailure failure(
+    int status,
+    Map<String, String> headers,
+    dynamic payload, {
+    bool allowUnverified = false,
+  }) {
     String? field;
     if (payload is Map && payload['detail'] is List) {
       for (final item in payload['detail'] as List) {
@@ -272,6 +416,7 @@ class ApiClient {
             'name',
           ].contains(value)) {
             field = value as String;
+            break;
           }
         }
       }
@@ -279,13 +424,17 @@ class ApiClient {
     Duration? retry;
     final raw = headers['retry-after'];
     if (raw != null) {
-      final seconds = int.tryParse(raw);
+      final seconds = int.tryParse(raw.trim());
       if (seconds != null) {
-        retry = Duration(seconds: seconds.clamp(0, 86400));
+        retry = Duration(seconds: seconds.clamp(0, _maxRetryAfter.inSeconds));
       } else {
         try {
           final d = HttpDate.parse(raw).difference(DateTime.now());
-          retry = d.isNegative ? Duration.zero : d;
+          if (d.isNegative) {
+            retry = Duration.zero;
+          } else {
+            retry = d > _maxRetryAfter ? _maxRetryAfter : d;
+          }
         } catch (_) {}
       }
     }
@@ -293,7 +442,7 @@ class ApiClient {
       switch (status) {
         400 || 422 => FailureKind.validation,
         401 => FailureKind.unauthorized,
-        403 => FailureKind.unverified,
+        403 => allowUnverified ? FailureKind.unverified : FailureKind.forbidden,
         404 => FailureKind.notFound,
         409 => FailureKind.conflict,
         410 => FailureKind.gone,

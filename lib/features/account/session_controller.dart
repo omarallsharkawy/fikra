@@ -32,6 +32,7 @@ class SessionController extends ChangeNotifier {
   ProductFailure? failure;
   String? notice;
   int epoch = 0;
+  int _noticeSeq = 0;
   Future<TokenPair>? _refreshing;
   Future<void> _vaultQueue = Future.value();
   bool _disposed = false;
@@ -111,6 +112,7 @@ class SessionController extends ChangeNotifier {
 
   void show(SessionStage next) {
     if (busy) return;
+    _noticeSeq++;
     stage = next;
     if (!coolingDown) failure = null;
     notice = null;
@@ -119,6 +121,7 @@ class SessionController extends ChangeNotifier {
 
   Future<void> _action(Future<void> Function(int ticket) work) async {
     if (busy || coolingDown) return;
+    _noticeSeq++;
     busy = true;
     failure = null;
     notice = null;
@@ -178,9 +181,15 @@ class SessionController extends ChangeNotifier {
       });
     }
     if (ticket != epoch || _disposed) return;
+    _noticeSeq++;
     account = grant.account;
     tokens = grant.tokens;
     stage = SessionStage.authenticated;
+    failure = null;
+    notice = null;
+    busy = false;
+    epoch++;
+    _emit();
   }
 
   Future<void> recover(String address) => _action((ticket) async {
@@ -194,10 +203,30 @@ class SessionController extends ChangeNotifier {
     await _action((ticket) async {
       await repository.confirmRecovery(token, password, email: email);
       if (ticket != epoch || _disposed) return;
-      // Reset succeeds without creating a replacement session.
-      await signOut();
+      // Reset succeeds without creating a replacement session; fence any active
+      // session/refresh/restore while keeping busy=true until cleanup completes.
+      final old = tokens;
+      final hadActiveSession = old != null || account != null || _restoring;
+      _noticeSeq++;
+      _retryWake?.cancel();
+      retryAt = null;
+      if (hadActiveSession) epoch++;
+      account = null;
+      tokens = null;
+      _refreshing = null;
+      stage = SessionStage.unauthenticated;
+      failure = null;
       notice = 'reset';
-      _emit();
+      try {
+        await _store(vault.clear);
+      } catch (_) {
+        /* Best-effort local vault clear after password reset. */
+      }
+      if (old != null) unawaited(repository.logout(old).catchError((Object _) => false));
+      if (hadActiveSession && !_disposed) {
+        busy = false;
+        _emit();
+      }
     });
   }
 
@@ -258,11 +287,13 @@ class SessionController extends ChangeNotifier {
   Future<void> expire({ProductFailure? reason}) async {
     _retryWake?.cancel();
     retryAt = null;
+    _noticeSeq++;
     epoch++;
     account = null;
     tokens = null;
     busy = false;
     stage = SessionStage.expired;
+    notice = null;
     if (reason != null) failure = reason;
     _refreshing = null;
     _emit();
@@ -278,6 +309,7 @@ class SessionController extends ChangeNotifier {
     _retryWake?.cancel();
     retryAt = null;
     final old = tokens;
+    final signOutSeq = ++_noticeSeq;
     epoch++;
     account = null;
     tokens = null;
@@ -287,21 +319,20 @@ class SessionController extends ChangeNotifier {
     notice = 'localLogout';
     _refreshing = null;
     _emit();
-    final ticket = epoch;
     var cleared = true;
     try {
       await _store(vault.clear);
     } catch (_) {
       cleared = false;
     }
-    if (!cleared && ticket == epoch && !_disposed) {
+    if (!cleared && signOutSeq == _noticeSeq && !_disposed) {
       notice = null;
       failure = const ProductFailure(FailureKind.unavailable);
       _emit();
     }
     try {
       final revoked = await repository.logout(old);
-      if (ticket == epoch && !_disposed) {
+      if (signOutSeq == _noticeSeq && !_disposed) {
         notice = revoked
             ? 'logout'
             : cleared

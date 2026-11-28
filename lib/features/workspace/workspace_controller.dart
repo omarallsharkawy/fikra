@@ -50,7 +50,7 @@ class WorkspaceController extends ChangeNotifier {
   final _noteFailures = <String, ProductFailure>{};
   final _noteSequences = <String, int>{};
   final _proposalConflicts = <String>{};
-  int _epoch = 0, _searchSequence = 0, _detailSequence = 0, _graphSequence = 0, _pollCount = 0;
+  int _epoch = 0, _reloadSequence = 0, _searchSequence = 0, _detailSequence = 0, _graphSequence = 0, _pollCount = 0;
   bool _foreground = true, _disposed = false, _polling = false;
   Timer? _pollTimer;
   int get scope => _epoch;
@@ -82,6 +82,7 @@ class WorkspaceController extends ChangeNotifier {
 
   void clear() {
     _epoch++;
+    _reloadSequence++;
     _searchSequence++;
     _detailSequence++;
     _graphSequence++;
@@ -168,6 +169,7 @@ class WorkspaceController extends ChangeNotifier {
   Future<void> selectProject(String id) async {
     if (accountId == null || !projects.any((p) => p.id == id)) return;
     _epoch++;
+    _reloadSequence++;
     _searchSequence++;
     _detailSequence++;
     _graphSequence++;
@@ -211,7 +213,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   Future<void> reload() async {
-    final account = accountId, project = selectedProjectId, ticket = _epoch;
+    final account = accountId, project = selectedProjectId, ticket = _epoch, seq = ++_reloadSequence;
     if (account == null || project == null) return;
     final version = _notesVersion;
     loading = true;
@@ -220,15 +222,23 @@ class WorkspaceController extends ChangeNotifier {
     _emit();
     try {
       final list = await repository.notes(account, project);
-      if (!_valid(ticket)) return;
+      if (!_valid(ticket) || seq != _reloadSequence) return;
       if (version != _notesVersion) return;
       notes = List.unmodifiable(list);
+      for (final note in notes) {
+        if (_details.containsKey(note.id) && !_keepCurrent(_details[note.id]!, note)) {
+          _details[note.id] = note;
+        }
+        if (detail?.id == note.id && !_keepCurrent(detail!, note)) {
+          detail = note;
+        }
+      }
       _pollCount = 0;
       _schedulePoll();
     } catch (error) {
-      if (_valid(ticket)) failure = _error(error);
+      if (_valid(ticket) && seq == _reloadSequence) failure = _error(error);
     } finally {
-      if (_valid(ticket)) {
+      if (_valid(ticket) && seq == _reloadSequence) {
         loading = false;
         _emit();
       }
@@ -505,14 +515,16 @@ class WorkspaceController extends ChangeNotifier {
   );
   Future<bool> retryProcessing({String? noteId}) =>
       _noteMutation((account, note) => repository.retryProcessing(account, note.id), noteId: noteId);
-  void _invalidateKnowledge() {
+  void _invalidateKnowledge({bool clearSearch = true}) {
     knowledgeRevision++;
-    results = null;
-    searchFailure = null;
+    if (clearSearch) {
+      results = null;
+      searchFailure = null;
+      _searchSequence++;
+    }
     graph = const KnowledgeGraph();
     related = const [];
     _relatedByNote.clear();
-    _searchSequence++;
     _graphSequence++;
   }
 
@@ -620,11 +632,15 @@ class WorkspaceController extends ChangeNotifier {
       if (!_valid(ticket)) return false;
       projectDraft = '';
       projectDraftId = null;
-      projects = List.unmodifiable([
-        for (final p in projects)
-          if (p.id != saved.id) p,
-        saved,
-      ]);
+      projects = List.unmodifiable(
+        id == null
+            ? [
+                for (final p in projects)
+                  if (p.id != saved.id) p,
+                saved,
+              ]
+            : [for (final p in projects) p.id == saved.id ? saved : p],
+      );
       if (id == null) await selectProject(saved.id);
       return true;
     } catch (error) {
@@ -733,6 +749,8 @@ class WorkspaceController extends ChangeNotifier {
   Future<void> pollNow() async {
     final account = accountId, ticket = _epoch;
     if (account == null || !_foreground || _polling) return;
+    _pollTimer?.cancel();
+    _pollTimer = null;
     _polling = true;
     _pollCount++;
     var keepPolling = true;
@@ -743,7 +761,7 @@ class WorkspaceController extends ChangeNotifier {
           if (!_valid(ticket) || !_foreground) return;
           _upsert(next);
           if (!next.processing.pending) {
-            _invalidateKnowledge();
+            _invalidateKnowledge(clearSearch: false);
             unawaited(_refreshRelated(noteId: next.id));
             if (detail != null && detail!.id != next.id) {
               unawaited(_refreshRelated(noteId: detail!.id));
@@ -758,8 +776,15 @@ class WorkspaceController extends ChangeNotifier {
             _details.remove(note.id);
             _relatedByNote.remove(note.id);
             if (detail?.id == note.id) detail = null;
-            _invalidateKnowledge();
+            _invalidateKnowledge(clearSearch: false);
+          } else if (problem.kind == FailureKind.uncertain || problem.kind == FailureKind.unavailable) {
+            // Transient poll failure: stop this cycle cleanly and allow the
+            // bounded exponential backoff schedule to retry without flashing
+            // a global workspace banner across unrelated tabs.
+            break;
           } else {
+            // Non-transient failure (unauthorized, forbidden, quota, etc.):
+            // halt polling so we never hammer rate-limited or forbidden endpoints.
             failure = problem;
             keepPolling = false;
             break;
